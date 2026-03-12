@@ -1,45 +1,49 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { GoogleLogin } from '@react-oauth/google'
-import { login, googleLogin } from '../api/auth'
-import { useAuthStore } from '../stores/useAuthStore'
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
+import { login, googleLogin } from '../api/auth';
+import { useAuthStore } from '../stores/useAuthStore';
 
 export default function LoginPage() {
-  const navigate = useNavigate()
-  const setAuth = useAuthStore((s) => s.setAuth)
+  const navigate = useNavigate();
+  const setAuth = useAuthStore((s) => s.setAuth);
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  async function handleEmailLogin(e: React.FormEvent) {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+  async function handleEmailLogin(e: React.SubmitEvent) {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
     try {
-      const { user, tokens } = await login(email, password)
-      setAuth(user, tokens)
-      navigate('/')
+      const { user, tokens } = await login(email, password);
+      setAuth(user, tokens);
+      navigate('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : '로그인에 실패했습니다.')
+      setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
-  async function handleGoogleSuccess(credentialResponse: { credential?: string }) {
-    if (!credentialResponse.credential) return
-    setError('')
-    setLoading(true)
+  async function handleGoogleSuccess(credentialResponse: {
+    credential?: string;
+  }) {
+    if (!credentialResponse.credential) return;
+    setError('');
+    setLoading(true);
     try {
-      const { user, tokens } = await googleLogin(credentialResponse.credential)
-      setAuth(user, tokens)
-      navigate('/')
+      const { user, tokens } = await googleLogin(credentialResponse.credential);
+      setAuth(user, tokens);
+      navigate('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : '구글 로그인에 실패했습니다.')
+      setError(
+        err instanceof Error ? err.message : '구글 로그인에 실패했습니다.',
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -49,7 +53,9 @@ export default function LoginPage() {
         {/* 헤더 */}
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900">치료사 커뮤니티</h1>
-          <p className="mt-2 text-sm text-gray-500">치료사 전용 커뮤니티에 오신 것을 환영합니다</p>
+          <p className="mt-2 text-sm text-gray-500">
+            치료사 전용 커뮤니티에 오신 것을 환영합니다
+          </p>
         </div>
 
         {/* 카드 */}
@@ -59,7 +65,9 @@ export default function LoginPage() {
           {/* 이메일 로그인 폼 */}
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                이메일
+              </label>
               <input
                 type="email"
                 value={email}
@@ -70,7 +78,9 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                비밀번호
+              </label>
               <input
                 type="password"
                 value={password}
@@ -81,9 +91,7 @@ export default function LoginPage() {
               />
             </div>
 
-            {error && (
-              <p className="text-sm text-red-500">{error}</p>
-            )}
+            {error && <p className="text-sm text-red-500">{error}</p>}
 
             <button
               type="submit"
@@ -108,19 +116,22 @@ export default function LoginPage() {
               onError={() => setError('구글 로그인에 실패했습니다.')}
               width="368"
               text="signin_with"
-              locale="ko"
+              // locale="ko"
             />
           </div>
 
           {/* 회원가입 링크 */}
           <p className="mt-6 text-center text-sm text-gray-500">
             계정이 없으신가요?{' '}
-            <a href="/signup" className="text-blue-600 font-medium hover:underline">
+            <a
+              href="/signup"
+              className="text-blue-600 font-medium hover:underline"
+            >
               회원가입
             </a>
           </p>
         </div>
       </div>
     </div>
-  )
+  );
 }
