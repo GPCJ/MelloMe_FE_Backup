@@ -1,0 +1,14 @@
+# 환경변수 (민감 정보)
+.env
+.env.local
+.env.production
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+
+# Claude settings
+.claude/settings.local.json
