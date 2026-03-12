@@ -17,6 +17,15 @@ export async function login(email: string, password: string): Promise<AuthRespon
   return handleResponse<AuthResponse>(res)
 }
 
+export async function signup(email: string, password: string, nickname: string): Promise<AuthResponse> {
+  const res = await fetch(`${BASE_URL}/auth/signup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, nickname }),
+  })
+  return handleResponse<AuthResponse>(res)
+}
+
 export async function googleLogin(idToken: string): Promise<AuthResponse> {
   const res = await fetch(`${BASE_URL}/auth/oauth/google`, {
     method: 'POST',

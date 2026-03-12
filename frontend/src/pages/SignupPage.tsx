@@ -1,65 +1,44 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google';
-import { login, googleLogin } from '../api/auth';
+import { signup } from '../api/auth';
 import { useAuthStore } from '../stores/useAuthStore';
 
-export default function LoginPage() {
+export default function SignupPage() {
   const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [nickname, setNickname] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [newUserNickname, setNewUserNickname] = useState('');
+  const [done, setDone] = useState(false);
+  const [savedNickname, setSavedNickname] = useState('');
 
-  async function handleEmailLogin(e: React.SubmitEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const { user, tokens } = await login(email, password);
+      const { user, tokens } = await signup(email, password, nickname);
       setAuth(user, tokens);
-      navigate('/');
+      setSavedNickname(user.nickname);
+      setDone(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
+      setError(err instanceof Error ? err.message : '회원가입에 실패했습니다.');
     } finally {
       setLoading(false);
     }
   }
 
-  async function handleGoogleSuccess(credentialResponse: {
-    credential?: string;
-  }) {
-    if (!credentialResponse.credential) return;
-    setError('');
-    setLoading(true);
-    try {
-      const { user, tokens, isNewUser } = await googleLogin(credentialResponse.credential);
-      setAuth(user, tokens);
-      if (isNewUser) {
-        setNewUserNickname(user.nickname);
-      } else {
-        navigate('/');
-      }
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : '구글 로그인에 실패했습니다.',
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  if (newUserNickname) {
+  if (done) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center px-4">
         <div className="w-full max-w-md">
           <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8 text-center">
             <div className="text-4xl mb-4">🎉</div>
             <h2 className="text-xl font-bold text-gray-900 mb-2">
-              가입을 환영합니다, {newUserNickname}님!
+              가입을 환영합니다, {savedNickname}님!
             </h2>
             <p className="text-sm text-gray-500 mb-6">
               멜로미는 치료사 인증을 받은 분만 커뮤니티를 이용할 수 있어요.
@@ -97,10 +76,9 @@ export default function LoginPage() {
 
         {/* 카드 */}
         <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">로그인</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">회원가입</h2>
 
-          {/* 이메일 로그인 폼 */}
-          <form onSubmit={handleEmailLogin} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 이메일
@@ -127,6 +105,19 @@ export default function LoginPage() {
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                닉네임
+              </label>
+              <input
+                type="text"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                placeholder="닉네임을 입력하세요"
+                required
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              />
+            </div>
 
             {error && <p className="text-sm text-red-500">{error}</p>}
 
@@ -135,36 +126,18 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-sm font-medium rounded-lg transition"
             >
-              {loading ? '로그인 중...' : '로그인'}
+              {loading ? '가입 중...' : '회원가입'}
             </button>
           </form>
 
-          {/* 구분선 */}
-          <div className="flex items-center my-6">
-            <div className="flex-1 border-t border-gray-200" />
-            <span className="px-3 text-xs text-gray-400">또는</span>
-            <div className="flex-1 border-t border-gray-200" />
-          </div>
-
-          {/* 구글 로그인 */}
-          <div className="flex justify-center">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => setError('구글 로그인에 실패했습니다.')}
-              width="368"
-              text="signin_with"
-              // locale="ko"
-            />
-          </div>
-
-          {/* 회원가입 링크 */}
+          {/* 로그인 링크 */}
           <p className="mt-6 text-center text-sm text-gray-500">
-            계정이 없으신가요?{' '}
+            이미 계정이 있으신가요?{' '}
             <a
-              href="/signup"
+              href="/login"
               className="text-blue-600 font-medium hover:underline"
             >
-              회원가입
+              로그인
             </a>
           </p>
         </div>

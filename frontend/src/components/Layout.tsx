@@ -1,10 +1,17 @@
-import { Outlet, Link, useLocation } from 'react-router-dom'
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { Home, MessageSquare, User } from 'lucide-react'
 import { useAuthStore } from '../stores/useAuthStore'
 
 export default function Layout() {
   const location = useLocation()
+  const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
+  const clearAuth = useAuthStore((s) => s.clearAuth)
+
+  function handleLogout() {
+    clearAuth()
+    navigate('/login')
+  }
 
   const isActive = (path: string) => {
     if (path === '/' && location.pathname === '/') return true
@@ -36,12 +43,20 @@ export default function Layout() {
             <span className="text-base text-gray-400">도서관 (예정)</span>
             <span className="text-base text-gray-400">놀이터 (예정)</span>
             {user ? (
-              <Link
-                to="/my-page"
-                className={`text-base ${isActive('/my-page') ? 'text-gray-900 font-semibold' : 'text-gray-600'}`}
-              >
-                마이페이지
-              </Link>
+              <>
+                <Link
+                  to="/my-page"
+                  className={`text-base ${isActive('/my-page') ? 'text-gray-900 font-semibold' : 'text-gray-600'}`}
+                >
+                  마이페이지
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 border border-gray-300 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition"
+                >
+                  로그아웃
+                </button>
+              </>
             ) : (
               <Link
                 to="/login"
