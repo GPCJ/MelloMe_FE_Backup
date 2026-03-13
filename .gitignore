@@ -10,5 +10,6 @@
 # OS
 .DS_Store
 
-# Claude settings
-.claude/settings.local.json
+# Claude
+.claude/
+scripts/
