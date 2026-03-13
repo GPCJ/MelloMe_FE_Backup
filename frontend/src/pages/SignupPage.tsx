@@ -16,8 +16,6 @@ export default function SignupPage() {
   const [nickname, setNickname] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState(false);
-  const [savedNickname, setSavedNickname] = useState('');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -27,41 +25,12 @@ export default function SignupPage() {
       await signup(email, password, nickname);
       const { user, tokens } = await login(email, password);
       setAuth(user, tokens);
-      setSavedNickname(user.nickname);
-      setDone(true);
+      navigate('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : '회원가입에 실패했습니다.');
     } finally {
       setLoading(false);
     }
-  }
-
-  if (done) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center px-4">
-        <div className="w-full max-w-md">
-          <Card>
-            <CardContent className="p-8 text-center">
-              <div className="text-4xl mb-4">🎉</div>
-              <h2 className="text-xl font-bold text-gray-900 mb-2">
-                가입을 환영합니다, {savedNickname}님!
-              </h2>
-              <p className="text-sm text-gray-500 mb-6">
-                멜로미는 치료사 인증을 받은 분만 커뮤니티를 이용할 수 있어요.
-                <br />
-                지금 바로 인증을 신청해보세요.
-              </p>
-              <Button className="w-full mb-3" onClick={() => navigate('/therapist-verifications')}>
-                치료사 인증 신청하기
-              </Button>
-              <Button className="w-full" variant="outline" onClick={() => navigate('/')}>
-                나중에 하기
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
   }
 
   return (

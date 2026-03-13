@@ -23,9 +23,13 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      const { user, tokens } = await login(email, password);
+      const { user, tokens, isNewUser } = await login(email, password);
       setAuth(user, tokens);
-      navigate('/');
+      if (isNewUser) {
+        setNewUserNickname(user.nickname);
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
     } finally {
@@ -40,7 +44,9 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      const { user, tokens, isNewUser } = await googleLogin(credentialResponse.credential);
+      const { user, tokens, isNewUser } = await googleLogin(
+        credentialResponse.credential,
+      );
       setAuth(user, tokens);
       if (isNewUser) {
         setNewUserNickname(user.nickname);
@@ -71,10 +77,17 @@ export default function LoginPage() {
                 <br />
                 지금 바로 인증을 신청해보세요.
               </p>
-              <Button className="w-full mb-3" onClick={() => navigate('/therapist-verifications')}>
+              <Button
+                className="w-full mb-3"
+                onClick={() => navigate('/therapist-verifications')}
+              >
                 치료사 인증 신청하기
               </Button>
-              <Button className="w-full" variant="outline" onClick={() => navigate('/')}>
+              <Button
+                className="w-full"
+                variant="outline"
+                onClick={() => navigate('/')}
+              >
                 나중에 하기
               </Button>
             </CardContent>
@@ -153,7 +166,10 @@ export default function LoginPage() {
             {/* 회원가입 링크 */}
             <p className="mt-6 text-center text-sm text-gray-500">
               계정이 없으신가요?{' '}
-              <Link to="/signup" className="text-blue-600 font-medium hover:underline">
+              <Link
+                to="/signup"
+                className="text-blue-600 font-medium hover:underline"
+              >
                 회원가입
               </Link>
             </p>

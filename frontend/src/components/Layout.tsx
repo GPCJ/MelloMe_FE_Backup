@@ -1,24 +1,24 @@
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
-import { Home, MessageSquare, User } from 'lucide-react'
-import { useAuthStore } from '../stores/useAuthStore'
-import { Button } from '@/components/ui/button'
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Home, MessageSquare, User } from 'lucide-react';
+import { useAuthStore } from '../stores/useAuthStore';
+import { Button } from '@/components/ui/button';
 
 export default function Layout() {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const user = useAuthStore((s) => s.user)
-  const clearAuth = useAuthStore((s) => s.clearAuth)
+  const location = useLocation();
+  const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
 
   function handleLogout() {
-    clearAuth()
-    navigate('/login')
+    clearAuth();
+    navigate('/login');
   }
 
   const isActive = (path: string) => {
-    if (path === '/' && location.pathname === '/') return true
-    if (path !== '/' && location.pathname.startsWith(path)) return true
-    return false
-  }
+    if (path === '/' && location.pathname === '/') return true;
+    if (path !== '/' && location.pathname.startsWith(path)) return true;
+    return false;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -43,6 +43,7 @@ export default function Layout() {
             </Link>
             <span className="text-base text-gray-400">도서관 (예정)</span>
             <span className="text-base text-gray-400">놀이터 (예정)</span>
+            {/* 로그인 상태에 따라 분기 */}
             {user ? (
               <>
                 <Link
@@ -94,5 +95,5 @@ export default function Layout() {
         </Link>
       </nav>
     </div>
-  )
+  );
 }
