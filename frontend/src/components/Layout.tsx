@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { Home, MessageSquare, User } from 'lucide-react'
 import { useAuthStore } from '../stores/useAuthStore'
+import { Button } from '@/components/ui/button'
 
 export default function Layout() {
   const location = useLocation()
@@ -50,20 +51,14 @@ export default function Layout() {
                 >
                   마이페이지
                 </Link>
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 border border-gray-300 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition"
-                >
+                <Button variant="outline" onClick={handleLogout}>
                   로그아웃
-                </button>
+                </Button>
               </>
             ) : (
-              <Link
-                to="/login"
-                className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition"
-              >
-                로그인
-              </Link>
+              <Button asChild>
+                <Link to="/login">로그인</Link>
+              </Button>
             )}
           </nav>
         </div>

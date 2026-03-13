@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Bell, TrendingUp, ThumbsUp, Eye } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 
 const announcements = [
   { id: 1, title: '멜로미 커뮤니티에 오신 것을 환영합니다!', date: '2026.03.05' },
@@ -56,18 +58,12 @@ export default function HomePage() {
             멜로미와 함께 성장하세요
           </p>
           <div className="flex gap-4">
-            <Link
-              to="/clinical-talk"
-              className="px-6 py-3 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition"
-            >
-              임상 톡톡 시작하기
-            </Link>
-            <Link
-              to="/login"
-              className="px-6 py-3 border-2 border-gray-300 text-gray-900 rounded-lg font-semibold hover:border-gray-400 transition"
-            >
-              더 알아보기
-            </Link>
+            <Button asChild size="lg">
+              <Link to="/clinical-talk">임상 톡톡 시작하기</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link to="/login">더 알아보기</Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -96,35 +92,35 @@ export default function HomePage() {
         </div>
         <div className="grid md:grid-cols-2 gap-4">
           {popularPosts.map((post) => (
-            <Link
-              key={post.id}
-              to={`/clinical-talk/${post.id}`}
-              className="bg-white border-2 border-gray-300 rounded-lg p-5 hover:border-gray-400 transition-colors"
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <span className="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded">{post.category}</span>
-                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded">{post.therapyArea}</span>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{post.title}</h3>
-              <div className="flex gap-3 text-sm text-gray-500 mb-3">
-                <span>{post.ageRange}</span>
-                <span>•</span>
-                <span>{post.diagnosis}</span>
-              </div>
-              <div className="flex items-center gap-4 text-sm text-gray-600">
-                <div className="flex items-center gap-1">
-                  <Eye size={16} />
-                  <span>{post.views}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <ThumbsUp size={16} />
-                  <span>{post.likes}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span>💬</span>
-                  <span>{post.comments}</span>
-                </div>
-              </div>
+            <Link key={post.id} to={`/clinical-talk/${post.id}`}>
+              <Card className="hover:border-gray-400 transition-colors cursor-pointer">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded">{post.category}</span>
+                    <span className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded">{post.therapyArea}</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{post.title}</h3>
+                  <div className="flex gap-3 text-sm text-gray-500 mb-3">
+                    <span>{post.ageRange}</span>
+                    <span>•</span>
+                    <span>{post.diagnosis}</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <div className="flex items-center gap-1">
+                      <Eye size={16} />
+                      <span>{post.views}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <ThumbsUp size={16} />
+                      <span>{post.likes}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span>💬</span>
+                      <span>{post.comments}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </Link>
           ))}
         </div>
@@ -132,27 +128,33 @@ export default function HomePage() {
 
       {/* 피처 카드 */}
       <section className="mt-8 grid md:grid-cols-3 gap-4">
-        <div className="bg-white border-2 border-gray-300 rounded-lg p-6 text-center">
-          <div className="text-4xl mb-3">💬</div>
-          <h3 className="font-bold text-gray-900 mb-2">전문성 강화</h3>
-          <p className="text-sm text-gray-600">
-            익명 기반 케이스 스터디로<br />임상 전문성을 키워요
-          </p>
-        </div>
-        <div className="bg-white border-2 border-gray-300 rounded-lg p-6 text-center">
-          <div className="text-4xl mb-3">📚</div>
-          <h3 className="font-bold text-gray-900 mb-2">업무 효율화</h3>
-          <p className="text-sm text-gray-600">
-            치료 자료 공유로<br />퇴근 시간을 앞당겨요
-          </p>
-        </div>
-        <div className="bg-white border-2 border-gray-300 rounded-lg p-6 text-center">
-          <div className="text-4xl mb-3">🤝</div>
-          <h3 className="font-bold text-gray-900 mb-2">심리적 유대감</h3>
-          <p className="text-sm text-gray-600">
-            동료 치료사들과<br />고립감을 해소해요
-          </p>
-        </div>
+        <Card>
+          <CardContent className="p-6 text-center">
+            <div className="text-4xl mb-3">💬</div>
+            <h3 className="font-bold text-gray-900 mb-2">전문성 강화</h3>
+            <p className="text-sm text-gray-600">
+              익명 기반 케이스 스터디로<br />임상 전문성을 키워요
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6 text-center">
+            <div className="text-4xl mb-3">📚</div>
+            <h3 className="font-bold text-gray-900 mb-2">업무 효율화</h3>
+            <p className="text-sm text-gray-600">
+              치료 자료 공유로<br />퇴근 시간을 앞당겨요
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6 text-center">
+            <div className="text-4xl mb-3">🤝</div>
+            <h3 className="font-bold text-gray-900 mb-2">심리적 유대감</h3>
+            <p className="text-sm text-gray-600">
+              동료 치료사들과<br />고립감을 해소해요
+            </p>
+          </CardContent>
+        </Card>
       </section>
     </div>
   )
