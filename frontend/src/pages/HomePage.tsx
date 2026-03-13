@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Bell, TrendingUp, ThumbsUp, Eye } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
 const announcements = [
@@ -58,12 +58,8 @@ export default function HomePage() {
             멜로미와 함께 성장하세요
           </p>
           <div className="flex gap-4">
-            <Button asChild size="lg">
-              <Link to="/clinical-talk">임상 톡톡 시작하기</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link to="/login">더 알아보기</Link>
-            </Button>
+            <Link to="/clinical-talk" className={buttonVariants({ size: 'lg' })}>임상 톡톡 시작하기</Link>
+            <Link to="/login" className={buttonVariants({ size: 'lg', variant: 'outline' })}>더 알아보기</Link>
           </div>
         </div>
       </section>
