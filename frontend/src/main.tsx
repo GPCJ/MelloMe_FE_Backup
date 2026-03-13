@@ -5,7 +5,7 @@ import App from './App.tsx';
 
 const bootstrap = async () => {
   // Mock기반 요청 ON / OFF
-  if (import.meta.env.DEV && import.meta.env.VITE_MSW_ENABLED === 'false') {
+  if (import.meta.env.DEV && import.meta.env.VITE_MSW_ENABLED === 'true') {
     const { worker } = await import('./mocks/browser');
     await worker.start({ onUnhandledRequest: 'bypass' });
   }

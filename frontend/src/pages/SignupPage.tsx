@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signup } from '../api/auth';
+import { signup, login } from '../api/auth';
 import { useAuthStore } from '../stores/useAuthStore';
 
 export default function SignupPage() {
@@ -20,7 +20,8 @@ export default function SignupPage() {
     setError('');
     setLoading(true);
     try {
-      const { user, tokens } = await signup(email, password, nickname);
+      await signup(email, password, nickname);
+      const { user, tokens } = await login(email, password);
       setAuth(user, tokens);
       setSavedNickname(user.nickname);
       setDone(true);
