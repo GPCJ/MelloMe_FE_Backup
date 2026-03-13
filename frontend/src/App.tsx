@@ -1,14 +1,14 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { GoogleOAuthProvider } from '@react-oauth/google'
-import Layout from './components/Layout'
-import ProtectedRoute from './components/ProtectedRoute'
-import GuestRoute from './components/GuestRoute'
-import HomePage from './pages/HomePage'
-import LoginPage from './pages/LoginPage'
-import SignupPage from './pages/SignupPage'
-import NotFoundPage from './pages/NotFoundPage'
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
+import GuestRoute from './components/GuestRoute';
+import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
+import NotFoundPage from './pages/NotFoundPage';
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ''
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '';
 
 function App() {
   return (
@@ -34,7 +34,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </GoogleOAuthProvider>
-  )
+  );
 }
 
-export default App
+export default App;

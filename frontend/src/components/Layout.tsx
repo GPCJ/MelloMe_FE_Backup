@@ -1,23 +1,24 @@
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
-import { Home, MessageSquare, User } from 'lucide-react'
-import { useAuthStore } from '../stores/useAuthStore'
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Home, MessageSquare, User } from 'lucide-react';
+import { useAuthStore } from '../stores/useAuthStore';
+import { Button } from '@/components/ui/button';
 
 export default function Layout() {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const user = useAuthStore((s) => s.user)
-  const clearAuth = useAuthStore((s) => s.clearAuth)
+  const location = useLocation();
+  const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
 
   function handleLogout() {
-    clearAuth()
-    navigate('/login')
+    clearAuth();
+    navigate('/login');
   }
 
   const isActive = (path: string) => {
-    if (path === '/' && location.pathname === '/') return true
-    if (path !== '/' && location.pathname.startsWith(path)) return true
-    return false
-  }
+    if (path === '/' && location.pathname === '/') return true;
+    if (path !== '/' && location.pathname.startsWith(path)) return true;
+    return false;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -42,6 +43,7 @@ export default function Layout() {
             </Link>
             <span className="text-base text-gray-400">도서관 (예정)</span>
             <span className="text-base text-gray-400">놀이터 (예정)</span>
+            {/* 로그인 상태에 따라 분기 */}
             {user ? (
               <>
                 <Link
@@ -50,20 +52,14 @@ export default function Layout() {
                 >
                   마이페이지
                 </Link>
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 border border-gray-300 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition"
-                >
+                <Button variant="outline" onClick={handleLogout}>
                   로그아웃
-                </button>
+                </Button>
               </>
             ) : (
-              <Link
-                to="/login"
-                className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition"
-              >
-                로그인
-              </Link>
+              <Button asChild>
+                <Link to="/login">로그인</Link>
+              </Button>
             )}
           </nav>
         </div>
@@ -99,5 +95,5 @@ export default function Layout() {
         </Link>
       </nav>
     </div>
-  )
+  );
 }
