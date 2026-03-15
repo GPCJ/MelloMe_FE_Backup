@@ -3,8 +3,20 @@ import type { UserSummary } from './auth';
 export type BoardType = 'therapy_board' | 'document_board' | 'anonymous_board';
 export type PostSort = 'LATEST' | 'MOST_VIEWED' | 'MOST_LIKED';
 export type ReactionType = 'LIKE' | 'DISLIKE';
-export type TherapyArea = 'UNSPECIFIED' | 'OCCUPATIONAL_THERAPY';
-export type AgeGroup = 'UNSPECIFIED' | 'AGE_6_12';
+export type TherapyArea =
+  | 'UNSPECIFIED'
+  | 'OCCUPATIONAL_THERAPY'
+  | 'SPEECH_THERAPY'
+  | 'COGNITIVE_THERAPY'
+  | 'PLAY_THERAPY';
+export type AgeGroup =
+  | 'UNSPECIFIED'
+  | 'AGE_0_2'
+  | 'AGE_3_5'
+  | 'AGE_6_12'
+  | 'AGE_13_18'
+  | 'AGE_19_64'
+  | 'AGE_65_PLUS';
 
 export interface PostSummary {
   id: number;

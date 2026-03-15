@@ -7,7 +7,7 @@ import App from './App.tsx';
 // async 함수로 감싸 순서를 보장한 뒤 React 앱을 렌더링함
 const bootstrap = async () => {
   // MSW ON / OFF (true = OFF, false = ON)
-  if (import.meta.env.DEV && import.meta.env.VITE_MSW_ENABLED === 'false') {
+  if (import.meta.env.DEV && import.meta.env.VITE_MSW_ENABLED === 'true') {
     const { worker } = await import('./mocks/browser');
     await worker.start({ onUnhandledRequest: 'bypass' });
   }

@@ -6,11 +6,13 @@ import type {
   PostUpdateRequest,
   BoardType,
   PostSort,
+  TherapyArea,
   CommentResponse,
 } from '../types/post';
 
 export async function fetchPosts(params: {
   board?: BoardType;
+  therapyArea?: TherapyArea;
   sort?: PostSort;
   page?: number;
   size?: number;
@@ -61,4 +63,20 @@ export async function deleteComment(
   commentId: number,
 ): Promise<void> {
   await axiosInstance.delete(`/posts/${postId}/comments/${commentId}`);
+}
+
+export async function scrapPost(postId: number): Promise<void> {
+  await axiosInstance.post(`/posts/${postId}/scrap`);
+}
+
+export async function unscrapPost(postId: number): Promise<void> {
+  await axiosInstance.delete(`/posts/${postId}/scrap`);
+}
+
+export async function likePost(postId: number): Promise<void> {
+  await axiosInstance.put(`/posts/${postId}/reaction`, { reactionType: 'LIKE' });
+}
+
+export async function unlikePost(postId: number): Promise<void> {
+  await axiosInstance.delete(`/posts/${postId}/reaction`);
 }

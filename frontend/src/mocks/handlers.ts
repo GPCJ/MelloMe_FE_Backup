@@ -20,7 +20,7 @@ const mockPosts = [
     likeCount: 5,
     dislikeCount: 0,
     author: mockAuthor,
-    createdAt: '2026-03-10T10:00:00Z',
+    createdAt: '2026-03-15T08:00:00Z',
   },
   {
     id: 2,
@@ -33,7 +33,46 @@ const mockPosts = [
     likeCount: 2,
     dislikeCount: 0,
     author: mockAuthor,
-    createdAt: '2026-03-12T14:00:00Z',
+    createdAt: '2026-03-15T06:00:00Z',
+  },
+  {
+    id: 3,
+    board: 'therapy_board',
+    title: '5세 아동의 언어 발달 지연 케이스 - 조언 부탁드립니다',
+    therapyArea: 'SPEECH_THERAPY',
+    ageGroup: 'AGE_3_5',
+    viewCount: 234,
+    commentCount: 12,
+    likeCount: 50,
+    dislikeCount: 0,
+    author: { id: 2, nickname: '언어치료사A', profileImageUrl: null },
+    createdAt: '2026-03-15T07:00:00Z',
+  },
+  {
+    id: 4,
+    board: 'therapy_board',
+    title: 'ADHD 아동의 감각통합 접근법에 대한 의견이 필요합니다',
+    therapyArea: 'COGNITIVE_THERAPY',
+    ageGroup: 'AGE_6_12',
+    viewCount: 189,
+    commentCount: 8,
+    likeCount: 38,
+    dislikeCount: 0,
+    author: { id: 3, nickname: '인지치료사B', profileImageUrl: null },
+    createdAt: '2026-03-15T03:00:00Z',
+  },
+  {
+    id: 5,
+    board: 'therapy_board',
+    title: '놀이치료에서 경계선 설정이 어려워요',
+    therapyArea: 'PLAY_THERAPY',
+    ageGroup: 'AGE_3_5',
+    viewCount: 156,
+    commentCount: 15,
+    likeCount: 35,
+    dislikeCount: 0,
+    author: { id: 4, nickname: '놀이치료사C', profileImageUrl: null },
+    createdAt: '2026-03-14T10:00:00Z',
   },
 ];
 
@@ -174,12 +213,17 @@ export const handlers = [
   ),
 
   // Posts
-  http.get(`${API}/posts`, () =>
-    HttpResponse.json({
-      items: mockPosts,
-      page: { number: 1, size: 20, totalElements: 2, totalPages: 1 },
-    }),
-  ),
+  http.get(`${API}/posts`, ({ request }) => {
+    const url = new URL(request.url);
+    const therapyArea = url.searchParams.get('therapyArea');
+    const filtered = therapyArea
+      ? mockPosts.filter((p) => p.therapyArea === therapyArea)
+      : mockPosts;
+    return HttpResponse.json({
+      items: filtered,
+      page: { number: 1, size: 20, totalElements: filtered.length, totalPages: 1 },
+    });
+  }),
 
   http.get(`${API}/posts/:postId`, ({ params }) => {
     const post = mockPosts.find((p) => p.id === Number(params.postId));
@@ -250,6 +294,150 @@ export const handlers = [
 
   http.delete(
     `${API}/posts/:postId/comments/:commentId`,
+    () => new HttpResponse(null, { status: 204 }),
+  ),
+
+  // My Page
+  http.get(`${API}/me/dashboard`, () =>
+    HttpResponse.json({
+      stats: {
+        postCount: 12,
+        commentCount: 45,
+        receivedReactionCount: 156,
+        givenReactionCount: 89,
+        downloadCount: 23,
+        scrappedCount: 34,
+      },
+      activity: {
+        weeklyPostCount: 3,
+        weeklyCommentCount: 12,
+        joinedAt: '2026-02-15T00:00:00Z',
+      },
+    }),
+  ),
+
+  http.get(`${API}/me/posts`, () =>
+    HttpResponse.json([
+      {
+        id: 3,
+        board: 'therapy_board',
+        title: '5세 아동의 언어 발달 지연 케이스',
+        therapyArea: 'SPEECH_THERAPY',
+        ageGroup: 'AGE_3_5',
+        viewCount: 234,
+        commentCount: 12,
+        likeCount: 50,
+        dislikeCount: 0,
+        author: mockAuthor,
+        createdAt: '2026-03-05T07:00:00Z',
+      },
+      {
+        id: 4,
+        board: 'therapy_board',
+        title: 'ADHD 아동 감각통합 접근법',
+        therapyArea: 'COGNITIVE_THERAPY',
+        ageGroup: 'AGE_6_12',
+        viewCount: 189,
+        commentCount: 8,
+        likeCount: 38,
+        dislikeCount: 0,
+        author: mockAuthor,
+        createdAt: '2026-03-03T03:00:00Z',
+      },
+    ]),
+  ),
+
+  http.get(`${API}/me/activity`, () =>
+    HttpResponse.json({
+      commentedPosts: [
+        {
+          post: {
+            id: 5,
+            board: 'therapy_board',
+            title: '놀이치료 경계선 설정 방법',
+            therapyArea: 'PLAY_THERAPY',
+            ageGroup: 'AGE_3_5',
+            viewCount: 15,
+            commentCount: 4,
+            likeCount: 7,
+            dislikeCount: 0,
+            author: { id: 4, nickname: '놀이치료사C', profileImageUrl: null },
+            createdAt: '2026-03-06T09:00:00Z',
+          },
+          myCommentPreview: '저도 비슷한 경험이 있어요. 일관된 규칙 설정이 중요로로 것 같습니다...',
+          myCommentCreatedAt: '2026-03-06T10:00:00Z',
+        },
+        {
+          post: {
+            id: 6,
+            board: 'therapy_board',
+            title: '인지치료 평가 도구 추천',
+            therapyArea: 'COGNITIVE_THERAPY',
+            ageGroup: 'UNSPECIFIED',
+            viewCount: 8,
+            commentCount: 2,
+            likeCount: 3,
+            dislikeCount: 0,
+            author: { id: 3, nickname: '인지치료사B', profileImageUrl: null },
+            createdAt: '2026-03-05T08:00:00Z',
+          },
+          myCommentPreview: 'K-WISC-V를 추천드립니다. 연령대에 적합하고 신뢰도가 높아요...',
+          myCommentCreatedAt: '2026-03-05T09:00:00Z',
+        },
+      ],
+      scrappedPosts: [
+        {
+          post: {
+            id: 7,
+            board: 'document_board',
+            title: '효과적인 부모 상담 방법',
+            therapyArea: 'SPEECH_THERAPY',
+            ageGroup: 'AGE_3_5',
+            viewCount: 310,
+            commentCount: 20,
+            likeCount: 95,
+            dislikeCount: 0,
+            author: { id: 10, nickname: '치료사_10년차', profileImageUrl: null },
+            createdAt: '2026-03-04T00:00:00Z',
+          },
+          scrappedAt: '2026-03-04T12:00:00Z',
+        },
+        {
+          post: {
+            id: 8,
+            board: 'therapy_board',
+            title: '자폐스펙트럼 아동 사회성 증진 프로그램',
+            therapyArea: 'PLAY_THERAPY',
+            ageGroup: 'AGE_6_12',
+            viewCount: 220,
+            commentCount: 11,
+            likeCount: 72,
+            dislikeCount: 0,
+            author: { id: 7, nickname: '작업치료사_7년차', profileImageUrl: null },
+            createdAt: '2026-03-02T00:00:00Z',
+          },
+          scrappedAt: '2026-03-02T15:00:00Z',
+        },
+      ],
+    }),
+  ),
+
+  // Scrap
+  http.post(`${API}/posts/:postId/scrap`, () =>
+    new HttpResponse(null, { status: 204 }),
+  ),
+
+  http.delete(`${API}/posts/:postId/scrap`, () =>
+    new HttpResponse(null, { status: 204 }),
+  ),
+
+  // Reactions
+  http.put(`${API}/posts/:postId/reaction`, () =>
+    HttpResponse.json({ reactionType: 'LIKE' }),
+  ),
+
+  http.delete(
+    `${API}/posts/:postId/reaction`,
     () => new HttpResponse(null, { status: 204 }),
   ),
 ];

@@ -8,19 +8,16 @@ export interface MeResponse {
   role: UserRole;
   canAccessCommunity: boolean;
   therapistVerification: {
-    id: number;
-    status: 'PENDING' | 'APPROVED' | 'REJECTED';
-    createdAt: string;
+    status: 'NOT_REQUESTED' | 'PENDING' | 'APPROVED' | 'REJECTED';
+    requestedAt: string | null;
     reviewedAt: string | null;
-    rejectReason: string | null;
-  } | null;
+    rejectionReason: string | null;
+  };
 }
 
 export interface Tokens {
   accessToken: string;
-  refreshToken: string;
   accessTokenExpiresInSec?: number;
-  refreshTokenExpiresInSec?: number;
 }
 
 export interface AuthResponse {
