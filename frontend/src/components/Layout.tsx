@@ -36,8 +36,8 @@ export default function Layout() {
               홈
             </Link>
             <Link
-              to="/clinical-talk"
-              className={`text-base ${isActive('/clinical-talk') ? 'text-gray-900 font-semibold' : 'text-gray-600'}`}
+              to="/posts"
+              className={`text-base ${isActive('/posts') ? 'text-gray-900 font-semibold' : 'text-gray-600'}`}
             >
               임상 톡톡
             </Link>
@@ -78,8 +78,8 @@ export default function Layout() {
           <span className="text-xs">홈</span>
         </Link>
         <Link
-          to="/clinical-talk"
-          className={`flex flex-col items-center gap-1 ${isActive('/clinical-talk') ? 'text-gray-900' : 'text-gray-500'}`}
+          to="/posts"
+          className={`flex flex-col items-center gap-1 ${isActive('/posts') ? 'text-gray-900' : 'text-gray-500'}`}
         >
           <MessageSquare size={24} />
           <span className="text-xs">임상톡톡</span>
