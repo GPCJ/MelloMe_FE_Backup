@@ -12,3 +12,8 @@
 
 # Claude settings
 .claude/settings.local.json
+
+# 토큰/인증 파일
+*token*
+*Token*
+github\ token
