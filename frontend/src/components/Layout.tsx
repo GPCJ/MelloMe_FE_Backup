@@ -52,12 +52,17 @@ export default function Layout() {
                 >
                   마이페이지
                 </Link>
-                <button className={buttonVariants({ variant: 'outline' })} onClick={handleLogout}>
+                <button
+                  className={buttonVariants({ variant: 'outline' })}
+                  onClick={handleLogout}
+                >
                   로그아웃
                 </button>
               </>
             ) : (
-              <Link to="/login" className={buttonVariants()}>로그인</Link>
+              <Link to="/login" className={buttonVariants()}>
+                로그인
+              </Link>
             )}
           </nav>
         </div>
@@ -93,5 +98,36 @@ export default function Layout() {
         </Link>
       </nav>
     </div>
+  );
+}
+
+interface LoginFormData {
+  email: string;
+  password: string;
+}
+
+function LoginForm() {
+  const [form, setForm] = useState<LoginFormData | null>({
+    email: '',
+    password: '',
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // input 값 업데이트
+    setForm();
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    // 새로고침 방지 + console.log
+    e.preventDefault();
+    console.log(e);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="email" value={form.email} onChange={handleChange} />
+      <input name="password" value={form.password} onChange={handleChange} />
+      <button type="submit">로그인</button>
+    </form>
   );
 }

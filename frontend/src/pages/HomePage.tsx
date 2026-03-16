@@ -58,7 +58,7 @@ export default function HomePage() {
             멜로미와 함께 성장하세요
           </p>
           <div className="flex gap-4">
-            <Link to="/clinical-talk" className={buttonVariants({ size: 'lg' })}>임상 톡톡 시작하기</Link>
+            <Link to="/posts" className={buttonVariants({ size: 'lg' })}>임상 톡톡 시작하기</Link>
             <Link to="/login" className={buttonVariants({ size: 'lg', variant: 'outline' })}>더 알아보기</Link>
           </div>
         </div>
@@ -88,7 +88,7 @@ export default function HomePage() {
         </div>
         <div className="grid md:grid-cols-2 gap-4">
           {popularPosts.map((post) => (
-            <Link key={post.id} to={`/clinical-talk/${post.id}`}>
+            <Link key={post.id} to={`/posts/${post.id}`}>
               <Card className="hover:border-gray-400 transition-colors cursor-pointer">
                 <CardContent className="p-5">
                   <div className="flex items-center gap-2 mb-3">
