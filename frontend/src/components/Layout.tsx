@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, MessageSquare, User } from 'lucide-react';
 import { useAuthStore } from '../stores/useAuthStore';
@@ -99,36 +98,5 @@ export default function Layout() {
         </Link>
       </nav>
     </div>
-  );
-}
-
-interface LoginFormData {
-  email: string;
-  password: string;
-}
-
-function LoginForm() {
-  const [form, setForm] = useState<LoginFormData | null>({
-    email: '',
-    password: '',
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // input 값 업데이트
-    setForm();
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    // 새로고침 방지 + console.log
-    e.preventDefault();
-    console.log(e);
-  };
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <input name="email" value={form.email} onChange={handleChange} />
-      <input name="password" value={form.password} onChange={handleChange} />
-      <button type="submit">로그인</button>
-    </form>
   );
 }
