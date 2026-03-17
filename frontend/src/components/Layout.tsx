@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, MessageSquare, User } from 'lucide-react';
 import { useAuthStore } from '../stores/useAuthStore';
