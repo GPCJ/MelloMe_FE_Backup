@@ -13,3 +13,8 @@
 # Claude
 .claude/
 scripts/
+
+# 토큰/인증 파일
+*token*
+*Token*
+github\ token

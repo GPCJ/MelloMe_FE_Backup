@@ -7,6 +7,11 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import NotFoundPage from './pages/NotFoundPage';
+import PostListPage from './pages/PostListPage';
+import PostDetailPage from './pages/PostDetailPage';
+import PostCreatePage from './pages/PostCreatePage';
+import PostEditPage from './pages/PostEditPage';
+import MyPage from './pages/MyPage';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '';
 
@@ -26,7 +31,11 @@ function App() {
 
             {/* 로그인 필요 라우트 */}
             <Route element={<ProtectedRoute />}>
-              {/* 게시물 CRUD 페이지는 여기에 추가 */}
+              <Route path="/posts" element={<PostListPage />} />
+              <Route path="/posts/new" element={<PostCreatePage />} />
+              <Route path="/posts/:postId" element={<PostDetailPage />} />
+              <Route path="/posts/:postId/edit" element={<PostEditPage />} />
+              <Route path="/my-page" element={<MyPage />} />
             </Route>
 
             <Route path="*" element={<NotFoundPage />} />
