@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Claude 메모리 ↔ MelloMe_FE_Backup 레포 동기화 스크립트
+
+set -e
+
+PROJECT_REPO="/Users/jin/my-project"
+MEMORY_SRC="/Users/jin/.claude/projects/-Users-jin-my-project/memory"
+MEMORY_IN_REPO="$PROJECT_REPO/.claude/memory"
+
+if [ ! -d "$PROJECT_REPO/.git" ]; then
+  echo "❌ 프로젝트 레포를 찾을 수 없습니다: $PROJECT_REPO"
+  exit 1
+fi
+
+case "$1" in
+  push-mello)
+    echo "📤 메모리 → 레포 sync 후 push 중..."
+    # 로컬 메모리 → 레포 내 메모리 폴더로 복사
+    mkdir -p "$MEMORY_IN_REPO"
+    rsync -a --delete --exclude='.git' "$MEMORY_SRC/" "$MEMORY_IN_REPO/"
+    cd "$PROJECT_REPO"
+    git pull --rebase origin main 2>/dev/null || git pull origin main || true
+    git add .claude/memory
+    if git diff --cached --quiet; then
+      echo "ℹ️  메모리 변경 사항 없음."
+    else
+      git commit -m "chore: claude memory sync $(date '+%Y-%m-%d %H:%M')"
+    fi
+    git push origin main
+    echo "✅ push 완료."
+    ;;
+  pull-mello)
+    echo "📥 레포 → 메모리 pull 중..."
+    cd "$PROJECT_REPO"
+    git pull origin main
+    if [ -d "$MEMORY_IN_REPO" ]; then
+      mkdir -p "$MEMORY_SRC"
+      rsync -a --delete "$MEMORY_IN_REPO/" "$MEMORY_SRC/"
+      echo "✅ pull 완료. 메모리 업데이트됨."
+    else
+      echo "⚠️  레포에 메모리 디렉토리가 없습니다: $MEMORY_IN_REPO"
+    fi
+    ;;
+  *)
+    echo "사용법: $0 {push-mello|pull-mello}"
+    exit 1
+    ;;
+esac

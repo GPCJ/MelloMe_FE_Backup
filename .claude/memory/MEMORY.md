@@ -1,0 +1,79 @@
+# Project Memory
+
+## ⚠️ 대화 시작 시 확인 (2026-03-18 08:00 이후)
+**→ 반드시 먼저 언급할 것:** WSL2의 `frontend/vercel.json` 변경사항이 맥북에 동기화 안 됨.
+대화 시작하면 바로 "git pull 또는 `/pull-mello` 먼저 하고 로그인 테스트 이어가자" 고 알려줄 것.
+([상세](./project_cors_proxy.md)) — 완료되면 이 섹션 삭제.
+
+## 프로젝트
+멜로미 — 발달장애 아동 치료사 커뮤니티 플랫폼 (MVP 개발 중)
+- Frontend: React 19, TypeScript, Vite, Tailwind CSS, shadcn/ui, Zustand, React Router, MSW
+- Backend: Spring Boot (Java), JWT + Google OAuth2 / DB: PostgreSQL 16 / 인프라: Docker Compose
+- 배포: **Vercel(프론트) + EC2(백엔드) 확정** / 프론트: `www.melonnetherapists.com` / 백엔드: `api.melonnetherapists.com` (HTTPS 완료 후)
+
+## 다음 작업 (우선순위 순)
+- **[1순위]** 배포 마무리 ([상세](./project_deployment_status.md)) — HTTPS 완료 대기 중
+- **[보류]** 치료사 인증 기능
+- **[나중에]** 와이어프레임 미구현 페이지 ([목록](./project_wireframe_gap.md))
+- **[MVP 이후]** 이메일 로그인 isNewUser 환영 화면 ([상세](./project_deferred_welcome_message.md))
+- **[MVP 이후]** 회원가입 응답에 토큰 포함 요청 ([상세](./project_signup_token.md))
+
+## 백엔드 대기 중 (2026-03-15 기준)
+백엔드 수정 완료되면 → 로그인 테스트 → 콘솔 스크립트로 게시글 19개 일괄 삽입 → 전체 기능 테스트
+- **[1순위]** 로그인 응답 구조 수정 ([상세](./project_backend_login_response.md))
+  - `{ isNewUser, user, tokens }` 형태로, `{ success, data }` 래퍼 제거
+  - Refresh Token → httpOnly Cookie (Set-Cookie 헤더)
+- **[2순위]** `GET /me` 엔드포인트 구현 (현재 미구현, 로그인 상태 유지/마이페이지에 필요)
+- **[3순위]** 마이페이지 API 구현 — `GET /me/dashboard`, `GET /me/posts`, `GET /me/activity`
+
+## 로컬 개발 환경
+- **[미완료]** 루트 `.env` 미생성 — docker-compose 실행 불가 ([상세](./project_local_env_setup.md)) / GOOGLE_CLIENT_ID/SECRET만 받으면 바로 생성 가능
+
+## 미해결 이슈
+- **[내일 재개]** CORS 프록시 설정 미동기화 — WSL2 `vercel.json` 변경사항이 맥북에 없음. 시작 전 git pull 필요 ([상세](./project_cors_proxy.md))
+- ~~**[완료 — 2026-03-18]** 백엔드 HTTPS 적용됨~~ ([상세](./project_backend_https.md))
+- **[백엔드 연결 시]** MSW `/me` 핸들러가 401 반환 중 → 백엔드 연결 시점에 정리 필요
+
+## 환경변수
+- [Vercel 환경변수 확정값 — VITE_API_BASE_URL 등](./project_env_vars.md)
+
+## 정책 결정
+- [게시물 열람 권한 — 비로그인 접근 불가, ProtectedRoute 적용](./project_post_visibility.md)
+
+## 개발 규칙 / 피드백
+- [취업용 경험 생기면 Notion 정리 제안할 것](./feedback_career_documentation.md)
+- [코드 생성 승인 요청 방식](./feedback_code_approval.md)
+- [TS 타입 에러 CLI 확인 — `npx tsc -b` (Vercel 빌드와 동일)](./feedback_ts_type_check.md)
+- [shadcn Button asChild 미지원 — buttonVariants + Link 패턴 사용](./feedback_shadcn_button_aschild.md)
+- [GitHub 토큰 채팅에 직접 붙여넣지 말 것](./feedback_github_token.md) ← 토큰 만료 예상일: 2026-04-12
+- [불확실할 때 추측 말고 질문 먼저](./feedback_ask_when_uncertain.md)
+- [브랜치는 항상 main 사용 (master 금지)](./feedback_branch_preference.md)
+
+## 백엔드 이슈
+- [로그인 응답 구조 불일치 — 수정 대기 중](./project_backend_login_response.md)
+- [DB 시딩 콘솔 스크립트 — 로그인 수정 완료 후 실행](./project_seed_script.md)
+
+## 백엔드 회의
+- [회의 결과 + 프론트 개발 현황 (2026-03-15)](./project_backend_meeting.md)
+- [토큰 방식 확정 — Access Token: body / Refresh Token: httpOnly Cookie](./project_token_strategy.md)
+
+## 공유 문서
+- [Notion 진행 상황 페이지](./reference_notion_progress.md)
+- [Notion 트러블슈팅 페이지](./reference_notion_troubleshooting.md)
+
+## 환경 / 도구
+- [VS Code에서 워크트리 파일이 안 보일 때](./reference_worktree_vscode.md)
+- 워크트리 동기화: `/sync-review`
+- GitHub 인증: `~/.git-credentials`에서 `ghp_...` 토큰 부분만 교체
+- 맥북 이전 예정 — 이전 시 `git clone`, `~/.claude/` 복사, `.env` 백업, Homebrew로 Node/Java/Docker 설치
+- [백업 레포 URL (MelloMe_FE_Backup / claude-backup)](./reference_backup_repos.md)
+- [메모리 동기화 슬래시 커맨드 — `/push-claude`, `/pull-claude`, `/push-mello`, `/pull-mello`](./project_memory_sync.md)
+
+## 학습
+- [프론트엔드 코드 학습 전체 완료](./project_code_learning.md)
+- [학습 내용 상세 정리 — 복습 요청 시에만 불러올 것](./learning_frontend_code.md)
+- [axios interceptor 코드 리뷰 학습 진행 상황 및 다음 후보](./learning_axios_interceptor.md)
+
+## shadcn/ui
+- [디자이너 UI 선개발 방침](./project_shadcn_design.md) — 컴포넌트는 shadcn 기반, 스타일은 CSS 변수로 분리
+- [shadcn UI 컴포넌트 기본 사용 원칙](./feedback_shadcn_default.md) — UI 작업 시 항상 shadcn 컴포넌트 우선 사용

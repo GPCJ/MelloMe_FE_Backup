@@ -10,9 +10,8 @@
 # OS
 .DS_Store
 
-# Claude
-.claude/
-scripts/
+# Claude (settings.local.json은 개인 설정이라 제외)
+.claude/settings.local.json
 
 # 토큰/인증 파일
 *token*
