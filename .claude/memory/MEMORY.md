@@ -31,8 +31,7 @@
 
 ## 미해결 이슈
 - **[내일 재개]** CORS 프록시 설정 미동기화 — WSL2 `vercel.json` 변경사항이 맥북에 없음. 시작 전 git pull 필요 ([상세](./project_cors_proxy.md))
-- **[백엔드 수정 대기 중]** CORS 미설정 — `https://www.melonnetherapists.com` 허용 요청 완료, 백엔드 반영 대기 중
-- **[CRUD 완료 후]** Notion 트러블슈팅 #002 작성 예정 — axios interceptor 토큰 자동 주입 ([상세](./project_notion_crud_axios.md))
+- ~~**[완료 — 2026-03-18]** 백엔드 HTTPS 적용됨~~ ([상세](./project_backend_https.md))
 - **[백엔드 연결 시]** MSW `/me` 핸들러가 401 반환 중 → 백엔드 연결 시점에 정리 필요
 
 ## 환경변수
@@ -42,16 +41,13 @@
 - [게시물 열람 권한 — 비로그인 접근 불가, ProtectedRoute 적용](./project_post_visibility.md)
 
 ## 개발 규칙 / 피드백
-- [불확실할 때 추측 말고 질문 먼저](./feedback_ask_when_uncertain.md)
 - [취업용 경험 생기면 Notion 정리 제안할 것](./feedback_career_documentation.md)
 - [코드 생성 승인 요청 방식](./feedback_code_approval.md)
 - [TS 타입 에러 CLI 확인 — `npx tsc -b` (Vercel 빌드와 동일)](./feedback_ts_type_check.md)
 - [shadcn Button asChild 미지원 — buttonVariants + Link 패턴 사용](./feedback_shadcn_button_aschild.md)
 - [GitHub 토큰 채팅에 직접 붙여넣지 말 것](./feedback_github_token.md) ← 토큰 만료 예상일: 2026-04-12
+- [불확실할 때 추측 말고 질문 먼저](./feedback_ask_when_uncertain.md)
 - [브랜치는 항상 main 사용 (master 금지)](./feedback_branch_preference.md)
-
-## 코드 이슈 이력
-- [Layout.tsx import 위치 수정 (2026-03-17)](./project_layout_import_fix.md)
 
 ## 백엔드 이슈
 - [로그인 응답 구조 불일치 — 수정 대기 중](./project_backend_login_response.md)
@@ -70,9 +66,8 @@
 - 워크트리 동기화: `/sync-review`
 - GitHub 인증: `~/.git-credentials`에서 `ghp_...` 토큰 부분만 교체
 - 맥북 이전 예정 — 이전 시 `git clone`, `~/.claude/` 복사, `.env` 백업, Homebrew로 Node/Java/Docker 설치
-- [Claude Code 워크트리 바로가기 aliases](./project_bash_aliases.md) — `mel` / `mel-dev` / `mel-review`
-- [백업 레포 URL (MelloMe_FE_Backup)](./reference_backup_repos.md)
-- [메모리 동기화 슬래시 커맨드 — `/push-mello`, `/pull-mello`](./project_memory_sync.md)
+- [백업 레포 URL (MelloMe_FE_Backup / claude-backup)](./reference_backup_repos.md)
+- [메모리 동기화 슬래시 커맨드 — `/push-mello`, `/pull-mello` (claude-backup 폐기, 통합됨)](./project_memory_sync.md)
 
 ## 학습
 - [프론트엔드 코드 학습 전체 완료](./project_code_learning.md)
