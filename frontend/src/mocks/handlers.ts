@@ -261,6 +261,7 @@ export const handlers = [
       content: body.content,
       scrapped: false,
     };
+    mockPosts.unshift(newPost as typeof mockPosts[0]);
     return HttpResponse.json({ success: true, data: newPost }, { status: 201 });
   }),
 
