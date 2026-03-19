@@ -15,10 +15,16 @@ fi
 case "$1" in
   push-mello)
     echo "📤 메모리 → 레포 sync 후 push 중..."
+    cd "$PROJECT_REPO"
+    # 커밋 안 된 변경사항 확인 후 자동 커밋
+    if ! git diff --quiet || ! git diff --cached --quiet; then
+      echo "⚠️  커밋되지 않은 변경사항 감지 → 자동 커밋 진행"
+      git add -A
+      git commit -m "chore: push 전 변경사항 자동 커밋 $(date '+%Y-%m-%d %H:%M')"
+    fi
     # 로컬 메모리 → 레포 내 메모리 폴더로 복사
     mkdir -p "$MEMORY_IN_REPO"
     rsync -a --delete --exclude='.git' "$MEMORY_SRC/" "$MEMORY_IN_REPO/"
-    cd "$PROJECT_REPO"
     git pull --rebase origin main 2>/dev/null || git pull origin main || true
     git add .claude/memory
     if git diff --cached --quiet; then
