@@ -3,8 +3,8 @@
 
 set -e
 
-PROJECT_REPO="/home/jin24/my-project"
-MEMORY_SRC="/home/jin24/.claude/projects/-home-jin24-my-project/memory"
+PROJECT_REPO="/Users/jin/my-project"
+MEMORY_SRC="/Users/jin/.claude/projects/-Users-jin-my-project/memory"
 MEMORY_IN_REPO="$PROJECT_REPO/.claude/memory"
 
 if [ ! -d "$PROJECT_REPO/.git" ]; then
@@ -34,12 +34,12 @@ type: project
 ## 마지막 동기화
 
 - **시간**: $SYNC_TIME
-- **환경**: WSL2 (Ubuntu)
+- **환경**: macOS (맥북)
 - **레포**: https://github.com/GPCJ/MelloMe_FE_Backup
 
-**Why:** WSL2와 맥북 간 메모리 동기화 상태 검증용. 맥북에서 pull 후 이 파일의 시간을 확인하면 메모리가 최신인지 알 수 있음.
+**Why:** 환경 간 메모리 동기화 상태 검증용. 다른 환경에서 pull 후 이 파일의 시간을 확인하면 메모리가 최신인지 알 수 있음.
 
-**How to apply:** 새 환경(맥북 등)에서 대화 시작 시 이 파일 시간과 레포 최근 커밋 시간이 일치하면 동기화 정상.
+**How to apply:** 새 환경에서 대화 시작 시 이 파일 시간과 레포 최근 커밋 시간이 일치하면 동기화 정상.
 EOF
     # 로컬 메모리 → 레포 내 메모리 폴더로 복사
     mkdir -p "$MEMORY_IN_REPO"
