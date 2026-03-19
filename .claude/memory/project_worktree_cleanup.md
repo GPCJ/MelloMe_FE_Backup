@@ -14,6 +14,8 @@ type: project
 
 **현재 브랜치 구조:**
 - 로컬 `main`: 개발용 (`.claude/`, `CLAUDE.md`, `scripts/` 포함)
-- 로컬 `public`: 공개용 (위 파일 제거) → airo 레포 `main`으로 push됨
+- 로컬 `public`: `/push-airo` 실행 시 `main`에서 reset --hard 후 Claude 파일 제거한 스냅샷
+
+**주의:** `public` 브랜치를 rebase/merge로 유지하면 새로 추가된 `.claude/` 파일이 누락 없이 제거되지 않음. 항상 reset --hard 방식 사용.
 
 **Why:** 워크트리를 나눠놨지만 활용도가 낮고 관리가 번거로워서 단순화하기로 함.

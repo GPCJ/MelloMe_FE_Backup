@@ -54,6 +54,7 @@
 - [브랜치는 항상 main 사용 (master 금지)](./feedback_branch_preference.md)
 - [슬래시 커맨드 요청 시 스크립트 파일 별도 생성 금지](./feedback_no_scripts_for_commands.md)
 - [외부 레포 push 전 사용자 최종 승인 필수](./feedback_push_requires_approval.md)
+- [push-airo 시 .claude/ 등 Claude 파일 누락 방지 — reset --hard 방식만 사용](./feedback_push_airo_claude_files.md)
 
 ## 코드 이슈 이력
 - [Layout.tsx import 위치 수정 (2026-03-17)](./project_layout_import_fix.md)

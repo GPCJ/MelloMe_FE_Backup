@@ -8,10 +8,16 @@ type: project
 
 - **remote 이름:** `airo`
 - **URL:** https://github.com/AIRO-offical/therapist_community_FE
-- **`public` 브랜치:** main에서 파생, `.claude/`, `CLAUDE.md`, `scripts/` 제거된 상태
-- **`/push-airo` 슬래시 커맨드:** `.claude/commands/push-airo.md` 생성 완료
-- **첫 push:** 미완료 — remote에 Initial commit이 있어 force push 필요, 사용자 승인 대기 중
+- **`public` 브랜치:** `/push-airo` 실행 시 `main`에서 reset --hard 후 Claude 파일 제거하는 방식
+- **`/push-airo` 슬래시 커맨드:** `.claude/commands/push-airo.md`
+- **첫 push:** 완료 (2026-03-19)
 
-**Why:** Claude Code 관련 파일(메모리, 커맨드 등)을 공개 레포에 올리지 않기 위해 브랜치 분리 방식 채택.
+**push-airo 동작 방식 (2026-03-19 개선):**
+1. Claude 관련 파일 제외 후 미커밋 변경사항 확인 → 있으면 자동 커밋
+2. Claude 파일만 변경된 경우 "프론트엔드 변경사항 없음" 출력 후 중단
+3. `public` 브랜치를 `main`으로 reset --hard (rebase/merge 방식 폐기)
+4. `.claude/`, `CLAUDE.md`, `scripts/` 무조건 제거 후 force push
 
-**How to apply:** `/push-airo` 실행 시 force push 승인 먼저 받을 것. 첫 push는 `git push airo public:main --force` 필요.
+**Why:** rebase/merge 방식은 새로 추가된 `.claude/` 파일이 누락 없이 제거되지 않아 공개 레포에 실수로 업로드되는 문제 발생. reset --hard로 해결.
+
+**How to apply:** `/push-airo` 실행. force push이므로 항상 승인 후 진행.
