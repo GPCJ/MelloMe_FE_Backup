@@ -6,8 +6,11 @@
 - Backend: Spring Boot (Java), JWT + Google OAuth2 / DB: PostgreSQL 16 / 인프라: Docker Compose
 - 배포: **Vercel(프론트) + EC2(백엔드) 확정** / 프론트: `www.melonnetherapists.com` / 백엔드: `api.melonnetherapists.com` (HTTPS 완료 후)
 
+## 내일 확인할 것 ⚠️
+- [내일 리마인드 항목](./project_next_session_reminder.md) — GET /me 실제 동작, 로그인 인터셉터 수정, CORS 확인, 마이페이지 API
+
 ## 다음 작업 (우선순위 순)
-- **[1순위]** 배포 마무리 ([상세](./project_deployment_status.md)) — HTTPS 완료 대기 중
+- **[1순위]** 배포 마무리 ([상세](./project_deployment_status.md)) — CORS 반영 대기 중 (HTTPS 완료)
 - **[보류]** 치료사 인증 기능
 - **[MVP 이후]** 사용자 데이터 수집 로직 — 공부 선행 필요 ([상세](./project_future_analytics.md))
 - **[MVP 이후]** 이메일 로그인 isNewUser 환영 화면 ([상세](./project_deferred_welcome_message.md))
@@ -16,13 +19,12 @@
 ## API 스펙 불일치
 - [백엔드 openapi JSON vs 프론트 코드 불일치 — 와이어프레임 공유 후 재논의](./project_api_spec_discrepancies.md)
 
-## 백엔드 대기 중 (2026-03-15 기준)
-백엔드 수정 완료되면 → 로그인 테스트 → 콘솔 스크립트로 게시글 19개 일괄 삽입 → 전체 기능 테스트
-- **[1순위]** 로그인 응답 구조 수정 ([상세](./project_backend_login_response.md))
-  - `{ isNewUser, user, tokens }` 형태로, `{ success, data }` 래퍼 제거
-  - Refresh Token → httpOnly Cookie (Set-Cookie 헤더)
-- **[2순위]** `GET /me` 엔드포인트 구현 (현재 미구현, 로그인 상태 유지/마이페이지에 필요)
-- **[3순위]** 마이페이지 API 구현 — `GET /me/dashboard`, `GET /me/posts`, `GET /me/activity`
+## 백엔드 대기 중 (2026-03-20 기준)
+CORS 반영되면 → 로그인 테스트 → 콘솔 스크립트로 게시글 19개 일괄 삽입 → 전체 기능 테스트
+- **[완료]** 로그인 응답 구조 — yaml 기준 `{ isNewUser, user, tokens }` 형태 확인 완료, Refresh Token httpOnly Cookie 완료
+- **[완료]** `GET /me` 엔드포인트 — yaml에 추가됨 (CurrentUserResponse 반환)
+- **[미구현]** 마이페이지 API — `GET /me/dashboard`, `GET /me/posts`, `GET /me/activity` yaml에 없음
+- **[대기 중]** CORS — `https://www.melonnetherapists.com` 허용 요청 완료, 반영 대기
 
 ## 로컬 개발 환경
 - **[미완료]** 루트 `.env` 미생성 — docker-compose 실행 불가 ([상세](./project_local_env_setup.md)) / GOOGLE_CLIENT_ID/SECRET만 받으면 바로 생성 가능
