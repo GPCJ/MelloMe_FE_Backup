@@ -3,8 +3,8 @@
 
 set -e
 
-PROJECT_REPO="/Users/jin/my-project"
-MEMORY_SRC="/Users/jin/.claude/projects/-Users-jin-my-project/memory"
+PROJECT_REPO="/home/jin24/my-project"
+MEMORY_SRC="/home/jin24/.claude/projects/-home-jin24-my-project/memory"
 MEMORY_IN_REPO="$PROJECT_REPO/.claude/memory"
 
 if [ ! -d "$PROJECT_REPO/.git" ]; then
