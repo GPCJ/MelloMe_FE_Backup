@@ -8,14 +8,17 @@ type: project
 
 | 슬래시 커맨드 | 동작 |
 |---|---|
+| `/pull-claude` | claude-backup 레포 → 로컬 메모리 |
+| `/push-claude` | 로컬 메모리 → claude-backup 레포 (메모리만) |
 | `/pull-mello` | MelloMe_FE_Backup 레포 pull + 로컬 메모리 복사 |
-| `/push-mello` | 로컬 메모리 sync + 프로젝트 전체 → MelloMe_FE_Backup 레포 push |
+| `/push-mello` | 프로젝트 전체 → MelloMe_FE_Backup 레포 push |
 
-**Why:** 메모리와 프로젝트 코드를 동일 레포(MelloMe_FE_Backup)에서 통합 관리. claude-backup 레포 폐기 (2026-03-18).
+**Why:** 맥북 이전 또는 환경 변경 시 메모리와 프로젝트 코드를 각각 독립적으로 백업/복원하기 위해 분리.
 
-**How to apply:** 환경 세팅 시 /pull-mello로 프로젝트+메모리 한 번에 복원.
+**How to apply:** 환경 세팅 시 /pull-claude로 메모리 복원, /pull-mello로 프로젝트 복원.
 
-## 스크립트 정보 (2026-03-18 기준)
+## 스크립트 정보 (2026-03-17 기준)
 - 실제 스크립트: `/Users/jin/my-project/scripts/memory-sync.sh`
-- 메모리는 `.claude/memory/`로 레포 내에서 직접 추적
-- claude-backup 레포 및 로컬 클론(`/Users/jin/claude-backup-temp`) 삭제 완료
+- 백업 레포 로컬 클론: `/Users/jin/claude-backup-temp`
+- claude-backup 레포 브랜치: `main` (master에서 변경됨)
+- 스크립트가 없으면 재생성 필요 (삭제된 적 있음)
