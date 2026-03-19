@@ -1,1082 +1,306 @@
-openapi: 3.0.3
-info:
-  title: Therapist Closed Community API
-  version: 1.0.0
-  description: |-
-    폐쇄형(치료사 전용) 커뮤니티 API.
-
-    인증:
-    - Access Token: Authorization: Bearer <JWT>
-    - Refresh Token: /auth/refresh
-
-    역할:
-    - USER: 로그인 완료(치료사 인증 전)
-    - THERAPIST: 인증 승인 완료(게시판 접근 가능)
-    - ADMIN: 관리자(심사/로그 접근) + THERAPIST 권한 포함 권장
-
-servers:
-  - url: http://localhost:8080/api/v1
-
-tags:
-  - name: Meta
-  - name: Auth
-  - name: Me
-  - name: TherapistVerification
-  - name: Admin
-  - name: Posts
-  - name: Comments
-  - name: Reactions
-  - name: Home
-
-components:
-  securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-
-  responses:
-    UnauthorizedError:
-      description: Unauthorized (JWT 누락/만료/위조)
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
-    ForbiddenError:
-      description: Forbidden (권한 부족: USER가 게시판 접근 등)
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
-    NotFoundError:
-      description: Not Found
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
-    ConflictError:
-      description: Conflict (중복/상태 충돌)
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
-
-  schemas:
-    ErrorResponse:
-      type: object
-      properties:
-        timestamp: { type: string, format: date-time }
-        path: { type: string }
-        code: { type: string }
-        message: { type: string }
-        fieldErrors: { type: array, items: { $ref: "#/components/schemas/FieldError" } }
-      required: [timestamp, path, code, message]
-
-    FieldError:
-      type: object
-      properties:
-        field: { type: string }
-        reason: { type: string }
-
-    PageMeta:
-      type: object
-      properties:
-        page: { type: integer }
-        size: { type: integer }
-        totalElements: { type: integer }
-        totalPages: { type: integer }
-        hasNext: { type: boolean }
-      required: [page, size, totalElements, totalPages, hasNext]
-
-    UserRole:
-      type: string
-      enum: [USER, THERAPIST, ADMIN]
-
-    TherapistVerifStatus:
-      type: string
-      enum: [PENDING, APPROVED, REJECTED]
-
-    ReactionType:
-      type: string
-      enum: [LIKE, DISLIKE]
-
-    AgeGroup:
-      type: string
-      enum: [UNSPECIFIED, AGE_0_2, AGE_3_5, AGE_6_12, AGE_13_18, AGE_19_64, AGE_65_PLUS]
-
-    TherapyArea:
-      type: string
-      enum: [UNSPECIFIED, OCCUPATIONAL_THERAPY, SPEECH_THERAPY, COGNITIVE_THERAPY, PLAY_THERAPY]
-
-    BoardType:
-      type: string
-      enum: [therapy_board, document_board, anonymous_board]
-
-    PostSort:
-      type: string
-      enum: [LATEST, MOST_VIEWED]
-
-    MetaOptionsResponse:
-      type: object
-      properties:
-        boardTypes: { type: array, items: { $ref: "#/components/schemas/BoardType" } }
-        therapyAreas: { type: array, items: { $ref: "#/components/schemas/TherapyArea" } }
-        ageGroups: { type: array, items: { $ref: "#/components/schemas/AgeGroup" } }
-        reactionTypes: { type: array, items: { $ref: "#/components/schemas/ReactionType" } }
-      required: [boardTypes, therapyAreas, ageGroups, reactionTypes]
-
-    UserSummary:
-      type: object
-      properties:
-        id: { type: integer, format: int64 }
-        nickname: { type: string }
-        profileImageUrl: { type: string, nullable: true }
-        role: { $ref: "#/components/schemas/UserRole" }
-      required: [id, nickname, role]
-
-    TherapistVerificationMyStatus:
-      type: object
-      nullable: true
-      properties:
-        id: { type: integer, format: int64 }
-        status: { $ref: "#/components/schemas/TherapistVerifStatus" }
-        createdAt: { type: string, format: date-time }
-        reviewedAt: { type: string, format: date-time, nullable: true }
-        rejectReason: { type: string, nullable: true }
-
-    MeResponse:
-      type: object
-      properties:
-        id: { type: integer, format: int64 }
-        email: { type: string }
-        nickname: { type: string }
-        profileImageUrl: { type: string, nullable: true }
-        role: { $ref: "#/components/schemas/UserRole" }
-        canAccessCommunity: { type: boolean }
-        therapistVerification: { $ref: "#/components/schemas/TherapistVerificationMyStatus" }
-      required: [id, email, nickname, role, canAccessCommunity]
-
-    UpdateMeRequest:
-      type: object
-      properties:
-        nickname: { type: string }
-        profileImageUrl: { type: string, nullable: true }
-
-    Tokens:
-      type: object
-      properties:
-        accessToken: { type: string }
-        refreshToken: { type: string }
-        accessTokenExpiresInSec: { type: integer }
-        refreshTokenExpiresInSec: { type: integer }
-      required: [accessToken, refreshToken]
-
-    AuthResponse:
-      type: object
-      properties:
-        isNewUser: { type: boolean }
-        user: { $ref: "#/components/schemas/MeResponse" }
-        tokens: { $ref: "#/components/schemas/Tokens" }
-      required: [isNewUser, user, tokens]
-
-    SignupRequest:
-      type: object
-      properties:
-        email: { type: string }
-        password: { type: string }
-        nickname: { type: string }
-      required: [email, password, nickname]
-
-    LoginRequest:
-      type: object
-      properties:
-        email: { type: string }
-        password: { type: string }
-      required: [email, password]
-
-    GoogleLoginRequest:
-      type: object
-      properties:
-        idToken: { type: string }
-      required: [idToken]
-
-    RefreshRequest:
-      type: object
-      properties:
-        refreshToken: { type: string }
-      required: [refreshToken]
-
-    LogoutRequest:
-      type: object
-      properties:
-        refreshToken: { type: string }
-      required: [refreshToken]
-
-    TherapistVerificationApplyRequest:
-      type: object
-      properties:
-        licenseCode: { type: string }
-      required: [licenseCode]
-
-    TherapistVerificationResponse:
-      type: object
-      properties:
-        id: { type: integer, format: int64 }
-        userId: { type: integer, format: int64 }
-        status: { $ref: "#/components/schemas/TherapistVerifStatus" }
-        createdAt: { type: string, format: date-time }
-        reviewedBy: { type: integer, format: int64, nullable: true }
-        reviewedAt: { type: string, format: date-time, nullable: true }
-        rejectReason: { type: string, nullable: true }
-      required: [id, userId, status, createdAt]
-
-    AdminRejectRequest:
-      type: object
-      properties:
-        rejectReason: { type: string }
-      required: [rejectReason]
-
-    PostCreateRequest:
-      type: object
-      properties:
-        board: { $ref: "#/components/schemas/BoardType" }
-        title: { type: string }
-        content: { type: string }
-        therapyArea: { $ref: "#/components/schemas/TherapyArea" }
-        ageGroup: { $ref: "#/components/schemas/AgeGroup" }
-      required: [board, title, content]
-
-    PostUpdateRequest:
-      type: object
-      properties:
-        title: { type: string }
-        content: { type: string }
-        therapyArea: { $ref: "#/components/schemas/TherapyArea" }
-        ageGroup: { $ref: "#/components/schemas/AgeGroup" }
-
-    PostSummary:
-      type: object
-      properties:
-        id: { type: integer, format: int64 }
-        board: { $ref: "#/components/schemas/BoardType" }
-        title: { type: string }
-        therapyArea: { $ref: "#/components/schemas/TherapyArea" }
-        ageGroup: { $ref: "#/components/schemas/AgeGroup" }
-        viewCount: { type: integer, format: int64 }
-        commentCount: { type: integer }
-        likeCount: { type: integer }
-        dislikeCount: { type: integer }
-        author: { $ref: "#/components/schemas/UserSummary" }
-        createdAt: { type: string, format: date-time }
-      required: [id, board, title, viewCount, commentCount, likeCount, dislikeCount, author, createdAt]
-
-    PostDetail:
-      allOf:
-        - $ref: "#/components/schemas/PostSummary"
-        - type: object
-          properties:
-            content: { type: string }
-            updatedAt: { type: string, format: date-time }
-            myReactionType: { $ref: "#/components/schemas/ReactionType", nullable: true }
-            scrapped: { type: boolean }
-          required: [content, scrapped]
-
-    PaginatedPosts:
-      type: object
-      properties:
-        items: { type: array, items: { $ref: "#/components/schemas/PostSummary" } }
-        page: { $ref: "#/components/schemas/PageMeta" }
-      required: [items, page]
-
-    CommentCreateRequest:
-      type: object
-      properties:
-        content: { type: string }
-        parentCommentId: { type: integer, format: int64, nullable: true }
-      required: [content]
-
-    CommentUpdateRequest:
-      type: object
-      properties:
-        content: { type: string }
-      required: [content]
-
-    CommentResponse:
-      type: object
-      properties:
-        id: { type: integer, format: int64 }
-        postId: { type: integer, format: int64 }
-        author: { $ref: "#/components/schemas/UserSummary" }
-        parentCommentId: { type: integer, format: int64, nullable: true }
-        content: { type: string, nullable: true }
-        deleted: { type: boolean }
-        createdAt: { type: string, format: date-time }
-        updatedAt: { type: string, format: date-time }
-      required: [id, postId, author, deleted, createdAt, updatedAt]
-
-    UpsertReactionRequest:
-      type: object
-      properties:
-        reactionType: { $ref: "#/components/schemas/ReactionType" }
-      required: [reactionType]
-
-    MyReactionResponse:
-      type: object
-      properties:
-        reactionType: { $ref: "#/components/schemas/ReactionType", nullable: true }
-      required: [reactionType]
-
-    ScrapStatusResponse:
-      type: object
-      properties:
-        scrapped: { type: boolean }
-      required: [scrapped]
-
-    PaginatedScraps:
-      type: object
-      properties:
-        items: { type: array, items: { $ref: "#/components/schemas/PostSummary" } }
-        page: { $ref: "#/components/schemas/PageMeta" }
-      required: [items, page]
-
-    PaginatedTherapistVerifications:
-      type: object
-      properties:
-        items: { type: array, items: { $ref: "#/components/schemas/TherapistVerificationResponse" } }
-        page: { $ref: "#/components/schemas/PageMeta" }
-      required: [items, page]
-
-    AdminLog:
-      type: object
-      properties:
-        id: { type: integer, format: int64 }
-        adminId: { type: integer, format: int64 }
-        action: { type: string }
-        targetUserId: { type: integer, format: int64, nullable: true }
-        therapistVerificationId: { type: integer, format: int64, nullable: true }
-        memo: { type: string, nullable: true }
-        createdAt: { type: string, format: date-time }
-      required: [id, adminId, action, createdAt]
-
-    PaginatedAdminLogs:
-      type: object
-      properties:
-        items: { type: array, items: { $ref: "#/components/schemas/AdminLog" } }
-        page: { $ref: "#/components/schemas/PageMeta" }
-      required: [items, page]
-
-    HomeSectionKey:
-      type: string
-      enum: [POPULAR_THERAPY, WEEKLY_DOCUMENTS, LATEST_ANONYMOUS]
-
-    HomeViewer:
-      type: object
-      properties:
-        authenticated: { type: boolean }
-        role: { $ref: "#/components/schemas/UserRole", nullable: true }
-        nickname: { type: string, nullable: true }
-        profileImageUrl: { type: string, nullable: true }
-        canAccessCommunity: { type: boolean }
-        therapistVerification: { $ref: "#/components/schemas/TherapistVerificationMyStatus" }
-      required: [authenticated, canAccessCommunity]
-
-    HomeSection:
-      type: object
-      properties:
-        key: { $ref: "#/components/schemas/HomeSectionKey" }
-        title: { type: string }
-        board: { $ref: "#/components/schemas/BoardType" }
-        sort: { $ref: "#/components/schemas/PostSort" }
-        locked: { type: boolean }
-        lockedReason: { type: string, nullable: true }
-        placeholderCount: { type: integer }
-        items: { type: array, items: { $ref: "#/components/schemas/PostSummary" } }
-      required: [key, title, board, sort, locked, placeholderCount, items]
-
-    HomeResponse:
-      type: object
-      properties:
-        viewer: { $ref: "#/components/schemas/HomeViewer" }
-        sections: { type: array, items: { $ref: "#/components/schemas/HomeSection" } }
-      required: [viewer, sections]
-
-paths:
-  /meta/options:
-    get:
-      tags: [Meta]
-      summary: 옵션 목록 조회
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/MetaOptionsResponse" }
-
-  /auth/signup:
-    post:
-      tags: [Auth]
-      summary: 이메일 회원가입
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/SignupRequest" }
-      responses:
-        "201":
-          description: Created
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/AuthResponse" }
-        "409":
-          $ref: "#/components/responses/ConflictError"
-
-  /auth/login:
-    post:
-      tags: [Auth]
-      summary: 이메일 로그인
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/LoginRequest" }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/AuthResponse" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-
-  /auth/oauth/google:
-    post:
-      tags: [Auth]
-      summary: 구글 로그인
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/GoogleLoginRequest" }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/AuthResponse" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-
-  /auth/refresh:
-    post:
-      tags: [Auth]
-      summary: 토큰 갱신
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/RefreshRequest" }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/Tokens" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-
-  /auth/logout:
-    post:
-      tags: [Auth]
-      summary: 로그아웃
-      security: [{ BearerAuth: [] }]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/LogoutRequest" }
-      responses:
-        "204":
-          description: No Content
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-
-  /me:
-    get:
-      tags: [Me]
-      summary: 내 정보 조회
-      security: [{ BearerAuth: [] }]
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/MeResponse" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-    patch:
-      tags: [Me]
-      summary: 내 프로필 수정
-      security: [{ BearerAuth: [] }]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/UpdateMeRequest" }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/MeResponse" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-
-  /me/posts:
-    get:
-      tags: [Me]
-      summary: 내가 작성한 게시글
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: page
-          in: query
-          schema: { type: integer, default: 0 }
-        - name: size
-          in: query
-          schema: { type: integer, default: 20 }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/PaginatedPosts" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-
-  /me/scraps:
-    get:
-      tags: [Me]
-      summary: 내 스크랩 목록
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: page
-          in: query
-          schema: { type: integer, default: 0 }
-        - name: size
-          in: query
-          schema: { type: integer, default: 20 }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/PaginatedScraps" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-
-  /therapist-verifications:
-    post:
-      tags: [TherapistVerification]
-      summary: 치료사 인증 신청
-      security: [{ BearerAuth: [] }]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/TherapistVerificationApplyRequest" }
-      responses:
-        "201":
-          description: Created
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/TherapistVerificationResponse" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-        "409":
-          $ref: "#/components/responses/ConflictError"
-
-  /therapist-verifications/me:
-    get:
-      tags: [TherapistVerification]
-      summary: 내 인증 상태
-      security: [{ BearerAuth: [] }]
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/TherapistVerificationMyStatus" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-
-  /admin/therapist-verifications:
-    get:
-      tags: [Admin]
-      summary: 인증 신청 목록(관리자)
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: status
-          in: query
-          schema: { $ref: "#/components/schemas/TherapistVerifStatus" }
-        - name: page
-          in: query
-          schema: { type: integer, default: 0 }
-        - name: size
-          in: query
-          schema: { type: integer, default: 20 }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/PaginatedTherapistVerifications" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-
-  /admin/therapist-verifications/{verificationId}/approve:
-    post:
-      tags: [Admin]
-      summary: 인증 승인(관리자)
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: verificationId
-          in: path
-          required: true
-          schema: { type: integer, format: int64 }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/TherapistVerificationResponse" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-        "404":
-          $ref: "#/components/responses/NotFoundError"
-        "409":
-          $ref: "#/components/responses/ConflictError"
-
-  /admin/therapist-verifications/{verificationId}/reject:
-    post:
-      tags: [Admin]
-      summary: 인증 거절(관리자)
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: verificationId
-          in: path
-          required: true
-          schema: { type: integer, format: int64 }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/AdminRejectRequest" }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/TherapistVerificationResponse" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-        "404":
-          $ref: "#/components/responses/NotFoundError"
-        "409":
-          $ref: "#/components/responses/ConflictError"
-
-  /admin/logs:
-    get:
-      tags: [Admin]
-      summary: 관리자 로그
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: page
-          in: query
-          schema: { type: integer, default: 0 }
-        - name: size
-          in: query
-          schema: { type: integer, default: 20 }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/PaginatedAdminLogs" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-
-  /posts:
-    get:
-      tags: [Posts]
-      summary: 게시글 목록
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: board
-          in: query
-          schema: { $ref: "#/components/schemas/BoardType" }
-        - name: therapyArea
-          in: query
-          schema: { $ref: "#/components/schemas/TherapyArea" }
-        - name: ageGroup
-          in: query
-          schema: { $ref: "#/components/schemas/AgeGroup" }
-        - name: sort
-          in: query
-          schema: { $ref: "#/components/schemas/PostSort" }
-        - name: page
-          in: query
-          schema: { type: integer, default: 0 }
-        - name: size
-          in: query
-          schema: { type: integer, default: 20 }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/PaginatedPosts" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-    post:
-      tags: [Posts]
-      summary: 게시글 작성
-      security: [{ BearerAuth: [] }]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/PostCreateRequest" }
-      responses:
-        "201":
-          description: Created
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/PostDetail" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-
-  /posts/{postId}:
-    get:
-      tags: [Posts]
-      summary: 게시글 상세
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: postId
-          in: path
-          required: true
-          schema: { type: integer, format: int64 }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/PostDetail" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-        "404":
-          $ref: "#/components/responses/NotFoundError"
-    patch:
-      tags: [Posts]
-      summary: 게시글 수정
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: postId
-          in: path
-          required: true
-          schema: { type: integer, format: int64 }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/PostUpdateRequest" }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/PostDetail" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-        "404":
-          $ref: "#/components/responses/NotFoundError"
-    delete:
-      tags: [Posts]
-      summary: 게시글 삭제
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: postId
-          in: path
-          required: true
-          schema: { type: integer, format: int64 }
-      responses:
-        "204":
-          description: No Content
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-        "404":
-          $ref: "#/components/responses/NotFoundError"
-
-  /posts/{postId}/comments:
-    get:
-      tags: [Comments]
-      summary: 댓글 목록
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: postId
-          in: path
-          required: true
-          schema: { type: integer, format: int64 }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items: { $ref: "#/components/schemas/CommentResponse" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-        "404":
-          $ref: "#/components/responses/NotFoundError"
-    post:
-      tags: [Comments]
-      summary: 댓글 작성
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: postId
-          in: path
-          required: true
-          schema: { type: integer, format: int64 }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/CommentCreateRequest" }
-      responses:
-        "201":
-          description: Created
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/CommentResponse" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-        "404":
-          $ref: "#/components/responses/NotFoundError"
-
-  /comments/{commentId}:
-    patch:
-      tags: [Comments]
-      summary: 댓글 수정
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: commentId
-          in: path
-          required: true
-          schema: { type: integer, format: int64 }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/CommentUpdateRequest" }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/CommentResponse" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-        "404":
-          $ref: "#/components/responses/NotFoundError"
-    delete:
-      tags: [Comments]
-      summary: 댓글 삭제
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: commentId
-          in: path
-          required: true
-          schema: { type: integer, format: int64 }
-      responses:
-        "204":
-          description: No Content
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-        "404":
-          $ref: "#/components/responses/NotFoundError"
-
-  /posts/{postId}/reaction:
-    get:
-      tags: [Reactions]
-      summary: 내 반응 조회
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: postId
-          in: path
-          required: true
-          schema: { type: integer, format: int64 }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/MyReactionResponse" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-    put:
-      tags: [Reactions]
-      summary: 반응 설정
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: postId
-          in: path
-          required: true
-          schema: { type: integer, format: int64 }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/UpsertReactionRequest" }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/MyReactionResponse" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-        "404":
-          $ref: "#/components/responses/NotFoundError"
-    delete:
-      tags: [Reactions]
-      summary: 반응 취소
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: postId
-          in: path
-          required: true
-          schema: { type: integer, format: int64 }
-      responses:
-        "204":
-          description: No Content
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-
-  /posts/{postId}/scrap:
-    get:
-      tags: [Scraps]
-      summary: 스크랩 여부
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: postId
-          in: path
-          required: true
-          schema: { type: integer, format: int64 }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ScrapStatusResponse" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-    post:
-      tags: [Scraps]
-      summary: 스크랩 추가
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: postId
-          in: path
-          required: true
-          schema: { type: integer, format: int64 }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ScrapStatusResponse" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-        "404":
-          $ref: "#/components/responses/NotFoundError"
-    delete:
-      tags: [Scraps]
-      summary: 스크랩 해제
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - name: postId
-          in: path
-          required: true
-          schema: { type: integer, format: int64 }
-      responses:
-        "204":
-          description: No Content
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-
-  /home:
-    get:
-      tags: [Home]
-      summary: 홈 화면 통합 데이터
-      security: [{ BearerAuth: [] }, {}]
-      parameters:
-        - name: therapyLimit
-          in: query
-          schema: { type: integer, default: 3 }
-        - name: documentLimit
-          in: query
-          schema: { type: integer, default: 6 }
-        - name: anonymousLimit
-          in: query
-          schema: { type: integer, default: 6 }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/HomeResponse" }
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Builders MVP API",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/v1/posts/{postId}/reaction": {
+      "get": {
+        "tags": ["post-reaction-controller"],
+        "operationId": "getReactionStatus",
+        "parameters": [{"name": "postId","in": "path","required": true,"schema": {"type": "integer","format": "int64"}}],
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponsePostReactionStatusResponse"}}}}}
+      },
+      "put": {
+        "tags": ["post-reaction-controller"],
+        "operationId": "toggleReaction",
+        "parameters": [{"name": "postId","in": "path","required": true,"schema": {"type": "integer","format": "int64"}}],
+        "requestBody": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/TogglePostReactionRequest"}}},"required": true},
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponsePostReactionStatusResponse"}}}}}
+      }
+    },
+    "/api/v1/comments/{commentId}/reaction": {
+      "get": {
+        "tags": ["comment-reaction-controller"],
+        "operationId": "getReactionStatus_1",
+        "parameters": [{"name": "commentId","in": "path","required": true,"schema": {"type": "integer","format": "int64"}}],
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseCommentReactionStatusResponse"}}}}}
+      },
+      "put": {
+        "tags": ["comment-reaction-controller"],
+        "operationId": "toggleReaction_1",
+        "parameters": [{"name": "commentId","in": "path","required": true,"schema": {"type": "integer","format": "int64"}}],
+        "requestBody": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/ToggleCommentReactionRequest"}}},"required": true},
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseCommentReactionStatusResponse"}}}}}
+      }
+    },
+    "/api/v1/therapist-verifications": {
+      "post": {
+        "tags": ["therapist-verification-controller"],
+        "operationId": "apply",
+        "requestBody": {"content": {"multipart/form-data": {"schema": {"$ref": "#/components/schemas/ApplyTherapistVerificationRequest"}}}},
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseTherapistVerificationResponse"}}}}}
+      }
+    },
+    "/api/v1/posts": {
+      "get": {
+        "tags": ["post-controller"],
+        "operationId": "getPosts",
+        "parameters": [
+          {"name": "page","in": "query","required": false,"schema": {"type": "integer","format": "int32","default": 0}},
+          {"name": "size","in": "query","required": false,"schema": {"type": "integer","format": "int32","default": 10}},
+          {"name": "sortType","in": "query","required": false,"schema": {"type": "string","default": "LATEST","enum": ["LATEST","MOST_VIEWED"]}}
+        ],
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponsePostListResponse"}}}}},
+        "security": [{"bearerAuth": []}]
+      },
+      "post": {
+        "tags": ["post-controller"],
+        "operationId": "createPost",
+        "requestBody": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/CreateTherapyPostRequest"}}},"required": true},
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseTherapyPostDetailResponse"}}}}},
+        "security": [{"bearerAuth": []}]
+      }
+    },
+    "/api/v1/posts/{postId}/scrap": {
+      "get": {
+        "tags": ["scrap-controller"],
+        "operationId": "getScrapStatus",
+        "parameters": [{"name": "postId","in": "path","required": true,"schema": {"type": "integer","format": "int64"}}],
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseScrapStatusResponse"}}}}}
+      },
+      "post": {
+        "tags": ["scrap-controller"],
+        "operationId": "addScrap",
+        "parameters": [{"name": "postId","in": "path","required": true,"schema": {"type": "integer","format": "int64"}}],
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseScrapStatusResponse"}}}}}
+      },
+      "delete": {
+        "tags": ["scrap-controller"],
+        "operationId": "removeScrap",
+        "parameters": [{"name": "postId","in": "path","required": true,"schema": {"type": "integer","format": "int64"}}],
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseScrapStatusResponse"}}}}}
+      }
+    },
+    "/api/v1/posts/{postId}/comments": {
+      "get": {
+        "tags": ["comment-controller"],
+        "operationId": "getComments",
+        "parameters": [{"name": "postId","in": "path","required": true,"schema": {"type": "integer","format": "int64"}}],
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseListCommentResponse"}}}}}
+      },
+      "post": {
+        "tags": ["comment-controller"],
+        "operationId": "createComment",
+        "parameters": [{"name": "postId","in": "path","required": true,"schema": {"type": "integer","format": "int64"}}],
+        "requestBody": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/CreateCommentRequest"}}},"required": true},
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseCommentResponse"}}}}}
+      }
+    },
+    "/api/v1/auth/signup": {
+      "post": {
+        "tags": ["auth-controller"],
+        "operationId": "signup",
+        "requestBody": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/SignupRequest"}}},"required": true},
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseSignupResponse"}}}}}
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "tags": ["auth-controller"],
+        "operationId": "refresh",
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseRefreshResponse"}}}}}
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": ["auth-controller"],
+        "operationId": "logout",
+        "responses": {"200": {"description": "OK"}}
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": ["auth-controller"],
+        "operationId": "login",
+        "requestBody": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/LoginRequest"}}},"required": true},
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseLoginResponse"}}}}}
+      }
+    },
+    "/api/v1/posts/{postId}": {
+      "get": {
+        "tags": ["post-controller"],
+        "operationId": "getPostDetail",
+        "parameters": [{"name": "postId","in": "path","required": true,"schema": {"type": "integer","format": "int64"}}],
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseTherapyPostDetailResponse"}}}}},
+        "security": [{"bearerAuth": []}]
+      },
+      "delete": {
+        "tags": ["post-controller"],
+        "operationId": "deletePost",
+        "parameters": [{"name": "postId","in": "path","required": true,"schema": {"type": "integer","format": "int64"}}],
+        "responses": {"200": {"description": "OK"}},
+        "security": [{"bearerAuth": []}]
+      },
+      "patch": {
+        "tags": ["post-controller"],
+        "operationId": "updatePost",
+        "parameters": [{"name": "postId","in": "path","required": true,"schema": {"type": "integer","format": "int64"}}],
+        "requestBody": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/UpdateTherapyPostRequest"}}},"required": true},
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseTherapyPostDetailResponse"}}}}},
+        "security": [{"bearerAuth": []}]
+      }
+    },
+    "/api/v1/comments/{commentId}": {
+      "delete": {
+        "tags": ["comment-controller"],
+        "operationId": "deleteComment",
+        "parameters": [{"name": "commentId","in": "path","required": true,"schema": {"type": "integer","format": "int64"}}],
+        "responses": {"200": {"description": "OK"}}
+      },
+      "patch": {
+        "tags": ["comment-controller"],
+        "operationId": "updateComment",
+        "parameters": [{"name": "commentId","in": "path","required": true,"schema": {"type": "integer","format": "int64"}}],
+        "requestBody": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/UpdateCommentRequest"}}},"required": true},
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseCommentResponse"}}}}}
+      }
+    },
+    "/api/v1/therapist-verifications/me": {
+      "get": {
+        "tags": ["therapist-verification-controller"],
+        "operationId": "getMyVerification",
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseTherapistVerificationResponse"}}}}}
+      }
+    },
+    "/api/v1/therapist-verifications/me/image": {
+      "get": {
+        "tags": ["therapist-verification-controller"],
+        "operationId": "downloadMyVerificationImage",
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"type": "string","format": "binary"}}}}}
+      }
+    },
+    "/api/v1/me": {
+      "get": {
+        "tags": ["user-controller"],
+        "operationId": "getCurrentUser",
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseCurrentUserResponse"}}}}}
+      }
+    },
+    "/api/v1/me/scraps": {
+      "get": {
+        "tags": ["scrap-controller"],
+        "operationId": "getMyScraps",
+        "parameters": [
+          {"name": "page","in": "query","required": false,"schema": {"type": "integer","format": "int32","default": 0}},
+          {"name": "size","in": "query","required": false,"schema": {"type": "integer","format": "int32","default": 10}}
+        ],
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseScrapListResponse"}}}}}
+      }
+    },
+    "/api/v1/home": {
+      "get": {
+        "tags": ["home-controller"],
+        "operationId": "home",
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"type": "object","additionalProperties": {"type": "string"}}}}}}
+      }
+    },
+    "/api/v1/admin/therapist-verifications": {
+      "get": {
+        "tags": ["admin-therapist-verification-controller"],
+        "operationId": "getVerifications",
+        "parameters": [
+          {"name": "status","in": "query","required": false,"schema": {"type": "string"}},
+          {"name": "page","in": "query","required": false,"schema": {"type": "integer","format": "int32","default": 0}},
+          {"name": "size","in": "query","required": false,"schema": {"type": "integer","format": "int32","default": 20}}
+        ],
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseTherapistVerificationPageResponse"}}}}}
+      }
+    },
+    "/api/v1/admin/therapist-verifications/{verificationId}/reject": {
+      "post": {
+        "tags": ["admin-therapist-verification-controller"],
+        "operationId": "reject",
+        "parameters": [{"name": "verificationId","in": "path","required": true,"schema": {"type": "integer","format": "int64"}}],
+        "requestBody": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/RejectTherapistVerificationRequest"}}},"required": true},
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseTherapistVerificationResponse"}}}}}
+      }
+    },
+    "/api/v1/admin/therapist-verifications/{verificationId}/approve": {
+      "post": {
+        "tags": ["admin-therapist-verification-controller"],
+        "operationId": "approve",
+        "parameters": [{"name": "verificationId","in": "path","required": true,"schema": {"type": "integer","format": "int64"}}],
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"$ref": "#/components/schemas/ApiResponseTherapistVerificationResponse"}}}}}
+      }
+    },
+    "/api/v1/admin/therapist-verifications/{verificationId}/image": {
+      "get": {
+        "tags": ["admin-therapist-verification-controller"],
+        "operationId": "downloadVerificationImage",
+        "parameters": [{"name": "verificationId","in": "path","required": true,"schema": {"type": "integer","format": "int64"}}],
+        "responses": {"200": {"description": "OK","content": {"*/*": {"schema": {"type": "string","format": "binary"}}}}}
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TogglePostReactionRequest": {"type": "object","properties": {"reactionType": {"type": "string","enum": ["EMPATHY","APPRECIATE","HELPFUL"]}},"required": ["reactionType"]},
+      "ApiResponsePostReactionStatusResponse": {"type": "object","properties": {"success": {"type": "boolean"},"data": {"$ref": "#/components/schemas/PostReactionStatusResponse"}}},
+      "PostReactionStatusResponse": {"type": "object","properties": {"postId": {"type": "integer","format": "int64"},"empathyCount": {"type": "integer","format": "int64"},"appreciateCount": {"type": "integer","format": "int64"},"helpfulCount": {"type": "integer","format": "int64"},"myReactionType": {"type": "string","enum": ["EMPATHY","APPRECIATE","HELPFUL"]}}},
+      "ToggleCommentReactionRequest": {"type": "object","properties": {"reactionType": {"type": "string","enum": ["LIKE","DISLIKE"]}},"required": ["reactionType"]},
+      "ApiResponseCommentReactionStatusResponse": {"type": "object","properties": {"success": {"type": "boolean"},"data": {"$ref": "#/components/schemas/CommentReactionStatusResponse"}}},
+      "CommentReactionStatusResponse": {"type": "object","properties": {"commentId": {"type": "integer","format": "int64"},"likeCount": {"type": "integer","format": "int64"},"dislikeCount": {"type": "integer","format": "int64"},"myReactionType": {"type": "string","enum": ["LIKE","DISLIKE"]}}},
+      "ApplyTherapistVerificationRequest": {"type": "object","properties": {"licenseCode": {"type": "string"},"licenseImage": {"type": "string","format": "binary"}},"required": ["licenseCode","licenseImage"]},
+      "ApiResponseTherapistVerificationResponse": {"type": "object","properties": {"success": {"type": "boolean"},"data": {"$ref": "#/components/schemas/TherapistVerificationResponse"}}},
+      "TherapistVerificationResponse": {"type": "object","properties": {"id": {"type": "integer","format": "int64"},"userId": {"type": "integer","format": "int64"},"userEmail": {"type": "string"},"userNickname": {"type": "string"},"licenseCode": {"type": "string"},"licenseImageOriginName": {"type": "string"},"licenseImageDownloadUrl": {"type": "string"},"status": {"type": "string","enum": ["PENDING","APPROVED","REJECTED"]},"reviewedById": {"type": "integer","format": "int64"},"reviewedByNickname": {"type": "string"},"reviewedAt": {"type": "string","format": "date-time"},"rejectReason": {"type": "string"},"createdAt": {"type": "string","format": "date-time"},"updatedAt": {"type": "string","format": "date-time"}}},
+      "CreateTherapyPostRequest": {"type": "object","properties": {"title": {"type": "string"},"content": {"type": "string"},"therapyArea": {"type": "string","enum": ["UNSPECIFIED","OCCUPATIONAL","SPEECH","COGNITIVE","PLAY"]},"ageGroup": {"type": "string","enum": ["UNSPECIFIED","AGE_0_2","AGE_3_5","AGE_6_12","AGE_13_18","AGE_19_64","AGE_65_PLUS"]}},"required": ["ageGroup","content","therapyArea","title"]},
+      "ApiResponseTherapyPostDetailResponse": {"type": "object","properties": {"success": {"type": "boolean"},"data": {"$ref": "#/components/schemas/TherapyPostDetailResponse"}}},
+      "TherapyPostDetailResponse": {"type": "object","properties": {"id": {"type": "integer","format": "int64"},"title": {"type": "string"},"content": {"type": "string"},"authorNickname": {"type": "string"},"therapyArea": {"type": "string","enum": ["UNSPECIFIED","OCCUPATIONAL","SPEECH","COGNITIVE","PLAY"]},"ageGroup": {"type": "string","enum": ["UNSPECIFIED","AGE_0_2","AGE_3_5","AGE_6_12","AGE_13_18","AGE_19_64","AGE_65_PLUS"]},"viewCount": {"type": "integer","format": "int64"},"createdAt": {"type": "string","format": "date-time"},"updatedAt": {"type": "string","format": "date-time"}}},
+      "ApiResponseScrapStatusResponse": {"type": "object","properties": {"success": {"type": "boolean"},"data": {"$ref": "#/components/schemas/ScrapStatusResponse"}}},
+      "ScrapStatusResponse": {"type": "object","properties": {"postId": {"type": "integer","format": "int64"},"scrapped": {"type": "boolean"}}},
+      "CreateCommentRequest": {"type": "object","properties": {"content": {"type": "string"},"parentCommentId": {"type": "integer","format": "int64"}},"required": ["content"]},
+      "ApiResponseCommentResponse": {"type": "object","properties": {"success": {"type": "boolean"},"data": {"$ref": "#/components/schemas/CommentResponse"}}},
+      "CommentResponse": {"type": "object","properties": {"id": {"type": "integer","format": "int64"},"postId": {"type": "integer","format": "int64"},"parentCommentId": {"type": "integer","format": "int64"},"authorId": {"type": "integer","format": "int64"},"authorNickname": {"type": "string"},"authorRole": {"type": "string"},"content": {"type": "string"},"deleted": {"type": "boolean"},"canEdit": {"type": "boolean"},"canDelete": {"type": "boolean"},"createdAt": {"type": "string","format": "date-time"},"updatedAt": {"type": "string","format": "date-time"},"replies": {"type": "array","items": {"$ref": "#/components/schemas/CommentResponse"}}}},
+      "SignupRequest": {"type": "object","properties": {"email": {"type": "string"},"password": {"type": "string"},"nickname": {"type": "string"}}},
+      "ApiResponseSignupResponse": {"type": "object","properties": {"success": {"type": "boolean"},"data": {"$ref": "#/components/schemas/SignupResponse"}}},
+      "SignupResponse": {"type": "object","properties": {"id": {"type": "integer","format": "int64"},"email": {"type": "string"}}},
+      "ApiResponseRefreshResponse": {"type": "object","properties": {"success": {"type": "boolean"},"data": {"$ref": "#/components/schemas/RefreshResponse"}}},
+      "RefreshResponse": {"type": "object","properties": {"accessToken": {"type": "string"},"accessTokenExpiresInSec": {"type": "integer","format": "int64"}}},
+      "LoginRequest": {"type": "object","properties": {"email": {"type": "string"},"password": {"type": "string"}},"required": ["email","password"]},
+      "ApiResponseLoginResponse": {"type": "object","properties": {"success": {"type": "boolean"},"data": {"$ref": "#/components/schemas/LoginResponse"}}},
+      "LoginResponse": {"type": "object","properties": {"isNewUser": {"type": "boolean"},"user": {"$ref": "#/components/schemas/CurrentUserResponse"},"tokens": {"$ref": "#/components/schemas/Tokens"}}},
+      "CurrentUserResponse": {"type": "object","properties": {"id": {"type": "integer","format": "int64"},"email": {"type": "string"},"nickname": {"type": "string"},"profileImageUrl": {"type": "string"},"role": {"type": "string"},"canAccessCommunity": {"type": "boolean"},"therapistVerification": {"$ref": "#/components/schemas/TherapistVerificationSummary"}}},
+      "TherapistVerificationSummary": {"type": "object","properties": {"status": {"type": "string"},"requestedAt": {"type": "string","format": "date-time"},"reviewedAt": {"type": "string","format": "date-time"},"rejectionReason": {"type": "string"}}},
+      "Tokens": {"type": "object","properties": {"accessToken": {"type": "string"},"accessTokenExpiresInSec": {"type": "integer","format": "int64"}}},
+      "RejectTherapistVerificationRequest": {"type": "object","properties": {"rejectReason": {"type": "string"}},"required": ["rejectReason"]},
+      "UpdateTherapyPostRequest": {"type": "object","properties": {"title": {"type": "string"},"content": {"type": "string"},"therapyArea": {"type": "string","enum": ["UNSPECIFIED","OCCUPATIONAL","SPEECH","COGNITIVE","PLAY"]},"ageGroup": {"type": "string","enum": ["UNSPECIFIED","AGE_0_2","AGE_3_5","AGE_6_12","AGE_13_18","AGE_19_64","AGE_65_PLUS"]}},"required": ["ageGroup","content","therapyArea","title"]},
+      "UpdateCommentRequest": {"type": "object","properties": {"content": {"type": "string"}},"required": ["content"]},
+      "ApiResponsePostListResponse": {"type": "object","properties": {"success": {"type": "boolean"},"data": {"$ref": "#/components/schemas/PostListResponse"}}},
+      "PostListResponse": {"type": "object","properties": {"posts": {"type": "array","items": {"$ref": "#/components/schemas/TherapyPostSummaryResponse"}},"page": {"type": "integer","format": "int32"},"size": {"type": "integer","format": "int32"},"totalElements": {"type": "integer","format": "int64"},"totalPages": {"type": "integer","format": "int32"},"hasNext": {"type": "boolean"}}},
+      "TherapyPostSummaryResponse": {"type": "object","properties": {"id": {"type": "integer","format": "int64"},"title": {"type": "string"},"contentPreview": {"type": "string"},"authorNickname": {"type": "string"},"therapyArea": {"type": "string","enum": ["UNSPECIFIED","OCCUPATIONAL","SPEECH","COGNITIVE","PLAY"]},"ageGroup": {"type": "string","enum": ["UNSPECIFIED","AGE_0_2","AGE_3_5","AGE_6_12","AGE_13_18","AGE_19_64","AGE_65_PLUS"]},"viewCount": {"type": "integer","format": "int64"},"createdAt": {"type": "string","format": "date-time"}}},
+      "ApiResponseListCommentResponse": {"type": "object","properties": {"success": {"type": "boolean"},"data": {"type": "array","items": {"$ref": "#/components/schemas/CommentResponse"}}}},
+      "ApiResponseCurrentUserResponse": {"type": "object","properties": {"success": {"type": "boolean"},"data": {"$ref": "#/components/schemas/CurrentUserResponse"}}},
+      "ApiResponseScrapListResponse": {"type": "object","properties": {"success": {"type": "boolean"},"data": {"$ref": "#/components/schemas/ScrapListResponse"}}},
+      "ScrapListResponse": {"type": "object","properties": {"scraps": {"type": "array","items": {"$ref": "#/components/schemas/ScrappedPostResponse"}},"page": {"type": "integer","format": "int32"},"size": {"type": "integer","format": "int32"},"totalElements": {"type": "integer","format": "int64"},"totalPages": {"type": "integer","format": "int32"},"hasNext": {"type": "boolean"}}},
+      "ScrappedPostResponse": {"type": "object","properties": {"postId": {"type": "integer","format": "int64"},"title": {"type": "string"},"contentPreview": {"type": "string"},"authorNickname": {"type": "string"},"therapyArea": {"type": "string","enum": ["UNSPECIFIED","OCCUPATIONAL","SPEECH","COGNITIVE","PLAY"]},"ageGroup": {"type": "string","enum": ["UNSPECIFIED","AGE_0_2","AGE_3_5","AGE_6_12","AGE_13_18","AGE_19_64","AGE_65_PLUS"]},"viewCount": {"type": "integer","format": "int64"},"postCreatedAt": {"type": "string","format": "date-time"},"scrappedAt": {"type": "string","format": "date-time"}}},
+      "ApiResponseTherapistVerificationPageResponse": {"type": "object","properties": {"success": {"type": "boolean"},"data": {"$ref": "#/components/schemas/TherapistVerificationPageResponse"}}},
+      "TherapistVerificationPageResponse": {"type": "object","properties": {"verifications": {"type": "array","items": {"$ref": "#/components/schemas/TherapistVerificationResponse"}},"page": {"type": "integer","format": "int32"},"size": {"type": "integer","format": "int32"},"totalElements": {"type": "integer","format": "int64"},"totalPages": {"type": "integer","format": "int32"},"hasNext": {"type": "boolean"}}}
+    },
+    "securitySchemes": {
+      "bearerAuth": {"type": "http","in": "header","scheme": "bearer","bearerFormat": "JWT"}
+    }
+  }
+}
