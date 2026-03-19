@@ -133,17 +133,20 @@ export const handlers = [
     const account = testAccounts[body.email];
     if (account && body.password === '1111') {
       return HttpResponse.json({
-        isNewUser: false,
-        user: {
-          id: 1,
-          email: body.email,
-          nickname: account.nickname,
-          profileImageUrl: null,
-          role: account.role,
-          canAccessCommunity: account.canAccessCommunity,
-          therapistVerification: null,
+        success: true,
+        data: {
+          isNewUser: false,
+          user: {
+            id: 1,
+            email: body.email,
+            nickname: account.nickname,
+            profileImageUrl: null,
+            role: account.role,
+            canAccessCommunity: account.canAccessCommunity,
+            therapistVerification: null,
+          },
+          tokens: mockTokens,
         },
-        tokens: mockTokens,
       });
     }
     return HttpResponse.json(
@@ -157,17 +160,20 @@ export const handlers = [
 
   http.post(`${API}/auth/oauth/google`, () =>
     HttpResponse.json({
-      isNewUser: false,
-      user: {
-        id: 1,
-        email: 'testUser@test.com',
-        nickname: '테스트유저',
-        profileImageUrl: null,
-        role: 'USER',
-        canAccessCommunity: false,
-        therapistVerification: null,
+      success: true,
+      data: {
+        isNewUser: false,
+        user: {
+          id: 1,
+          email: 'testUser@test.com',
+          nickname: '테스트유저',
+          profileImageUrl: null,
+          role: 'USER',
+          canAccessCommunity: false,
+          therapistVerification: null,
+        },
+        tokens: mockTokens,
       },
-      tokens: mockTokens,
     }),
   ),
 
@@ -220,8 +226,11 @@ export const handlers = [
       ? mockPosts.filter((p) => p.therapyArea === therapyArea)
       : mockPosts;
     return HttpResponse.json({
-      items: filtered,
-      page: { number: 1, size: 20, totalElements: filtered.length, totalPages: 1 },
+      success: true,
+      data: {
+        items: filtered,
+        page: { number: 1, size: 20, totalElements: filtered.length, totalPages: 1 },
+      },
     });
   }),
 
@@ -229,9 +238,12 @@ export const handlers = [
     const post = mockPosts.find((p) => p.id === Number(params.postId));
     if (!post) return HttpResponse.json({ code: 'NOT_FOUND' }, { status: 404 });
     return HttpResponse.json({
-      ...post,
-      content: '게시글 본문 내용입니다.',
-      scrapped: false,
+      success: true,
+      data: {
+        ...post,
+        content: '게시글 본문 내용입니다.',
+        scrapped: false,
+      },
     });
   }),
 
@@ -249,7 +261,7 @@ export const handlers = [
       content: body.content,
       scrapped: false,
     };
-    return HttpResponse.json(newPost, { status: 201 });
+    return HttpResponse.json({ success: true, data: newPost }, { status: 201 });
   }),
 
   http.patch(`${API}/posts/:postId`, async ({ params, request }) => {
@@ -257,10 +269,13 @@ export const handlers = [
     const post = mockPosts.find((p) => p.id === Number(params.postId));
     if (!post) return HttpResponse.json({ code: 'NOT_FOUND' }, { status: 404 });
     return HttpResponse.json({
-      ...post,
-      ...body,
-      content: body.content ?? '게시글 본문 내용입니다.',
-      scrapped: false,
+      success: true,
+      data: {
+        ...post,
+        ...body,
+        content: body.content ?? '게시글 본문 내용입니다.',
+        scrapped: false,
+      },
     });
   }),
 
@@ -274,7 +289,7 @@ export const handlers = [
     const comments = mockComments.filter(
       (c) => c.postId === Number(params.postId),
     );
-    return HttpResponse.json(comments);
+    return HttpResponse.json({ success: true, data: comments });
   }),
 
   http.post(`${API}/posts/:postId/comments`, async ({ params, request }) => {
@@ -289,7 +304,7 @@ export const handlers = [
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    return HttpResponse.json(newComment, { status: 201 });
+    return HttpResponse.json({ success: true, data: newComment }, { status: 201 });
   }),
 
   http.delete(
@@ -433,7 +448,7 @@ export const handlers = [
 
   // Reactions
   http.put(`${API}/posts/:postId/reaction`, () =>
-    HttpResponse.json({ reactionType: 'LIKE' }),
+    HttpResponse.json({ success: true, data: { reactionType: 'LIKE' } }),
   ),
 
   http.delete(

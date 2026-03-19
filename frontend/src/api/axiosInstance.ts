@@ -14,4 +14,11 @@ axiosInstance.interceptors.request.use((config) => {
   return config
 })
 
+axiosInstance.interceptors.response.use((response) => {
+  if (response.data && response.data.success === true && 'data' in response.data) {
+    response.data = response.data.data
+  }
+  return response
+})
+
 export default axiosInstance
