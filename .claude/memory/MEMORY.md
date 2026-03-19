@@ -1,10 +1,5 @@
 # Project Memory
 
-## ⚠️ 대화 시작 시 확인 (2026-03-18 08:00 이후)
-**→ 반드시 먼저 언급할 것:** WSL2의 `frontend/vercel.json` 변경사항이 맥북에 동기화 안 됨.
-대화 시작하면 바로 "git pull 또는 `/pull-mello` 먼저 하고 로그인 테스트 이어가자" 고 알려줄 것.
-([상세](./project_cors_proxy.md)) — 완료되면 이 섹션 삭제.
-
 ## 프로젝트
 멜로미 — 발달장애 아동 치료사 커뮤니티 플랫폼 (MVP 개발 중)
 - Frontend: React 19, TypeScript, Vite, Tailwind CSS, shadcn/ui, Zustand, React Router, MSW
@@ -14,7 +9,7 @@
 ## 다음 작업 (우선순위 순)
 - **[1순위]** 배포 마무리 ([상세](./project_deployment_status.md)) — HTTPS 완료 대기 중
 - **[보류]** 치료사 인증 기능
-- **[나중에]** 와이어프레임 미구현 페이지 ([목록](./project_wireframe_gap.md))
+- **[MVP 이후]** 사용자 데이터 수집 로직 — 공부 선행 필요 ([상세](./project_future_analytics.md))
 - **[MVP 이후]** 이메일 로그인 isNewUser 환영 화면 ([상세](./project_deferred_welcome_message.md))
 - **[MVP 이후]** 회원가입 응답에 토큰 포함 요청 ([상세](./project_signup_token.md))
 
@@ -33,7 +28,7 @@
 - **[미완료]** 루트 `.env` 미생성 — docker-compose 실행 불가 ([상세](./project_local_env_setup.md)) / GOOGLE_CLIENT_ID/SECRET만 받으면 바로 생성 가능
 
 ## 미해결 이슈
-- **[내일 재개]** CORS 프록시 설정 미동기화 — WSL2 `vercel.json` 변경사항이 맥북에 없음. 시작 전 git pull 필요 ([상세](./project_cors_proxy.md))
+- **[백엔드 답변 대기]** CORS — `https://www.melonnetherapists.com` 허용 문의 완료. 완료되면 vercel.json 프록시 제거 + VITE_API_BASE_URL 직접 주소로 변경 ([상세](./project_cors_proxy.md))
 - **[백엔드 수정 대기 중]** CORS 미설정 — `https://www.melonnetherapists.com` 허용 요청 완료, 백엔드 반영 대기 중
 - **[CRUD 완료 후]** Notion 트러블슈팅 #002 작성 예정 — axios interceptor 토큰 자동 주입 ([상세](./project_notion_crud_axios.md))
 - **[백엔드 연결 시]** MSW `/me` 핸들러가 401 반환 중 → 백엔드 연결 시점에 정리 필요
@@ -41,10 +36,15 @@
 ## 환경변수
 - [Vercel 환경변수 확정값 — VITE_API_BASE_URL 등](./project_env_vars.md)
 
+## UI만 구현된 기능
+- [로그인 상태 유지 체크박스, 비밀번호 찾기 링크 — 동작 안 함](./project_ui_only_features.md)
+
 ## 정책 결정
 - [게시물 열람 권한 — 비로그인 접근 불가, ProtectedRoute 적용](./project_post_visibility.md)
 
 ## 개발 규칙 / 피드백
+- [와이어프레임 색상 보수적 적용 — 강한 색은 질문 먼저](./feedback_wireframe_color.md)
+- [서버 통신 에러 시 프론트 먼저 점검 — 백엔드 탓은 마지막 수단](./feedback_backend_blame.md)
 - [불확실할 때 추측 말고 질문 먼저](./feedback_ask_when_uncertain.md)
 - [취업용 경험 생기면 Notion 정리 제안할 것](./feedback_career_documentation.md)
 - [코드 생성 승인 요청 방식](./feedback_code_approval.md)
@@ -58,6 +58,12 @@
 
 ## 코드 이슈 이력
 - [Layout.tsx import 위치 수정 (2026-03-17)](./project_layout_import_fix.md)
+
+## MSW / API
+- [MSW 래퍼 + axios 인터셉터 수정 완료 (2026-03-19)](./project_msw_wrapper.md)
+
+## UI 개편
+- [피그마 와이어프레임 기반 전체 UI 개편 완료 (2026-03-20)](./project_ui_redesign.md) — Notion 트러블슈팅 #003 미작성
 
 ## 백엔드 이슈
 - [로그인 응답 구조 불일치 — 수정 대기 중](./project_backend_login_response.md)
