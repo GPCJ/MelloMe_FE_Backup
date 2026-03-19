@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
+import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
 import { login, googleLogin } from '../api/auth';
 import { useAuthStore } from '../stores/useAuthStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [newUserNickname, setNewUserNickname] = useState('');
@@ -28,7 +30,7 @@ export default function LoginPage() {
       if (isNewUser) {
         setNewUserNickname(user.nickname);
       } else {
-        navigate('/');
+        navigate('/posts');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
@@ -37,26 +39,20 @@ export default function LoginPage() {
     }
   }
 
-  async function handleGoogleSuccess(credentialResponse: {
-    credential?: string;
-  }) {
+  async function handleGoogleSuccess(credentialResponse: { credential?: string }) {
     if (!credentialResponse.credential) return;
     setError('');
     setLoading(true);
     try {
-      const { user, tokens, isNewUser } = await googleLogin(
-        credentialResponse.credential,
-      );
+      const { user, tokens, isNewUser } = await googleLogin(credentialResponse.credential);
       setAuth(user, tokens);
       if (isNewUser) {
         setNewUserNickname(user.nickname);
       } else {
-        navigate('/');
+        navigate('/posts');
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : '구글 로그인에 실패했습니다.',
-      );
+      setError(err instanceof Error ? err.message : '구글 로그인에 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -64,7 +60,7 @@ export default function LoginPage() {
 
   if (newUserNickname) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="w-full max-w-md">
           <Card>
             <CardContent className="p-8 text-center">
@@ -77,17 +73,10 @@ export default function LoginPage() {
                 <br />
                 지금 바로 인증을 신청해보세요.
               </p>
-              <Button
-                className="w-full mb-3"
-                onClick={() => navigate('/therapist-verifications')}
-              >
+              <Button className="w-full mb-3" onClick={() => navigate('/therapist-verifications')}>
                 치료사 인증 신청하기
               </Button>
-              <Button
-                className="w-full"
-                variant="outline"
-                onClick={() => navigate('/')}
-              >
+              <Button className="w-full" variant="outline" onClick={() => navigate('/posts')}>
                 나중에 하기
               </Button>
             </CardContent>
@@ -98,84 +87,116 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        {/* 헤더 */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">치료사 커뮤니티</h1>
-          <p className="mt-2 text-sm text-gray-500">
-            치료사 전용 커뮤니티에 오신 것을 환영합니다
-          </p>
-        </div>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
+      {/* 상단 타이틀 */}
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">멜로미</h1>
+        <p className="mt-2 text-sm text-gray-500">치료사들의 따뜻한 성장 공간</p>
+      </div>
 
-        {/* 카드 */}
-        <Card>
-          <CardHeader>
-            <CardTitle>로그인</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* 이메일 로그인 폼 */}
-            <form onSubmit={handleEmailLogin} className="space-y-4">
-              <div className="space-y-1">
-                <Label htmlFor="email">이메일</Label>
+      {/* 카드 */}
+      <Card className="w-full max-w-md">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xl">로그인</CardTitle>
+          <CardDescription>멜로미 커뮤니티에 오신 것을 환영합니다</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <form onSubmit={handleEmailLogin} className="space-y-4">
+            {/* 이메일 */}
+            <div className="space-y-1">
+              <Label htmlFor="email">이메일</Label>
+              <div className="relative">
+                <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <Input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="example@email.com"
+                  className="pl-9"
                   required
                 />
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="password">비밀번호</Label>
+            </div>
+
+            {/* 비밀번호 */}
+            <div className="space-y-1">
+              <Label htmlFor="password">비밀번호</Label>
+              <div className="relative">
+                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <Input
                   id="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="비밀번호를 입력하세요"
+                  className="pl-9 pr-9"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
-
-              {error && <p className="text-sm text-red-500">{error}</p>}
-
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? '로그인 중...' : '로그인'}
-              </Button>
-            </form>
-
-            {/* 구분선 */}
-            <div className="flex items-center my-6">
-              <div className="flex-1 border-t border-gray-200" />
-              <span className="px-3 text-xs text-gray-400">또는</span>
-              <div className="flex-1 border-t border-gray-200" />
             </div>
 
-            {/* 구글 로그인 */}
-            <div className="flex justify-center">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => setError('구글 로그인에 실패했습니다.')}
-                width="368"
-                text="signin_with"
-              />
+            {/* 로그인 상태 유지 + 비밀번호 찾기 */}
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                <input type="checkbox" className="w-4 h-4 rounded border-gray-300" />
+                로그인 상태 유지
+              </label>
+              <button type="button" className="text-sm text-blue-500 hover:underline">
+                비밀번호 찾기
+              </button>
             </div>
 
-            {/* 회원가입 링크 */}
-            <p className="mt-6 text-center text-sm text-gray-500">
-              계정이 없으신가요?{' '}
-              <Link
-                to="/signup"
-                className="text-blue-600 font-medium hover:underline"
-              >
-                회원가입
-              </Link>
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+            {error && <p className="text-sm text-red-500">{error}</p>}
+
+            <Button type="submit" className="w-full" disabled={loading}>
+              <LogIn size={16} />
+              {loading ? '로그인 중...' : '로그인'}
+            </Button>
+          </form>
+
+          {/* 구분선 */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 border-t border-gray-200" />
+            <span className="text-xs text-gray-400">또는</span>
+            <div className="flex-1 border-t border-gray-200" />
+          </div>
+
+          {/* 회원가입 링크 */}
+          <p className="text-center text-sm text-gray-500">
+            아직 계정이 없으신가요?{' '}
+            <Link to="/signup" className="text-blue-500 font-semibold hover:underline">
+              회원가입
+            </Link>
+          </p>
+
+          {/* 구글 로그인 */}
+          <div className="flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError('구글 로그인에 실패했습니다.')}
+              width="368"
+              text="continue_with"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 하단 이용약관 */}
+      <p className="mt-6 text-xs text-gray-400 text-center">
+        로그인 시{' '}
+        <button type="button" className="text-blue-400 hover:underline">이용약관</button>
+        {' '}및{' '}
+        <button type="button" className="text-blue-400 hover:underline">개인정보처리방침</button>
+        에 동의하게 됩니다.
+      </p>
     </div>
   );
 }

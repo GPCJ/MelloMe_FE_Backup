@@ -25,7 +25,7 @@ export default function SignupPage() {
       await signup(email, password, nickname);
       const { user, tokens } = await login(email, password);
       setAuth(user, tokens);
-      navigate('/');
+      navigate('/posts');
     } catch (err) {
       setError(err instanceof Error ? err.message : '회원가입에 실패했습니다.');
     } finally {
@@ -34,18 +34,13 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        {/* 헤더 */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">치료사 커뮤니티</h1>
-          <p className="mt-2 text-sm text-gray-500">
-            치료사 전용 커뮤니티에 오신 것을 환영합니다
-          </p>
-        </div>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">멜로미</h1>
+        <p className="mt-2 text-sm text-gray-500">치료사들의 따뜻한 성장 공간</p>
+      </div>
 
-        {/* 카드 */}
-        <Card>
+        <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>회원가입</CardTitle>
           </CardHeader>
@@ -101,7 +96,6 @@ export default function SignupPage() {
             </p>
           </CardContent>
         </Card>
-      </div>
     </div>
   );
 }

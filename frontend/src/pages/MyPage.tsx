@@ -7,24 +7,16 @@ import {
   Heart,
   Download,
   Bookmark,
-  Pin,
   CheckCircle,
   Clock,
   XCircle,
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { fetchMyDashboard, fetchMyPosts, fetchMyActivity } from '../api/mypage';
 import { useAuthStore } from '../stores/useAuthStore';
 import type { MyDashboard, MyActivity } from '../types/mypage';
 import type { PostSummary } from '../types/post';
-
-const BOARD_LABELS: Record<string, string> = {
-  therapy_board: '임상 톡톡',
-  document_board: '임상 특독',
-  anonymous_board: '익명',
-};
 
 const THERAPY_AREA_LABELS: Record<string, string> = {
   OCCUPATIONAL_THERAPY: '작업치료',
@@ -33,11 +25,17 @@ const THERAPY_AREA_LABELS: Record<string, string> = {
   PLAY_THERAPY: '놀이치료',
 };
 
+const ROLE_LABELS: Record<string, string> = {
+  THERAPIST: '치료사',
+  ADMIN: '관리자',
+  USER: '일반 회원',
+};
+
 type Tab = 'dashboard' | 'posts' | 'activity' | 'verification';
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'dashboard', label: '대시보드' },
-  { key: 'posts', label: '내가 작성한 글' },
+  { key: 'posts', label: '내가 쓴 글' },
   { key: 'activity', label: '활동 내역' },
   { key: 'verification', label: '자격 인증' },
 ];
@@ -54,7 +52,7 @@ function daysSince(isoString: string) {
   return Math.floor((Date.now() - new Date(isoString).getTime()) / 86400000);
 }
 
-// ─── 대시보드 탭 ────────────────────────────────────────────────
+// ─── 대시보드 탭 ──────────────────────────────────────────────────
 function DashboardTab({ dashboard }: { dashboard: MyDashboard }) {
   const { stats, activity } = dashboard;
 
@@ -71,80 +69,69 @@ function DashboardTab({ dashboard }: { dashboard: MyDashboard }) {
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {statCards.map(({ icon: Icon, label, value }) => (
-          <Card key={label}>
-            <CardContent className="pt-4 pb-3">
-              <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                <Icon size={14} />
-                <span className="text-xs">{label}</span>
-              </div>
-              <p className="text-2xl font-bold">{value}</p>
-            </CardContent>
-          </Card>
+          <div key={label} className="bg-white rounded-xl border border-gray-200 p-4">
+            <div className="flex items-center gap-1.5 text-gray-400 mb-2">
+              <Icon size={14} />
+              <span className="text-xs">{label}</span>
+            </div>
+            <p className="text-2xl font-bold text-gray-900">{value}</p>
+          </div>
         ))}
       </div>
 
-      <Card>
-        <CardContent className="pt-4 pb-3">
-          <p className="text-sm font-semibold mb-3">활동 요약</p>
-          <div className="flex flex-col gap-2 text-sm">
-            <div className="flex justify-between text-muted-foreground">
-              <span>이번 주 작성한 게시글</span>
-              <span className="font-medium text-foreground">{activity.weeklyPostCount}개</span>
-            </div>
-            <div className="flex justify-between text-muted-foreground">
-              <span>이번 주 작성한 댓글</span>
-              <span className="font-medium text-foreground">{activity.weeklyCommentCount}개</span>
-            </div>
-            <div className="flex justify-between text-muted-foreground">
-              <span>가입일</span>
-              <span className="font-medium text-foreground">
-                {formatDate(activity.joinedAt)} ({daysSince(activity.joinedAt)}일째)
-              </span>
-            </div>
+      <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <p className="text-sm font-semibold text-gray-900 mb-3">활동 요약</p>
+        <div className="flex flex-col gap-2.5 text-sm">
+          <div className="flex justify-between">
+            <span className="text-gray-500">이번 주 작성한 게시글</span>
+            <span className="font-medium text-gray-900">{activity.weeklyPostCount}개</span>
           </div>
-        </CardContent>
-      </Card>
+          <div className="flex justify-between">
+            <span className="text-gray-500">이번 주 작성한 댓글</span>
+            <span className="font-medium text-gray-900">{activity.weeklyCommentCount}개</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-500">가입일</span>
+            <span className="font-medium text-gray-900">
+              {formatDate(activity.joinedAt)} ({daysSince(activity.joinedAt)}일째)
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
-// ─── 내가 작성한 글 탭 ──────────────────────────────────────────
+// ─── 내가 쓴 글 탭 ────────────────────────────────────────────────
 function MyPostsTab({ posts }: { posts: PostSummary[] }) {
   if (posts.length === 0) {
-    return <p className="text-sm text-muted-foreground py-8 text-center">작성한 글이 없어요.</p>;
+    return <p className="text-sm text-gray-400 py-8 text-center">작성한 글이 없어요.</p>;
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       {posts.map((post) => {
-        const boardLabel = BOARD_LABELS[post.board] ?? post.board;
-        const therapyLabel = post.therapyArea ? THERAPY_AREA_LABELS[post.therapyArea] : null;
+        const therapyLabel =
+          post.therapyArea && post.therapyArea !== 'UNSPECIFIED'
+            ? THERAPY_AREA_LABELS[post.therapyArea]
+            : null;
 
         return (
           <Link key={post.id} to={`/posts/${post.id}`}>
-            <Card className="hover:bg-muted/50 transition-colors">
-              <CardContent className="pt-3 pb-3">
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
-                    {boardLabel}
-                  </Badge>
-                  {therapyLabel && (
-                    <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700">
-                      {therapyLabel}
-                    </Badge>
-                  )}
-                  <span className="text-xs text-muted-foreground ml-auto">
-                    {formatDate(post.createdAt)}
-                  </span>
-                </div>
-                <p className="text-sm font-medium leading-snug mb-2">{post.title}</p>
-                <div className="flex gap-3 text-xs text-muted-foreground">
-                  <span>조회 {post.viewCount}</span>
-                  <span>좋아요 {post.likeCount}</span>
-                  <span>댓글 {post.commentCount}</span>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-sm transition-shadow">
+              <div className="flex items-center gap-2 mb-2">
+                {therapyLabel && (
+                  <Badge variant="secondary" className="text-xs">{therapyLabel}</Badge>
+                )}
+                <span className="text-xs text-gray-400 ml-auto">{formatDate(post.createdAt)}</span>
+              </div>
+              <p className="text-sm font-semibold text-gray-900 leading-snug mb-2">{post.title}</p>
+              <div className="flex gap-3 text-xs text-gray-400">
+                <span className="flex items-center gap-1"><Heart size={12} /> {post.likeCount}</span>
+                <span className="flex items-center gap-1"><MessageSquare size={12} /> {post.commentCount}</span>
+                <span>조회 {post.viewCount}</span>
+              </div>
+            </div>
           </Link>
         );
       })}
@@ -152,32 +139,25 @@ function MyPostsTab({ posts }: { posts: PostSummary[] }) {
   );
 }
 
-// ─── 활동 내역 탭 ────────────────────────────────────────────────
+// ─── 활동 내역 탭 ─────────────────────────────────────────────────
 function ActivityTab({ activity }: { activity: MyActivity }) {
   const { commentedPosts, scrappedPosts } = activity;
 
   return (
     <div className="flex flex-col gap-6">
       <section>
-        <h3 className="text-sm font-semibold mb-2">내가 댓글 단 게시글</h3>
+        <h3 className="text-sm font-semibold text-gray-900 mb-3">댓글 단 게시글</h3>
         {commentedPosts.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-4 text-center">댓글 단 게시글이 없어요.</p>
+          <p className="text-sm text-gray-400 py-4 text-center">댓글 단 게시글이 없어요.</p>
         ) : (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             {commentedPosts.map(({ post, myCommentPreview, myCommentCreatedAt }) => (
               <Link key={post.id} to={`/posts/${post.id}`}>
-                <Card className="hover:bg-muted/50 transition-colors">
-                  <CardContent className="pt-3 pb-3">
-                    <p className="text-sm font-medium mb-1">{post.title}</p>
-                    <p className="text-xs text-muted-foreground line-clamp-1 mb-1.5">
-                      {myCommentPreview}
-                    </p>
-                    <div className="flex gap-3 text-xs text-muted-foreground">
-                      <span>좋아요 {post.likeCount}</span>
-                      <span className="ml-auto">{formatDate(myCommentCreatedAt)}</span>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-sm transition-shadow">
+                  <p className="text-sm font-semibold text-gray-900 mb-1">{post.title}</p>
+                  <p className="text-xs text-gray-400 line-clamp-1 mb-2">{myCommentPreview}</p>
+                  <span className="text-xs text-gray-400">{formatDate(myCommentCreatedAt)}</span>
+                </div>
               </Link>
             ))}
           </div>
@@ -185,46 +165,25 @@ function ActivityTab({ activity }: { activity: MyActivity }) {
       </section>
 
       <section>
-        <h3 className="text-sm font-semibold mb-2">스크랩한 게시글</h3>
+        <h3 className="text-sm font-semibold text-gray-900 mb-3">스크랩한 게시글</h3>
         {scrappedPosts.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-4 text-center">스크랩한 게시글이 없어요.</p>
+          <p className="text-sm text-gray-400 py-4 text-center">스크랩한 게시글이 없어요.</p>
         ) : (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             {scrappedPosts.map(({ post, scrappedAt }) => {
-              const boardLabel = BOARD_LABELS[post.board] ?? post.board;
-              const therapyLabel = post.therapyArea ? THERAPY_AREA_LABELS[post.therapyArea] : null;
-
+              const therapyLabel =
+                post.therapyArea && post.therapyArea !== 'UNSPECIFIED'
+                  ? THERAPY_AREA_LABELS[post.therapyArea]
+                  : null;
               return (
                 <Link key={post.id} to={`/posts/${post.id}`}>
-                  <Card className="hover:bg-muted/50 transition-colors">
-                    <CardContent className="pt-3 pb-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <Badge
-                              variant="secondary"
-                              className="text-xs bg-blue-100 text-blue-700"
-                            >
-                              {boardLabel}
-                            </Badge>
-                            {therapyLabel && (
-                              <Badge
-                                variant="secondary"
-                                className="text-xs bg-purple-100 text-purple-700"
-                              >
-                                {therapyLabel}
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-sm font-medium leading-snug">{post.title}</p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {post.author.nickname} · {formatDate(scrappedAt)}
-                          </p>
-                        </div>
-                        <Pin size={14} className="text-muted-foreground shrink-0 mt-0.5" />
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-sm transition-shadow">
+                    {therapyLabel && (
+                      <Badge variant="secondary" className="text-xs mb-2">{therapyLabel}</Badge>
+                    )}
+                    <p className="text-sm font-semibold text-gray-900 leading-snug mb-1">{post.title}</p>
+                    <p className="text-xs text-gray-400">{post.author.nickname} · {formatDate(scrappedAt)}</p>
+                  </div>
                 </Link>
               );
             })}
@@ -235,10 +194,10 @@ function ActivityTab({ activity }: { activity: MyActivity }) {
   );
 }
 
-// ─── 자격 인증 탭 ────────────────────────────────────────────────
+// ─── 자격 인증 탭 ─────────────────────────────────────────────────
 type VerificationStatus = 'NOT_REQUESTED' | 'PENDING' | 'APPROVED' | 'REJECTED' | null;
 
-function VerificationTab({ status }: { status: VerificationStatus; createdAt?: string }) {
+function VerificationTab({ status }: { status: VerificationStatus }) {
   const statusConfig = {
     PENDING: {
       icon: Clock,
@@ -274,76 +233,66 @@ function VerificationTab({ status }: { status: VerificationStatus; createdAt?: s
 
   return (
     <div className="flex flex-col gap-4">
-      <Card>
-        <CardContent className="pt-4 pb-3">
-          <p className="text-sm font-semibold mb-3">자격 인증 현황</p>
-          {status === null || status === 'NOT_REQUESTED' ? (
-            <p className="text-sm text-muted-foreground">아직 자격 인증을 신청하지 않으셨어요.</p>
-          ) : (
-            (() => {
-              const config = statusConfig[status];
-              const Icon = config.icon;
-              return (
-                <div className={`rounded-lg border p-3 ${config.className}`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Icon size={16} className={config.iconClass} />
-                    <span className="text-sm font-medium">{config.label}</span>
-                  </div>
-                  <p className="text-xs mb-0.5">{config.description}</p>
-                  <p className="text-xs opacity-80">{config.note}</p>
+      <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <p className="text-sm font-semibold text-gray-900 mb-3">자격 인증 현황</p>
+        {status === null || status === 'NOT_REQUESTED' ? (
+          <p className="text-sm text-gray-400">아직 자격 인증을 신청하지 않으셨어요.</p>
+        ) : (
+          (() => {
+            const config = statusConfig[status];
+            const Icon = config.icon;
+            return (
+              <div className={`rounded-lg border p-3 ${config.className}`}>
+                <div className="flex items-center gap-2 mb-1">
+                  <Icon size={16} className={config.iconClass} />
+                  <span className="text-sm font-medium">{config.label}</span>
                 </div>
-              );
-            })()
-          )}
-        </CardContent>
-      </Card>
+                <p className="text-xs mb-0.5">{config.description}</p>
+                <p className="text-xs opacity-80">{config.note}</p>
+              </div>
+            );
+          })()
+        )}
+      </div>
 
-      <Card>
-        <CardContent className="pt-4 pb-3">
-          <p className="text-sm font-semibold mb-3">인증 가능 서류</p>
-          <ul className="flex flex-col gap-1.5">
-            {documents.map((doc) => (
-              <li key={doc} className="flex items-start gap-2 text-sm text-muted-foreground">
-                <span className="mt-1.5 w-1 h-1 rounded-full bg-muted-foreground shrink-0" />
-                {doc}
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+      <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <p className="text-sm font-semibold text-gray-900 mb-3">인증 가능 서류</p>
+        <ul className="flex flex-col gap-2">
+          {documents.map((doc) => (
+            <li key={doc} className="flex items-start gap-2 text-sm text-gray-500">
+              <span className="mt-2 w-1 h-1 rounded-full bg-gray-400 shrink-0" />
+              {doc}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
 
-// ─── 스켈레톤 ────────────────────────────────────────────────────
+// ─── 스켈레톤 ─────────────────────────────────────────────────────
 function DashboardSkeleton() {
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <Card key={i}>
-            <CardContent className="pt-4 pb-3">
-              <Skeleton className="h-3 w-20 mb-2" />
-              <Skeleton className="h-7 w-12" />
-            </CardContent>
-          </Card>
+          <div key={i} className="bg-white rounded-xl border border-gray-200 p-4">
+            <Skeleton className="h-3 w-20 mb-2" />
+            <Skeleton className="h-7 w-12" />
+          </div>
         ))}
       </div>
-      <Card>
-        <CardContent className="pt-4 pb-3">
-          <Skeleton className="h-4 w-20 mb-3" />
-          <div className="flex flex-col gap-2">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-4 w-full" />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <Skeleton className="h-4 w-20 mb-3" />
+        <div className="flex flex-col gap-2.5">
+          {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-4 w-full" />)}
+        </div>
+      </div>
     </div>
   );
 }
 
-// ─── 메인 페이지 ─────────────────────────────────────────────────
+// ─── 메인 페이지 ──────────────────────────────────────────────────
 export default function MyPage() {
   const user = useAuthStore((s) => s.user);
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
@@ -359,44 +308,44 @@ export default function MyPage() {
   useEffect(() => {
     if (activeTab === 'dashboard' && !dashboard) {
       setLoadingDashboard(true);
-      fetchMyDashboard()
-        .then(setDashboard)
-        .finally(() => setLoadingDashboard(false));
+      fetchMyDashboard().then(setDashboard).finally(() => setLoadingDashboard(false));
     }
     if (activeTab === 'posts' && !myPosts) {
       setLoadingPosts(true);
-      fetchMyPosts()
-        .then(setMyPosts)
-        .finally(() => setLoadingPosts(false));
+      fetchMyPosts().then(setMyPosts).finally(() => setLoadingPosts(false));
     }
     if (activeTab === 'activity' && !activity) {
       setLoadingActivity(true);
-      fetchMyActivity()
-        .then(setActivity)
-        .finally(() => setLoadingActivity(false));
+      fetchMyActivity().then(setActivity).finally(() => setLoadingActivity(false));
     }
   }, [activeTab]);
 
   const verificationStatus = user?.therapistVerification?.status ?? null;
+  const roleLabel = user?.role ? ROLE_LABELS[user.role] : '';
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 pb-20 md:pb-8">
-      {/* 헤더 */}
-      <div className="mb-6">
-        <h1 className="text-xl font-bold">마이페이지</h1>
-        <p className="text-sm text-muted-foreground mt-1">내 활동을 한눈에 확인하세요</p>
+    <div className="max-w-3xl mx-auto px-4 py-6 pb-20 md:pb-8">
+      {/* 프로필 카드 */}
+      <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6 flex items-center gap-4">
+        <div className="w-14 h-14 rounded-full bg-purple-300 flex items-center justify-center text-white text-xl font-bold shrink-0">
+          {user?.nickname?.[0] ?? '?'}
+        </div>
+        <div>
+          <p className="font-bold text-gray-900 text-base">{user?.nickname}</p>
+          <p className="text-sm text-gray-400 mt-0.5">{roleLabel}</p>
+        </div>
       </div>
 
       {/* 탭 */}
-      <div className="flex border-b border-border mb-6 overflow-x-auto">
+      <div className="flex border-b border-gray-200 mb-6 overflow-x-auto">
         {TABS.map(({ key, label }) => (
           <button
             key={key}
             onClick={() => setActiveTab(key)}
-            className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+            className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
               activeTab === key
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
+                ? 'border-gray-900 text-gray-900'
+                : 'border-transparent text-gray-400 hover:text-gray-700'
             }`}
           >
             {label}
@@ -412,12 +361,12 @@ export default function MyPage() {
       )}
       {activeTab === 'posts' && (
         loadingPosts || !myPosts
-          ? <div className="flex flex-col gap-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-lg" />)}</div>
+          ? <div className="flex flex-col gap-3">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-xl" />)}</div>
           : <MyPostsTab posts={myPosts} />
       )}
       {activeTab === 'activity' && (
         loadingActivity || !activity
-          ? <div className="flex flex-col gap-2">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-lg" />)}</div>
+          ? <div className="flex flex-col gap-3">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}</div>
           : <ActivityTab activity={activity} />
       )}
       {activeTab === 'verification' && (
