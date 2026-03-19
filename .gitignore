@@ -10,8 +10,10 @@
 # OS
 .DS_Store
 
-# Claude (settings.local.json은 개인 설정이라 제외)
+# Claude (settings.local.json은 개인 설정이라 제외, worktrees는 로컬 전용)
 .claude/settings.local.json
+.claude/worktrees/
+*/.claude/settings.local.json
 
 # 토큰/인증 파일
 *token*
