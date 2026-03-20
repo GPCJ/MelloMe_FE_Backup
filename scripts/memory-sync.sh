@@ -3,8 +3,14 @@
 
 set -e
 
-PROJECT_REPO="/Users/jin/my-project"
-MEMORY_SRC="/Users/jin/.claude/projects/-Users-jin-my-project/memory"
+# 환경 자동 감지 (macOS vs WSL2)
+if [ -d "/Users/jin/my-project" ]; then
+  PROJECT_REPO="/Users/jin/my-project"
+  MEMORY_SRC="/Users/jin/.claude/projects/-Users-jin-my-project/memory"
+else
+  PROJECT_REPO="/home/jin24/my-project"
+  MEMORY_SRC="/home/jin24/.claude/projects/-home-jin24-my-project/memory"
+fi
 MEMORY_IN_REPO="$PROJECT_REPO/.claude/memory"
 
 if [ ! -d "$PROJECT_REPO/.git" ]; then

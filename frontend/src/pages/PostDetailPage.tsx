@@ -25,10 +25,10 @@ import { useAuthStore } from '../stores/useAuthStore';
 import type { PostDetail, CommentResponse } from '../types/post';
 
 const THERAPY_AREA_LABELS: Record<string, string> = {
-  OCCUPATIONAL_THERAPY: '작업치료',
-  SPEECH_THERAPY: '언어치료',
-  COGNITIVE_THERAPY: '인지치료',
-  PLAY_THERAPY: '놀이치료',
+  OCCUPATIONAL: '작업치료',
+  SPEECH: '언어치료',
+  COGNITIVE: '인지치료',
+  PLAY: '놀이치료',
 };
 
 function formatRelativeTime(isoString: string): string {
@@ -98,8 +98,6 @@ export default function PostDetailPage() {
     Promise.all([fetchPost(id), fetchComments(id)])
       .then(([postData, commentsData]) => {
         setPost(postData);
-        setLiked(postData.myReactionType === 'LIKE');
-        setLikeCount(postData.likeCount);
         setComments(commentsData);
       })
       .catch(() => setError('게시글을 불러오는 데 실패했습니다.'))
@@ -159,7 +157,7 @@ export default function PostDetailPage() {
   if (error || !post)
     return <p className="text-center text-destructive py-20">{error ?? '게시글을 찾을 수 없어요.'}</p>;
 
-  const isAuthor = user?.id === post.author.id;
+  const isAuthor = post.authorNickname === user?.nickname;
   const therapyLabel =
     post.therapyArea && post.therapyArea !== 'UNSPECIFIED'
       ? THERAPY_AREA_LABELS[post.therapyArea]
@@ -203,10 +201,10 @@ export default function PostDetailPage() {
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
         {/* 작성자 정보 */}
         <div className="flex items-center gap-3 mb-5 pb-5 border-b border-gray-100">
-          <AuthorAvatar nickname={post.author.nickname} />
+          <AuthorAvatar nickname={post.authorNickname} />
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-gray-900">{post.author.nickname}</span>
+              <span className="text-sm font-semibold text-gray-900">{post.authorNickname}</span>
               {therapyLabel && (
                 <Badge variant="secondary" className="text-xs">{therapyLabel}</Badge>
               )}
@@ -286,16 +284,16 @@ export default function PostDetailPage() {
             <div key={comment.id}>
               <CommentItem
                 comment={comment}
-                isAuthor={user?.id === comment.author.id}
-                onReply={() => setReplyTo({ id: comment.id, nickname: comment.author.nickname })}
+                isAuthor={comment.canDelete}
+                onReply={() => setReplyTo({ id: comment.id, nickname: comment.authorNickname })}
                 onDelete={() => handleDeleteComment(comment.id)}
               />
               {getReplies(comment.id).map((reply) => (
                 <div key={reply.id} className="pl-6 border-l-2 border-gray-100 ml-4">
                   <CommentItem
                     comment={reply}
-                    isAuthor={user?.id === reply.author.id}
-                    replyToNickname={comment.author.nickname}
+                    isAuthor={reply.canDelete}
+                    replyToNickname={comment.authorNickname}
                     onDelete={() => handleDeleteComment(reply.id)}
                   />
                 </div>
@@ -324,12 +322,12 @@ function CommentItem({ comment, isAuthor, onReply, onDelete, replyToNickname }: 
     <div className="py-4">
       <div className="flex items-start gap-3">
         <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs font-bold shrink-0">
-          {comment.author.nickname[0]}
+          {comment.authorNickname[0]}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-1.5">
-              <span className="text-sm font-semibold text-gray-900">{comment.author.nickname}</span>
+              <span className="text-sm font-semibold text-gray-900">{comment.authorNickname}</span>
               {replyToNickname && (
                 <span className="text-xs text-gray-400">↳ @{replyToNickname}</span>
               )}

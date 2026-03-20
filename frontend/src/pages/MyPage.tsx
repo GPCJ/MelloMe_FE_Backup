@@ -19,10 +19,10 @@ import type { MyDashboard, MyActivity } from '../types/mypage';
 import type { PostSummary } from '../types/post';
 
 const THERAPY_AREA_LABELS: Record<string, string> = {
-  OCCUPATIONAL_THERAPY: '작업치료',
-  SPEECH_THERAPY: '언어치료',
-  COGNITIVE_THERAPY: '인지치료',
-  PLAY_THERAPY: '놀이치료',
+  OCCUPATIONAL: '작업치료',
+  SPEECH: '언어치료',
+  COGNITIVE: '인지치료',
+  PLAY: '놀이치료',
 };
 
 const ROLE_LABELS: Record<string, string> = {
@@ -127,8 +127,6 @@ function MyPostsTab({ posts }: { posts: PostSummary[] }) {
               </div>
               <p className="text-sm font-semibold text-gray-900 leading-snug mb-2">{post.title}</p>
               <div className="flex gap-3 text-xs text-gray-400">
-                <span className="flex items-center gap-1"><Heart size={12} /> {post.likeCount}</span>
-                <span className="flex items-center gap-1"><MessageSquare size={12} /> {post.commentCount}</span>
                 <span>조회 {post.viewCount}</span>
               </div>
             </div>
@@ -182,7 +180,7 @@ function ActivityTab({ activity }: { activity: MyActivity }) {
                       <Badge variant="secondary" className="text-xs mb-2">{therapyLabel}</Badge>
                     )}
                     <p className="text-sm font-semibold text-gray-900 leading-snug mb-1">{post.title}</p>
-                    <p className="text-xs text-gray-400">{post.author.nickname} · {formatDate(scrappedAt)}</p>
+                    <p className="text-xs text-gray-400">{post.authorNickname} · {formatDate(scrappedAt)}</p>
                   </div>
                 </Link>
               );

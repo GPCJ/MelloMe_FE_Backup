@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Eye, MessageSquare, Heart, Search, Plus, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Eye, Search, Plus, TrendingUp, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -9,18 +9,18 @@ import type { PostSummary, TherapyArea, PaginatedPosts } from '../types/post';
 
 const THERAPY_AREA_LABELS: Record<string, string> = {
   UNSPECIFIED: '전체',
-  OCCUPATIONAL_THERAPY: '작업치료',
-  SPEECH_THERAPY: '언어치료',
-  COGNITIVE_THERAPY: '인지치료',
-  PLAY_THERAPY: '놀이치료',
+  OCCUPATIONAL: '작업치료',
+  SPEECH: '언어치료',
+  COGNITIVE: '인지치료',
+  PLAY: '놀이치료',
 };
 
 const FILTER_CHIPS: { value: TherapyArea | ''; label: string }[] = [
   { value: '', label: '전체' },
-  { value: 'OCCUPATIONAL_THERAPY', label: '작업치료' },
-  { value: 'SPEECH_THERAPY', label: '언어치료' },
-  { value: 'PLAY_THERAPY', label: '놀이치료' },
-  { value: 'COGNITIVE_THERAPY', label: '인지치료' },
+  { value: 'OCCUPATIONAL', label: '작업치료' },
+  { value: 'SPEECH', label: '언어치료' },
+  { value: 'PLAY', label: '놀이치료' },
+  { value: 'COGNITIVE', label: '인지치료' },
 ];
 
 function formatRelativeTime(isoString: string): string {
@@ -72,7 +72,7 @@ function PostCard({ post }: { post: PostSummary }) {
               {therapyLabel}
             </Badge>
           )}
-          <span className="text-sm text-gray-600">{post.author.nickname}</span>
+          <span className="text-sm text-gray-600">{post.authorNickname}</span>
         </div>
 
         {/* 제목 */}
@@ -83,12 +83,6 @@ function PostCard({ post }: { post: PostSummary }) {
         {/* 통계 */}
         <div className="flex items-center justify-between text-xs text-gray-400">
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1">
-              <Heart size={13} /> {post.likeCount}
-            </span>
-            <span className="flex items-center gap-1">
-              <MessageSquare size={13} /> {post.commentCount}
-            </span>
             <span className="flex items-center gap-1">
               <Eye size={13} /> 조회 {post.viewCount}
             </span>
@@ -133,7 +127,7 @@ export default function PostListPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  const totalPages = data?.page.totalPages ?? 1;
+  const totalPages = data?.totalPages ?? 1;
 
   return (
     <div className="pb-20 md:pb-8">
@@ -199,11 +193,11 @@ export default function PostListPage() {
         <div className="flex flex-col gap-3">
           {loading
             ? Array.from({ length: 4 }).map((_, i) => <PostCardSkeleton key={i} />)
-            : data?.items.map((post) => <PostCard key={post.id} post={post} />)}
+            : data?.posts.map((post) => <PostCard key={post.id} post={post} />)}
         </div>
 
         {/* 빈 상태 */}
-        {!loading && !error && data?.items.length === 0 && (
+        {!loading && !error && data?.posts.length === 0 && (
           <div className="text-center py-16">
             <p className="text-gray-400 mb-4">아직 게시글이 없어요.</p>
             <Link to="/posts/new" className={buttonVariants({ size: 'sm' }) + ' gap-1'}>

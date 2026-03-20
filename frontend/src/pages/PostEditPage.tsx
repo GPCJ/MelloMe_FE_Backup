@@ -10,10 +10,10 @@ import type { TherapyArea } from '../types/post';
 
 const THERAPY_CHIPS: { value: TherapyArea | 'UNSPECIFIED'; label: string }[] = [
   { value: 'UNSPECIFIED', label: '선택안함' },
-  { value: 'OCCUPATIONAL_THERAPY', label: '작업' },
-  { value: 'SPEECH_THERAPY', label: '언어' },
-  { value: 'PLAY_THERAPY', label: '놀이' },
-  { value: 'COGNITIVE_THERAPY', label: '인지' },
+  { value: 'OCCUPATIONAL', label: '작업' },
+  { value: 'SPEECH', label: '언어' },
+  { value: 'PLAY', label: '놀이' },
+  { value: 'COGNITIVE', label: '인지' },
 ];
 
 export default function PostEditPage() {

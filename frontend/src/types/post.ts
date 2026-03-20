@@ -1,14 +1,12 @@
-import type { UserSummary } from './auth';
-
 export type BoardType = 'therapy_board' | 'document_board' | 'anonymous_board';
-export type PostSort = 'LATEST' | 'MOST_VIEWED' | 'MOST_LIKED';
+export type PostSort = 'LATEST' | 'MOST_VIEWED';
 export type ReactionType = 'LIKE' | 'DISLIKE';
 export type TherapyArea =
   | 'UNSPECIFIED'
-  | 'OCCUPATIONAL_THERAPY'
-  | 'SPEECH_THERAPY'
-  | 'COGNITIVE_THERAPY'
-  | 'PLAY_THERAPY';
+  | 'OCCUPATIONAL'
+  | 'SPEECH'
+  | 'COGNITIVE'
+  | 'PLAY';
 export type AgeGroup =
   | 'UNSPECIFIED'
   | 'AGE_0_2'
@@ -20,37 +18,37 @@ export type AgeGroup =
 
 export interface PostSummary {
   id: number;
-  board: BoardType;
   title: string;
+  contentPreview?: string;
+  authorNickname: string;
   therapyArea?: TherapyArea;
   ageGroup?: AgeGroup;
   viewCount: number;
-  commentCount: number;
-  likeCount: number;
-  dislikeCount: number;
-  author: UserSummary;
   createdAt: string;
 }
 
-export interface PostDetail extends PostSummary {
+export interface PostDetail {
+  id: number;
+  title: string;
   content: string;
+  authorNickname: string;
+  therapyArea?: TherapyArea;
+  ageGroup?: AgeGroup;
+  viewCount: number;
+  createdAt: string;
   updatedAt?: string;
-  myReactionType?: ReactionType | null;
-  scrapped: boolean;
 }
 
 export interface PaginatedPosts {
-  items: PostSummary[];
-  page: {
-    number: number;
-    size: number;
-    totalElements: number;
-    totalPages: number;
-  };
+  posts: PostSummary[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
 }
 
 export interface PostCreateRequest {
-  board: BoardType;
   title: string;
   content: string;
   therapyArea?: TherapyArea;
@@ -67,10 +65,15 @@ export interface PostUpdateRequest {
 export interface CommentResponse {
   id: number;
   postId: number;
-  author: UserSummary;
   parentCommentId?: number | null;
+  authorId: number;
+  authorNickname: string;
+  authorRole: string;
   content?: string;
   deleted: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
   createdAt: string;
   updatedAt: string;
+  replies?: CommentResponse[];
 }
