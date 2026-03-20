@@ -6,6 +6,9 @@
 - Backend: Spring Boot (Java), JWT + Google OAuth2 / DB: PostgreSQL 16 / 인프라: Docker Compose
 - 배포: **Vercel(프론트) + EC2(백엔드) 확정** / 프론트: `www.melonnetherapists.com` / 백엔드: `api.melonnetherapists.com` (HTTPS 완료 후)
 
+## 재시작 후 이어할 작업 ⚠️
+- [재시작 후 이어할 작업 (2026-03-20)](./project_pending_work_2026_03_20.md) — 치료사 인증 페이지, 환영 모달, 마이페이지 간소화, Figma MCP
+
 ## 내일 확인할 것 ⚠️
 - [내일 리마인드 항목](./project_next_session_reminder.md) — CORS 확인, GET /me 동작 확인, 백엔드 연결 후 전체 테스트
 
@@ -29,10 +32,11 @@ CORS 반영되면 → 로그인 테스트 → 콘솔 스크립트로 게시글 1
 - **[완료]** 로그인 응답 구조 — yaml 기준 `{ isNewUser, user, tokens }` 형태 확인 완료, Refresh Token httpOnly Cookie 완료
 - **[완료]** `GET /me` 엔드포인트 — yaml에 추가됨 (CurrentUserResponse 반환)
 - **[미구현]** 마이페이지 API — `GET /me/dashboard`, `GET /me/posts`, `GET /me/activity` yaml에 없음
-- **[대기 중]** CORS — `https://www.melonnetherapists.com` 허용 요청 완료, 반영 대기
+- **[해결된 것으로 보임]** CORS + circular reference 서버 이슈 — 백엔드 팀 연락 받음 (2026-03-20), 로그인 테스트 예정
 
 ## 로컬 개발 환경
 - **[미완료]** 루트 `.env` 미생성 — docker-compose 실행 불가 ([상세](./project_local_env_setup.md)) / GOOGLE_CLIENT_ID/SECRET만 받으면 바로 생성 가능
+- [루트 .env → .env.docker 이름 변경 (2026-03-20)](./project_env_docker_rename.md) — Docker 실행 시 `--env-file .env.docker` 필수
 
 ## 미해결 이슈
 - **[백엔드 답변 대기]** CORS — `https://www.melonnetherapists.com` 허용 문의 완료. 완료되면 vercel.json 프록시 제거 + VITE_API_BASE_URL 직접 주소로 변경 ([상세](./project_cors_proxy.md))
