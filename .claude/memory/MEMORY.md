@@ -7,7 +7,8 @@
 - 배포: **Vercel(프론트) + EC2(백엔드) 확정** / 프론트: `www.melonnetherapists.com` / 백엔드: `api.melonnetherapists.com` (HTTPS 완료 후)
 
 ## 재시작 후 이어할 작업 ⚠️
-- [재시작 후 이어할 작업 (2026-03-20)](./project_pending_work_2026_03_20.md) — 치료사 인증 페이지, 환영 모달, 마이페이지 간소화, Figma MCP
+- [재시작 후 이어할 작업 (2026-03-20)](./project_pending_work_2026_03_20.md) — 치료사 인증 페이지+환영 모달 **계획 완료/구현 대기**, 마이페이지 간소화
+- 계획 파일: `/Users/jin/.claude/plans/distributed-frolicking-meteor.md`
 
 ## 내일 확인할 것 ⚠️
 - [내일 리마인드 항목](./project_next_session_reminder.md) — CORS 확인, GET /me 동작 확인, 백엔드 연결 후 전체 테스트
@@ -28,7 +29,7 @@
 - [백엔드 openapi JSON vs 프론트 코드 불일치 — 와이어프레임 공유 후 재논의](./project_api_spec_discrepancies.md)
 
 ## 백엔드 대기 중 (2026-03-20 기준)
-CORS 반영되면 → 로그인 테스트 → 콘솔 스크립트로 게시글 19개 일괄 삽입 → 전체 기능 테스트
+CORS 반영되면 → 로그인 테스트 → 전체 기능 테스트
 - **[완료]** 로그인 응답 구조 — yaml 기준 `{ isNewUser, user, tokens }` 형태 확인 완료, Refresh Token httpOnly Cookie 완료
 - **[완료]** `GET /me` 엔드포인트 — yaml에 추가됨 (CurrentUserResponse 반환)
 - **[미구현]** 마이페이지 API — `GET /me/dashboard`, `GET /me/posts`, `GET /me/activity` yaml에 없음
@@ -78,7 +79,6 @@ CORS 반영되면 → 로그인 테스트 → 콘솔 스크립트로 게시글 1
 
 ## 백엔드 이슈
 - [로그인 응답 구조 불일치 — 수정 대기 중](./project_backend_login_response.md)
-- [DB 시딩 콘솔 스크립트 — 로그인 수정 완료 후 실행](./project_seed_script.md)
 
 ## 백엔드 회의
 - [회의 결과 + 프론트 개발 현황 (2026-03-15)](./project_backend_meeting.md)
@@ -93,6 +93,9 @@ CORS 반영되면 → 로그인 테스트 → 콘솔 스크립트로 게시글 1
 
 ## 공개 레포 (airo)
 - [airo remote 설정 및 push-airo 커맨드 현황](./project_airo_repo.md) — `https://github.com/AIRO-offical/therapist_community_FE`
+
+## Figma
+- [Figma MCP 로드 실패 시 REST API 워크어라운드](./project_figma_mcp_workaround.md) — 파일 키: `nrgNkAzEjhSC74GzrVfMBG`, 섹션: `269-682`
 
 ## 환경 / 도구
 - [VS Code에서 워크트리 파일이 안 보일 때](./reference_worktree_vscode.md)
