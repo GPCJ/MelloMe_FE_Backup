@@ -16,13 +16,15 @@ type: project
 - Google OAuth Redirect URI 추가 완료: `https://melonnetherapists.com/auth/callback`, `https://www.melonnetherapists.com/auth/callback` ✅
 - `VITE_GOOGLE_CLIENT_ID`: Vercel 환경변수에 설정 완료 ✅
 
-## 배포 완료까지 남은 작업 (2026-03-19 기준)
+## 배포 완료까지 남은 작업 (2026-03-20 기준)
 1. ~~apex DNS 전파 완료 → Vercel Refresh~~
 2. ~~백엔드 HTTPS 완료 대기~~ ✅ 완료
 3. ~~Google OAuth 도메인 등록~~ ✅ 완료
-4. **[대기 중]** 백엔드 CORS 허용 — 문의 완료, 답변 대기 중
-5. CORS 완료되면 → vercel.json 프록시 제거 + `VITE_API_BASE_URL` → `https://api.melonnetherapists.com/api/v1`
-6. 로그인 테스트 → 게시글 CRUD → 마이페이지 테스트
-7. 게시글 19개 시딩 스크립트 실행
+4. ~~백엔드 CORS 허용~~ ✅ 완료
+5. ~~vercel.json 프록시 제거~~ ✅ 완료
+6. **[대기 중]** Vercel 대시보드 `VITE_API_BASE_URL` → `https://api.melonnetherapists.com/api/v1` 변경 + 재배포
+7. **[대기 중]** 백엔드 circular reference 이슈 해결 대기
+8. 로그인 테스트 → 게시글 CRUD → 마이페이지 테스트
+9. 게시글 19개 시딩 스크립트 실행
 
 **How to apply:** 배포 관련 작업 시 이 파일 기준으로 진행 상황 파악.

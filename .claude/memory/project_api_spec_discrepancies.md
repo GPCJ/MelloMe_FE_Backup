@@ -1,14 +1,14 @@
 ---
-name: API 스펙 불일치 목록 — 와이어프레임 공유 후 재검토 예정
-description: 백엔드 자동생성 openapi JSON과 현재 프론트 코드 간 불일치 항목. 새 와이어프레임 공유 시 재논의 필요.
+name: API 스펙 불일치 목록 (2026-03-20 실제 백엔드 연결 후 업데이트)
+description: 백엔드 자동생성 openapi JSON과 현재 프론트 코드 간 불일치 항목. 실제 백엔드 연결로 새 항목 추가됨.
 type: project
 ---
 
-백엔드가 공유한 자동생성 openapi JSON(`frontend/openapi-3.0.yaml`)과 현재 프론트 코드(`frontend/src/api/`) 간 불일치 항목.
+백엔드가 공유한 자동생성 openapi JSON(`openapi-3.0.yaml`)과 현재 프론트 코드 간 불일치 항목.
 
-**Why:** 백엔드가 스펙을 업데이트하거나 설계를 변경한 것으로 보이며, 새 와이어프레임 공유 시 어느 쪽을 수정할지 결정 예정.
+**Why:** 백엔드 스펙 기준으로 프론트 타입/코드를 맞춰야 함. 실제 서버 연결 후 새 불일치 발견됨.
 
-**How to apply:** 와이어프레임 공유 받으면 아래 항목들 하나씩 검토 후 프론트/백엔드 수정 분담.
+**How to apply:** 수정 전 아래 항목 확인 후 타입/컴포넌트 함께 수정.
 
 ---
 
@@ -51,8 +51,26 @@ type: project
 
 ---
 
+## 4. 타입 구조 불일치 (2026-03-20 실제 백엔드 연결 후 발견, 수정 필요)
+
+### 수정 완료
+- `PostListResponse`: `items` → `posts`, 페이지네이션 중첩 객체 → flat 구조 (`page`, `size`, `totalElements`, `totalPages`, `hasNext`)
+
+### 수정 필요
+| 항목 | 스펙 | 프론트 타입 |
+|---|---|---|
+| `therapyArea` enum 값 | `OCCUPATIONAL`, `SPEECH`, `COGNITIVE`, `PLAY` | `OCCUPATIONAL_THERAPY`, `SPEECH_THERAPY` 등 `_THERAPY` 붙은 형태 |
+| `PostSummary` 작성자 | `authorNickname: string` | `author: { id, nickname, profileImageUrl }` 객체 |
+| `PostDetail` 작성자 | `authorNickname: string` | `author: { id, nickname, profileImageUrl }` 객체 |
+| `PostDetail` 스크랩 | 없음 | `scrapped: boolean` 있음 |
+| `CommentResponse` 작성자 | `authorId`, `authorNickname`, `authorRole` (별도 필드) | `author: { id, nickname, profileImageUrl }` 객체 |
+| `CommentResponse` 권한 | `canEdit`, `canDelete` 있음 | 없음 |
+| `CommentResponse` 답글 | `replies: CommentResponse[]` 중첩 | 없음 |
+
+---
+
 ## 결론
 
 - **백엔드에 확인/요청할 것:** 누락 엔드포인트 5개 구현, `board`/`therapyArea` 파라미터 지원 여부
 - **와이어프레임 공유 후 결정:** 반응 타입 변경 여부, 필터 설계
-- **프론트 수정 확정:** `sort` → `sortType` (백엔드 스펙 기준)
+- **프론트 수정 확정:** `sort` → `sortType`, `therapyArea` enum 값, 작성자/댓글 타입 구조

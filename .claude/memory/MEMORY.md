@@ -7,7 +7,12 @@
 - 배포: **Vercel(프론트) + EC2(백엔드) 확정** / 프론트: `www.melonnetherapists.com` / 백엔드: `api.melonnetherapists.com` (HTTPS 완료 후)
 
 ## 내일 확인할 것 ⚠️
-- [내일 리마인드 항목](./project_next_session_reminder.md) — GET /me 실제 동작, 로그인 인터셉터 수정, CORS 확인, 마이페이지 API
+- [내일 리마인드 항목](./project_next_session_reminder.md) — CORS 확인, GET /me 동작 확인, 백엔드 연결 후 전체 테스트
+
+## 타입 정렬 완료 (2026-03-20)
+- `PostSummary/PostDetail/CommentResponse/TherapyArea` enum을 OpenAPI 스펙에 맞게 정렬 완료
+- `author` 객체 → `authorNickname` string, `likeCount/commentCount` 제거, `canEdit/canDelete/replies` 추가
+- `npx tsc -b` 통과 확인
 
 ## 다음 작업 (우선순위 순)
 - **[1순위]** 배포 마무리 ([상세](./project_deployment_status.md)) — CORS 반영 대기 중 (HTTPS 완료)
