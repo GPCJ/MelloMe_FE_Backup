@@ -11,6 +11,7 @@ import PostDetailPage from './pages/PostDetailPage';
 import PostCreatePage from './pages/PostCreatePage';
 import PostEditPage from './pages/PostEditPage';
 import MyPage from './pages/MyPage';
+import TherapistVerificationPage from './pages/TherapistVerificationPage';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '';
 
@@ -35,6 +36,7 @@ function App() {
               <Route path="/posts/:postId" element={<PostDetailPage />} />
               <Route path="/posts/:postId/edit" element={<PostEditPage />} />
               <Route path="/my-page" element={<MyPage />} />
+              <Route path="/therapist-verifications" element={<TherapistVerificationPage />} />
             </Route>
 
             <Route path="*" element={<NotFoundPage />} />

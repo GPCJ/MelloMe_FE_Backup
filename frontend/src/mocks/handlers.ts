@@ -122,7 +122,7 @@ export const handlers = [
       return HttpResponse.json({
         success: true,
         data: {
-          isNewUser: false,
+          isNewUser: true,
           user: {
             id: 1,
             email: body.email,
@@ -247,7 +247,7 @@ export const handlers = [
       createdAt: new Date().toISOString(),
       content: body.content,
     };
-    mockPosts.unshift(newPost as unknown as typeof mockPosts[0]);
+    mockPosts.unshift(newPost as unknown as (typeof mockPosts)[0]);
     return HttpResponse.json({ success: true, data: newPost }, { status: 201 });
   }),
 
@@ -295,7 +295,10 @@ export const handlers = [
       updatedAt: new Date().toISOString(),
       replies: [],
     };
-    return HttpResponse.json({ success: true, data: newComment }, { status: 201 });
+    return HttpResponse.json(
+      { success: true, data: newComment },
+      { status: 201 },
+    );
   }),
 
   http.delete(
@@ -361,7 +364,8 @@ export const handlers = [
             authorNickname: '놀이치료사C',
             createdAt: '2026-03-06T09:00:00Z',
           },
-          myCommentPreview: '저도 비슷한 경험이 있어요. 일관된 규칙 설정이 중요로로 것 같습니다...',
+          myCommentPreview:
+            '저도 비슷한 경험이 있어요. 일관된 규칙 설정이 중요로로 것 같습니다...',
           myCommentCreatedAt: '2026-03-06T10:00:00Z',
         },
         {
@@ -375,7 +379,8 @@ export const handlers = [
             authorNickname: '인지치료사B',
             createdAt: '2026-03-05T08:00:00Z',
           },
-          myCommentPreview: 'K-WISC-V를 추천드립니다. 연령대에 적합하고 신뢰도가 높아요...',
+          myCommentPreview:
+            'K-WISC-V를 추천드립니다. 연령대에 적합하고 신뢰도가 높아요...',
           myCommentCreatedAt: '2026-03-05T09:00:00Z',
         },
       ],
@@ -411,12 +416,14 @@ export const handlers = [
   ),
 
   // Scrap
-  http.post(`${API}/posts/:postId/scrap`, () =>
-    new HttpResponse(null, { status: 204 }),
+  http.post(
+    `${API}/posts/:postId/scrap`,
+    () => new HttpResponse(null, { status: 204 }),
   ),
 
-  http.delete(`${API}/posts/:postId/scrap`, () =>
-    new HttpResponse(null, { status: 204 }),
+  http.delete(
+    `${API}/posts/:postId/scrap`,
+    () => new HttpResponse(null, { status: 204 }),
   ),
 
   // Reactions

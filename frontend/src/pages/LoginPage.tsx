@@ -4,10 +4,17 @@ import { GoogleLogin } from '@react-oauth/google';
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
 import { login, googleLogin } from '../api/auth';
 import { useAuthStore } from '../stores/useAuthStore';
+import type { MeResponse, Tokens } from '../types/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -19,6 +26,12 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [newUserNickname, setNewUserNickname] = useState('');
+  // isNewUser일 때 setAuth를 나중에 호출하기 위해 임시 보관
+  // (setAuth를 먼저 호출하면 GuestRoute가 user를 감지해 환영 화면 전에 리다이렉트됨)
+  const [pendingAuth, setPendingAuth] = useState<{
+    user: MeResponse;
+    tokens: Tokens;
+  } | null>(null);
 
   async function handleEmailLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -26,10 +39,12 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const { user, tokens, isNewUser } = await login(email, password);
-      setAuth(user, tokens);
+      // 첫 로그인 유저라면 리렌더링 -> isNewUser Boolean 여부로 환영 화면 표시
       if (isNewUser) {
+        setPendingAuth({ user, tokens });
         setNewUserNickname(user.nickname);
       } else {
+        setAuth(user, tokens);
         navigate('/posts');
       }
     } catch (err) {
@@ -39,49 +54,69 @@ export default function LoginPage() {
     }
   }
 
-  async function handleGoogleSuccess(credentialResponse: { credential?: string }) {
+  async function handleGoogleSuccess(credentialResponse: {
+    credential?: string;
+  }) {
     if (!credentialResponse.credential) return;
     setError('');
     setLoading(true);
     try {
-      const { user, tokens, isNewUser } = await googleLogin(credentialResponse.credential);
-      setAuth(user, tokens);
+      const { user, tokens, isNewUser } = await googleLogin(
+        credentialResponse.credential,
+      );
       if (isNewUser) {
+        setPendingAuth({ user, tokens });
         setNewUserNickname(user.nickname);
       } else {
+        setAuth(user, tokens);
         navigate('/posts');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : '구글 로그인에 실패했습니다.');
+      setError(
+        err instanceof Error ? err.message : '구글 로그인에 실패했습니다.',
+      );
     } finally {
       setLoading(false);
     }
   }
 
   if (newUserNickname) {
+    function handleAuth(path: string) {
+      if (pendingAuth) setAuth(pendingAuth.user, pendingAuth.tokens);
+      navigate(path);
+    }
+
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="w-full max-w-md">
-          <Card>
-            <CardContent className="p-8 text-center">
-              <div className="text-4xl mb-4">🎉</div>
-              <h2 className="text-xl font-bold text-gray-900 mb-2">
-                가입을 환영합니다, {newUserNickname}님!
-              </h2>
-              <p className="text-sm text-gray-500 mb-6">
-                멜로미는 치료사 인증을 받은 분만 커뮤니티를 이용할 수 있어요.
-                <br />
-                지금 바로 인증을 신청해보세요.
-              </p>
-              <Button className="w-full mb-3" onClick={() => navigate('/therapist-verifications')}>
-                치료사 인증 신청하기
-              </Button>
-              <Button className="w-full" variant="outline" onClick={() => navigate('/posts')}>
-                나중에 하기
-              </Button>
-            </CardContent>
-          </Card>
+      <div className="fixed inset-0 z-50 bg-violet-100 flex flex-col items-center justify-center px-4">
+        {/* 카드 */}
+        <div className="w-full max-w-sm bg-white rounded-2xl shadow-lg p-8 text-center">
+          <div className="text-5xl mb-4">🎊</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">환영합니다!</h2>
+          <p className="text-sm text-gray-500 mb-8">
+            멜로미에 오신 것을 환영해요. <br />
+            치료사 인증을 받은 분만 커뮤니티를 이용할 수 있어요.
+          </p>
+
+          <div className="flex flex-col gap-3">
+            <Button
+              className="w-full bg-violet-500 hover:bg-violet-600 text-white py-6 text-base font-bold shadow-md shadow-violet-200 cursor-pointer"
+              onClick={() => handleAuth('/therapist-verifications')}
+            >
+              치료사 인증하러 가기
+            </Button>
+            <button
+              className="w-full text-sm text-gray-400 hover:text-gray-600 py-2 transition-colors cursor-pointer"
+              onClick={() => handleAuth('/posts')}
+            >
+              나중에 하기
+            </button>
+          </div>
         </div>
+
+        {/* 하단 텍스트 */}
+        <p className="mt-6 text-xs text-violet-400">
+          인증 없이도 멜로미의 일부 기능을 이용할 수 있어요.
+        </p>
       </div>
     );
   }
@@ -91,14 +126,18 @@ export default function LoginPage() {
       {/* 상단 타이틀 */}
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">멜로미</h1>
-        <p className="mt-2 text-sm text-gray-500">치료사들의 따뜻한 성장 공간</p>
+        <p className="mt-2 text-sm text-gray-500">
+          치료사들의 따뜻한 성장 공간
+        </p>
       </div>
 
       {/* 카드 */}
       <Card className="w-full max-w-md">
         <CardHeader className="pb-2">
           <CardTitle className="text-xl">로그인</CardTitle>
-          <CardDescription>멜로미 커뮤니티에 오신 것을 환영합니다</CardDescription>
+          <CardDescription>
+            멜로미 커뮤니티에 오신 것을 환영합니다
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <form onSubmit={handleEmailLogin} className="space-y-4">
@@ -106,7 +145,10 @@ export default function LoginPage() {
             <div className="space-y-1">
               <Label htmlFor="email">이메일</Label>
               <div className="relative">
-                <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Mail
+                  size={16}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
                 <Input
                   id="email"
                   type="email"
@@ -123,7 +165,10 @@ export default function LoginPage() {
             <div className="space-y-1">
               <Label htmlFor="password">비밀번호</Label>
               <div className="relative">
-                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Lock
+                  size={16}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
@@ -146,10 +191,16 @@ export default function LoginPage() {
             {/* 로그인 상태 유지 + 비밀번호 찾기 */}
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 rounded border-gray-300" />
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 rounded border-gray-300"
+                />
                 로그인 상태 유지
               </label>
-              <button type="button" className="text-sm text-blue-500 hover:underline">
+              <button
+                type="button"
+                className="text-sm text-blue-500 hover:underline"
+              >
                 비밀번호 찾기
               </button>
             </div>
@@ -172,7 +223,10 @@ export default function LoginPage() {
           {/* 회원가입 링크 */}
           <p className="text-center text-sm text-gray-500">
             아직 계정이 없으신가요?{' '}
-            <Link to="/signup" className="text-blue-500 font-semibold hover:underline">
+            <Link
+              to="/signup"
+              className="text-blue-500 font-semibold hover:underline"
+            >
               회원가입
             </Link>
           </p>
@@ -192,9 +246,13 @@ export default function LoginPage() {
       {/* 하단 이용약관 */}
       <p className="mt-6 text-xs text-gray-400 text-center">
         로그인 시{' '}
-        <button type="button" className="text-blue-400 hover:underline">이용약관</button>
-        {' '}및{' '}
-        <button type="button" className="text-blue-400 hover:underline">개인정보처리방침</button>
+        <button type="button" className="text-blue-400 hover:underline">
+          이용약관
+        </button>{' '}
+        및{' '}
+        <button type="button" className="text-blue-400 hover:underline">
+          개인정보처리방침
+        </button>
         에 동의하게 됩니다.
       </p>
     </div>
