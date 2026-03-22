@@ -7,8 +7,7 @@
 - 배포: **Vercel(프론트) + EC2(백엔드) 확정** / 프론트: `www.melonnetherapists.com` / 백엔드: `api.melonnetherapists.com` (HTTPS 완료 후)
 
 ## 재시작 후 이어할 작업 ⚠️
-- [재시작 후 이어할 작업 (2026-03-20)](./project_pending_work_2026_03_20.md) — 치료사 인증 페이지+환영 모달 **계획 완료/구현 대기**, 마이페이지 간소화
-- 계획 파일: `/Users/jin/.claude/plans/distributed-frolicking-meteor.md`
+- [재시작 후 이어할 작업 (2026-03-20)](./project_pending_work_2026_03_20.md) — ~~치료사 인증 페이지~~ (완료), ~~환영 모달~~ (완료), 마이페이지 간소화, Figma MCP
 
 ## 내일 확인할 것 ⚠️
 - [내일 리마인드 항목](./project_next_session_reminder.md) — CORS 확인, GET /me 동작 확인, 백엔드 연결 후 전체 테스트
@@ -20,13 +19,15 @@
 
 ## 다음 작업 (우선순위 순)
 - **[1순위]** 배포 마무리 ([상세](./project_deployment_status.md)) — CORS 반영 대기 중 (HTTPS 완료)
-- **[보류]** 치료사 인증 기능
+- **[완료]** 치료사 인증 페이지 + 환영 화면 UI ([상세](./project_verification_page_done.md))
+- **[백엔드 논의 후]** 치료사 인증 API 연결 ([상세](./project_verification_api_pending.md))
+- **[정리 필요]** 코드 품질 이슈 — 중복 상수/함수, isAuthor, 401 인터셉터 ([상세](./project_code_quality_issues.md))
 - **[MVP 이후]** 사용자 데이터 수집 로직 — 공부 선행 필요 ([상세](./project_future_analytics.md))
-- **[MVP 이후]** 이메일 로그인 isNewUser 환영 화면 ([상세](./project_deferred_welcome_message.md))
 - **[MVP 이후]** 회원가입 응답에 토큰 포함 요청 ([상세](./project_signup_token.md))
 
 ## API 스펙 불일치
 - [백엔드 openapi JSON vs 프론트 코드 불일치 — 와이어프레임 공유 후 재논의](./project_api_spec_discrepancies.md)
+- [치료사 인증 페이지 백엔드 논의 필요 항목 (2026-03-22)](./project_verification_api_pending.md) — licenseCode 필드, therapyAreas API 미반영, 치료영역 enum 정의 방식
 
 ## 백엔드 대기 중 (2026-03-20 기준)
 CORS 반영되면 → 로그인 테스트 → 전체 기능 테스트
@@ -90,6 +91,7 @@ CORS 반영되면 → 로그인 테스트 → 전체 기능 테스트
 
 ## 워크트리 / 브랜치 구조
 - [워크트리 정리 완료 (2026-03-19) — 현재 main/public 2브랜치 구조](./project_worktree_cleanup.md)
+- `/sync-review` 커맨드 삭제됨 (2026-03-22) — 워크트리 정리 후 불필요
 
 ## 공개 레포 (airo)
 - [airo remote 설정 및 push-airo 커맨드 현황](./project_airo_repo.md) — `https://github.com/AIRO-offical/therapist_community_FE`
