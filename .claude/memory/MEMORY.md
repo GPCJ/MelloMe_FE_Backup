@@ -1,5 +1,8 @@
 # Project Memory
 
+## 사용자
+- [인증/보안 개념 지식 수준 — 비유적 설명 선호](./user_knowledge_auth.md)
+
 ## 프로젝트
 멜로미 — 발달장애 아동 치료사 커뮤니티 플랫폼 (MVP 개발 중)
 - Frontend: React 19, TypeScript, Vite, Tailwind CSS, shadcn/ui, Zustand, React Router, MSW
@@ -7,7 +10,7 @@
 - 배포: **Vercel(프론트) + EC2(백엔드) 확정** / 프론트: `www.melonnetherapists.com` / 백엔드: `api.melonnetherapists.com` (HTTPS 완료 후)
 
 ## 재시작 후 이어할 작업 ⚠️
-- [재시작 후 이어할 작업 (2026-03-20)](./project_pending_work_2026_03_20.md) — ~~치료사 인증 페이지~~ (완료), ~~환영 모달~~ (완료), 마이페이지 간소화, Figma MCP
+- [재시작 후 이어할 작업 (2026-03-20)](./project_pending_work_2026_03_20.md) — ~~치료사 인증 페이지~~ (완료), 환영 모달 (완료), 마이페이지 간소화, Figma MCP
 
 ## 내일 확인할 것 ⚠️
 - [내일 리마인드 항목](./project_next_session_reminder.md) — CORS 확인, GET /me 동작 확인, 백엔드 연결 후 전체 테스트
@@ -18,7 +21,7 @@
 - `npx tsc -b` 통과 확인
 
 ## 다음 작업 (우선순위 순)
-- **[1순위]** 배포 마무리 ([상세](./project_deployment_status.md)) — CORS 반영 대기 중 (HTTPS 완료)
+- **[1순위]** 배포 마무리 ([상세](./project_deployment_status.md)) — CORS 완료 ✅, Vercel `VITE_API_BASE_URL` 변경 + 재배포 + 로그인 테스트 남음
 - **[완료]** 치료사 인증 페이지 + 환영 화면 UI ([상세](./project_verification_page_done.md))
 - **[백엔드 논의 후]** 치료사 인증 API 연결 ([상세](./project_verification_api_pending.md))
 - **[정리 필요]** 코드 품질 이슈 — 중복 상수/함수, isAuthor, 401 인터셉터 ([상세](./project_code_quality_issues.md))
@@ -29,20 +32,19 @@
 - [백엔드 openapi JSON vs 프론트 코드 불일치 — 와이어프레임 공유 후 재논의](./project_api_spec_discrepancies.md)
 - [치료사 인증 페이지 백엔드 논의 필요 항목 (2026-03-22)](./project_verification_api_pending.md) — licenseCode 필드, therapyAreas API 미반영, 치료영역 enum 정의 방식
 
-## 백엔드 대기 중 (2026-03-20 기준)
-CORS 반영되면 → 로그인 테스트 → 전체 기능 테스트
+## 백엔드 대기 중 (2026-03-22 기준)
+CORS 완료 ✅ → **다음: Vercel 환경변수 변경 + 재배포 → 로그인 테스트 → 콘솔 스크립트로 게시글 19개 일괄 삽입 → 전체 기능 테스트**
 - **[완료]** 로그인 응답 구조 — yaml 기준 `{ isNewUser, user, tokens }` 형태 확인 완료, Refresh Token httpOnly Cookie 완료
 - **[완료]** `GET /me` 엔드포인트 — yaml에 추가됨 (CurrentUserResponse 반환)
 - **[미구현]** 마이페이지 API — `GET /me/dashboard`, `GET /me/posts`, `GET /me/activity` yaml에 없음
-- **[해결된 것으로 보임]** CORS + circular reference 서버 이슈 — 백엔드 팀 연락 받음 (2026-03-20), 로그인 테스트 예정
+- **[완료]** CORS + circular reference 서버 이슈 — CORS 반영 완료 확인 (2026-03-22) ✅
 
 ## 로컬 개발 환경
 - **[미완료]** 루트 `.env` 미생성 — docker-compose 실행 불가 ([상세](./project_local_env_setup.md)) / GOOGLE_CLIENT_ID/SECRET만 받으면 바로 생성 가능
 - [루트 .env → .env.docker 이름 변경 (2026-03-20)](./project_env_docker_rename.md) — Docker 실행 시 `--env-file .env.docker` 필수
 
 ## 미해결 이슈
-- **[백엔드 답변 대기]** CORS — `https://www.melonnetherapists.com` 허용 문의 완료. 완료되면 vercel.json 프록시 제거 + VITE_API_BASE_URL 직접 주소로 변경 ([상세](./project_cors_proxy.md))
-- **[백엔드 수정 대기 중]** CORS 미설정 — `https://www.melonnetherapists.com` 허용 요청 완료, 백엔드 반영 대기 중
+- **[완료]** CORS — `https://www.melonnetherapists.com` 허용 완료 ✅ ([상세](./project_cors_proxy.md)) / 남은 작업: Vercel `VITE_API_BASE_URL` → `https://api.melonnetherapists.com/api/v1` 변경 + 재배포
 - **[CRUD 완료 후]** Notion 트러블슈팅 #002 작성 예정 — axios interceptor 토큰 자동 주입 ([상세](./project_notion_crud_axios.md))
 - **[백엔드 연결 시]** MSW `/me` 핸들러가 401 반환 중 → 백엔드 연결 시점에 정리 필요
 
@@ -80,6 +82,7 @@ CORS 반영되면 → 로그인 테스트 → 전체 기능 테스트
 
 ## 백엔드 이슈
 - [로그인 응답 구조 불일치 — 수정 대기 중](./project_backend_login_response.md)
+- [DB 시딩 콘솔 스크립트 — 로그인 수정 완료 후 실행](./project_seed_script.md)
 
 ## 백엔드 회의
 - [회의 결과 + 프론트 개발 현황 (2026-03-15)](./project_backend_meeting.md)
@@ -95,9 +98,6 @@ CORS 반영되면 → 로그인 테스트 → 전체 기능 테스트
 
 ## 공개 레포 (airo)
 - [airo remote 설정 및 push-airo 커맨드 현황](./project_airo_repo.md) — `https://github.com/AIRO-offical/therapist_community_FE`
-
-## Figma
-- [Figma MCP 로드 실패 시 REST API 워크어라운드](./project_figma_mcp_workaround.md) — 파일 키: `nrgNkAzEjhSC74GzrVfMBG`, 섹션: `269-682`
 
 ## 환경 / 도구
 - [VS Code에서 워크트리 파일이 안 보일 때](./reference_worktree_vscode.md)

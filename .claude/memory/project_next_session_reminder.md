@@ -20,11 +20,13 @@ type: project
 - 백엔드 CORS 반영 완료 확인
 - `vercel.json` API 프록시 rewrite 제거 완료
 
-## 현재 상태 (2026-03-20)
+## 다음에 할 것
 
-1. ~~Vercel 환경변수 변경~~ ✅ — `VITE_API_BASE_URL` = `https://api.melonnetherapists.com/api/v1`, MSW false, 로그인/회원가입 성공 확인
-2. ~~백엔드 circular reference 해결~~ ✅
-3. **`GET /me` 동작 확인** — 백엔드 구현 대기 중
-4. **CRUD + 마이페이지 테스트** — 백엔드 구현 대기 중
+1. **[1순위] Vercel 환경변수 변경** — 대시보드에서 `VITE_API_BASE_URL` `/api` → `https://api.melonnetherapists.com/api/v1` 변경 후 재배포
+2. **백엔드 circular reference 이슈 해결 여부 확인** — 해결되면 로그인 테스트
+3. **`GET /me` 실제 동작 확인** — 백엔드 연결 시 MSW `/me` 핸들러 401 처리 정리
+4. **백엔드 연결 후 전체 기능 테스트** — 로그인 → 게시글 19개 DB 시딩 → CRUD 확인
 
-**How to apply:** 백엔드에서 3, 4번 구현 완료 연락 오면 테스트 진행.
+**Why:** CORS + 프록시 제거 완료, 이제 Vercel 환경변수 변경 + 백엔드 이슈 해결만 남음
+
+**How to apply:** 다음 대화 시작 시 이 항목들 먼저 알려줄 것.

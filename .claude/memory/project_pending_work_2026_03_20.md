@@ -11,26 +11,20 @@ type: project
 
 ---
 
-## 1. 치료사 인증 페이지 + 환영 모달 — **계획 완료, 구현 대기 중**
+## 1. 치료사 인증 페이지 (별도 페이지) — 디자인 초안 대기 중
 
-계획 파일: `/Users/jin/.claude/plans/distributed-frolicking-meteor.md`
+- 회원가입에 필드 추가하는 방식 → **별도 페이지 `/verification`으로 변경** 확정
+- PM/디자이너가 초안 작업 중 (스크린샷 올 예정)
+- 수집 항목: 치료영역 + 면허번호 (닉네임은 회원가입에 유지)
+- 치료사만 대상 (일반 회원 제외)
 
-### 치료사 인증 페이지 (`/verification`)
-- 라우트 신규 추가, ProtectedRoute 안
-- 피그마 디자인 확정 (node 269-682)
-- 폼: 면허번호(텍스트) + 면허증 파일 업로드 + 치료영역 다중 선택
-- API: `POST /therapist-verifications` — `licenseCode` + `licenseImage` 전송
-- 치료영역은 **UI만 구현** (API 미지원, 프론트 상태만 관리)
+## 2. 환영 모달 (첫 로그인 시) — 디자인 초안 대기 중
 
-### 환영 모달 (`WelcomeModal.tsx`)
 - 조건: `isNewUser: true` 일 때 노출
-- 피그마 디자인 확정: 흰색 모달, shadcn Dialog 사용
-- 버튼: "홈으로 가기"(검정) + "치료사 인증하러 가기"(보라 outlined, 강조)
-- LoginPage의 기존 isNewUser 인라인 UI 교체
-
-### API/Figma 불일치 해결 결정
-- `licenseCode`(면허번호 문자열): API 필수 → **폼에 추가**
-- 치료영역: Figma에 있음, API 없음 → **UI만 구현**
+- 디자인: 배경 다크 블러 처리 + 모달 배경 투명 (글래스모피즘 스타일)
+- 버튼: "홈으로 가기" + "치료사 인증하러 가기" (강조)
+- 버튼 누르면 → `/verification` 페이지로 리다이렉트
+- 초안 스크린샷 오면 바로 구현 가능
 
 ## 3. 마이페이지 대시보드 간소화 — 팀 논의 결과 대기 중
 
@@ -38,12 +32,10 @@ type: project
 - 탭 4개 → 자격인증 탭 제거 후보 + 스타일 변경 후보 (pill 형태)
 - 팀원 의견 취합 후 확정 예정
 
-## 4. Figma MCP 연동 완료 (2026-03-20 재설정)
+## 4. Figma MCP 연동 완료
 
-- 이전에 등록됐다고 기록됐으나 실제로 누락돼 있었음
-- `~/.claude.json` `/Users/jin/my-project` 섹션에 재추가 완료
-- 패키지: `figma-developer-mcp`, `--figma-api-key` 플래그 사용
-- Claude Code 재시작 후 활성화
+- `~/.claude.json`에 figma MCP 서버 등록됨
+- 재시작 후 활성화
 - 피그마 파일 URL 붙여넣으면 직접 읽기 가능 (권한 있는 파일만)
 
 ## 5. shadcn Select 컴포넌트
