@@ -38,9 +38,16 @@ export default function Layout() {
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* Logo */}
-          <Link to="/posts" className="text-2xl font-bold text-gray-900">
-            멜로미
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/posts" className="text-2xl font-bold text-gray-900">
+              멜로미
+            </Link>
+            {import.meta.env.VITE_MSW_ENABLED === 'true' ? (
+              <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-orange-100 text-orange-600">MSW</span>
+            ) : (
+              <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-green-100 text-green-600">LIVE</span>
+            )}
+          </div>
 
           {/* Center Nav */}
           <nav className="hidden md:flex items-center">
