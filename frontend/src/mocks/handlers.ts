@@ -145,25 +145,6 @@ export const handlers = [
     );
   }),
 
-  http.post(`${API}/auth/oauth/google`, () =>
-    HttpResponse.json({
-      success: true,
-      data: {
-        isNewUser: false,
-        user: {
-          id: 1,
-          email: 'testUser@test.com',
-          nickname: '테스트유저',
-          profileImageUrl: null,
-          role: 'USER',
-          canAccessCommunity: false,
-          therapistVerification: null,
-        },
-        tokens: mockTokens,
-      },
-    }),
-  ),
-
   http.get(`${API}/meta/options`, () =>
     HttpResponse.json({
       boardTypes: ['therapy_board', 'document_board', 'anonymous_board'],
