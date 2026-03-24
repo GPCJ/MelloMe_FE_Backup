@@ -1,4 +1,4 @@
-Read `/Users/jin/.claude/projects/-Users-jin-my-project/memory/MEMORY.md` and summarize the current project status in Korean. Focus on:
+Read `.claude/memory/MEMORY.md` and summarize the current project status in Korean. Focus on:
 1. 다음 작업 (우선순위 순) — 완료되지 않은 것만
 2. 백엔드 대기 중 항목
 3. 미해결 이슈
