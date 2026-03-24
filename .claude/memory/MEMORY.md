@@ -27,6 +27,7 @@
 ## API 스펙 불일치
 - [백엔드 openapi JSON vs 프론트 코드 불일치 — 와이어프레임 공유 후 재논의](./project_api_spec_discrepancies.md)
 - [치료사 인증 페이지 백엔드 논의 필요 항목 (2026-03-22)](./project_verification_api_pending.md) — licenseCode 필드, therapyAreas API 미반영, 치료영역 enum 정의 방식
+- [API 전수 비교 불일치 리스트 (2026-03-24)](./project_api_issues_2026_03_24.md) — 댓글삭제URL, 좋아요enum, 게시글필터, 마이페이지API 3개, OAuth callback 등 12개 항목
 
 ## 백엔드 대기 중 (2026-03-24 기준)
 CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅ → **다음: OAuthCallbackPage 구현 → 전체 기능 테스트 (테스트 데이터는 백엔드에 요청)**
