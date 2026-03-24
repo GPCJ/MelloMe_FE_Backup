@@ -27,8 +27,11 @@ export default function Layout() {
   }
 
   const roleLabel =
-    user?.role === 'THERAPIST' ? '치료사' :
-    user?.role === 'ADMIN' ? '관리자' : '';
+    user?.role === 'THERAPIST'
+      ? '치료사'
+      : user?.role === 'ADMIN'
+        ? '관리자'
+        : '';
 
   const isActive = (path: string) => location.pathname.startsWith(path);
 
@@ -42,10 +45,15 @@ export default function Layout() {
             <Link to="/posts" className="text-2xl font-bold text-gray-900">
               멜로미
             </Link>
+            {/* MSW ON/OFF 확인 UI */}
             {import.meta.env.VITE_MSW_ENABLED === 'true' ? (
-              <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-orange-100 text-orange-600">MSW</span>
+              <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-orange-100 text-orange-600">
+                MSW
+              </span>
             ) : (
-              <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-green-100 text-green-600">LIVE</span>
+              <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-green-100 text-green-600">
+                LIVE
+              </span>
             )}
           </div>
 
@@ -54,7 +62,9 @@ export default function Layout() {
             <Link
               to="/posts"
               className={`flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-md transition-colors ${
-                isActive('/posts') ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900'
+                isActive('/posts')
+                  ? 'text-gray-900'
+                  : 'text-gray-500 hover:text-gray-900'
               }`}
             >
               <MessageSquare size={16} />
@@ -75,7 +85,10 @@ export default function Layout() {
                   <span className="font-bold text-base">공지사항</span>
                 </div>
                 {mockAnnouncements.map((a) => (
-                  <div key={a.id} className="px-4 py-3 border-b hover:bg-gray-50 cursor-pointer">
+                  <div
+                    key={a.id}
+                    className="px-4 py-3 border-b hover:bg-gray-50 cursor-pointer"
+                  >
                     <p className="font-medium text-sm">{a.title}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{a.date}</p>
                   </div>
@@ -96,7 +109,9 @@ export default function Layout() {
                     {user.nickname[0]}
                   </div>
                   <div className="hidden md:flex flex-col items-start">
-                    <span className="text-sm font-medium leading-tight">{user.nickname}</span>
+                    <span className="text-sm font-medium leading-tight">
+                      {user.nickname}
+                    </span>
                     {roleLabel && (
                       <span className="text-xs text-gray-400">{roleLabel}</span>
                     )}
@@ -137,7 +152,9 @@ export default function Layout() {
         <Link
           to={user ? '/my-page' : '/login'}
           className={`flex flex-col items-center gap-1 ${
-            isActive('/my-page') || isActive('/login') ? 'text-gray-900' : 'text-gray-500'
+            isActive('/my-page') || isActive('/login')
+              ? 'text-gray-900'
+              : 'text-gray-500'
           }`}
         >
           <User size={24} />
