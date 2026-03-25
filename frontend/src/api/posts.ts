@@ -13,7 +13,7 @@ import type {
 export async function fetchPosts(params: {
   board?: BoardType;
   therapyArea?: TherapyArea;
-  sort?: PostSort;
+  sortType?: PostSort;
   page?: number;
   size?: number;
 }): Promise<PaginatedPosts> {
