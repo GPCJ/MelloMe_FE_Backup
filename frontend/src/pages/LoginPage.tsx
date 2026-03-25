@@ -44,7 +44,7 @@ export default function LoginPage() {
         setNewUserNickname(user.nickname);
       } else {
         setAuth(user, tokens);
-        navigate('/posts');
+        navigate('/');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
@@ -83,7 +83,7 @@ export default function LoginPage() {
             </Button>
             <button
               className="w-full text-sm text-gray-400 hover:text-gray-600 py-2 transition-colors cursor-pointer"
-              onClick={() => handleAuth('/posts')}
+              onClick={() => handleAuth('/')}
             >
               나중에 하기
             </button>

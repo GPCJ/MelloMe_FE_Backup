@@ -1,10 +1,13 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import GuestRoute from './components/GuestRoute';
+import AuthRoute from './components/AuthRoute';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import NotFoundPage from './pages/NotFoundPage';
+import LandingPage from './pages/LandingPage';
+import OAuthCallbackPage from './pages/OAuthCallbackPage';
 import PostListPage from './pages/PostListPage';
 import PostDetailPage from './pages/PostDetailPage';
 import PostCreatePage from './pages/PostCreatePage';
@@ -16,8 +19,12 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* LandingPage — 자체 navbar/footer가 있어서 Layout 밖에 위치 */}
+        <Route path="/" element={<LandingPage />} />
+        {/* Google OAuth 콜백 — 로그인 처리 전용, Layout 불필요 */}
+        <Route path="/auth/callback" element={<OAuthCallbackPage />} />
+
         <Route element={<Layout />}>
-          <Route path="/" element={<Navigate to="/posts" replace />} />
 
           {/* 비로그인 전용 라우트 */}
           <Route element={<GuestRoute />}>
@@ -25,14 +32,18 @@ function App() {
             <Route path="/signup" element={<SignupPage />} />
           </Route>
 
-          {/* 로그인 필요 라우트 */}
+          {/* 로그인만 필요 (인증 불필요) */}
+          <Route element={<AuthRoute />}>
+            <Route path="/therapist-verifications" element={<TherapistVerificationPage />} />
+          </Route>
+
+          {/* 로그인 + 치료사 인증 필요 */}
           <Route element={<ProtectedRoute />}>
             <Route path="/posts" element={<PostListPage />} />
             <Route path="/posts/new" element={<PostCreatePage />} />
             <Route path="/posts/:postId" element={<PostDetailPage />} />
             <Route path="/posts/:postId/edit" element={<PostEditPage />} />
             <Route path="/my-page" element={<MyPage />} />
-            <Route path="/therapist-verifications" element={<TherapistVerificationPage />} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

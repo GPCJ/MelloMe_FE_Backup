@@ -42,7 +42,7 @@ export default function Layout() {
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <Link to="/posts" className="text-2xl font-bold text-gray-900">
+            <Link to="/" className="text-2xl font-bold text-gray-900">
               멜로미
             </Link>
             {/* MSW ON/OFF 확인 UI */}

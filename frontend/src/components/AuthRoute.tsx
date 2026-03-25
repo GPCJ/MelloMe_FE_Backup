@@ -1,9 +1,8 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '../stores/useAuthStore';
 
-export default function GuestRoute() {
+export default function AuthRoute() {
   const { user } = useAuthStore();
-  if (user?.canAccessCommunity) return <Navigate to="/posts" replace />;
-  if (user) return <Navigate to="/" replace />;
+  if (!user) return <Navigate to="/login" replace />;
   return <Outlet />;
 }

@@ -7,9 +7,6 @@ import {
   Heart,
   Download,
   Bookmark,
-  CheckCircle,
-  Clock,
-  XCircle,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -31,13 +28,12 @@ const ROLE_LABELS: Record<string, string> = {
   USER: '일반 회원',
 };
 
-type Tab = 'dashboard' | 'posts' | 'activity' | 'verification';
+type Tab = 'dashboard' | 'posts' | 'activity';
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'dashboard', label: '대시보드' },
   { key: 'posts', label: '내가 쓴 글' },
   { key: 'activity', label: '활동 내역' },
-  { key: 'verification', label: '자격 인증' },
 ];
 
 function formatDate(isoString: string) {
@@ -192,81 +188,6 @@ function ActivityTab({ activity }: { activity: MyActivity }) {
   );
 }
 
-// ─── 자격 인증 탭 ─────────────────────────────────────────────────
-type VerificationStatus = 'NOT_REQUESTED' | 'PENDING' | 'APPROVED' | 'REJECTED' | null;
-
-function VerificationTab({ status }: { status: VerificationStatus }) {
-  const statusConfig = {
-    PENDING: {
-      icon: Clock,
-      label: '인증 심사 중',
-      description: '제출하신 자격증이나 면허증을 검토 중입니다.',
-      note: '심사는 영업일 기준 3~5일 소요됩니다.',
-      className: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-      iconClass: 'text-yellow-600',
-    },
-    APPROVED: {
-      icon: CheckCircle,
-      label: '인증 완료',
-      description: '치료사 인증이 완료되었습니다.',
-      note: '커뮤니티의 모든 기능을 이용하실 수 있습니다.',
-      className: 'bg-green-50 border-green-200 text-green-800',
-      iconClass: 'text-green-600',
-    },
-    REJECTED: {
-      icon: XCircle,
-      label: '인증 반려',
-      description: '제출하신 서류가 반려되었습니다.',
-      note: '올바른 서류를 다시 제출해주세요.',
-      className: 'bg-red-50 border-red-200 text-red-800',
-      iconClass: 'text-red-600',
-    },
-  };
-
-  const documents = [
-    '작업치료사/언어재활사/상담심리사 면허증',
-    '놀이치료사 자격증 (한국놀이치료학회 등)',
-    '재학생의 경우 학생증 (관련 학과)',
-  ];
-
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
-        <p className="text-sm font-semibold text-gray-900 mb-3">자격 인증 현황</p>
-        {status === null || status === 'NOT_REQUESTED' ? (
-          <p className="text-sm text-gray-400">아직 자격 인증을 신청하지 않으셨어요.</p>
-        ) : (
-          (() => {
-            const config = statusConfig[status];
-            const Icon = config.icon;
-            return (
-              <div className={`rounded-lg border p-3 ${config.className}`}>
-                <div className="flex items-center gap-2 mb-1">
-                  <Icon size={16} className={config.iconClass} />
-                  <span className="text-sm font-medium">{config.label}</span>
-                </div>
-                <p className="text-xs mb-0.5">{config.description}</p>
-                <p className="text-xs opacity-80">{config.note}</p>
-              </div>
-            );
-          })()
-        )}
-      </div>
-
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
-        <p className="text-sm font-semibold text-gray-900 mb-3">인증 가능 서류</p>
-        <ul className="flex flex-col gap-2">
-          {documents.map((doc) => (
-            <li key={doc} className="flex items-start gap-2 text-sm text-gray-500">
-              <span className="mt-2 w-1 h-1 rounded-full bg-gray-400 shrink-0" />
-              {doc}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-}
 
 // ─── 스켈레톤 ─────────────────────────────────────────────────────
 function DashboardSkeleton() {
@@ -318,7 +239,6 @@ export default function MyPage() {
     }
   }, [activeTab]);
 
-  const verificationStatus = user?.therapistVerification?.status ?? null;
   const roleLabel = user?.role ? ROLE_LABELS[user.role] : '';
 
   return (
@@ -366,9 +286,6 @@ export default function MyPage() {
         loadingActivity || !activity
           ? <div className="flex flex-col gap-3">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}</div>
           : <ActivityTab activity={activity} />
-      )}
-      {activeTab === 'verification' && (
-        <VerificationTab status={verificationStatus} />
       )}
     </div>
   );
