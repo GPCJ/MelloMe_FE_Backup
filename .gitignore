@@ -1,5 +1,6 @@
 # 환경변수 (민감 정보)
 .env
+.env.*
 .env.local
 .env.production
 
@@ -9,6 +10,11 @@
 
 # OS
 .DS_Store
+
+# 백엔드/인프라 파일 (프론트 레포에 불필요)
+docker-compose.yml
+openapi-3.0.yaml
+/package-lock.json
 
 # Claude (settings.local.json은 개인 설정이라 제외, worktrees는 로컬 전용)
 .claude/settings.local.json
