@@ -1,8 +1,5 @@
 # Project Memory
 
-## 세션 브릿지
-- [이전 세션에서 이어지는 작업 컨텍스트 (일회성)](./session_bridge.md) ← 다음 /session-bridge 실행 시 삭제
-
 ## 사용자
 - [인증/보안 개념 지식 수준 — 비유적 설명 선호](./user_knowledge_auth.md)
 
@@ -16,9 +13,11 @@
 - [MVP 요구사항 상세 및 핵심지표 (2026-03-24)](./project_mvp_requirements.md) — 게시판/글쓰기/관리자페이지/랜딩페이지 + WAU/MAU/리텐션 등 KPI
 
 ## 다음 작업 (우선순위 순)
-- **[1순위]** OAuthCallbackPage 구현 — `/auth/callback` 라우트, code → exchange → setAuth + 리다이렉트 ([OAuth 흐름](./project_google_oauth_migration.md))
+- **[완료]** OAuthCallbackPage 구현 ✅ — `/auth/callback` 라우트, code → exchange → setAuth + 리다이렉트 (2026-03-25)
 - **[완료]** 배포 마무리 ✅ — Vercel 재배포 + 로그인 테스트 통과 (2026-03-24)
 - **[완료]** 치료사 인증 페이지 + 환영 화면 UI ([상세](./project_verification_page_done.md))
+- **[1순위]** 댓글 삭제 URL 프론트 수정 — `deleteComment` postId 제거, URL `/comments/${commentId}`로 변경
+- **[2순위]** 좋아요 UI 3종 리액션 구현 — EMPATHY/APPRECIATE/HELPFUL, PUT 토글 방식 (백엔드 enum 확정 후)
 - **[백엔드 논의 후]** 치료사 인증 API 연결 ([상세](./project_verification_api_pending.md))
 - **[정리 필요]** 코드 품질 이슈 — 중복 상수/함수, isAuthor, 401 인터셉터 ([상세](./project_code_quality_issues.md))
 - **[MVP 이후]** 사용자 데이터 수집 로직 — 공부 선행 필요 ([상세](./project_future_analytics.md))
@@ -30,7 +29,7 @@
 - [API 전수 비교 불일치 리스트 (2026-03-24)](./project_api_issues_2026_03_24.md) — 댓글삭제URL, 좋아요enum, 게시글필터, 마이페이지API 3개, OAuth callback 등 12개 항목
 
 ## 백엔드 대기 중 (2026-03-24 기준)
-CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅ → **다음: OAuthCallbackPage 구현 → 전체 기능 테스트 (테스트 데이터는 백엔드에 요청)**
+CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbackPage 구현 완료 ✅ → **다음: 백엔드에 API 이슈 리스트 공유 → 전체 기능 테스트**
 - **[완료]** 로그인 응답 구조 — yaml 기준 `{ isNewUser, user, tokens }` 형태 확인 완료, Refresh Token httpOnly Cookie 완료
 - **[완료]** `GET /me` 엔드포인트 — yaml에 추가됨 (CurrentUserResponse 반환)
 - **[미구현]** 마이페이지 API — `GET /me/dashboard`, `GET /me/posts`, `GET /me/activity` yaml에 없음
@@ -60,6 +59,9 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅ → **다음:
 - [/update-notion 초안 확인 방식](./feedback_update_notion_confirm.md) — 업로드 전 채팅창에 초안 보여주고 승인 후 업로드
 
 ## 개발 규칙 / 피드백
+- [session-bridge 사용 중단 — /wrap-up으로 대체](./feedback_session_bridge_removed.md)
+- [세션 브릿지 실행 시 중요 내용 장기 메모리 저장 제안 — 정책결정/대규모변경/복잡작업 기준](./feedback_session_bridge_longterm.md)
+- [Notion 날짜별 페이지 방식 — TIL 등 일자별 기록은 서브페이지로 생성](./feedback_notion_daily_pages.md)
 - [와이어프레임 색상 보수적 적용 — 강한 색은 질문 먼저](./feedback_wireframe_color.md)
 - [서버 통신 에러 시 프론트 먼저 점검 — 백엔드 탓은 마지막 수단](./feedback_backend_blame.md)
 - [불확실할 때 추측 말고 질문 먼저](./feedback_ask_when_uncertain.md)
@@ -83,8 +85,8 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅ → **다음:
 ## 백엔드 이슈
 - [로그인 응답 구조 불일치 — 수정 대기 중](./project_backend_login_response.md)
 
-## Google OAuth 전환 (2026-03-23)
-- [OAuth 전환 진행 상황](./project_google_oauth_migration.md) — 토큰 교환 방식 확정 ✅, OAuthCallbackPage 구현 예정
+## Google OAuth
+- [Google OAuth 코드 삭제 내역 (2026-03-25)](./project_google_oauth_removed.md) — 회원가입+치료사인증 통합 플로우 전환으로 삭제. 재도입 시 git 히스토리 참고
 
 ## 백엔드 회의
 - [회의 결과 + 프론트 개발 현황 (2026-03-15)](./project_backend_meeting.md)

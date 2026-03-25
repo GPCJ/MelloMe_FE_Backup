@@ -21,3 +21,10 @@ type: project
 **Why:** rebase/merge 방식은 새로 추가된 `.claude/` 파일이 누락 없이 제거되지 않아 공개 레포에 실수로 업로드되는 문제 발생. reset --hard로 해결.
 
 **How to apply:** `/push-airo` 실행. force push이므로 항상 승인 후 진행.
+
+## 민감/불필요 파일 정리 (2026-03-25)
+아래 파일들을 airo 레포에서 제거 완료. `.gitignore`에도 추가해 재추적 방지.
+- `.env.docker` — Google OAuth 크리덴셜, JWT 시크릿 포함 (보안)
+- `docker-compose.yml` — 백엔드 인프라 파일
+- `openapi-3.0.yaml` — 백엔드 API 스펙
+- `/package-lock.json` (루트) — 빈 lock 파일
