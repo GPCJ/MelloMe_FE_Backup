@@ -58,11 +58,8 @@ export async function createComment(
   return res.data;
 }
 
-export async function deleteComment(
-  postId: number,
-  commentId: number,
-): Promise<void> {
-  await axiosInstance.delete(`/posts/${postId}/comments/${commentId}`);
+export async function deleteComment(commentId: number): Promise<void> {
+  await axiosInstance.delete(`/comments/${commentId}`);
 }
 
 export async function scrapPost(postId: number): Promise<void> {

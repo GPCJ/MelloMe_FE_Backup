@@ -149,7 +149,7 @@ export default function PostDetailPage() {
 
   async function handleDeleteComment(commentId: number) {
     if (!postId || !confirm('댓글을 삭제할까요?')) return;
-    await deleteComment(Number(postId), commentId);
+    await deleteComment(commentId);
     setComments((prev) => prev.filter((c) => c.id !== commentId));
   }
 

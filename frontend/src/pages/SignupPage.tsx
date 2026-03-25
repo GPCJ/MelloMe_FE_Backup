@@ -25,7 +25,7 @@ export default function SignupPage() {
       await signup(email, password, nickname);
       const { user, tokens } = await login(email, password);
       setAuth(user, tokens);
-      navigate('/posts');
+      navigate('/therapist-verifications');
     } catch (err) {
       setError(err instanceof Error ? err.message : '회원가입에 실패했습니다.');
     } finally {

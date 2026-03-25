@@ -7,7 +7,6 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import NotFoundPage from './pages/NotFoundPage';
 import LandingPage from './pages/LandingPage';
-import OAuthCallbackPage from './pages/OAuthCallbackPage';
 import PostListPage from './pages/PostListPage';
 import PostDetailPage from './pages/PostDetailPage';
 import PostCreatePage from './pages/PostCreatePage';
@@ -21,9 +20,6 @@ function App() {
       <Routes>
         {/* LandingPage — 자체 navbar/footer가 있어서 Layout 밖에 위치 */}
         <Route path="/" element={<LandingPage />} />
-        {/* Google OAuth 콜백 — 로그인 처리 전용, Layout 불필요 */}
-        <Route path="/auth/callback" element={<OAuthCallbackPage />} />
-
         <Route element={<Layout />}>
 
           {/* 비로그인 전용 라우트 */}

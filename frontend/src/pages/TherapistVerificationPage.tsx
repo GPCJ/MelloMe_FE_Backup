@@ -52,7 +52,7 @@ export default function TherapistVerificationPage() {
       // - licenseCode 필드 추가 여부 확정 필요
       // - therapyAreas 서버 저장 여부 확정 필요
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      navigate('/my-page');
+      navigate('/posts');
     } finally {
       setSubmitting(false);
     }

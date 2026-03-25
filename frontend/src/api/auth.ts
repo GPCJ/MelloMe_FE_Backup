@@ -11,11 +11,6 @@ export async function signup(email: string, password: string, nickname: string):
   return data
 }
 
-export async function exchangeOAuthCode(code: string, redirectUri: string): Promise<AuthResponse> {
-  const { data } = await axiosInstance.post('/auth/oauth/google/exchange', { code, redirectUri })
-  return data
-}
-
 export async function getMe(): Promise<MeResponse> {
   const { data } = await axiosInstance.get('/me')
   return data
