@@ -51,8 +51,9 @@ export interface PaginatedPosts {
 export interface PostCreateRequest {
   title: string;
   content: string;
-  therapyArea?: TherapyArea;
-  ageGroup?: AgeGroup;
+  postType: string;
+  therapyArea: TherapyArea;
+  ageGroup: AgeGroup;
 }
 
 export interface PostUpdateRequest {

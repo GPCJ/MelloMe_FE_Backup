@@ -5,9 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import RichTextEditor from '../components/RichTextEditor';
 import { createPost } from '../api/posts';
-import type { TherapyArea } from '../types/post';
+import type { TherapyArea, AgeGroup } from '../types/post';
 
-const THERAPY_CHIPS: { value: TherapyArea | 'UNSPECIFIED'; label: string }[] = [
+const THERAPY_CHIPS: { value: TherapyArea; label: string }[] = [
   { value: 'UNSPECIFIED', label: '선택안함' },
   { value: 'OCCUPATIONAL', label: '작업' },
   { value: 'SPEECH', label: '언어' },
@@ -15,12 +15,23 @@ const THERAPY_CHIPS: { value: TherapyArea | 'UNSPECIFIED'; label: string }[] = [
   { value: 'COGNITIVE', label: '인지' },
 ];
 
+const AGE_CHIPS: { value: AgeGroup; label: string }[] = [
+  { value: 'UNSPECIFIED', label: '선택안함' },
+  { value: 'AGE_0_2', label: '0-2세' },
+  { value: 'AGE_3_5', label: '3-5세' },
+  { value: 'AGE_6_12', label: '6-12세' },
+  { value: 'AGE_13_18', label: '13-18세' },
+  { value: 'AGE_19_64', label: '19-64세' },
+  { value: 'AGE_65_PLUS', label: '65세 이상' },
+];
+
 export default function PostCreatePage() {
   const navigate = useNavigate();
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [therapyArea, setTherapyArea] = useState<TherapyArea | 'UNSPECIFIED'>('UNSPECIFIED');
+  const [therapyArea, setTherapyArea] = useState<TherapyArea>('UNSPECIFIED');
+  const [ageGroup, setAgeGroup] = useState<AgeGroup>('UNSPECIFIED');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,7 +46,9 @@ export default function PostCreatePage() {
       const post = await createPost({
         title,
         content,
-        ...(therapyArea !== 'UNSPECIFIED' ? { therapyArea } : {}),
+        postType: 'COMMUNITY',
+        therapyArea,
+        ageGroup,
       });
       navigate(`/posts/${post.id}`);
     } catch {
@@ -98,6 +111,29 @@ export default function PostCreatePage() {
                 onClick={() => setTherapyArea(chip.value)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
                   therapyArea === chip.value
+                    ? 'bg-gray-900 text-white border-gray-900'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                }`}
+              >
+                {chip.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 연령대 */}
+        <div className="flex flex-col gap-2">
+          <Label>
+            연령대 <span className="text-gray-400 text-xs font-normal">(선택)</span>
+          </Label>
+          <div className="flex flex-wrap gap-2">
+            {AGE_CHIPS.map((chip) => (
+              <button
+                key={chip.value}
+                type="button"
+                onClick={() => setAgeGroup(chip.value)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                  ageGroup === chip.value
                     ? 'bg-gray-900 text-white border-gray-900'
                     : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
                 }`}
