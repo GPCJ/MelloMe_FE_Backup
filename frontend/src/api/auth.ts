@@ -16,3 +16,15 @@ export async function getMe(): Promise<MeResponse> {
   return data
 }
 
+export async function applyTherapistVerification(
+  licenseCode: string,
+  licenseImage: File,
+): Promise<void> {
+  const formData = new FormData()
+  formData.append('licenseCode', licenseCode)
+  formData.append('licenseImage', licenseImage)
+  await axiosInstance.post('/therapist-verifications', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+}
+

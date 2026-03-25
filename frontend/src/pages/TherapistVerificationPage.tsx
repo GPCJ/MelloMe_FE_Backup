@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { applyTherapistVerification, getMe } from '../api/auth';
+import { useAuthStore } from '../stores/useAuthStore';
 
 // TODO: 백엔드 논의 필요 — 인증용 치료영역 enum 확정 전 와이어프레임 기준 임시 정의
 // 게시글 필터용 TherapyArea(5개)와 별개로 인증 전용 목록(9개)
@@ -20,11 +23,20 @@ const VERIFICATION_THERAPY_CHIPS = [
 
 export default function TherapistVerificationPage() {
   const navigate = useNavigate();
+  const { user, tokens, setAuth } = useAuthStore();
 
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
+  const [licenseCode, setLicenseCode] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    getMe().then((freshUser) => {
+      if (tokens) setAuth(freshUser, tokens);
+    });
+  }, []);
 
   function toggleArea(area: string) {
     setSelectedAreas((prev) =>
@@ -42,20 +54,36 @@ export default function TherapistVerificationPage() {
     if (e.dataTransfer.files?.[0]) setFile(e.dataTransfer.files[0]);
   }
 
-  const canSubmit = file !== null && selectedAreas.length > 0 && !submitting;
+  const verificationStatus = user?.therapistVerification?.status;
+  const canSubmit = file !== null && licenseCode.trim() !== '' && selectedAreas.length > 0 && !submitting;
 
   async function handleSubmit() {
     if (!canSubmit) return;
     setSubmitting(true);
+    setError('');
     try {
-      // TODO: 백엔드 논의 완료 후 API 연결
-      // - licenseCode 필드 추가 여부 확정 필요
-      // - therapyAreas 서버 저장 여부 확정 필요
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await applyTherapistVerification(licenseCode, file!);
+      const freshUser = await getMe();
+      if (tokens) setAuth(freshUser, tokens);
       navigate('/posts');
+    } catch {
+      setError('인증 신청에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (verificationStatus === 'APPROVED') {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-6 flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <div className="text-5xl mb-4">✅</div>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">인증이 완료되었습니다</h2>
+        <p className="text-sm text-gray-500 mb-6">치료사 인증이 승인되어 커뮤니티를 이용할 수 있어요.</p>
+        <Button onClick={() => navigate('/posts')} className="bg-violet-500 hover:bg-violet-600 text-white">
+          커뮤니티 바로가기
+        </Button>
+      </div>
+    );
   }
 
   return (
@@ -79,6 +107,19 @@ export default function TherapistVerificationPage() {
         </p>
 
         <div className="flex flex-col gap-6">
+          {/* 면허번호 */}
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="licenseCode">
+              면허번호 <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="licenseCode"
+              value={licenseCode}
+              onChange={(e) => setLicenseCode(e.target.value)}
+              placeholder="면허번호를 입력해주세요"
+            />
+          </div>
+
           {/* 면허증 첨부 */}
           <div className="flex flex-col gap-2">
             <Label>
@@ -141,6 +182,8 @@ export default function TherapistVerificationPage() {
               ))}
             </div>
           </div>
+
+          {error && <p className="text-sm text-red-500">{error}</p>}
 
           {/* 버튼 */}
           <div className="flex gap-3 pt-2">
