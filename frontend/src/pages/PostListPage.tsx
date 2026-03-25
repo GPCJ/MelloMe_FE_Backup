@@ -107,7 +107,6 @@ export default function PostListPage() {
     setLoading(true);
     setError(null);
     fetchPosts({
-      board: 'therapy_board',
       ...(therapyArea ? { therapyArea } : {}),
       page: currentPage,
     })
