@@ -108,7 +108,7 @@ export default function PostListPage() {
     setError(null);
     fetchPosts({
       ...(therapyArea ? { therapyArea } : {}),
-      page: currentPage,
+      page: currentPage - 1,
     })
       .then(setData)
       .catch(() => setError('게시글을 불러오는 데 실패했습니다.'))
