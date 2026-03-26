@@ -19,8 +19,8 @@ type: project
 - RichTextEditor — Tiptap v3 기반 (Bold, Italic, H2, 목록, 인용구, undo/redo)
 - DOMPurify XSS 방어 — dangerouslySetInnerHTML 사용 부분에 적용
 
-**미완료:**
-- Notion 트러블슈팅 #003 (DOMPurify XSS 방어) — 아직 미작성
+**완료:**
+- Notion 트러블슈팅 #003 (DOMPurify XSS 방어) — 작성 완료 (2026-03-19)
 
 **Why:** 피그마 와이어프레임 기반으로 팀 공유 가능한 수준의 UI 완성. Vercel 배포 후 팀원 체험 가능 상태.
 

@@ -4,7 +4,7 @@ description: CRUD 완료 후 axios interceptor로 토큰 자동 주입 해결한
 type: project
 ---
 
-CRUD 기능 개발 완료. Notion 트러블슈팅 페이지(#002)에 아래 내용 작성 필요.
+노션 트러블슈팅 #002 작성 완료 (2026-03-18). 아래는 작성된 내용 요약.
 
 **작성할 내용:**
 - 문제: CRUD API 호출마다 Authorization 헤더에 토큰 수동 주입 → 코드 중복

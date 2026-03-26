@@ -60,6 +60,7 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 ## 정책 결정
 - [게시물 열람 권한 — 비로그인 접근 불가, ProtectedRoute 적용](./project_post_visibility.md)
 - [테스트 데이터 삽입 — 백엔드에 요청, 프론트에서 직접 삽입 안 함](./project_test_data_policy.md)
+- [모바일 앱 확장 ADR (2026-03-26)](./project_mobile_expansion_adr.md) — MVP 웹 우선, RN 제외, PWA/Capacitor 유저테스트 후 결정. **노션 업로드 대기 중**
 
 ## Notion 페이지
 - [Notion 진행 상황 페이지 운영 방침](./project_notion_page_policy.md) — PM 주요 독자, 백엔드 논의 제외, 토글 구조
@@ -97,6 +98,9 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 ## Google OAuth
 - [Google OAuth 코드 삭제 내역 (2026-03-25)](./project_google_oauth_removed.md) — 회원가입+치료사인증 통합 플로우 전환으로 삭제. 재도입 시 git 히스토리 참고
 
+## 미해결 — 라우팅
+- [회원가입 후 환영 페이지 리다이렉트 실패](./project_welcome_flow_issue.md) — GuestRoute/AuthRoute 충돌, 근본 해결 필요 `#UI개발`
+
 ## UX 설계 논의 아카이브
 - [PM/PD 협업 UX 논의 모음](./project_ux_design_decisions.md) — 3~4개 쌓이면 빌더스 리그에 묶어서 정리
 
@@ -129,6 +133,7 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - [프론트엔드 코드 학습 전체 완료](./project_code_learning.md)
 - [학습 내용 상세 정리 — 복습 요청 시에만 불러올 것](./learning_frontend_code.md)
 - [axios interceptor 코드 리뷰 학습 진행 상황 및 다음 후보](./learning_axios_interceptor.md)
+- [인지부채 점검 세션 — Q&A 방식 이해도 점검, 영역 선택 전 단계](./project_cognitive_debt_review.md)
 
 ## shadcn/ui
 - [디자이너 UI 선개발 방침](./project_shadcn_design.md) — 컴포넌트는 shadcn 기반, 스타일은 CSS 변수로 분리
