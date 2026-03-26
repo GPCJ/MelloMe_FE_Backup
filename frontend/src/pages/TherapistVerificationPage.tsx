@@ -57,33 +57,24 @@ export default function TherapistVerificationPage() {
   const verificationStatus = user?.therapistVerification?.status;
   const canSubmit = file !== null && licenseCode.trim() !== '' && selectedAreas.length > 0 && !submitting;
 
+  useEffect(() => {
+    if (verificationStatus === 'APPROVED') {
+      navigate('/posts', { replace: true });
+    }
+  }, [verificationStatus, navigate]);
+
   async function handleSubmit() {
     if (!canSubmit) return;
     setSubmitting(true);
     setError('');
     try {
       await applyTherapistVerification(licenseCode, file!);
-      const freshUser = await getMe();
-      if (tokens) setAuth(freshUser, tokens);
-      navigate('/posts');
+      navigate('/verification-complete');
     } catch {
       setError('인증 신청에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setSubmitting(false);
     }
-  }
-
-  if (verificationStatus === 'APPROVED') {
-    return (
-      <div className="max-w-3xl mx-auto px-4 py-6 flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <div className="text-5xl mb-4">✅</div>
-        <h2 className="text-xl font-bold text-gray-900 mb-2">인증이 완료되었습니다</h2>
-        <p className="text-sm text-gray-500 mb-6">치료사 인증이 승인되어 커뮤니티를 이용할 수 있어요.</p>
-        <Button onClick={() => navigate('/posts')} className="bg-violet-500 hover:bg-violet-600 text-white">
-          커뮤니티 바로가기
-        </Button>
-      </div>
-    );
   }
 
   return (

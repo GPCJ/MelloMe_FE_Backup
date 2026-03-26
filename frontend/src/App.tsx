@@ -13,6 +13,8 @@ import PostCreatePage from './pages/PostCreatePage';
 import PostEditPage from './pages/PostEditPage';
 import MyPage from './pages/MyPage';
 import TherapistVerificationPage from './pages/TherapistVerificationPage';
+import WelcomePage from './pages/WelcomePage';
+import VerificationCompletePage from './pages/VerificationCompletePage';
 
 function App() {
   return (
@@ -27,6 +29,10 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
           </Route>
+
+          {/* 회원가입 후 전환 페이지 (가드 불필요) */}
+          <Route path="/welcome" element={<WelcomePage />} />
+          <Route path="/verification-complete" element={<VerificationCompletePage />} />
 
           {/* 로그인만 필요 (인증 불필요) */}
           <Route element={<AuthRoute />}>

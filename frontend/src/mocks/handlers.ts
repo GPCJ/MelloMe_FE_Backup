@@ -93,24 +93,38 @@ const mockTokens = {
   accessTokenExpiresInSec: 3600,
 };
 
+// 현재 로그인된 사용자 이메일 추적 (GET /me 응답용)
+let currentUserEmail: string | null = null;
+
+// 회원가입으로 등록된 이메일 추적 (비밀번호 체크 스킵용)
+const signedUpEmails = new Set<string>();
+
 const testAccounts: Record<
   string,
-  { role: string; canAccessCommunity: boolean; nickname: string }
+  {
+    role: string;
+    canAccessCommunity: boolean;
+    nickname: string;
+    therapistVerification: { status: string };
+  }
 > = {
   'testUser@test.com': {
     role: 'USER',
     canAccessCommunity: false,
     nickname: '테스트유저',
+    therapistVerification: { status: 'NOT_REQUESTED' },
   },
   'testTherapist@test.com': {
     role: 'THERAPIST',
     canAccessCommunity: true,
     nickname: '테스트치료사',
+    therapistVerification: { status: 'APPROVED' },
   },
   'admin@test.com': {
     role: 'ADMIN',
     canAccessCommunity: true,
     nickname: '관리자',
+    therapistVerification: { status: 'APPROVED' },
   },
 };
 
@@ -127,14 +141,17 @@ export const handlers = [
       role: 'USER',
       canAccessCommunity: false,
       nickname: body.nickname,
+      therapistVerification: { status: 'NOT_REQUESTED' },
     };
+    signedUpEmails.add(body.email);
     return HttpResponse.json({ success: true }, { status: 201 });
   }),
 
   http.post(`${API}/auth/login`, async ({ request }) => {
     const body = (await request.json()) as { email: string; password: string };
     const account = testAccounts[body.email];
-    if (account && body.password === '1111') {
+    if (account && (signedUpEmails.has(body.email) || body.password === '1111')) {
+      currentUserEmail = body.email;
       return HttpResponse.json({
         success: true,
         data: {
@@ -146,7 +163,7 @@ export const handlers = [
             profileImageUrl: null,
             role: account.role,
             canAccessCommunity: account.canAccessCommunity,
-            therapistVerification: { status: 'NOT_REQUESTED' },
+            therapistVerification: account.therapistVerification,
           },
           tokens: mockTokens,
         },
@@ -195,12 +212,33 @@ export const handlers = [
     }),
   ),
 
-  http.get(`${API}/me`, () =>
-    HttpResponse.json(
-      { code: 'AUTH_401', message: 'Unauthorized' },
-      { status: 401 },
-    ),
-  ),
+  http.get(`${API}/me`, () => {
+    if (!currentUserEmail || !testAccounts[currentUserEmail]) {
+      return HttpResponse.json(
+        { code: 'AUTH_401', message: 'Unauthorized' },
+        { status: 401 },
+      );
+    }
+    const account = testAccounts[currentUserEmail];
+    return HttpResponse.json({
+      id: 1,
+      email: currentUserEmail,
+      nickname: account.nickname,
+      profileImageUrl: null,
+      role: account.role,
+      canAccessCommunity: account.canAccessCommunity,
+      therapistVerification: account.therapistVerification,
+    });
+  }),
+
+  http.post(`${API}/therapist-verifications`, () => {
+    if (currentUserEmail && testAccounts[currentUserEmail]) {
+      testAccounts[currentUserEmail].therapistVerification = { status: 'APPROVED' };
+      testAccounts[currentUserEmail].canAccessCommunity = true;
+      testAccounts[currentUserEmail].role = 'THERAPIST';
+    }
+    return HttpResponse.json({ success: true }, { status: 201 });
+  }),
 
   // Posts
   http.get(`${API}/posts`, ({ request }) => {
