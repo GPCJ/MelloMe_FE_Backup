@@ -2,6 +2,7 @@
 
 ## 사용자
 - [인증/보안 개념 지식 수준 — 비유적 설명 선호](./user_knowledge_auth.md)
+- [개발 스타일 — 기능 구현 우선, 트러블슈팅 강점, 설계/아키텍처 약점 자각](./user_dev_style.md)
 
 ## 프로젝트
 멜로미 — 발달장애 아동 치료사 커뮤니티 플랫폼 (MVP 개발 중)
@@ -22,6 +23,12 @@
 - **[정리 필요]** 코드 품질 이슈 — 중복 상수/함수, isAuthor, 401 인터셉터 ([상세](./project_code_quality_issues.md))
 - **[MVP 이후]** 사용자 데이터 수집 로직 — 공부 선행 필요 ([상세](./project_future_analytics.md))
 - **[MVP 이후]** 회원가입 응답에 토큰 포함 요청 ([상세](./project_signup_token.md))
+
+## 댓글 시스템
+- [유튜브 스타일 댓글 설계 — flat 2레벨, @멘션, parentCommentId 백엔드 논의 필요](./project_comment_system.md)
+
+## 백엔드 스펙
+- [페이지네이션 0-based — 프론트에서 currentPage - 1 변환 필요](./project_pagination_spec.md)
 
 ## API 스펙 불일치
 - [백엔드 openapi JSON vs 프론트 코드 불일치 — 와이어프레임 공유 후 재논의](./project_api_spec_discrepancies.md)
@@ -59,6 +66,8 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - [/update-notion 초안 확인 방식](./feedback_update_notion_confirm.md) — 업로드 전 채팅창에 초안 보여주고 승인 후 업로드
 
 ## 개발 규칙 / 피드백
+- **[최우선]** [코드 작업 전 트레이드오프 설명 필수](./feedback_tradeoff_before_code.md) — 매 코드 수정/삭제/생성 시 트레이드오프 먼저 짚기
+- [질문 방식 — 막막할 땐 객관식, 의사결정 도출엔 주관식](./feedback_question_style.md)
 - [session-bridge 사용 중단 — /wrap-up으로 대체](./feedback_session_bridge_removed.md)
 - [세션 브릿지 실행 시 중요 내용 장기 메모리 저장 제안 — 정책결정/대규모변경/복잡작업 기준](./feedback_session_bridge_longterm.md)
 - [Notion 날짜별 페이지 방식 — TIL 등 일자별 기록은 서브페이지로 생성](./feedback_notion_daily_pages.md)
@@ -104,6 +113,9 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 
 ## 공개 레포 (airo)
 - [airo remote 설정 및 push-airo 커맨드 현황](./project_airo_repo.md) — `https://github.com/AIRO-offical/therapist_community_FE`
+
+## 리마인더
+- **[2026-03-26]** [팀 Claude Code 계정 전환 — `claude logout` → `claude login`](./project_reminder_team_account.md)
 
 ## 환경 / 도구
 - [VS Code에서 워크트리 파일이 안 보일 때](./reference_worktree_vscode.md)

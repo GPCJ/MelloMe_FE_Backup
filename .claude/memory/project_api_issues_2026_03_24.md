@@ -16,7 +16,7 @@ type: project
 ### #1 댓글 삭제 URL 불일치
 - 프론트 `posts.ts:64`: `DELETE /posts/:postId/comments/:commentId`
 - 백엔드 스펙: `DELETE /comments/:commentId` (postId 경로 없음)
-- 상태: 미해결
+- 상태: ✅ 해결 (2026-03-25) — `deleteComment(commentId)`, URL `/comments/${commentId}`로 수정
 
 ### #2 게시글 좋아요 시스템 완전 불일치
 - 프론트 `posts.ts:76-82`: `PUT /posts/:postId/reaction { reactionType: 'LIKE' }` + `DELETE /posts/:postId/reaction`
@@ -28,7 +28,7 @@ type: project
 - 프론트 `posts.ts:13`: `GET /posts?board=...&therapyArea=...&sort=...`
 - 백엔드 스펙: `GET /posts?sortType=...` 만 있음 (board, therapyArea 없음)
 - 파라미터 이름도 다름: 프론트 `sort` vs 백엔드 `sortType`
-- 상태: 미해결
+- 상태: ✅ 해결 (2026-03-25) — `board` 파라미터 제거, `sort` → `sortType` 수정
 
 ### #4 마이페이지 API 3개 미구현
 - `GET /me/dashboard` — 스펙에 없음
@@ -51,8 +51,7 @@ type: project
 ### #7 Google OAuth callback 엔드포인트 스펙 미포함
 - 프론트 LoginPage.tsx:57: `/auth/oauth/google/start` 리다이렉트
 - OpenAPI 스펙에 OAuth 관련 엔드포인트 없음
-- OAuthCallbackPage 구현 위해 code → token 교환 URL 및 응답 구조 확인 필요
-- 상태: 미해결
+- 상태: ✅ 해결 (2026-03-25) — Google OAuth 전면 제거, 이메일 로그인만 사용
 
 ---
 
@@ -75,10 +74,9 @@ type: project
 ## 프론트 수정 필요 (백엔드 스펙 기준)
 
 ### #10 PostCreateRequest / PostUpdateRequest 필수 필드
-- 백엔드 스펙: therapyArea, ageGroup, title, content 모두 required
+- 백엔드 스펙: therapyArea, ageGroup, title, content 모두 required + postType 필드 추가 확인
 - 프론트 `types/post.ts`: PostCreateRequest.therapyArea?, ageGroup? 모두 optional
-- 빈 값 전송 시 400 에러 발생 가능 → UI 필수 입력 처리 + 타입 수정 필요
-- 상태: 미해결
+- 상태: ✅ 해결 (2026-03-25) — `postType: 'COMMUNITY'` 고정, `therapyArea`/`ageGroup` 필수 + 연령대 UI 추가, 페이지 0-based 변환(`currentPage - 1`)
 
 ### #11 401 자동 refresh 로직 없음
 - `axiosInstance.ts`에 401 에러 시 refresh token 재발급 + 재요청 로직 없음
@@ -96,4 +94,7 @@ type: project
 ---
 
 ## 해결된 항목
-(없음 — 2026-03-24 기준)
+- #1 댓글 삭제 URL ✅
+- #3 sort → sortType, board 파라미터 제거 ✅
+- #7 Google OAuth 전면 제거 ✅
+- #10 PostCreateRequest 필수 필드 + postType + 연령대 UI + 페이지 0-based ✅
