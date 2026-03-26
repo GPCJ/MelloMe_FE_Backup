@@ -5,6 +5,7 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function SignupPage() {
@@ -14,11 +15,18 @@ export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [agreePrivacy, setAgreePrivacy] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (password !== passwordConfirm) {
+      setError('비밀번호가 일치하지 않습니다.');
+      return;
+    }
     setError('');
     setLoading(true);
     try {
@@ -69,6 +77,17 @@ export default function SignupPage() {
                 />
               </div>
               <div className="space-y-1">
+                <Label htmlFor="passwordConfirm">비밀번호 확인</Label>
+                <Input
+                  id="passwordConfirm"
+                  type="password"
+                  value={passwordConfirm}
+                  onChange={(e) => setPasswordConfirm(e.target.value)}
+                  placeholder="비밀번호를 다시 입력하세요"
+                  required
+                />
+              </div>
+              <div className="space-y-1">
                 <Label htmlFor="nickname">닉네임</Label>
                 <Input
                   id="nickname"
@@ -80,9 +99,32 @@ export default function SignupPage() {
                 />
               </div>
 
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="agreeTerms"
+                    checked={agreeTerms}
+                    onCheckedChange={(v) => setAgreeTerms(v === true)}
+                  />
+                  <Label htmlFor="agreeTerms" className="text-sm font-normal cursor-pointer">
+                    <a href="#" className="underline text-blue-600">이용약관</a>에 동의합니다 (필수)
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="agreePrivacy"
+                    checked={agreePrivacy}
+                    onCheckedChange={(v) => setAgreePrivacy(v === true)}
+                  />
+                  <Label htmlFor="agreePrivacy" className="text-sm font-normal cursor-pointer">
+                    <a href="#" className="underline text-blue-600">개인정보처리방침</a>에 동의합니다 (필수)
+                  </Label>
+                </div>
+              </div>
+
               {error && <p className="text-sm text-red-500">{error}</p>}
 
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full" disabled={loading || !agreeTerms || !agreePrivacy}>
                 {loading ? '가입 중...' : '회원가입'}
               </Button>
             </form>

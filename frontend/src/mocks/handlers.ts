@@ -115,6 +115,22 @@ const testAccounts: Record<
 };
 
 export const handlers = [
+  http.post(`${API}/auth/signup`, async ({ request }) => {
+    const body = (await request.json()) as { email: string; password: string; nickname: string };
+    if (testAccounts[body.email]) {
+      return HttpResponse.json(
+        { code: 'AUTH_409', message: '이미 가입된 이메일입니다.' },
+        { status: 409 },
+      );
+    }
+    testAccounts[body.email] = {
+      role: 'USER',
+      canAccessCommunity: false,
+      nickname: body.nickname,
+    };
+    return HttpResponse.json({ success: true }, { status: 201 });
+  }),
+
   http.post(`${API}/auth/login`, async ({ request }) => {
     const body = (await request.json()) as { email: string; password: string };
     const account = testAccounts[body.email];
@@ -130,7 +146,7 @@ export const handlers = [
             profileImageUrl: null,
             role: account.role,
             canAccessCommunity: account.canAccessCommunity,
-            therapistVerification: null,
+            therapistVerification: { status: 'NOT_REQUESTED' },
           },
           tokens: mockTokens,
         },
