@@ -97,6 +97,9 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 ## Google OAuth
 - [Google OAuth 코드 삭제 내역 (2026-03-25)](./project_google_oauth_removed.md) — 회원가입+치료사인증 통합 플로우 전환으로 삭제. 재도입 시 git 히스토리 참고
 
+## UX 설계 논의 아카이브
+- [PM/PD 협업 UX 논의 모음](./project_ux_design_decisions.md) — 3~4개 쌓이면 빌더스 리그에 묶어서 정리
+
 ## 백엔드 회의
 - [회의 결과 + 프론트 개발 현황 (2026-03-15)](./project_backend_meeting.md)
 - [토큰 방식 확정 — Access Token: body / Refresh Token: httpOnly Cookie](./project_token_strategy.md)
@@ -113,9 +116,6 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 
 ## 공개 레포 (airo)
 - [airo remote 설정 및 push-airo 커맨드 현황](./project_airo_repo.md) — `https://github.com/AIRO-offical/therapist_community_FE`
-
-## 리마인더
-- **[2026-03-26]** [팀 Claude Code 계정 전환 — `claude logout` → `claude login`](./project_reminder_team_account.md)
 
 ## 환경 / 도구
 - [VS Code에서 워크트리 파일이 안 보일 때](./reference_worktree_vscode.md)
