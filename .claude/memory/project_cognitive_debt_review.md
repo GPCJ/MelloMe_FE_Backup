@@ -18,9 +18,11 @@ Claude가 생성한 코드가 많아지면서 인지부채가 쌓인 상태.
 3. **내가 안 짠 코드** — Claude가 생성한 코드 중 "일단 넘어간" 부분
 4. **설정/인프라** — Vite, Tailwind, axios interceptor 등 설정 파일
 
-## 트러블슈팅 인지부채 (이해 후 #004~#005 작성 예정)
+## 트러블슈팅 인지부채 (이해 후 #004~#006 작성 예정)
 - **#004 후보** — GuestRoute/ProtectedRoute 타이밍 충돌: `navigate` → `setAuth` 순서 문제 (2026-03-26 구현했지만 아직 이해 못함)
 - **#005 후보** — 치료사 인증 API multipart/form-data 연결 과정 (2026-03-25 구현했지만 아직 이해 못함)
+- **#005 후보** — welcome 리다이렉트 버그: React 18 자동 배치 + React Router v6 startTransition + flushSync 실패 이유 + location state 해결 (2026-03-27 해결, 노션 #004 작성 완료, 아직 구두 설명 미진행)
+- **#006 후보** — 401 인터셉터 구조 전체 (`axiosInstance.ts`): isRefreshing 플래그, waitingQueue, _retry, plain axios vs axiosInstance 분리 이유 (2026-03-27 구현했지만 아직 이해 못함)
 - → `/update-builders` 실행 시 이 항목들 이해했는지 먼저 확인하고 리마인드할 것
 
 ## 다음 세션에서 할 일

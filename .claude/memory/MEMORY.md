@@ -17,10 +17,14 @@
 - **[완료]** OAuthCallbackPage 구현 ✅ — `/auth/callback` 라우트, code → exchange → setAuth + 리다이렉트 (2026-03-25)
 - **[완료]** 배포 마무리 ✅ — Vercel 재배포 + 로그인 테스트 통과 (2026-03-24)
 - **[완료]** 치료사 인증 페이지 + 환영 화면 UI ([상세](./project_verification_page_done.md))
-- **[1순위]** 댓글 삭제 URL 프론트 수정 — `deleteComment` postId 제거, URL `/comments/${commentId}`로 변경
-- **[2순위]** 좋아요 UI 3종 리액션 구현 — EMPATHY/APPRECIATE/HELPFUL, PUT 토글 방식 (백엔드 enum 확정 후)
+- **[완료]** 댓글 삭제 URL 수정 ✅ — `/comments/${commentId}` (2026-03-25)
+- **[완료]** 중복 코드 모듈화 ✅ — `constants/post.ts`, `utils/formatDate.ts` 분리 (2026-03-27)
+- **[완료]** 401 인터셉터 ✅ — `/auth/refresh` 호출, isRefreshing 큐 방식 (2026-03-27)
+- **[완료]** 환영 페이지 리다이렉트 버그 ✅ — location state 패턴으로 해결, 노션 #004 작성 (2026-03-27)
+- **[백엔드 대기]** `authorId` 필드 + `GET /me/posts` — 요청 완료 (2026-03-27), 응답 대기 중
+- **[보류]** 좋아요 UI 3종 리액션 — 백엔드 병목으로 보류
 - **[백엔드 논의 후]** 치료사 인증 API 연결 ([상세](./project_verification_api_pending.md))
-- **[정리 필요]** 코드 품질 이슈 — 중복 상수/함수, isAuthor, 401 인터셉터 ([상세](./project_code_quality_issues.md))
+- **[정리 필요]** 코드 품질 잔여 이슈 — isAuthor (authorId 대기 중) ([상세](./project_code_quality_issues.md))
 - **[MVP 이후]** 사용자 데이터 수집 로직 — 공부 선행 필요 ([상세](./project_future_analytics.md))
 - **[MVP 이후]** 회원가입 응답에 토큰 포함 요청 ([상세](./project_signup_token.md))
 
@@ -61,10 +65,12 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - [게시물 열람 권한 — 비로그인 접근 불가, ProtectedRoute 적용](./project_post_visibility.md)
 - [테스트 데이터 삽입 — 백엔드에 요청, 프론트에서 직접 삽입 안 함](./project_test_data_policy.md)
 - [모바일 앱 확장 ADR (2026-03-26)](./project_mobile_expansion_adr.md) — MVP 웹 우선, RN 제외, PWA/Capacitor 유저테스트 후 결정. **노션 업로드 대기 중**
+- [Next.js 도입 보류 (2026-03-27)](./project_nextjs_decision.md) — 해결할 문제 없음, 콘텐츠 비로그인 공개 시점에 재검토
 
 ## Notion 페이지
 - [Notion 진행 상황 페이지 운영 방침](./project_notion_page_policy.md) — PM 주요 독자, 백엔드 논의 제외, 토글 구조
 - [/update-notion 초안 확인 방식](./feedback_update_notion_confirm.md) — 업로드 전 채팅창에 초안 보여주고 승인 후 업로드
+- [Notion 업로드 후 페이지 경로 안내](./feedback_notion_upload_page_path.md) — 링크 대신 "부모 > 현재 페이지" 상속 경로로 안내
 
 ## 개발 규칙 / 피드백
 - **[최우선]** [코드 작업 전 트레이드오프 설명 필수](./feedback_tradeoff_before_code.md) — 매 코드 수정/삭제/생성 시 트레이드오프 먼저 짚기
@@ -98,8 +104,8 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 ## Google OAuth
 - [Google OAuth 코드 삭제 내역 (2026-03-25)](./project_google_oauth_removed.md) — 회원가입+치료사인증 통합 플로우 전환으로 삭제. 재도입 시 git 히스토리 참고
 
-## 미해결 — 라우팅
-- [회원가입 후 환영 페이지 리다이렉트 실패](./project_welcome_flow_issue.md) — GuestRoute/AuthRoute 충돌, 근본 해결 필요 `#UI개발`
+## 프로필 페이지
+- [프로필 페이지 명칭 변경 및 탭 구성 확정](./project_mypage_rename.md) — 마이페이지→프로필, 탭: 내가 쓴 글/답글 단 글/스크랩
 
 ## UX 설계 논의 아카이브
 - [PM/PD 협업 UX 논의 모음](./project_ux_design_decisions.md) — 3~4개 쌓이면 빌더스 리그에 묶어서 정리
@@ -125,7 +131,8 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - [VS Code에서 워크트리 파일이 안 보일 때](./reference_worktree_vscode.md)
 - GitHub 인증: `~/.git-credentials`에서 `ghp_...` 토큰 부분만 교체
 - 맥북 이전 완료 (2026-03-24) — 현재 맥 환경에서 개발 중
-- [Claude Code 워크트리 바로가기 aliases](./project_bash_aliases.md) — `mel` / `mel-dev` / `mel-review`
+- [Claude Code 바로가기 aliases](./project_bash_aliases.md) — `mel` / `mel-dev` / `mel-review` / `portfolio`
+- [포트폴리오 프로젝트 세팅](./project_portfolio_setup.md) — `~/portfolio` 디렉토리, 전용 메모리 구조, 컨텍스트 분리 운영 방침
 - [백업 레포 URL (MelloMe_FE_Backup)](./reference_backup_repos.md)
 - [메모리 동기화 슬래시 커맨드 — `/push-mello`, `/pull-mello`](./project_memory_sync.md)
 

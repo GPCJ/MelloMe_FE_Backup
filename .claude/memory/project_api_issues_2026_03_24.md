@@ -30,12 +30,15 @@ type: project
 - 파라미터 이름도 다름: 프론트 `sort` vs 백엔드 `sortType`
 - 상태: ✅ 해결 (2026-03-25) — `board` 파라미터 제거, `sort` → `sortType` 수정
 
-### #4 마이페이지 API 3개 미구현
-- `GET /me/dashboard` — 스펙에 없음
-- `GET /me/posts` — 스펙에 없음
-- `GET /me/activity` — 스펙에 없음
-- 백엔드에 있는 건 `GET /me/scraps` 뿐 (구조도 다름)
-- 상태: 미해결
+### #4 프로필 페이지 API 미구현
+- 페이지명 마이페이지 → **프로필**로 변경
+- 탭 구성: 내가 쓴 글 / 답글 단 글 / 스크랩
+- `GET /me/scraps` — ✅ 백엔드 구현 완료
+- `GET /me/posts` — 백엔드에 요청 완료 (2026-03-27), 대기 중
+- `GET /posts/:postId` authorId 필드 추가 — 백엔드에 요청 완료 (2026-03-27), 대기 중 (내가 쓴 글 + isAuthor 판단 모두 이 필드로 해결)
+- 답글 단 글 API — 백엔드 병목으로 보류
+- 반응 3종 — 백엔드 병목으로 보류
+- 상태: 일부 요청 완료, 응답 대기 중
 
 ### #5 therapistVerification.status 값 불일치
 - 프론트: `NOT_REQUESTED | PENDING | APPROVED | REJECTED`

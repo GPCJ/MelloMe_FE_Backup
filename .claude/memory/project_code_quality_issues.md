@@ -14,10 +14,10 @@ type: project
 
 ## 중복 코드 (리팩토링 대상)
 
-- `THERAPY_AREA_LABELS` 객체 — PostListPage, PostDetailPage, MyPage 3곳에 동일하게 선언됨
-- `formatRelativeTime()` 함수 — PostListPage, PostDetailPage 2곳에 동일하게 선언됨
-- `THERAPY_CHIPS` 배열 — PostCreatePage, PostEditPage 2곳에 동일하게 선언됨
-- → `src/constants/` 또는 `src/utils/` 파일로 분리 권장
+✅ 완료 (2026-03-27)
+- `THERAPY_AREA_LABELS`, `THERAPY_CHIPS`, `AGE_CHIPS` → `src/constants/post.ts`로 분리
+- `formatRelativeTime()` → `src/utils/formatDate.ts`로 분리
+- 5개 파일(PostListPage, PostDetailPage, MyPage, PostCreatePage, PostEditPage)에서 import로 교체
 
 ## 기능 이슈 (백엔드 연결 시 수정 필요)
 
@@ -31,7 +31,6 @@ type: project
   - 백엔드 연결 후 토큰 만료 시 조용히 실패함
   - 해결: `axiosInstance.interceptors.response.use` 에러 핸들러 추가 필요
 
-- **SignupPage 이중 API 호출** (`SignupPage.tsx:25-27`)
-  - `signup()` 이 `AuthResponse`를 반환하는데 무시하고 `login()`을 다시 호출함
-  - API 요청 불필요하게 2번 발생
-  - 해결: `signup()` 응답으로 바로 `setAuth` 처리하도록 수정
+- **SignupPage signup + login 순차 호출** — 이중 호출 아님, 정상 흐름
+  - 백엔드 회원가입 응답은 `{ id, email }`만 반환, 토큰은 로그인에서만 발급
+  - signup 후 login 호출은 스펙상 필수
