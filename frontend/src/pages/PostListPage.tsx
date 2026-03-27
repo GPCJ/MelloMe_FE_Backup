@@ -6,14 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { fetchPosts } from '../api/posts';
 import type { PostSummary, TherapyArea, PaginatedPosts } from '../types/post';
-
-const THERAPY_AREA_LABELS: Record<string, string> = {
-  UNSPECIFIED: '전체',
-  OCCUPATIONAL: '작업치료',
-  SPEECH: '언어치료',
-  COGNITIVE: '인지치료',
-  PLAY: '놀이치료',
-};
+import { THERAPY_AREA_LABELS } from '../constants/post';
+import { formatRelativeTime } from '../utils/formatDate';
 
 const FILTER_CHIPS: { value: TherapyArea | ''; label: string }[] = [
   { value: '', label: '전체' },
@@ -22,17 +16,6 @@ const FILTER_CHIPS: { value: TherapyArea | ''; label: string }[] = [
   { value: 'PLAY', label: '놀이치료' },
   { value: 'COGNITIVE', label: '인지치료' },
 ];
-
-function formatRelativeTime(isoString: string): string {
-  const diff = Date.now() - new Date(isoString).getTime();
-  const minutes = Math.floor(diff / 60000);
-  if (minutes < 60) return `${Math.max(1, minutes)}분 전`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}시간 전`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}일 전`;
-  return new Date(isoString).toLocaleDateString('ko-KR');
-}
 
 function PostCardSkeleton() {
   return (

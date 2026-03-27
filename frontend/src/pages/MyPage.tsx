@@ -14,13 +14,7 @@ import { fetchMyDashboard, fetchMyPosts, fetchMyActivity } from '../api/mypage';
 import { useAuthStore } from '../stores/useAuthStore';
 import type { MyDashboard, MyActivity } from '../types/mypage';
 import type { PostSummary } from '../types/post';
-
-const THERAPY_AREA_LABELS: Record<string, string> = {
-  OCCUPATIONAL: '작업치료',
-  SPEECH: '언어치료',
-  COGNITIVE: '인지치료',
-  PLAY: '놀이치료',
-};
+import { THERAPY_AREA_LABELS } from '../constants/post';
 
 const ROLE_LABELS: Record<string, string> = {
   THERAPIST: '치료사',
