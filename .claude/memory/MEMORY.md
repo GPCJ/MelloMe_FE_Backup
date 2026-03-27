@@ -19,7 +19,7 @@
 - **[완료]** 치료사 인증 페이지 + 환영 화면 UI ([상세](./project_verification_page_done.md))
 - **[완료]** 댓글 삭제 URL 수정 ✅ — `/comments/${commentId}` (2026-03-25)
 - **[완료]** 중복 코드 모듈화 ✅ — `constants/post.ts`, `utils/formatDate.ts` 분리 (2026-03-27)
-- **[완료]** 401 인터셉터 ✅ — `/auth/refresh` 호출, isRefreshing 큐 방식 (2026-03-27)
+- **[완료]** 401 인터셉터 ✅ — `/auth/refresh` 호출, isRefreshing 큐 방식 (2026-03-27) / 코드는 다른 기기에서 구현, 미push → 내일 확인 필요
 - **[완료]** 환영 페이지 리다이렉트 버그 ✅ — location state 패턴으로 해결, 노션 #004 작성 (2026-03-27)
 - **[백엔드 대기]** `authorId` 필드 + `GET /me/posts` — 요청 완료 (2026-03-27), 응답 대기 중
 - **[보류]** 좋아요 UI 3종 리액션 — 백엔드 병목으로 보류
@@ -140,7 +140,7 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - [프론트엔드 코드 학습 전체 완료](./project_code_learning.md)
 - [학습 내용 상세 정리 — 복습 요청 시에만 불러올 것](./learning_frontend_code.md)
 - [axios interceptor 코드 리뷰 학습 진행 상황 및 다음 후보](./learning_axios_interceptor.md)
-- [인지부채 점검 세션 — Q&A 방식 이해도 점검, 영역 선택 전 단계](./project_cognitive_debt_review.md)
+- [인지부채 점검 세션 — #006 401 인터셉터 개념 이해 완료, 나머지 항목 미진행](./project_cognitive_debt_review.md)
 
 ## shadcn/ui
 - [디자이너 UI 선개발 방침](./project_shadcn_design.md) — 컴포넌트는 shadcn 기반, 스타일은 CSS 변수로 분리
