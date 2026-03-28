@@ -21,7 +21,8 @@
 - **[완료]** 중복 코드 모듈화 ✅ — `constants/post.ts`, `utils/formatDate.ts` 분리 (2026-03-27)
 - **[완료]** 401 인터셉터 ✅ — `/auth/refresh` 호출, isRefreshing 큐 방식, `_retry` 무한루프 방지 (2026-03-28 구현 확정)
 - **[완료]** 환영 페이지 리다이렉트 버그 ✅ — location state 패턴으로 해결, 노션 #004 작성 (2026-03-27)
-- **[백엔드 대기]** `authorId` 필드 + `GET /me/posts` — 요청 완료 (2026-03-27), 응답 대기 중
+- **[완료]** `authorId` 필드 ✅ — `GET /api/v1/posts/{postId}` 응답에 `authorId`, `postType`, `canEdit`, `canDelete` 추가됨. 프론트 `isAuthor` 닉네임 비교 제거 → `post.canEdit`/`post.canDelete` 서버 사이드 권한 필드로 대체 (2026-03-28)
+- **[백엔드 대기]** `GET /me/posts` — 요청 완료 (2026-03-27), 응답 대기 중
 - **[보류]** 좋아요 UI 3종 리액션 — 백엔드 병목으로 보류
 - **[백엔드 논의 후]** 치료사 인증 API 연결 ([상세](./project_verification_api_pending.md))
 - **[정리 필요]** 코드 품질 잔여 이슈 — isAuthor (authorId 대기 중) ([상세](./project_code_quality_issues.md))
