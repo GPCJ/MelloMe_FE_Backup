@@ -19,7 +19,7 @@
 - **[완료]** 치료사 인증 페이지 + 환영 화면 UI ([상세](./project_verification_page_done.md))
 - **[완료]** 댓글 삭제 URL 수정 ✅ — `/comments/${commentId}` (2026-03-25)
 - **[완료]** 중복 코드 모듈화 ✅ — `constants/post.ts`, `utils/formatDate.ts` 분리 (2026-03-27)
-- **[완료]** 401 인터셉터 ✅ — `/auth/refresh` 호출, isRefreshing 큐 방식 (2026-03-27) / 코드는 다른 기기에서 구현, 미push → 내일 확인 필요
+- **[완료]** 401 인터셉터 ✅ — `/auth/refresh` 호출, isRefreshing 큐 방식, `_retry` 무한루프 방지 (2026-03-28 구현 확정)
 - **[완료]** 환영 페이지 리다이렉트 버그 ✅ — location state 패턴으로 해결, 노션 #004 작성 (2026-03-27)
 - **[백엔드 대기]** `authorId` 필드 + `GET /me/posts` — 요청 완료 (2026-03-27), 응답 대기 중
 - **[보류]** 좋아요 UI 3종 리액션 — 백엔드 병목으로 보류
@@ -52,7 +52,6 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 
 ## 미해결 이슈
 - **[백엔드 대기]** CORS OPTIONS 403 재발 — Spring Security가 preflight 차단, 백엔드 수정 요청 완료 ([상세](./project_cors_current_issue.md))
-- **[CRUD 완료 후]** Notion 트러블슈팅 #002 작성 예정 — axios interceptor 토큰 자동 주입 ([상세](./project_notion_crud_axios.md))
 - **[백엔드 연결 시]** MSW `/me` 핸들러가 401 반환 중 → 백엔드 연결 시점에 정리 필요
 
 ## 환경변수
@@ -145,3 +144,6 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 ## shadcn/ui
 - [디자이너 UI 선개발 방침](./project_shadcn_design.md) — 컴포넌트는 shadcn 기반, 스타일은 CSS 변수로 분리
 - [shadcn UI 컴포넌트 기본 사용 원칙](./feedback_shadcn_default.md) — UI 작업 시 항상 shadcn 컴포넌트 우선 사용
+
+## 월별 회고 (프로젝트 종료 후 돌아보기용)
+- [2026년 3월 — 배포 인프라 구축 & 인증 플로우 재설계](./monthly_summary_2026_03.md)
