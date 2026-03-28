@@ -21,7 +21,6 @@ import {
   likePost,
   unlikePost,
 } from '../api/posts';
-import { useAuthStore } from '../stores/useAuthStore';
 import type { PostDetail, CommentResponse } from '../types/post';
 import { THERAPY_AREA_LABELS } from '../constants/post';
 import { formatRelativeTime } from '../utils/formatDate';
@@ -61,7 +60,6 @@ function PostDetailSkeleton() {
 export default function PostDetailPage() {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
-  const user = useAuthStore((s) => s.user);
 
   const [post, setPost] = useState<PostDetail | null>(null);
   const [comments, setComments] = useState<CommentResponse[]>([]);
@@ -141,7 +139,6 @@ export default function PostDetailPage() {
   if (error || !post)
     return <p className="text-center text-destructive py-20">{error ?? '게시글을 찾을 수 없어요.'}</p>;
 
-  const isAuthor = post.authorNickname === user?.nickname;
   const therapyLabel =
     post.therapyArea && post.therapyArea !== 'UNSPECIFIED'
       ? THERAPY_AREA_LABELS[post.therapyArea]
@@ -159,23 +156,27 @@ export default function PostDetailPage() {
         >
           <ArrowLeft size={20} />
         </button>
-        {isAuthor && (
+        {(post.canEdit || post.canDelete) && (
           <DropdownMenu>
             <DropdownMenuTrigger className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
               <MoreVertical size={20} />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => navigate(`/posts/${post.id}/edit`)}>
-                <Pencil size={14} className="mr-2" />
-                수정
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={handleDeletePost}
-                className="text-red-500 focus:text-red-500"
-              >
-                <Trash2 size={14} className="mr-2" />
-                삭제
-              </DropdownMenuItem>
+              {post.canEdit && (
+                <DropdownMenuItem onClick={() => navigate(`/posts/${post.id}/edit`)}>
+                  <Pencil size={14} className="mr-2" />
+                  수정
+                </DropdownMenuItem>
+              )}
+              {post.canDelete && (
+                <DropdownMenuItem
+                  onClick={handleDeletePost}
+                  className="text-red-500 focus:text-red-500"
+                >
+                  <Trash2 size={14} className="mr-2" />
+                  삭제
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )}

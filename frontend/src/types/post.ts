@@ -31,12 +31,16 @@ export interface PostDetail {
   id: number;
   title: string;
   content: string;
+  postType: string;
+  authorId: number;
   authorNickname: string;
   therapyArea?: TherapyArea;
   ageGroup?: AgeGroup;
   viewCount: number;
   createdAt: string;
   updatedAt?: string;
+  canEdit: boolean;
+  canDelete: boolean;
 }
 
 export interface PaginatedPosts {
