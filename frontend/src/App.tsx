@@ -30,9 +30,11 @@ function App() {
             <Route path="/signup" element={<SignupPage />} />
           </Route>
 
-          {/* 회원가입 후 전환 페이지 (가드 불필요) */}
-          <Route path="/welcome" element={<WelcomePage />} />
-          <Route path="/verification-complete" element={<VerificationCompletePage />} />
+          {/* 회원가입 후 전환 페이지 */}
+          <Route element={<AuthRoute />}>
+            <Route path="/welcome" element={<WelcomePage />} />
+            <Route path="/verification-complete" element={<VerificationCompletePage />} />
+          </Route>
 
           {/* 로그인만 필요 (인증 불필요) */}
           <Route element={<AuthRoute />}>

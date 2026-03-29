@@ -217,20 +217,41 @@ export default function MyPage() {
   const [loadingDashboard, setLoadingDashboard] = useState(false);
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [loadingActivity, setLoadingActivity] = useState(false);
+  const [errorDashboard, setErrorDashboard] = useState(false);
+  const [errorPosts, setErrorPosts] = useState(false);
+  const [errorActivity, setErrorActivity] = useState(false);
+
+  function loadDashboard() {
+    setErrorDashboard(false);
+    setLoadingDashboard(true);
+    fetchMyDashboard()
+      .then(setDashboard)
+      .catch(() => setErrorDashboard(true))
+      .finally(() => setLoadingDashboard(false));
+  }
+
+  function loadPosts() {
+    setErrorPosts(false);
+    setLoadingPosts(true);
+    fetchMyPosts()
+      .then(setMyPosts)
+      .catch(() => setErrorPosts(true))
+      .finally(() => setLoadingPosts(false));
+  }
+
+  function loadActivity() {
+    setErrorActivity(false);
+    setLoadingActivity(true);
+    fetchMyActivity()
+      .then(setActivity)
+      .catch(() => setErrorActivity(true))
+      .finally(() => setLoadingActivity(false));
+  }
 
   useEffect(() => {
-    if (activeTab === 'dashboard' && !dashboard) {
-      setLoadingDashboard(true);
-      fetchMyDashboard().then(setDashboard).finally(() => setLoadingDashboard(false));
-    }
-    if (activeTab === 'posts' && !myPosts) {
-      setLoadingPosts(true);
-      fetchMyPosts().then(setMyPosts).finally(() => setLoadingPosts(false));
-    }
-    if (activeTab === 'activity' && !activity) {
-      setLoadingActivity(true);
-      fetchMyActivity().then(setActivity).finally(() => setLoadingActivity(false));
-    }
+    if (activeTab === 'dashboard' && !dashboard) loadDashboard();
+    if (activeTab === 'posts' && !myPosts) loadPosts();
+    if (activeTab === 'activity' && !activity) loadActivity();
   }, [activeTab]);
 
   const roleLabel = user?.role ? ROLE_LABELS[user.role] : '';
@@ -267,19 +288,22 @@ export default function MyPage() {
 
       {/* 탭 콘텐츠 */}
       {activeTab === 'dashboard' && (
-        loadingDashboard || !dashboard
-          ? <DashboardSkeleton />
-          : <DashboardTab dashboard={dashboard} />
+        loadingDashboard ? <DashboardSkeleton />
+        : errorDashboard ? <div className="py-8 text-center"><p className="text-sm text-destructive mb-2">데이터를 불러오는 데 실패했습니다.</p><button onClick={loadDashboard} className="text-sm text-gray-500 underline hover:text-gray-700">다시 시도</button></div>
+        : dashboard ? <DashboardTab dashboard={dashboard} />
+        : <DashboardSkeleton />
       )}
       {activeTab === 'posts' && (
-        loadingPosts || !myPosts
-          ? <div className="flex flex-col gap-3">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-xl" />)}</div>
-          : <MyPostsTab posts={myPosts} />
+        loadingPosts ? <div className="flex flex-col gap-3">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-xl" />)}</div>
+        : errorPosts ? <div className="py-8 text-center"><p className="text-sm text-destructive mb-2">데이터를 불러오는 데 실패했습니다.</p><button onClick={loadPosts} className="text-sm text-gray-500 underline hover:text-gray-700">다시 시도</button></div>
+        : myPosts ? <MyPostsTab posts={myPosts} />
+        : <div className="flex flex-col gap-3">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-xl" />)}</div>
       )}
       {activeTab === 'activity' && (
-        loadingActivity || !activity
-          ? <div className="flex flex-col gap-3">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}</div>
-          : <ActivityTab activity={activity} />
+        loadingActivity ? <div className="flex flex-col gap-3">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}</div>
+        : errorActivity ? <div className="py-8 text-center"><p className="text-sm text-destructive mb-2">데이터를 불러오는 데 실패했습니다.</p><button onClick={loadActivity} className="text-sm text-gray-500 underline hover:text-gray-700">다시 시도</button></div>
+        : activity ? <ActivityTab activity={activity} />
+        : <div className="flex flex-col gap-3">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}</div>
       )}
     </div>
   );

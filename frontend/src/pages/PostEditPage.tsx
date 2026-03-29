@@ -21,7 +21,11 @@ export default function PostEditPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!postId) return;
+    if (!postId || isNaN(Number(postId))) {
+      setError('게시글을 찾을 수 없어요.');
+      setLoading(false);
+      return;
+    }
     fetchPost(Number(postId))
       .then((post) => {
         setTitle(post.title);
@@ -52,6 +56,9 @@ export default function PostEditPage() {
       setSubmitting(false);
     }
   }
+
+  if (!loading && error)
+    return <p className="text-center text-destructive py-20">{error}</p>;
 
   if (loading) {
     return (

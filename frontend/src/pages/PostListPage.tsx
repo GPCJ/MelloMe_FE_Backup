@@ -86,6 +86,15 @@ export default function PostListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const VALID_THERAPY_AREAS: (TherapyArea | '')[] = ['', 'OCCUPATIONAL', 'SPEECH', 'PLAY', 'COGNITIVE', 'UNSPECIFIED'];
+
+  useEffect(() => {
+    if (therapyArea && !VALID_THERAPY_AREAS.includes(therapyArea)) {
+      setSearchParams({});
+      return;
+    }
+  }, [therapyArea]);
+
   useEffect(() => {
     setLoading(true);
     setError(null);

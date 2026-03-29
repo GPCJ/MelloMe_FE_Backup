@@ -28,7 +28,7 @@ import { formatRelativeTime } from '../utils/formatDate';
 function AuthorAvatar({ nickname }: { nickname: string }) {
   return (
     <div className="w-9 h-9 rounded-full bg-purple-300 flex items-center justify-center text-white text-sm font-bold shrink-0">
-      {nickname[0]}
+      {nickname[0] ?? '?'}
     </div>
   );
 }
@@ -75,7 +75,11 @@ export default function PostDetailPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!postId) return;
+    if (!postId || isNaN(Number(postId))) {
+      setError('게시글을 찾을 수 없어요.');
+      setLoading(false);
+      return;
+    }
     const id = Number(postId);
     Promise.all([fetchPost(id), fetchComments(id)])
       .then(([postData, commentsData]) => {
@@ -108,8 +112,12 @@ export default function PostDetailPage() {
 
   async function handleDeletePost() {
     if (!post || !confirm('게시글을 삭제할까요?')) return;
-    await deletePost(post.id);
-    navigate('/posts');
+    try {
+      await deletePost(post.id);
+      navigate('/posts');
+    } catch {
+      alert('게시글 삭제에 실패했습니다. 다시 시도해주세요.');
+    }
   }
 
   async function handleSubmitComment(e: React.FormEvent) {
@@ -124,6 +132,8 @@ export default function PostDetailPage() {
       setComments((prev) => [...prev, newComment]);
       setCommentInput('');
       setReplyTo(null);
+    } catch {
+      alert('댓글 작성에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setSubmitting(false);
     }
@@ -131,8 +141,12 @@ export default function PostDetailPage() {
 
   async function handleDeleteComment(commentId: number) {
     if (!postId || !confirm('댓글을 삭제할까요?')) return;
-    await deleteComment(commentId);
-    setComments((prev) => prev.filter((c) => c.id !== commentId));
+    try {
+      await deleteComment(commentId);
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
+    } catch {
+      alert('댓글 삭제에 실패했습니다. 다시 시도해주세요.');
+    }
   }
 
   if (loading) return <PostDetailSkeleton />;
@@ -307,7 +321,7 @@ function CommentItem({ comment, isAuthor, onReply, onDelete, replyToNickname }: 
     <div className="py-4">
       <div className="flex items-start gap-3">
         <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs font-bold shrink-0">
-          {comment.authorNickname[0]}
+          {comment.authorNickname[0] ?? '?'}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
