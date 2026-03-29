@@ -22,6 +22,7 @@
 - **[완료]** 401 인터셉터 ✅ — `/auth/refresh` 호출, isRefreshing 큐 방식, `_retry` 무한루프 방지 (2026-03-28 구현 확정)
 - **[완료]** 환영 페이지 리다이렉트 버그 ✅ — location state 패턴으로 해결, 노션 #004 작성 (2026-03-27)
 - **[완료]** `authorId` 필드 ✅ — `GET /api/v1/posts/{postId}` 응답에 `authorId`, `postType`, `canEdit`, `canDelete` 추가됨. 프론트 `isAuthor` 닉네임 비교 제거 → `post.canEdit`/`post.canDelete` 서버 사이드 권한 필드로 대체 (2026-03-28)
+- **[완료]** 전체 코드 점검 ✅ — API 연동·상태관리·UI엣지케이스·타입안전성·인증보안 5개 카테고리 점검 완료 (2026-03-29)
 - **[백엔드 대기]** `GET /me/posts` — 요청 완료 (2026-03-27), 응답 대기 중
 - **[보류]** 좋아요 UI 3종 리액션 — 백엔드 병목으로 보류
 - **[백엔드 논의 후]** 치료사 인증 API 연결 ([상세](./project_verification_api_pending.md))
@@ -44,7 +45,7 @@
 CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbackPage 구현 완료 ✅ → **다음: 백엔드에 API 이슈 리스트 공유 → 전체 기능 테스트**
 - **[완료]** 로그인 응답 구조 — yaml 기준 `{ isNewUser, user, tokens }` 형태 확인 완료, Refresh Token httpOnly Cookie 완료
 - **[완료]** `GET /me` 엔드포인트 — yaml에 추가됨 (CurrentUserResponse 반환)
-- **[미구현]** 마이페이지 API — `GET /me/dashboard`, `GET /me/posts`, `GET /me/activity` yaml에 없음
+- **[재정의 필요]** 프로필 탭 API — 탭 구성(내가 쓴 글/답글 단 글/스크랩) 기준으로 `GET /me/posts`, `GET /me/comments`, `GET /me/scraps`로 재정의 요청 필요. 기존 `/me/dashboard`, `/me/activity`는 탭과 맞지 않음
 - **[완료]** CORS + circular reference 서버 이슈 — CORS 반영 완료 확인 (2026-03-22) ✅
 
 ## 로컬 개발 환경
@@ -74,6 +75,8 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 
 ## 개발 규칙 / 피드백
 - **[최우선]** [코드 작업 전 트레이드오프 설명 필수](./feedback_tradeoff_before_code.md) — 매 코드 수정/삭제/생성 시 트레이드오프 먼저 짚기
+- [MVP 단계 코드 수정 기준 이분법](./feedback_mvp_fix_criteria.md) — 방어 코드는 즉시, 기획 의존적인 것은 보류
+- [navigate(-1) fallback 금지](./feedback_navigate_back.md) — 뒤로가기에 강제 경로 넣지 말 것
 - [질문 방식 — 막막할 땐 객관식, 의사결정 도출엔 주관식](./feedback_question_style.md)
 - [session-bridge 사용 중단 — /wrap-up으로 대체](./feedback_session_bridge_removed.md)
 - [세션 브릿지 실행 시 중요 내용 장기 메모리 저장 제안 — 정책결정/대규모변경/복잡작업 기준](./feedback_session_bridge_longterm.md)
@@ -127,6 +130,10 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 ## 공개 레포 (airo)
 - [airo remote 설정 및 push-airo 커맨드 현황](./project_airo_repo.md) — `https://github.com/AIRO-offical/therapist_community_FE`
 
+## Claude Code 플러그인
+- [superpowers + frontend-design 설치, figma 제거 (2026-03-29)](./project_superpowers_plugin.md) — 디버깅 체계화 및 UI 품질 향상 목적
+- [버그 감지 자동화 hook (2026-03-29)](./project_debug_hook.md) — UserPromptSubmit hook, 키워드 감지 시 systematic-debugging 스킬 자동 알림
+
 ## 환경 / 도구
 - [VS Code에서 워크트리 파일이 안 보일 때](./reference_worktree_vscode.md)
 - GitHub 인증: `~/.git-credentials`에서 `ghp_...` 토큰 부분만 교체
@@ -136,11 +143,14 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - [백업 레포 URL (MelloMe_FE_Backup)](./reference_backup_repos.md)
 - [메모리 동기화 슬래시 커맨드 — `/push-mello`, `/pull-mello`](./project_memory_sync.md)
 
+## 기술부채 / 보류
+- [보류된 리팩토링 항목](./project_pending_refactor.md) — refresh plain axios 교체 등 나중에 처리할 항목
+
 ## 학습
 - [프론트엔드 코드 학습 전체 완료](./project_code_learning.md)
 - [학습 내용 상세 정리 — 복습 요청 시에만 불러올 것](./learning_frontend_code.md)
 - [axios interceptor 코드 리뷰 학습 진행 상황 및 다음 후보](./learning_axios_interceptor.md)
-- [인지부채 점검 세션 — #006 401 인터셉터 개념 이해 완료, 나머지 항목 미진행](./project_cognitive_debt_review.md)
+- [인지부채 점검 세션 — #004/#005/#006 이해 완료, 남은 항목: multipart/form-data](./project_cognitive_debt_review.md)
 
 ## shadcn/ui
 - [디자이너 UI 선개발 방침](./project_shadcn_design.md) — 컴포넌트는 shadcn 기반, 스타일은 CSS 변수로 분리

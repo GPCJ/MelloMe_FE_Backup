@@ -19,9 +19,9 @@ Claude가 생성한 코드가 많아지면서 인지부채가 쌓인 상태.
 4. **설정/인프라** — Vite, Tailwind, axios interceptor 등 설정 파일
 
 ## 트러블슈팅 인지부채 (이해 후 #004~#006 작성 예정)
-- **#004 후보** — GuestRoute/ProtectedRoute 타이밍 충돌: `navigate` → `setAuth` 순서 문제 (2026-03-26 구현했지만 아직 이해 못함)
+- **#004** — GuestRoute/ProtectedRoute 타이밍 충돌: `navigate` → `setAuth` 순서 문제 (**개념 이해 완료 2026-03-29**)
 - **#005 후보** — 치료사 인증 API multipart/form-data 연결 과정 (2026-03-25 구현했지만 아직 이해 못함)
-- **#005 후보** — welcome 리다이렉트 버그: React 18 자동 배치 + React Router v6 startTransition + flushSync 실패 이유 + location state 해결 (2026-03-27 해결, 노션 #004 작성 완료, 아직 구두 설명 미진행)
+- **#005** — welcome 리다이렉트 버그: 근본 원인은 `navigate` → `setAuth` 순서였음. **코드 수정 완료 2026-03-29**: `SignupPage.tsx`에서 `setAuth` 먼저 호출 후 `navigate` 순서로 교체, `App.tsx`에서 `/welcome` + `/verification-complete`에 `AuthRoute` 추가. 닉네임 플래시 및 비인증 접근 문제도 함께 해결.
 - **#006 후보** — 401 인터셉터 구조 전체 (`axiosInstance.ts`): isRefreshing 플래그, waitingQueue, _retry, plain axios vs axiosInstance 분리 이유 (2026-03-27 구현, **개념 이해 완료 2026-03-27**)
   - 이해한 것: 401 vs 403 구분, Request vs Response 인터셉터 차이, isRefreshing = UI 무관 단순 플래그, waitingQueue = FIFO 아닌 대기 보관용 배열, refresh는 1번만 호출 후 큐 전체 한꺼번에 재시도
   - 코드는 다른 기기에서 구현 후 미push 상태 → 내일 push 후 확인 필요

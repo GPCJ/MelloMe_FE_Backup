@@ -13,10 +13,15 @@ type: project
 
 **How to apply:** MyPage 관련 컴포넌트/라우트/텍스트 수정 시 "프로필" 명칭 사용
 
-## API 현황 (2026-03-27 기준)
+## API 현황 (2026-03-29 기준)
 
-- `GET /me/scraps` — ✅ 백엔드 구현 완료
-- `GET /me/posts` — 백엔드 요청 완료, 응답 대기 중
+탭 구성 기준으로 실제 필요한 엔드포인트:
+- `GET /me/posts` — 내가 쓴 글 / 백엔드 요청 완료, 응답 대기 중
+- `GET /me/comments` (또는 `/me/replies`) — 답글 단 글 / 백엔드 논의 필요
+- `GET /me/scraps` — 스크랩 / ✅ 백엔드 구현 완료
+
+기존에 언급된 `GET /me/dashboard`, `GET /me/activity`는 탭 구성과 맞지 않음 → 백엔드 API 논의 시 위 3개로 재정의 요청 필요
+
+기타:
 - `GET /posts/:postId` authorId 필드 추가 — 백엔드 요청 완료, 응답 대기 중
-- 답글 단 글 API — 백엔드 병목으로 보류
 - 반응 3종 — 백엔드 병목으로 보류
