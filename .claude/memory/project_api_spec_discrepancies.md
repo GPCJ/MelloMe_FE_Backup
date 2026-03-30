@@ -69,6 +69,15 @@ type: project
 
 ---
 
+## 5. attachments 필드 (2026-03-30 추가)
+
+- `GET /api/v1/posts/{postId}` 응답에 `attachments` 배열 추가됨
+- 스웨거에 `required` 표시 없음 → `optional`로 처리
+- `Attachment` 인터페이스 + `PostDetail.attachments?` 타입 추가 완료
+- `PostDetailPage.tsx`에 첨부파일 목록 UI 구현 완료 (파일명 + 크기 + 다운로드 링크)
+
+---
+
 ## 결론
 
 - **백엔드에 확인/요청할 것:** 누락 엔드포인트 5개 구현, `board`/`therapyArea` 파라미터 지원 여부

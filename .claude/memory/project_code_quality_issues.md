@@ -21,10 +21,9 @@ type: project
 
 ## 기능 이슈 (백엔드 연결 시 수정 필요)
 
-- **isAuthor 닉네임 비교** (`PostDetailPage.tsx:160`)
-  - `post.authorNickname === user?.nickname` 으로 수정/삭제 권한 판단 중
-  - 닉네임 중복 시 타인 글에 수정/삭제 버튼 노출될 수 있음
-  - 해결: 백엔드에 `PostDetail` 응답에 `canEdit` / `canDelete` 필드 추가 요청 필요
+- **isAuthor 닉네임 비교** — ✅ 해결 (2026-03-30)
+  - 백엔드가 `canEdit`/`canDelete` 필드를 응답에 추가해줌으로써 자연스럽게 해결됨
+  - `PostDetailPage.tsx`에서 이미 `canEdit`/`canDelete` 기반으로 구현 완료
 
 - **401 에러 인터셉터 없음** (`axiosInstance.ts`)
   - Access Token 만료 시 자동 로그아웃 또는 refresh 처리 없음

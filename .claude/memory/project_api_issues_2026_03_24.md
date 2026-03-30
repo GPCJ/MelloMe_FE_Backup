@@ -11,6 +11,8 @@ type: project
 
 ---
 
+**백엔드 복귀 후 🔴 항목 해결 예상 기간: 약 1주일 (2026-03-30 기준)**
+
 ## 백엔드 문의 필요 (우선순위 높음)
 
 ### #1 댓글 삭제 URL 불일치
@@ -22,7 +24,7 @@ type: project
 - 프론트 `posts.ts:76-82`: `PUT /posts/:postId/reaction { reactionType: 'LIKE' }` + `DELETE /posts/:postId/reaction`
 - 백엔드 스펙: reactionType enum = `EMPATHY | APPRECIATE | HELPFUL` (LIKE 없음), DELETE 없이 PUT 토글 방식
 - 댓글 리액션은 별도 엔드포인트: `PUT /comments/:commentId/reaction { reactionType: 'LIKE'|'DISLIKE' }`
-- 상태: 미해결 — UI 설계 방향 맞춰서 enum 재논의 필요
+- 상태: ✅ 해결 (2026-03-30) — `ReactionType` enum 수정, `likePost`/`unlikePost` → `getReaction`/`toggleReaction` 교체. UI는 디자이너 확정 후 구현 예정, 임시로 EMPATHY 고정.
 
 ### #3 게시글 목록 필터 파라미터 없음
 - 프론트 `posts.ts:13`: `GET /posts?board=...&therapyArea=...&sort=...`
@@ -83,8 +85,7 @@ type: project
 
 ### #11 401 자동 refresh 로직 없음
 - `axiosInstance.ts`에 401 에러 시 refresh token 재발급 + 재요청 로직 없음
-- 백엔드 연결 후 구현 필요
-- 상태: 미해결
+- 상태: ✅ 해결 (2026-03-28) — isRefreshing 큐 방식, `_retry` 무한루프 방지 구현 완료
 
 ---
 

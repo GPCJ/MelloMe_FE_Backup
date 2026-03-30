@@ -21,14 +21,23 @@
 - **[완료]** 중복 코드 모듈화 ✅ — `constants/post.ts`, `utils/formatDate.ts` 분리 (2026-03-27)
 - **[완료]** 401 인터셉터 ✅ — `/auth/refresh` 호출, isRefreshing 큐 방식, `_retry` 무한루프 방지 (2026-03-28 구현 확정)
 - **[완료]** 환영 페이지 리다이렉트 버그 ✅ — location state 패턴으로 해결, 노션 #004 작성 (2026-03-27)
-- **[완료]** `authorId` 필드 ✅ — `GET /api/v1/posts/{postId}` 응답에 `authorId`, `postType`, `canEdit`, `canDelete` 추가됨. 프론트 `isAuthor` 닉네임 비교 제거 → `post.canEdit`/`post.canDelete` 서버 사이드 권한 필드로 대체 (2026-03-28)
 - **[완료]** 전체 코드 점검 ✅ — API 연동·상태관리·UI엣지케이스·타입안전성·인증보안 5개 카테고리 점검 완료 (2026-03-29)
-- **[백엔드 대기]** `GET /me/posts` — 요청 완료 (2026-03-27), 응답 대기 중
-- **[보류]** 좋아요 UI 3종 리액션 — 백엔드 병목으로 보류
-- **[백엔드 논의 후]** 치료사 인증 API 연결 ([상세](./project_verification_api_pending.md))
-- **[정리 필요]** 코드 품질 잔여 이슈 — isAuthor (authorId 대기 중) ([상세](./project_code_quality_issues.md))
+- **[완료]** `authorId` + `canEdit` + `canDelete` ✅ — `GET /posts/{postId}` 응답에 추가됨, 프론트 이미 구현 완료 (2026-03-30)
+- **[완료]** 치료사 인증 store 즉시 업데이트 ✅ — POST 성공 후 getMe() 호출, LandingPage 마운트 시 getMe() 추가 (2026-03-30)
+- **[완료]** VerificationCompletePage PENDING/APPROVED 분기 처리 ✅ — 임시 UI, 디자이너 확정 후 교체 필요 (2026-03-30)
+- **[백엔드 대기]** `GET /posts` therapyArea 필터 파라미터 추가 요청 — 현재 프론트에서 파라미터 전송 중이나 백엔드 미지원
+- **[백엔드 대기]** 치료사 인증 즉시 승인 로직 미구현 — 신청 시 자동 승인 합의됐으나 미반영
+- **[백엔드 확인]** 대댓글 구조 — 직전 댓글 ID 방식 맞는지 확인 필요
+- **[디자이너 대기]** 좋아요 3종 리액션 UI — 백엔드 구현 완료, 디자인 확정 후 프론트 구현 가능
+- **[완료]** 치료사 인증 API 연결 ✅ — Vercel 배포 후 테스트 성공, 409 에러 메시지 분기 처리 완료 (2026-03-30)
+- **[완료]** 코드 품질 잔여 이슈 ✅ — isAuthor 닉네임 비교 → canEdit/canDelete로 해결 (2026-03-30)
+- **[Post-MVP]** 프로필 탭 API (`GET /me/posts`, `/me/comments`, `/me/scraps`) — 요구사항 1차 초안 기준 Post-MVP
+- **[Post-MVP]** 스크랩/신고/검색/마이페이지 — 요구사항 1차 초안 기준 Post-MVP (REQ-010~)
 - **[MVP 이후]** 사용자 데이터 수집 로직 — 공부 선행 필요 ([상세](./project_future_analytics.md))
 - **[MVP 이후]** 회원가입 응답에 토큰 포함 요청 ([상세](./project_signup_token.md))
+
+## 디자이너 협업 대기
+- [디자이너 확인 필요 UI 항목](./project_designer_pending.md) — 첨부파일 UI 위치/디자인 등
 
 ## 댓글 시스템
 - [유튜브 스타일 댓글 설계 — flat 2레벨, @멘션, parentCommentId 백엔드 논의 필요](./project_comment_system.md)
@@ -53,7 +62,6 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - [루트 .env → .env.docker 이름 변경 (2026-03-20)](./project_env_docker_rename.md) — Docker 실행 시 `--env-file .env.docker` 필수
 
 ## 미해결 이슈
-- **[백엔드 대기]** CORS OPTIONS 403 재발 — Spring Security가 preflight 차단, 백엔드 수정 요청 완료 ([상세](./project_cors_current_issue.md))
 - **[백엔드 연결 시]** MSW `/me` 핸들러가 401 반환 중 → 백엔드 연결 시점에 정리 필요
 
 ## 환경변수
@@ -67,6 +75,7 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - [테스트 데이터 삽입 — 백엔드에 요청, 프론트에서 직접 삽입 안 함](./project_test_data_policy.md)
 - [모바일 앱 확장 ADR (2026-03-26)](./project_mobile_expansion_adr.md) — MVP 웹 우선, RN 제외, PWA/Capacitor 유저테스트 후 결정. **노션 업로드 대기 중**
 - [Next.js 도입 보류 (2026-03-27)](./project_nextjs_decision.md) — 해결할 문제 없음, 콘텐츠 비로그인 공개 시점에 재검토
+- [MVP 단일 게시판 정책](./project_mvp_single_board.md) — board 파라미터 미사용, 다중 게시판은 MVP 이후 검토
 
 ## Notion 페이지
 - [Notion 진행 상황 페이지 운영 방침](./project_notion_page_policy.md) — PM 주요 독자, 백엔드 논의 제외, 토글 구조
@@ -76,6 +85,7 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 ## 개발 규칙 / 피드백
 - **[최우선]** [코드 작업 전 트레이드오프 설명 필수](./feedback_tradeoff_before_code.md) — 매 코드 수정/삭제/생성 시 트레이드오프 먼저 짚기
 - [MVP 단계 코드 수정 기준 이분법](./feedback_mvp_fix_criteria.md) — 방어 코드는 즉시, 기획 의존적인 것은 보류
+- [UI 위치/디자인은 디자이너 확인 후 구현](./feedback_ui_designer_confirm.md) — 임의 구현 금지, 타입/로직만 먼저
 - [navigate(-1) fallback 금지](./feedback_navigate_back.md) — 뒤로가기에 강제 경로 넣지 말 것
 - [질문 방식 — 막막할 땐 객관식, 의사결정 도출엔 주관식](./feedback_question_style.md)
 - [session-bridge 사용 중단 — /wrap-up으로 대체](./feedback_session_bridge_removed.md)
@@ -86,6 +96,7 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - [불확실할 때 추측 말고 질문 먼저](./feedback_ask_when_uncertain.md)
 - [figma.com 링크 단독으로 오면 MVP 요구사항 피그마로 인지하고 바로 메모리 저장](./feedback_figma_link_recognition.md)
 - [취업용 경험 생기면 Notion 정리 제안할 것](./feedback_career_documentation.md)
+- [compact/clear 타이밍 — 매 답변마다 proactive하게 추천](./feedback_compact_timing.md)
 - [코드 생성 승인 요청 방식](./feedback_code_approval.md)
 - [TS 타입 에러 CLI 확인 — `npx tsc -b` (Vercel 빌드와 동일)](./feedback_ts_type_check.md)
 - [shadcn Button asChild 미지원 — buttonVariants + Link 패턴 사용](./feedback_shadcn_button_aschild.md)
@@ -118,6 +129,7 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - [토큰 방식 확정 — Access Token: body / Refresh Token: httpOnly Cookie](./project_token_strategy.md)
 
 ## 공유 문서
+- [팀 요구사항 문서 Google Sheets (1차 초안 2026-03-30)](./reference_requirements_doc.md) — REQ-001~009 MVP, REQ-010~ Post-MVP
 - [Notion 진행 상황 페이지](./reference_notion_progress.md)
 - [Notion 트러블슈팅 페이지](./reference_notion_troubleshooting.md)
 - [Notion TIL 페이지](./reference_notion_til.md) — `/update-til`(학습 위주) + `/update-builders`(작업 위주) + 매일 18:30 KST 자동 실행 (trig_01AhUdgHMLPiEwTuYBRgtExv) / 양식에 포트폴리오 어필 포인트 섹션 포함
@@ -139,6 +151,7 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - GitHub 인증: `~/.git-credentials`에서 `ghp_...` 토큰 부분만 교체
 - 맥북 이전 완료 (2026-03-24) — 현재 맥 환경에서 개발 중
 - [Claude Code 바로가기 aliases](./project_bash_aliases.md) — `mel` / `mel-dev` / `mel-review` / `portfolio`
+- `/check-designer`, `/check-backend` 슬래시 커맨드 생성 완료 (2026-03-30) — 협업 대기 항목 즉시 조회용
 - [포트폴리오 프로젝트 세팅](./project_portfolio_setup.md) — `~/portfolio` 디렉토리, 전용 메모리 구조, 컨텍스트 분리 운영 방침
 - [백업 레포 URL (MelloMe_FE_Backup)](./reference_backup_repos.md)
 - [메모리 동기화 슬래시 커맨드 — `/push-mello`, `/pull-mello`](./project_memory_sync.md)

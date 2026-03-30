@@ -23,7 +23,8 @@ type: project
 - API에 `therapyAreas` 필드 없음 → 서버에 저장 안 함
 - 치료영역 선택 UI는 프론트에서만 사용 (서버 전송 없음)
 
-### 3. 치료영역 항목 수 불일치 — 미해결
-- **와이어프레임 (인증 페이지)**: 9개 항목
-- **현재 `TherapyArea` 타입 (게시글 필터용)**: 5개 — OCCUPATIONAL, SPEECH, COGNITIVE, PLAY, UNSPECIFIED
-- 인증용 enum 별도 정의 여부 미확정
+### 3. 치료영역 항목 수 — ✅ 확정 (2026-03-30)
+- **인증 페이지 수집**: 9개 (와이어프레임 기준, 프론트 전용 배열)
+- **게시글 필터**: 4개 메이저 영역만 사용 — OCCUPATIONAL, SPEECH, COGNITIVE, PLAY
+- 수집은 9개로 하되, 필터링은 MVP 단계에서 메이저 4개로 추려서 사용
+- `UNSPECIFIED`는 필터 enum에서 제거 가능
