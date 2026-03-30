@@ -55,7 +55,11 @@ export default function TherapistVerificationPage() {
   }
 
   const verificationStatus = user?.therapistVerification?.status;
-  const canSubmit = file !== null && licenseCode.trim() !== '' && selectedAreas.length > 0 && !submitting;
+  const canSubmit =
+    file !== null &&
+    licenseCode.trim() !== '' &&
+    selectedAreas.length > 0 &&
+    !submitting;
 
   useEffect(() => {
     if (verificationStatus === 'APPROVED') {
@@ -70,8 +74,14 @@ export default function TherapistVerificationPage() {
     try {
       await applyTherapistVerification(licenseCode, file!);
       navigate('/verification-complete');
-    } catch {
-      setError('인증 신청에 실패했습니다. 다시 시도해주세요.');
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response
+        ?.status;
+      if (status === 409) {
+        setError('이미 심사 중인 신청이 있습니다.');
+      } else {
+        setError('인증 신청에 실패했습니다. 다시 시도해주세요.');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -92,7 +102,9 @@ export default function TherapistVerificationPage() {
 
       {/* 메인 카드 */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
-        <h2 className="text-xl font-bold text-gray-900 mb-1">치료사 인증 페이지</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-1">
+          치료사 인증 페이지
+        </h2>
         <p className="text-sm text-gray-500 mb-6">
           치료사 자격증을 인증하고 전문 치료사로 활동해보세요.
         </p>
@@ -121,10 +133,13 @@ export default function TherapistVerificationPage() {
                 isDragging
                   ? 'border-violet-400 bg-violet-50'
                   : file
-                  ? 'border-green-400 bg-green-50'
-                  : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-green-400 bg-green-50'
+                    : 'border-gray-200 hover:border-gray-300'
               }`}
-              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragging(true);
+              }}
               onDragLeave={() => setIsDragging(false)}
               onDrop={handleDrop}
             >
@@ -134,13 +149,22 @@ export default function TherapistVerificationPage() {
                 className="hidden"
                 onChange={handleFileChange}
               />
-              <Upload size={24} className={file ? 'text-green-500' : 'text-gray-400'} />
+              <Upload
+                size={24}
+                className={file ? 'text-green-500' : 'text-gray-400'}
+              />
               {file ? (
-                <span className="text-sm font-medium text-green-700">{file.name}</span>
+                <span className="text-sm font-medium text-green-700">
+                  {file.name}
+                </span>
               ) : (
                 <>
-                  <span className="text-sm text-gray-500">파일을 선택하거나 드래그하세요</span>
-                  <span className="text-xs text-gray-400">JPG, PNG, PDF (최대 10MB)</span>
+                  <span className="text-sm text-gray-500">
+                    파일을 선택하거나 드래그하세요
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    JPG, PNG, PDF (최대 10MB)
+                  </span>
                 </>
               )}
             </label>
@@ -207,7 +231,10 @@ export default function TherapistVerificationPage() {
             '개인정보는 안전하게 보호됩니다.',
             '인증 완료 후 아래와 같은 혜택이 있습니다.',
           ].map((text) => (
-            <li key={text} className="flex items-start gap-2 text-sm text-gray-600">
+            <li
+              key={text}
+              className="flex items-start gap-2 text-sm text-gray-600"
+            >
               <span className="mt-2 w-1 h-1 rounded-full bg-gray-400 shrink-0" />
               {text}
             </li>
