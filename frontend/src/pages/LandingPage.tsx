@@ -1,9 +1,17 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../stores/useAuthStore';
+import { getMe } from '../api/auth';
 
 export default function LandingPage() {
-  const user = useAuthStore((s) => s.user);
+  const { user, tokens, setAuth } = useAuthStore();
   const isVerified = user?.canAccessCommunity === true;
+
+  useEffect(() => {
+    if (tokens) {
+      getMe().then((freshUser) => setAuth(freshUser, tokens));
+    }
+  }, []);
   const verificationStatus = user?.therapistVerification?.status ?? null;
   const isNotRequested =
     !!user &&

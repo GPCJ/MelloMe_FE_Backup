@@ -73,6 +73,8 @@ export default function TherapistVerificationPage() {
     setError('');
     try {
       await applyTherapistVerification(licenseCode, file!);
+      const freshUser = await getMe();
+      if (tokens) setAuth(freshUser, tokens);
       navigate('/verification-complete');
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response
@@ -226,7 +228,7 @@ export default function TherapistVerificationPage() {
         <p className="text-sm font-semibold text-gray-900 mb-2">안내 사항</p>
         <ul className="flex flex-col gap-1.5">
           {[
-            '제출하신 면허증은 검토 후 3~5 영업일 내에 승인됩니다.',
+            '제출하신 면허증은 검토 후 즉시 승인됩니다.',
             '면허증 이미지는 명확하게 촬영되어야 합니다.',
             '개인정보는 안전하게 보호됩니다.',
             '인증 완료 후 아래와 같은 혜택이 있습니다.',
