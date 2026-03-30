@@ -27,6 +27,16 @@ export interface PostSummary {
   createdAt: string;
 }
 
+export interface Attachment {
+  id: number;
+  originalFilename: string;
+  contentType: string;
+  sizeBytes: number;
+  extension: string;
+  downloadUrl: string;
+  createdAt: string;
+}
+
 export interface PostDetail {
   id: number;
   title: string;
@@ -41,6 +51,7 @@ export interface PostDetail {
   updatedAt?: string;
   canEdit: boolean;
   canDelete: boolean;
+  attachments?: Attachment[];
 }
 
 export interface PaginatedPosts {
