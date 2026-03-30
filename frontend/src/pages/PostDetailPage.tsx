@@ -18,8 +18,7 @@ import {
   fetchComments,
   createComment,
   deleteComment,
-  likePost,
-  unlikePost,
+  toggleReaction,
 } from '../api/posts';
 import type { PostDetail, CommentResponse } from '../types/post';
 import { THERAPY_AREA_LABELS } from '../constants/post';
@@ -97,11 +96,7 @@ export default function PostDetailPage() {
     setLiked(nextLiked);
     setLikeCount((prev) => prev + (nextLiked ? 1 : -1));
     try {
-      if (nextLiked) {
-        await likePost(post.id);
-      } else {
-        await unlikePost(post.id);
-      }
+      await toggleReaction(post.id, 'EMPATHY');
     } catch {
       setLiked(!nextLiked);
       setLikeCount((prev) => prev + (nextLiked ? -1 : 1));

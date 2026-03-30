@@ -1,6 +1,14 @@
 export type BoardType = 'therapy_board' | 'document_board' | 'anonymous_board';
 export type PostSort = 'LATEST' | 'MOST_VIEWED';
-export type ReactionType = 'LIKE' | 'DISLIKE';
+export type ReactionType = 'EMPATHY' | 'APPRECIATE' | 'HELPFUL';
+
+export interface PostReaction {
+  postId: number;
+  empathyCount: number;
+  appreciateCount: number;
+  helpfulCount: number;
+  myReactionType: ReactionType | null;
+}
 export type TherapyArea =
   | 'UNSPECIFIED'
   | 'OCCUPATIONAL'

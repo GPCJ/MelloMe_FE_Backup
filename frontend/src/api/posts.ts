@@ -7,6 +7,8 @@ import type {
   BoardType,
   PostSort,
   TherapyArea,
+  ReactionType,
+  PostReaction,
   CommentResponse,
 } from '../types/post';
 
@@ -70,10 +72,11 @@ export async function unscrapPost(postId: number): Promise<void> {
   await axiosInstance.delete(`/posts/${postId}/scrap`);
 }
 
-export async function likePost(postId: number): Promise<void> {
-  await axiosInstance.put(`/posts/${postId}/reaction`, { reactionType: 'LIKE' });
+export async function getReaction(postId: number): Promise<PostReaction> {
+  const res = await axiosInstance.get(`/posts/${postId}/reaction`);
+  return res.data;
 }
 
-export async function unlikePost(postId: number): Promise<void> {
-  await axiosInstance.delete(`/posts/${postId}/reaction`);
+export async function toggleReaction(postId: number, reactionType: ReactionType): Promise<void> {
+  await axiosInstance.put(`/posts/${postId}/reaction`, { reactionType });
 }
