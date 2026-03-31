@@ -18,12 +18,43 @@ if [ ! -d "$PROJECT_REPO/.git" ]; then
   exit 1
 fi
 
+# 환경 이름 감지
+if [ -d "/Users/jin/my-project" ]; then
+  ENV_NAME="macOS (맥북)"
+else
+  ENV_NAME="WSL2 (윈도우)"
+fi
+
+# rebase 중 sync_status.md 충돌 자동 해결 (어차피 덮어쓸 파일)
+auto_resolve_sync_conflict() {
+  if git diff --name-only --diff-filter=U 2>/dev/null | grep -q "sync_status.md"; then
+    echo "🔧 sync_status.md 충돌 자동 해결 중..."
+    git checkout --ours .claude/memory/sync_status.md 2>/dev/null || \
+    git checkout --theirs .claude/memory/sync_status.md 2>/dev/null || true
+    git add .claude/memory/sync_status.md
+  fi
+}
+
+# 안전한 pull --rebase (충돌 시 sync_status.md 자동 해결)
+safe_pull_rebase() {
+  if ! git pull --rebase origin main 2>&1; then
+    auto_resolve_sync_conflict
+    # sync_status.md 외 다른 충돌이 있는지 확인
+    if git diff --name-only --diff-filter=U 2>/dev/null | grep -qv "sync_status.md"; then
+      echo "❌ sync_status.md 외 다른 파일에서 충돌 발생 — 수동 해결 필요"
+      git rebase --abort
+      exit 1
+    fi
+    git rebase --continue --no-edit 2>/dev/null || git -c core.editor=true rebase --continue
+  fi
+}
+
 case "$1" in
   push-mello)
     echo "📤 메모리 → 레포 sync 후 push 중..."
     cd "$PROJECT_REPO"
-    # 커밋 안 된 변경사항 확인 후 자동 커밋
-    if ! git diff --quiet || ! git diff --cached --quiet; then
+    # 커밋 안 된 변경사항 + untracked 파일 확인 후 자동 커밋
+    if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
       echo "⚠️  커밋되지 않은 변경사항 감지 → 자동 커밋 진행"
       git add -A
       git commit -m "chore: push 전 변경사항 자동 커밋 $(date '+%Y-%m-%d %H:%M')"
@@ -40,7 +71,7 @@ type: project
 ## 마지막 동기화
 
 - **시간**: $SYNC_TIME
-- **환경**: macOS (맥북)
+- **환경**: $ENV_NAME
 - **레포**: https://github.com/GPCJ/MelloMe_FE_Backup
 
 **Why:** 환경 간 메모리 동기화 상태 검증용. 다른 환경에서 pull 후 이 파일의 시간을 확인하면 메모리가 최신인지 알 수 있음.
@@ -50,7 +81,8 @@ EOF
     # 로컬 메모리 → 레포 내 메모리 폴더로 복사
     mkdir -p "$MEMORY_IN_REPO"
     rsync -a --delete --exclude='.git' "$MEMORY_SRC/" "$MEMORY_IN_REPO/"
-    git pull --rebase origin main 2>/dev/null || git pull origin main || true
+    # 원격과 동기화 (충돌 자동 해결)
+    safe_pull_rebase
     git add .claude/memory
     if git diff --cached --quiet; then
       echo "ℹ️  메모리 변경 사항 없음."
@@ -63,7 +95,7 @@ EOF
   pull-mello)
     echo "📥 레포 → 메모리 pull 중..."
     cd "$PROJECT_REPO"
-    git pull origin main
+    git pull --rebase origin main
     if [ -d "$MEMORY_IN_REPO" ]; then
       mkdir -p "$MEMORY_SRC"
       rsync -a --delete "$MEMORY_IN_REPO/" "$MEMORY_SRC/"
