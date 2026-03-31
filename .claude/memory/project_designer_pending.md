@@ -15,7 +15,14 @@ type: project
 ## 대기 중
 
 - **첨부파일 UI** — `PostDetailPage` 내 위치/디자인 미확정 (타입 정의는 완료)
-- **3종 리액션 UI** — EMPATHY/APPRECIATE/HELPFUL 버튼 3개 디자인 확정 필요. 백엔드는 이미 구현 완료 (`GET /posts/{postId}/reaction` → empathyCount/appreciateCount/helpfulCount + myReactionType 반환). 디자인 확정 후 프론트 구현 가능.
+- **치료영역 배지** (FNC-025) — 인증된 치료사 닉네임 옆 태그/배지 디자인 미확정. 백엔드 완료, 디자인 확정 후 즉시 구현 가능
+- **3종 리액션 UI** — 좋아요·공감이에요·도움이에요 버튼 디자인 확정 필요. 백엔드 구현 완료 (`GET /posts/{postId}/reaction` → empathyCount/appreciateCount/helpfulCount + myReactionType 반환). 디자인 확정 후 프론트 즉시 구현 가능.
+- **인증 전용 게시글 블러 UI** — 미인증 회원이 볼 때 제목·내용 블러 처리 디자인 (REQ-003)
+- **팔로우/언팔로우 버튼** — 프로필 페이지 및 게시글 작성자 영역 위치·디자인 (REQ-005, REQ-011)
+- **마이페이지 프로필 화면** — 포스트 수·닉네임·인증여부·팔로워·팔로잉 레이아웃 (REQ-011)
+- **마이페이지 아카이빙 탭** — 내가 쓴 글·답변·스크랩 3탭 UI (REQ-012)
+- **스크랩 버튼** — 게시글 내 위치·디자인 (REQ-010)
+- **VerificationCompletePage** — PENDING(신청 접수) / APPROVED(승인 완료) 두 상태 화면 디자인 (현재 임시 텍스트로 분기 처리 중)
 
 ## 완료
 (없음)

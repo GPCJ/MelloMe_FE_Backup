@@ -37,26 +37,49 @@ type: project
 - 탭 구성: 내가 쓴 글 / 답글 단 글 / 스크랩
 - `GET /me/scraps` — ✅ 백엔드 구현 완료
 - `GET /me/posts` — 백엔드에 요청 완료 (2026-03-27), 대기 중
-- `GET /posts/:postId` authorId 필드 추가 — 백엔드에 요청 완료 (2026-03-27), 대기 중 (내가 쓴 글 + isAuthor 판단 모두 이 필드로 해결)
+- `GET /posts/:postId` authorId → canEdit/canDelete 필드 — ✅ 해결 (2026-03-30)
 - 답글 단 글 API — 백엔드 병목으로 보류
 - 반응 3종 — 백엔드 병목으로 보류
 - 상태: 일부 요청 완료, 응답 대기 중
 
-### #5 therapistVerification.status 값 불일치
-- 프론트: `NOT_REQUESTED | PENDING | APPROVED | REJECTED`
-- 백엔드 스펙: TherapistVerificationSummary.status = string (enum 미정의)
-- 인증 미요청 사용자에게 NOT_REQUESTED 내려주는지 확인 필요
-- 상태: 미해결
-
-### #6 therapistVerification nullable 여부 미명시
-- 인증 미요청 사용자의 경우 필드가 null인지, 빈 객체인지 스펙에 없음
-- 프론트 타입은 non-nullable로 정의 → 런타임 에러 가능
-- 상태: 미해결
+### #5/#6 therapistVerification nullable 여부 및 status enum
+- 프론트 `MeResponse` 타입: `therapistVerification` non-nullable, status = `NOT_REQUESTED | PENDING | APPROVED | REJECTED`
+- `/me` 응답에서 미신청 유저에게 `null` vs `{ status: 'NOT_REQUESTED' }` 중 어느 형태로 오는지 미확인
+- **버그 위치**: `LandingPage.tsx:16~20` — `isNotRequested` 조건이 `verificationStatus === null`을 포함하지 않아, `therapistVerification`이 `null`로 오면 로그인된 유저에게 로그인/회원가입 버튼이 표시됨
+- **수정 방법**: 백엔드 확인 후 `verificationStatus === null` 조건 추가 1줄로 해결 가능
+- **참고**: `GET /therapist-verifications/me`는 인증 신청 레코드 전용 엔드포인트 → 미신청 유저는 404 응답 예상 (null 이슈는 `/me` 엔드포인트 기준)
+- 모든 접근은 optional chaining `?.` 사용 중 → 런타임 크래시는 없음
+- 상태: 미해결 — 백엔드에 `/me` 응답 형태 확인 필요
 
 ### #7 Google OAuth callback 엔드포인트 스펙 미포함
 - 프론트 LoginPage.tsx:57: `/auth/oauth/google/start` 리다이렉트
 - OpenAPI 스펙에 OAuth 관련 엔드포인트 없음
 - 상태: ✅ 해결 (2026-03-25) — Google OAuth 전면 제거, 이메일 로그인만 사용
+
+### #13 팔로우 시스템 API 미구현 (FNC-029, 040, 041)
+- `POST /users/:userId/follow` — 팔로우
+- `DELETE /users/:userId/follow` — 언팔로우
+- `GET /users/:userId` — 팔로워·팔로잉 수 포함한 프로필 응답
+- `GET /posts?followingOnly=true` 또는 별도 엔드포인트 — 팔로우 피드
+- 상태: 🔴 미구현 — REQ-005/011, 프론트 팔로우/언팔로우 버튼·팔로우 피드·프로필 페이지 모두 이 API 의존
+
+### #14 postType 인증 전용 게시글 (FNC-026, 027)
+- 현재 postType은 'COMMUNITY' 고정
+- 인증 전용 게시글을 위한 'CERTIFIED_ONLY' 또는 별도 필드(isPrivate 등) 설계 필요
+- 미인증 회원에게 블러 처리된 게시글 응답 방식 확정 필요 (필드 제외 vs 블러 신호 전달)
+- 상태: 🔴 미구현 — REQ-003, postType 설계 확정 전에는 프론트 FNC-026/027 구현 불가
+
+### #15 파일 업로드 API (FNC-033, 034)
+- 이미지·영상: `POST /posts/:postId/attachments` 또는 게시글 작성 시 multipart/form-data 방식
+- PDF: 동일 엔드포인트 or 별도
+- 파일 크기·형식 제한 정책 확인 필요
+- 상태: 🔴 미구현 — REQ-007, 엔드포인트 스펙 없음
+
+### #16 therapyArea 필터 파라미터 (FNC-030)
+- `GET /posts?therapyArea=` 옵셔널 파라미터 추가 요청
+- 현재 백엔드 `sortType`만 지원, therapyArea 필터 미지원
+- 프론트 UI는 완료, 파라미터 미지원으로 동작 안 함
+- 상태: 🔴 미구현 — REQ-006, 요청 방식 확정 (기존 엔드포인트에 옵셔널 파라미터)
 
 ---
 
@@ -100,5 +123,7 @@ type: project
 ## 해결된 항목
 - #1 댓글 삭제 URL ✅
 - #3 sort → sortType, board 파라미터 제거 ✅
+- #4 canEdit/canDelete 필드 ✅ (2026-03-30)
 - #7 Google OAuth 전면 제거 ✅
 - #10 PostCreateRequest 필수 필드 + postType + 연령대 UI + 페이지 0-based ✅
+- #11 401 자동 refresh ✅ (2026-03-28)

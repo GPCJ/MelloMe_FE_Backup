@@ -11,7 +11,7 @@
 - 배포: **Vercel(프론트) + EC2(백엔드) 확정** / 프론트: `www.melonnetherapists.com` / 백엔드: `api.melonnetherapists.com` (HTTPS 완료 후)
 
 ## MVP 요구사항 & 핵심지표
-- [MVP 요구사항 상세 및 핵심지표 (2026-03-24)](./project_mvp_requirements.md) — 게시판/글쓰기/관리자페이지/랜딩페이지 + WAU/MAU/리텐션 등 KPI
+- [MVP 요구사항 상세 및 핵심지표 (2026-03-30 업데이트)](./project_mvp_requirements.md) — REQ-001~012 MVP, REQ-013~019 Post-MVP / 팔로우·인증전용게시글블러·스크랩·마이페이지 MVP 편입
 
 ## 다음 작업 (우선순위 순)
 - **[완료]** OAuthCallbackPage 구현 ✅ — `/auth/callback` 라우트, code → exchange → setAuth + 리다이렉트 (2026-03-25)
@@ -25,22 +25,28 @@
 - **[완료]** `authorId` + `canEdit` + `canDelete` ✅ — `GET /posts/{postId}` 응답에 추가됨, 프론트 이미 구현 완료 (2026-03-30)
 - **[완료]** 치료사 인증 store 즉시 업데이트 ✅ — POST 성공 후 getMe() 호출, LandingPage 마운트 시 getMe() 추가 (2026-03-30)
 - **[완료]** VerificationCompletePage PENDING/APPROVED 분기 처리 ✅ — 임시 UI, 디자이너 확정 후 교체 필요 (2026-03-30)
-- **[백엔드 대기]** `GET /posts` therapyArea 필터 파라미터 추가 요청 — 현재 프론트에서 파라미터 전송 중이나 백엔드 미지원
+- **[백엔드 대기]** `GET /posts` therapyArea 필터 파라미터 추가 요청 — `GET /posts?therapyArea=` 옵셔널 파라미터로 추가 요청 방식 확정 (2026-03-31)
 - **[백엔드 대기]** 치료사 인증 즉시 승인 로직 미구현 — 신청 시 자동 승인 합의됐으나 미반영
-- **[백엔드 확인]** 대댓글 구조 — 직전 댓글 ID 방식 맞는지 확인 필요
+- **[완료]** 대댓글 구조 확인 ✅ — `parentCommentId` + `content` 요청 시 자식 댓글로 추가, 스웨거 확인 완료 (2026-03-31)
 - **[디자이너 대기]** 좋아요 3종 리액션 UI — 백엔드 구현 완료, 디자인 확정 후 프론트 구현 가능
 - **[완료]** 치료사 인증 API 연결 ✅ — Vercel 배포 후 테스트 성공, 409 에러 메시지 분기 처리 완료 (2026-03-30)
 - **[완료]** 코드 품질 잔여 이슈 ✅ — isAuthor 닉네임 비교 → canEdit/canDelete로 해결 (2026-03-30)
-- **[Post-MVP]** 프로필 탭 API (`GET /me/posts`, `/me/comments`, `/me/scraps`) — 요구사항 1차 초안 기준 Post-MVP
-- **[Post-MVP]** 스크랩/신고/검색/마이페이지 — 요구사항 1차 초안 기준 Post-MVP (REQ-010~)
+- **[MVP — 백엔드 대기]** 팔로우 시스템 — REQ-005/011, 백엔드 설계 논의 필요 (복귀 후 최우선 논의)
+- **[MVP — 백엔드 대기]** 인증 전용 게시글 블러 — REQ-003, postType 또는 별도 필드 필요, 기존 postType:'COMMUNITY' 고정과 충돌 가능
+- **[MVP — 백엔드 대기]** 스크랩/마이페이지 API — REQ-010~012, 요구사항 업데이트로 MVP 편입
+- **[Post-MVP]** 신고/알림/DM/어드민/AI — REQ-015~019
 - **[MVP 이후]** 사용자 데이터 수집 로직 — 공부 선행 필요 ([상세](./project_future_analytics.md))
 - **[MVP 이후]** 회원가입 응답에 토큰 포함 요청 ([상세](./project_signup_token.md))
 
 ## 디자이너 협업 대기
-- [디자이너 확인 필요 UI 항목](./project_designer_pending.md) — 첨부파일 UI 위치/디자인 등
+- [디자이너 확인 필요 UI 항목](./project_designer_pending.md) — 리액션·블러·팔로우·마이페이지·스크랩·인증완료페이지 등 8개
+- [디자이너 협업 워크플로우](./project_designer_workflow.md) — 데일리 확정 UI → 구현 → 보고 사이클, 확정 기준 레벨 사전 합의 필요
 
 ## 댓글 시스템
 - [유튜브 스타일 댓글 설계 — flat 2레벨, @멘션, parentCommentId 백엔드 논의 필요](./project_comment_system.md)
+
+## 기능명세
+- [프론트 기능명세 FNC-019~050 (2026-03-31)](./project_feature_spec_frontend.md) — REQ 기반 32개 항목, docs/feature-spec-frontend.csv, 팀 시트 통합 운영
 
 ## 백엔드 스펙
 - [페이지네이션 0-based — 프론트에서 currentPage - 1 변환 필요](./project_pagination_spec.md)
@@ -129,7 +135,7 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - [토큰 방식 확정 — Access Token: body / Refresh Token: httpOnly Cookie](./project_token_strategy.md)
 
 ## 공유 문서
-- [팀 요구사항 문서 Google Sheets (1차 초안 2026-03-30)](./reference_requirements_doc.md) — REQ-001~009 MVP, REQ-010~ Post-MVP
+- [팀 요구사항 문서 Google Sheets (2차 업데이트 2026-03-30)](./reference_requirements_doc.md) — REQ-001~012 MVP, REQ-013~019 Post-MVP (실시간 업데이트 중)
 - [Notion 진행 상황 페이지](./reference_notion_progress.md)
 - [Notion 트러블슈팅 페이지](./reference_notion_troubleshooting.md)
 - [Notion TIL 페이지](./reference_notion_til.md) — `/update-til`(학습 위주) + `/update-builders`(작업 위주) + 매일 18:30 KST 자동 실행 (trig_01AhUdgHMLPiEwTuYBRgtExv) / 양식에 포트폴리오 어필 포인트 섹션 포함

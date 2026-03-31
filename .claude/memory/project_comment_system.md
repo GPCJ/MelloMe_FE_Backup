@@ -16,8 +16,7 @@ type: project
 - 대댓글에 답글 달면 → 같은 2레벨에 추가 + @닉네임 멘션 자동 삽입
 - 3레벨 이상 중첩 없음
 
-## 백엔드 논의 필요
-- 대댓글의 대댓글 작성 시 `parentCommentId`에 무엇을 넣을지:
-  - 원본 최상위 댓글 ID? (백엔드가 flat하게 관리)
-  - 바로 위 댓글 ID? (프론트에서 최상위 ID로 변환)
-- 현재 API: `POST /posts/:postId/comments { content, parentCommentId? }`
+## 백엔드 구조 확인 (2026-03-31)
+- `POST /posts/:postId/comments { content, parentCommentId? }` 방식 확정
+- `parentCommentId` + `content` 를 요청에 포함하면 해당 댓글의 자식 댓글로 추가됨
+- 스웨거 스펙으로 확인 완료 — 추가 논의 불필요
