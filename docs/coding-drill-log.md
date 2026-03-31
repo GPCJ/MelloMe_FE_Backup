@@ -12,3 +12,9 @@
 
 ---
 
+## 03-31
+- 도전: `components/ProtectedRoute.tsx`
+- 막힌 곳: Navigate 컴포넌트의 to, replace props 문법이 어색함
+- 수준: ★★★
+- 메모: 로직/구조는 술술 나옴. JSX 컴포넌트 props 문법 반복 필요
+
