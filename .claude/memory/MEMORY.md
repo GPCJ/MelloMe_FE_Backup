@@ -170,6 +170,7 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - [학습 내용 상세 정리 — 복습 요청 시에만 불러올 것](./learning_frontend_code.md)
 - [axios interceptor 코드 리뷰 학습 진행 상황 및 다음 후보](./learning_axios_interceptor.md)
 - [인지부채 점검 세션 — #004/#005/#006 이해 완료, 남은 항목: multipart/form-data](./project_cognitive_debt_review.md)
+- [코딩 드릴 루틴 — AI 의존성 해소, 멜로미 코드 기반 데일리 연습](./project_coding_drill.md)
 
 ## shadcn/ui
 - [디자이너 UI 선개발 방침](./project_shadcn_design.md) — 컴포넌트는 shadcn 기반, 스타일은 CSS 변수로 분리
