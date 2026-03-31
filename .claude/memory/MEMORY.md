@@ -3,6 +3,7 @@
 ## 사용자
 - [인증/보안 개념 지식 수준 — 비유적 설명 선호](./user_knowledge_auth.md)
 - [개발 스타일 — 기능 구현 우선, 트러블슈팅 강점, 설계/아키텍처 약점 자각](./user_dev_style.md)
+- [AI 의존 줄이기 — 직접 코딩 목표, 힌트는 OK 코드 작성은 직접](./user_self_coding_goal.md)
 
 ## 프로젝트
 멜로미 — 발달장애 아동 치료사 커뮤니티 플랫폼 (MVP 개발 중)
@@ -27,7 +28,8 @@
 - **[완료]** VerificationCompletePage PENDING/APPROVED 분기 처리 ✅ — 임시 UI, 디자이너 확정 후 교체 필요 (2026-03-30)
 - **[백엔드 대기]** `GET /posts` therapyArea 필터 파라미터 추가 요청 — `GET /posts?therapyArea=` 옵셔널 파라미터로 추가 요청 방식 확정 (2026-03-31)
 - **[백엔드 대기]** 치료사 인증 즉시 승인 로직 미구현 — 신청 시 자동 승인 합의됐으나 미반영
-- **[완료]** 대댓글 구조 확인 ✅ — `parentCommentId` + `content` 요청 시 자식 댓글로 추가, 스웨거 확인 완료 (2026-03-31)
+- **[완료]** 대댓글 구조 확인 + FNC-038 보완 ✅ — 대댓글에 답글 버튼 추가 완료 (2026-03-31, 직접 코딩)
+- **[계획]** [MSW 기반 선구현](./project_msw_preimpl_plan.md) — FNC-022/031/033/034/035/039, 백엔드 연결 전 프론트 완성 전략
 - **[디자이너 대기]** 좋아요 3종 리액션 UI — 백엔드 구현 완료, 디자인 확정 후 프론트 구현 가능
 - **[완료]** 치료사 인증 API 연결 ✅ — Vercel 배포 후 테스트 성공, 409 에러 메시지 분기 처리 완료 (2026-03-30)
 - **[완료]** 코드 품질 잔여 이슈 ✅ — isAuthor 닉네임 비교 → canEdit/canDelete로 해결 (2026-03-30)
@@ -79,7 +81,7 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 ## 정책 결정
 - [게시물 열람 권한 — 비로그인 접근 불가, ProtectedRoute 적용](./project_post_visibility.md)
 - [테스트 데이터 삽입 — 백엔드에 요청, 프론트에서 직접 삽입 안 함](./project_test_data_policy.md)
-- [모바일 앱 확장 ADR (2026-03-26)](./project_mobile_expansion_adr.md) — MVP 웹 우선, RN 제외, PWA/Capacitor 유저테스트 후 결정. **노션 업로드 대기 중**
+- [모바일 앱 확장 ADR (2026-03-26)](./project_mobile_expansion_adr.md) — MVP 웹 우선, RN 제외, PWA/Capacitor 유저테스트 후 결정
 - [Next.js 도입 보류 (2026-03-27)](./project_nextjs_decision.md) — 해결할 문제 없음, 콘텐츠 비로그인 공개 시점에 재검토
 - [MVP 단일 게시판 정책](./project_mvp_single_board.md) — board 파라미터 미사용, 다중 게시판은 MVP 이후 검토
 
