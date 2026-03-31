@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import { Eye, Heart, MessageSquare, ArrowLeft, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import {
+  Eye,
+  Heart,
+  MessageSquare,
+  ArrowLeft,
+  MoreVertical,
+  Pencil,
+  Trash2,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -70,7 +78,10 @@ export default function PostDetailPage() {
   const [liking, setLiking] = useState(false);
 
   const [commentInput, setCommentInput] = useState('');
-  const [replyTo, setReplyTo] = useState<{ id: number; nickname: string } | null>(null);
+  const [replyTo, setReplyTo] = useState<{
+    id: number;
+    nickname: string;
+  } | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -146,14 +157,19 @@ export default function PostDetailPage() {
 
   if (loading) return <PostDetailSkeleton />;
   if (error || !post)
-    return <p className="text-center text-destructive py-20">{error ?? '게시글을 찾을 수 없어요.'}</p>;
+    return (
+      <p className="text-center text-destructive py-20">
+        {error ?? '게시글을 찾을 수 없어요.'}
+      </p>
+    );
 
   const therapyLabel =
     post.therapyArea && post.therapyArea !== 'UNSPECIFIED'
       ? THERAPY_AREA_LABELS[post.therapyArea]
       : null;
   const topComments = comments.filter((c) => !c.parentCommentId);
-  const getReplies = (parentId: number) => comments.filter((c) => c.parentCommentId === parentId);
+  const getReplies = (parentId: number) =>
+    comments.filter((c) => c.parentCommentId === parentId);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-20 md:pb-8">
@@ -172,7 +188,9 @@ export default function PostDetailPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {post.canEdit && (
-                <DropdownMenuItem onClick={() => navigate(`/posts/${post.id}/edit`)}>
+                <DropdownMenuItem
+                  onClick={() => navigate(`/posts/${post.id}/edit`)}
+                >
                   <Pencil size={14} className="mr-2" />
                   수정
                 </DropdownMenuItem>
@@ -198,9 +216,13 @@ export default function PostDetailPage() {
           <AuthorAvatar nickname={post.authorNickname} />
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-gray-900">{post.authorNickname}</span>
+              <span className="text-sm font-semibold text-gray-900">
+                {post.authorNickname}
+              </span>
               {therapyLabel && (
-                <Badge variant="secondary" className="text-xs">{therapyLabel}</Badge>
+                <Badge variant="secondary" className="text-xs">
+                  {therapyLabel}
+                </Badge>
               )}
             </div>
             <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-0.5">
@@ -215,7 +237,9 @@ export default function PostDetailPage() {
         </div>
 
         {/* 제목 */}
-        <h1 className="text-xl font-bold text-gray-900 mb-4 leading-snug">{post.title}</h1>
+        <h1 className="text-xl font-bold text-gray-900 mb-4 leading-snug">
+          {post.title}
+        </h1>
 
         {/* 본문 */}
         <div
@@ -244,16 +268,25 @@ export default function PostDetailPage() {
 
       {/* 댓글 섹션 */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h2 className="text-base font-bold text-gray-900 mb-4">댓글 {comments.length}</h2>
+        <h2 className="text-base font-bold text-gray-900 mb-4">
+          댓글 {comments.length}
+        </h2>
 
         {/* 댓글 입력 */}
         <form onSubmit={handleSubmitComment} className="mb-6">
           {replyTo !== null && (
             <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
               <span>
-                <span className="font-medium text-gray-600">{replyTo.nickname}</span>에게 답글 작성 중
+                <span className="font-medium text-gray-600">
+                  {replyTo.nickname}
+                </span>
+                에게 답글 작성 중
               </span>
-              <button type="button" onClick={() => setReplyTo(null)} className="underline hover:text-gray-700">
+              <button
+                type="button"
+                onClick={() => setReplyTo(null)}
+                className="underline hover:text-gray-700"
+              >
                 취소
               </button>
             </div>
@@ -266,7 +299,11 @@ export default function PostDetailPage() {
             className="mb-2 resize-none"
           />
           <div className="flex justify-end">
-            <Button type="submit" size="sm" disabled={submitting || !commentInput.trim()}>
+            <Button
+              type="submit"
+              size="sm"
+              disabled={submitting || !commentInput.trim()}
+            >
               댓글 작성
             </Button>
           </div>
@@ -279,15 +316,29 @@ export default function PostDetailPage() {
               <CommentItem
                 comment={comment}
                 isAuthor={comment.canDelete}
-                onReply={() => setReplyTo({ id: comment.id, nickname: comment.authorNickname })}
+                onReply={() =>
+                  setReplyTo({
+                    id: comment.id,
+                    nickname: comment.authorNickname,
+                  })
+                }
                 onDelete={() => handleDeleteComment(comment.id)}
               />
               {getReplies(comment.id).map((reply) => (
-                <div key={reply.id} className="pl-6 border-l-2 border-gray-100 ml-4">
+                <div
+                  key={reply.id}
+                  className="pl-6 border-l-2 border-gray-100 ml-4"
+                >
                   <CommentItem
                     comment={reply}
                     isAuthor={reply.canDelete}
                     replyToNickname={comment.authorNickname}
+                    onReply={() =>
+                      setReplyTo({
+                        id: comment.id,
+                        nickname: reply.authorNickname,
+                      })
+                    }
                     onDelete={() => handleDeleteComment(reply.id)}
                   />
                 </div>
@@ -295,7 +346,9 @@ export default function PostDetailPage() {
             </div>
           ))}
           {comments.length === 0 && (
-            <p className="text-sm text-gray-400 text-center py-6">첫 댓글을 남겨보세요!</p>
+            <p className="text-sm text-gray-400 text-center py-6">
+              첫 댓글을 남겨보세요!
+            </p>
           )}
         </div>
       </div>
@@ -306,12 +359,18 @@ export default function PostDetailPage() {
 interface CommentItemProps {
   comment: CommentResponse;
   isAuthor: boolean;
-  onReply?: () => void;
+  onReply: () => void;
   onDelete: () => void;
   replyToNickname?: string;
 }
 
-function CommentItem({ comment, isAuthor, onReply, onDelete, replyToNickname }: CommentItemProps) {
+function CommentItem({
+  comment,
+  isAuthor,
+  onReply,
+  onDelete,
+  replyToNickname,
+}: CommentItemProps) {
   return (
     <div className="py-4">
       <div className="flex items-start gap-3">
@@ -321,12 +380,18 @@ function CommentItem({ comment, isAuthor, onReply, onDelete, replyToNickname }: 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-1.5">
-              <span className="text-sm font-semibold text-gray-900">{comment.authorNickname}</span>
+              <span className="text-sm font-semibold text-gray-900">
+                {comment.authorNickname}
+              </span>
               {replyToNickname && (
-                <span className="text-xs text-gray-400">↳ @{replyToNickname}</span>
+                <span className="text-xs text-gray-400">
+                  ↳ @{replyToNickname}
+                </span>
               )}
             </div>
-            <span className="text-xs text-gray-400 shrink-0">{formatRelativeTime(comment.createdAt)}</span>
+            <span className="text-xs text-gray-400 shrink-0">
+              {formatRelativeTime(comment.createdAt)}
+            </span>
           </div>
           <p className="text-sm text-gray-700 leading-relaxed">
             {comment.deleted ? '삭제된 댓글입니다.' : comment.content}
@@ -334,12 +399,18 @@ function CommentItem({ comment, isAuthor, onReply, onDelete, replyToNickname }: 
           {!comment.deleted && (
             <div className="flex gap-3 mt-2">
               {onReply && (
-                <button onClick={onReply} className="text-xs text-gray-400 hover:text-gray-700">
+                <button
+                  onClick={onReply}
+                  className="text-xs text-gray-400 hover:text-gray-700"
+                >
                   답글
                 </button>
               )}
               {isAuthor && (
-                <button onClick={onDelete} className="text-xs text-gray-400 hover:text-red-500">
+                <button
+                  onClick={onDelete}
+                  className="text-xs text-gray-400 hover:text-red-500"
+                >
                   삭제
                 </button>
               )}
