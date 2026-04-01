@@ -41,17 +41,24 @@
 - **[MVP 이후]** 회원가입 응답에 토큰 포함 요청 ([상세](./project_signup_token.md))
 
 ## 디자이너 협업 대기
-- [디자이너 확인 필요 UI 항목](./project_designer_pending.md) — 리액션·블러·팔로우·마이페이지·스크랩·인증완료페이지 등 8개
+- [디자이너 확인 필요 UI 항목](./project_designer_pending.md) — 리액션·블러·팔로우·마이페이지·스크랩·인증완료페이지·데스크탑 헤더 글쓰기 등 9개
 - [디자이너 협업 워크플로우](./project_designer_workflow.md) — 데일리 확정 UI → 구현 → 보고 사이클, 확정 기준 레벨 사전 합의 필요
+- [디자이너 모바일 퍼스트 작업 방식](./project_designer_mobile_first.md) — 모바일 먼저 구현, 데스크탑은 디자인 확정 후
 
 ## 댓글 시스템
 - [유튜브 스타일 댓글 설계 — flat 2레벨, @멘션, parentCommentId 백엔드 논의 필요](./project_comment_system.md)
 
 ## 기능명세
-- [프론트 기능명세 FNC-019~050 (2026-03-31)](./project_feature_spec_frontend.md) — REQ 기반 32개 항목, docs/feature-spec-frontend.csv, 팀 시트 통합 운영
+- [프론트 기능명세 체계 변경 (2026-04-01)](./project_feature_spec_frontend.md) — 도메인별 순차 작성, FNC-001~, `docs/feature-spec/{도메인}.md`
+- 현재 작성 완료: `docs/feature-spec/auth.md` (인증+인증/인가+관리자, FNC-001~009)
+- 기존 명세 `docs/feature-spec-frontend.md`는 다음 도메인 참조용으로 보존
 
 ## 백엔드 스펙
 - [페이지네이션 0-based — 프론트에서 currentPage - 1 변환 필요](./project_pagination_spec.md)
+- [Swagger UI 및 OpenAPI 접근 정보](./reference_swagger_endpoint.md) — EC2 `43.203.40.3:8080`, JSON 저장 명령어
+
+## 정책 변경
+- [치료사 인증 정책 대폭 변경 (2026-04-01)](./project_auth_policy_change.md) — 즉시 THERAPIST + UNDER_REVIEW 사후 검토, 관리자 MVP 격상, Google OAuth 부활
 
 ## API 스펙 불일치
 - [백엔드 openapi JSON vs 프론트 코드 불일치 — 와이어프레임 공유 후 재논의](./project_api_spec_discrepancies.md)
@@ -113,12 +120,14 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - [슬래시 커맨드 요청 시 스크립트 파일 별도 생성 금지](./feedback_no_scripts_for_commands.md)
 - [외부 레포 push 전 사용자 최종 승인 필수](./feedback_push_requires_approval.md)
 - [push-airo 시 .claude/ 등 Claude 파일 누락 방지 — reset --hard 방식만 사용](./feedback_push_airo_claude_files.md)
+- [피그마 스크린샷이 코드 추출보다 효율적](./feedback_figma_screenshot_preferred.md) — to-code 추출은 토큰 낭비, 스크린샷+설명 선호
 
 ## MSW / API
 - [MSW 래퍼 + axios 인터셉터 수정 완료 (2026-03-19)](./project_msw_wrapper.md)
 
 ## UI 개편
 - [피그마 와이어프레임 기반 전체 UI 개편 완료 (2026-03-20)](./project_ui_redesign.md) — Notion 트러블슈팅 #003 미작성
+- [홈 피드 리디자인 완료 (2026-04-01)](./project_home_feed_redesign.md) — 탭+필터칩+리스트형 피드, 검색 모드 isSearchMode 설계 확정
 
 ## 백엔드 이슈
 - [로그인 응답 구조 불일치 — 수정 대기 중](./project_backend_login_response.md)
@@ -153,6 +162,9 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 ## Claude Code 플러그인
 - [superpowers + frontend-design 설치, figma 제거 (2026-03-29)](./project_superpowers_plugin.md) — 디버깅 체계화 및 UI 품질 향상 목적
 - [버그 감지 자동화 hook (2026-03-29)](./project_debug_hook.md) — UserPromptSubmit hook, 키워드 감지 시 systematic-debugging 스킬 자동 알림
+
+## 인프라 계획
+- [Vercel → AWS 이전 예정 + GitHub Actions CI/CD](./project_aws_migration_plan.md) — 시기 미정, 이전 시 YAML 작성 필요
 
 ## 환경 / 도구
 - [VS Code에서 워크트리 파일이 안 보일 때](./reference_worktree_vscode.md)
