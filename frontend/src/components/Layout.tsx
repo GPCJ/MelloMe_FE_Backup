@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Bell, MessageSquare, User } from 'lucide-react';
+import { Bell, Home, MessageSquare, PlusCircle, User } from 'lucide-react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { buttonVariants } from '@/components/ui/button';
 import {
@@ -144,10 +144,17 @@ export default function Layout() {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-3">
         <Link
           to="/posts"
-          className={`flex flex-col items-center gap-1 ${isActive('/posts') ? 'text-gray-900' : 'text-gray-500'}`}
+          className={`flex flex-col items-center gap-1 ${isActive('/posts') && !isActive('/posts/new') ? 'text-gray-900' : 'text-gray-500'}`}
         >
-          <MessageSquare size={24} />
-          <span className="text-xs">커뮤니티</span>
+          <Home size={24} />
+          <span className="text-xs">홈</span>
+        </Link>
+        <Link
+          to="/posts/new"
+          className={`flex flex-col items-center gap-1 ${isActive('/posts/new') ? 'text-gray-900' : 'text-gray-500'}`}
+        >
+          <PlusCircle size={24} />
+          <span className="text-xs">글쓰기</span>
         </Link>
         <Link
           to={user ? '/my-page' : '/login'}
@@ -158,7 +165,7 @@ export default function Layout() {
           }`}
         >
           <User size={24} />
-          <span className="text-xs">{user ? '마이' : '로그인'}</span>
+          <span className="text-xs">{user ? '프로필' : '로그인'}</span>
         </Link>
       </nav>
     </div>
