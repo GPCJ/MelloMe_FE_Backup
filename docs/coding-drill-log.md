@@ -12,6 +12,12 @@
 
 ---
 
+## 04-01
+- 도전: `pages/WelcomePage.tsx`
+- 막힌 곳: (s) => s.user 셀렉터 문법
+- 수준: ★★★
+- 메모: 구현/비교 스킵 (늦은 시간). 구조 자체는 완전히 이해함
+
 ## 03-31
 - 도전: `components/ProtectedRoute.tsx`
 - 막힌 곳: Navigate 컴포넌트의 to, replace props 문법이 어색함
