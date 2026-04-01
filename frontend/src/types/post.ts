@@ -29,9 +29,14 @@ export interface PostSummary {
   title: string;
   contentPreview?: string;
   authorNickname: string;
+  authorProfileImageUrl?: string | null;
+  authorVerificationStatus?: 'NOT_REQUESTED' | 'PENDING' | 'APPROVED' | 'REJECTED';
   therapyArea?: TherapyArea;
   ageGroup?: AgeGroup;
   viewCount: number;
+  commentCount?: number;
+  hasAttachment?: boolean;
+  isBlurred?: boolean;
   createdAt: string;
 }
 
