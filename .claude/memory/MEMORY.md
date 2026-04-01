@@ -125,6 +125,9 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 ## MSW / API
 - [MSW 래퍼 + axios 인터셉터 수정 완료 (2026-03-19)](./project_msw_wrapper.md)
 
+## SSE / 알림
+- [SSE 알림 기능 브레인스토밍 진행 중 (2026-04-01)](./project_sse_notification_brainstorm.md) — 옵션B 유력, 토큰 인증 이슈 미결, 내일 이어서
+
 ## UI 개편
 - [피그마 와이어프레임 기반 전체 UI 개편 완료 (2026-03-20)](./project_ui_redesign.md) — Notion 트러블슈팅 #003 미작성
 - [홈 피드 리디자인 완료 (2026-04-01)](./project_home_feed_redesign.md) — 탭+필터칩+리스트형 피드, 검색 모드 isSearchMode 설계 확정
