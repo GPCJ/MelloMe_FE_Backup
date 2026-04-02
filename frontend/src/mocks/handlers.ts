@@ -280,18 +280,19 @@ const testAccounts: Record<
 
 export const handlers = [
   http.post(`${API}/auth/signup`, async ({ request }) => {
-    const body = (await request.json()) as { email: string; password: string; nickname: string };
+    const body = (await request.json()) as { email: string; password: string; nickname?: string };
     if (testAccounts[body.email]) {
       return HttpResponse.json(
         { code: 'AUTH_409', message: '이미 가입된 이메일입니다.' },
         { status: 409 },
       );
     }
+    const nickname = body.nickname || `치료사${Math.random().toString(36).slice(2, 8)}`;
     testAccounts[body.email] = {
       id: Date.now(),
       role: 'USER',
       canAccessCommunity: false,
-      nickname: body.nickname,
+      nickname,
       therapistVerification: { status: 'NOT_REQUESTED' },
     };
     signedUpEmails.add(body.email);

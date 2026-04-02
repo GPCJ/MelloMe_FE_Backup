@@ -30,7 +30,14 @@ export default function LoginPage() {
     try {
       const { user, tokens } = await login(email, password);
       setAuth(user, tokens);
-      navigate('/');
+      const verStatus = user.therapistVerification?.status;
+      if (user.canAccessCommunity) {
+        navigate('/posts');
+      } else if (verStatus === 'NOT_REQUESTED' || verStatus === 'REJECTED') {
+        navigate('/therapist-verifications');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
     } finally {

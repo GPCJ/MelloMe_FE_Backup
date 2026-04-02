@@ -44,14 +44,25 @@ export default function TherapistVerificationPage() {
     );
   }
 
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+  function validateAndSetFile(file: File) {
+    if (file.size > MAX_FILE_SIZE) {
+      setError('파일 크기는 5MB 이하만 가능합니다.');
+      return;
+    }
+    setError('');
+    setFile(file);
+  }
+
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.files?.[0]) setFile(e.target.files[0]);
+    if (e.target.files?.[0]) validateAndSetFile(e.target.files[0]);
   }
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
     setIsDragging(false);
-    if (e.dataTransfer.files?.[0]) setFile(e.dataTransfer.files[0]);
+    if (e.dataTransfer.files?.[0]) validateAndSetFile(e.dataTransfer.files[0]);
   }
 
   const verificationStatus = user?.therapistVerification?.status;
@@ -147,7 +158,7 @@ export default function TherapistVerificationPage() {
             >
               <input
                 type="file"
-                accept=".jpg,.jpeg,.png,.pdf"
+                accept=".jpg,.jpeg,.png,.webp"
                 className="hidden"
                 onChange={handleFileChange}
               />
@@ -165,7 +176,7 @@ export default function TherapistVerificationPage() {
                     파일을 선택하거나 드래그하세요
                   </span>
                   <span className="text-xs text-gray-400">
-                    JPG, PNG, PDF (최대 10MB)
+                    JPG, PNG, WEBP (최대 5MB)
                   </span>
                 </>
               )}

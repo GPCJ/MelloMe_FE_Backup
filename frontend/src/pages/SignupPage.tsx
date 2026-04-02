@@ -14,7 +14,6 @@ export default function SignupPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [nickname, setNickname] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [agreePrivacy, setAgreePrivacy] = useState(false);
@@ -23,6 +22,10 @@ export default function SignupPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (password.length < 8) {
+      setError('비밀번호는 8자 이상이어야 합니다.');
+      return;
+    }
     if (password !== passwordConfirm) {
       setError('비밀번호가 일치하지 않습니다.');
       return;
@@ -30,12 +33,21 @@ export default function SignupPage() {
     setError('');
     setLoading(true);
     try {
-      await signup(email, password, nickname);
+      await signup(email, password);
       const { user, tokens } = await login(email, password);
       setAuth(user, tokens);
       navigate('/welcome', { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : '회원가입에 실패했습니다.');
+      if (
+        err &&
+        typeof err === 'object' &&
+        'response' in err &&
+        (err as { response?: { status?: number } }).response?.status === 409
+      ) {
+        setError('이미 사용 중인 이메일입니다.');
+      } else {
+        setError(err instanceof Error ? err.message : '회원가입에 실패했습니다.');
+      }
     } finally {
       setLoading(false);
     }
@@ -87,18 +99,6 @@ export default function SignupPage() {
                   required
                 />
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="nickname">닉네임</Label>
-                <Input
-                  id="nickname"
-                  type="text"
-                  value={nickname}
-                  onChange={(e) => setNickname(e.target.value)}
-                  placeholder="닉네임을 입력하세요"
-                  required
-                />
-              </div>
-
               <div className="space-y-3 pt-2">
                 <div className="flex items-center gap-2">
                   <Checkbox

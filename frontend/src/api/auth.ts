@@ -6,8 +6,8 @@ export async function login(email: string, password: string): Promise<AuthRespon
   return data
 }
 
-export async function signup(email: string, password: string, nickname: string): Promise<AuthResponse> {
-  const { data } = await axiosInstance.post('/auth/signup', { email, password, nickname })
+export async function signup(email: string, password: string): Promise<AuthResponse> {
+  const { data } = await axiosInstance.post('/auth/signup', { email, password })
   return data
 }
 
