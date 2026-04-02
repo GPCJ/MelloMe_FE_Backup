@@ -81,7 +81,6 @@ export interface PostCreateRequest {
   content: string;
   postType: string;
   therapyArea: TherapyArea;
-  ageGroup: AgeGroup;
 }
 
 export interface PostUpdateRequest {
