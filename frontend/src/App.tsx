@@ -11,7 +11,8 @@ import PostListPage from './pages/PostListPage';
 import PostDetailPage from './pages/PostDetailPage';
 import PostCreatePage from './pages/PostCreatePage';
 import PostEditPage from './pages/PostEditPage';
-import MyPage from './pages/MyPage';
+import SearchPage from './pages/SearchPage';
+import ProfilePage from './pages/ProfilePage';
 import TherapistVerificationPage from './pages/TherapistVerificationPage';
 import WelcomePage from './pages/WelcomePage';
 import VerificationCompletePage from './pages/VerificationCompletePage';
@@ -36,18 +37,19 @@ function App() {
             <Route path="/verification-complete" element={<VerificationCompletePage />} />
           </Route>
 
-          {/* 로그인만 필요 (인증 불필요) */}
+          {/* 로그인만 필요 (치료사 인증 불필요) */}
           <Route element={<AuthRoute />}>
             <Route path="/therapist-verifications" element={<TherapistVerificationPage />} />
+            <Route path="/posts" element={<PostListPage />} />
+            <Route path="/posts/:postId" element={<PostDetailPage />} />
+            <Route path="/search" element={<SearchPage />} />
           </Route>
 
           {/* 로그인 + 치료사 인증 필요 */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/posts" element={<PostListPage />} />
             <Route path="/posts/new" element={<PostCreatePage />} />
-            <Route path="/posts/:postId" element={<PostDetailPage />} />
             <Route path="/posts/:postId/edit" element={<PostEditPage />} />
-            <Route path="/my-page" element={<MyPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

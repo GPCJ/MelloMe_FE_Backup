@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Bell, Home, MessageSquare, PlusCircle, User } from 'lucide-react';
+import { Bell, Home, PlusCircle, Search, User } from 'lucide-react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { buttonVariants } from '@/components/ui/button';
 import {
@@ -42,19 +42,26 @@ export default function Layout() {
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <Link to="/" className="text-2xl font-bold text-gray-900">
+            {/* 데스크탑 로고 */}
+            <Link to="/" className="hidden md:block text-2xl font-bold text-gray-900">
               멜로미
             </Link>
-            {/* MSW ON/OFF 확인 UI */}
-            {import.meta.env.VITE_MSW_ENABLED === 'true' ? (
-              <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-orange-100 text-orange-600">
-                MSW
-              </span>
-            ) : (
-              <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-green-100 text-green-600">
-                LIVE
-              </span>
-            )}
+            {/* 모바일 타이틀 */}
+            <span className="md:hidden text-lg font-bold text-gray-900">
+              치료사 커뮤니티
+            </span>
+            {/* MSW ON/OFF 확인 UI — 데스크탑만 */}
+            <span className="hidden md:inline-block">
+              {import.meta.env.VITE_MSW_ENABLED === 'true' ? (
+                <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-orange-100 text-orange-600">
+                  MSW
+                </span>
+              ) : (
+                <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-green-100 text-green-600">
+                  LIVE
+                </span>
+              )}
+            </span>
           </div>
 
           {/* Center Nav */}
@@ -67,13 +74,19 @@ export default function Layout() {
                   : 'text-gray-500 hover:text-gray-900'
               }`}
             >
-              <MessageSquare size={16} />
               커뮤니티
             </Link>
           </nav>
 
           {/* Right Side */}
           <div className="flex items-center gap-2">
+            {/* 모바일 검색 아이콘 */}
+            <button
+              onClick={() => navigate('/search')}
+              className="md:hidden p-2 text-gray-500 hover:text-gray-900 rounded-md transition-colors"
+            >
+              <Search size={20} />
+            </button>
             {/* Notification Bell */}
             <DropdownMenu>
               <DropdownMenuTrigger className="relative p-2 text-gray-500 hover:text-gray-900 rounded-md transition-colors">
@@ -118,8 +131,8 @@ export default function Layout() {
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => navigate('/my-page')}>
-                    마이페이지
+                  <DropdownMenuItem onClick={() => navigate('/profile')}>
+                    프로필
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
                     로그아웃
@@ -157,9 +170,9 @@ export default function Layout() {
           <span className="text-xs">글쓰기</span>
         </Link>
         <Link
-          to={user ? '/my-page' : '/login'}
+          to={user ? '/profile' : '/login'}
           className={`flex flex-col items-center gap-1 ${
-            isActive('/my-page') || isActive('/login')
+            isActive('/profile') || isActive('/login')
               ? 'text-gray-900'
               : 'text-gray-500'
           }`}
