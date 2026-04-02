@@ -30,7 +30,7 @@
 - **[백엔드 대기]** 치료사 인증 즉시 승인 로직 미구현 — 신청 시 자동 승인 합의됐으나 미반영
 - **[완료]** 대댓글 구조 확인 + FNC-038 보완 ✅ — 대댓글에 답글 버튼 추가 완료 (2026-03-31, 직접 코딩)
 - **[계획]** [MSW 기반 선구현](./project_msw_preimpl_plan.md) — FNC-022/031/033/034/035/039, 백엔드 연결 전 프론트 완성 전략
-- **[진행 예정]** [피그마 UI 리디자인](./project_figma_ui_redesign_spec.md) — 스펙 확정, 다음 세션에서 구현 계획 작성 후 진행
+- **[완료]** [피그마 UI 리디자인](./project_figma_ui_redesign_spec.md) ✅ — ReactionBar·VerifiedBadge·SimpleTextEditor, SearchPage 신설, ProfilePage 교체, 라우팅 가드 변경, TipTap/MyPage 삭제 (2026-04-02)
 - **[백엔드 대기]** [게시글 title 필드 optional/삭제 요청](./project_post_title_removal.md) — 프론트는 빈 문자열 임시 전송
 - **[완료]** 치료사 인증 API 연결 ✅ — Vercel 배포 후 테스트 성공, 409 에러 메시지 분기 처리 완료 (2026-03-30)
 - **[완료]** 코드 품질 잔여 이슈 ✅ — isAuthor 닉네임 비교 → canEdit/canDelete로 해결 (2026-03-30)
