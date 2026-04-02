@@ -3,13 +3,16 @@ import { useParams, useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import {
   Eye,
-  Heart,
   MessageSquare,
   ArrowLeft,
   MoreVertical,
   Pencil,
   Trash2,
 } from 'lucide-react';
+import ReactionBar from '../components/ReactionBar';
+import VerifiedBadge from '../components/VerifiedBadge';
+import { getReaction } from '../api/posts';
+import type { PostReaction, ReactionType } from '../types/post';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -73,9 +76,8 @@ export default function PostDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
-  const [liking, setLiking] = useState(false);
+  const [reaction, setReaction] = useState<PostReaction | null>(null);
+  const [toggling, setToggling] = useState(false);
 
   const [commentInput, setCommentInput] = useState('');
   const [replyTo, setReplyTo] = useState<{
@@ -91,28 +93,42 @@ export default function PostDetailPage() {
       return;
     }
     const id = Number(postId);
-    Promise.all([fetchPost(id), fetchComments(id)])
-      .then(([postData, commentsData]) => {
+    Promise.all([fetchPost(id), fetchComments(id), getReaction(id)])
+      .then(([postData, commentsData, reactionData]) => {
         setPost(postData);
         setComments(commentsData);
+        setReaction(reactionData);
       })
       .catch(() => setError('게시글을 불러오는 데 실패했습니다.'))
       .finally(() => setLoading(false));
   }, [postId]);
 
-  async function handleToggleLike() {
-    if (!post || liking) return;
-    setLiking(true);
-    const nextLiked = !liked;
-    setLiked(nextLiked);
-    setLikeCount((prev) => prev + (nextLiked ? 1 : -1));
+  async function handleToggleReaction(type: ReactionType) {
+    if (!post || toggling || !reaction) return;
+    setToggling(true);
+
+    const wasActive = reaction.myReactionType === type;
+    const countKey = type === 'EMPATHY' ? 'empathyCount' : type === 'APPRECIATE' ? 'appreciateCount' : 'helpfulCount';
+
+    const prev = { ...reaction };
+    setReaction({
+      ...reaction,
+      myReactionType: wasActive ? null : type,
+      [countKey]: reaction[countKey] + (wasActive ? -1 : 1),
+      ...(reaction.myReactionType && !wasActive && reaction.myReactionType !== type
+        ? {
+            [reaction.myReactionType === 'EMPATHY' ? 'empathyCount' : reaction.myReactionType === 'APPRECIATE' ? 'appreciateCount' : 'helpfulCount']:
+              reaction[reaction.myReactionType === 'EMPATHY' ? 'empathyCount' : reaction.myReactionType === 'APPRECIATE' ? 'appreciateCount' : 'helpfulCount'] - 1,
+          }
+        : {}),
+    });
+
     try {
-      await toggleReaction(post.id, 'EMPATHY');
+      await toggleReaction(post.id, type);
     } catch {
-      setLiked(!nextLiked);
-      setLikeCount((prev) => prev + (nextLiked ? -1 : 1));
+      setReaction(prev);
     } finally {
-      setLiking(false);
+      setToggling(false);
     }
   }
 
@@ -219,6 +235,7 @@ export default function PostDetailPage() {
               <span className="text-sm font-semibold text-gray-900">
                 {post.authorNickname}
               </span>
+              <VerifiedBadge status={post.authorVerificationStatus} />
               {therapyLabel && (
                 <Badge variant="secondary" className="text-xs">
                   {therapyLabel}
@@ -247,19 +264,14 @@ export default function PostDetailPage() {
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
         />
 
-        {/* 좋아요 / 댓글 수 */}
+        {/* 리액션 + 댓글 수 */}
         <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
-          <button
-            onClick={handleToggleLike}
-            disabled={liking}
-            className={`flex items-center gap-1.5 text-sm transition-colors ${
-              liked ? 'text-red-500' : 'text-gray-400 hover:text-red-400'
-            }`}
-          >
-            <Heart size={16} fill={liked ? 'currentColor' : 'none'} />
-            공감 {likeCount}
-          </button>
-          <span className="flex items-center gap-1.5 text-sm text-gray-400">
+          <ReactionBar
+            reaction={reaction}
+            onToggle={handleToggleReaction}
+            disabled={toggling}
+          />
+          <span className="flex items-center gap-1.5 text-sm text-gray-400 ml-auto">
             <MessageSquare size={16} />
             댓글 {comments.length}
           </span>

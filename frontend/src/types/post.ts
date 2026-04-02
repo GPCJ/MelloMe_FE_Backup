@@ -65,6 +65,7 @@ export interface PostDetail {
   canEdit: boolean;
   canDelete: boolean;
   attachments?: Attachment[];
+  authorVerificationStatus?: 'NOT_REQUESTED' | 'PENDING' | 'APPROVED' | 'REJECTED';
 }
 
 export interface PaginatedPosts {
