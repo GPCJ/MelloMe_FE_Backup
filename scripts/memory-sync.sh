@@ -82,6 +82,7 @@ EOF
     mkdir -p "$MEMORY_IN_REPO"
     rsync -a --delete --exclude='.git' "$MEMORY_SRC/" "$MEMORY_IN_REPO/"
     # 원격과 동기화 (충돌 자동 해결)
+    git add .claude/memory
     safe_pull_rebase
     git add .claude/memory
     if git diff --cached --quiet; then
