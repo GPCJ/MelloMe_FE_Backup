@@ -193,5 +193,8 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - [디자이너 UI 선개발 방침](./project_shadcn_design.md) — 컴포넌트는 shadcn 기반, 스타일은 CSS 변수로 분리
 - [shadcn UI 컴포넌트 기본 사용 원칙](./feedback_shadcn_default.md) — UI 작업 시 항상 shadcn 컴포넌트 우선 사용
 
+## 노션 업로드 대기
+- [superpowers 빌더스 리그 초안](./project_superpowers_builders_draft.md) — pull 후 /update-builders로 🤖 AI 협업 페이지에 업로드
+
 ## 월별 회고 (프로젝트 종료 후 돌아보기용)
 - [2026년 3월 — 배포 인프라 구축 & 인증 플로우 재설계](./monthly_summary_2026_03.md)
