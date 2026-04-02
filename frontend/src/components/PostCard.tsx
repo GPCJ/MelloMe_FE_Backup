@@ -70,15 +70,9 @@ export default function PostCard({ post }: PostCardProps) {
           <span className="text-[11px] text-gray-500">
             {formatRelativeTime(post.createdAt)}
           </span>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              // TODO: 스크랩 API 연동
-            }}
-            className="ml-auto text-gray-400 hover:text-gray-600"
-          >
+          <span className="ml-auto text-gray-300">
             <Bookmark size={16} />
-          </button>
+          </span>
         </div>
 
         {/* 2행: 해시태그 */}

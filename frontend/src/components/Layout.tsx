@@ -105,10 +105,8 @@ export default function Layout() {
                     <p className="text-xs text-gray-400 mt-0.5">{a.date}</p>
                   </div>
                 ))}
-                <div className="px-4 py-3 text-center">
-                  <button className="text-sm text-blue-500 font-medium hover:underline">
-                    전체 공지사항 보기
-                  </button>
+                <div className="px-4 py-3 text-center text-sm text-gray-400">
+                  준비 중입니다
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>

@@ -22,11 +22,13 @@ export default function SearchPage() {
   const [results, setResults] = useState<PostSummary[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSearch() {
     if (!query.trim() && !therapyArea) return;
     setLoading(true);
     setSearched(true);
+    setError(null);
     try {
       const data = await fetchPosts({
         ...(therapyArea ? { therapyArea } : {}),
@@ -42,6 +44,7 @@ export default function SearchPage() {
       setResults(filtered);
     } catch {
       setResults([]);
+      setError('검색 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
@@ -54,14 +57,20 @@ export default function SearchPage() {
       setQuery(q);
       setLoading(true);
       setSearched(true);
-      fetchPosts({}).then((data) => {
-        const filtered = data.posts.filter(
-          (p) =>
-            p.contentPreview?.includes(q) ||
-            p.authorNickname.includes(q),
-        );
-        setResults(filtered);
-      }).catch(() => setResults([])).finally(() => setLoading(false));
+      fetchPosts({})
+        .then((data) => {
+          const filtered = data.posts.filter(
+            (p) =>
+              p.contentPreview?.includes(q) ||
+              p.authorNickname.includes(q),
+          );
+          setResults(filtered);
+        })
+        .catch(() => {
+          setResults([]);
+          setError('검색 중 오류가 발생했습니다.');
+        })
+        .finally(() => setLoading(false));
     }
   }, [searchParams]);
 
@@ -127,7 +136,11 @@ export default function SearchPage() {
           <p className="text-center text-gray-400 text-sm py-12">검색 중...</p>
         )}
 
-        {!loading && searched && results?.length === 0 && (
+        {!loading && error && (
+          <p className="text-center text-red-500 text-sm py-12">{error}</p>
+        )}
+
+        {!loading && !error && searched && results?.length === 0 && (
           <p className="text-center text-gray-400 text-sm py-12">
             검색 결과가 없습니다
           </p>

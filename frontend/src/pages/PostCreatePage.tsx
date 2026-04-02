@@ -104,7 +104,7 @@ export default function PostCreatePage() {
             disabled={!canSubmit}
             className="md:hidden w-full py-3 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {submitting ? '등록 중...' : '게시 하기'}
+            {submitting ? '등록 중...' : '게시하기'}
           </button>
 
           {/* 데스크탑: 한 줄 (클립 | 자물쇠 + 게시하기) */}
@@ -126,7 +126,7 @@ export default function PostCreatePage() {
                 disabled={!canSubmit}
                 className="px-6 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {submitting ? '등록 중...' : '게시 하기'}
+                {submitting ? '등록 중...' : '게시하기'}
               </button>
             </div>
           </div>

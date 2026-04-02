@@ -1,11 +1,6 @@
 import axiosInstance from './axiosInstance';
-import type { MyDashboard, MyActivity } from '../types/mypage';
+import type { MyActivity } from '../types/mypage';
 import type { PostSummary } from '../types/post';
-
-export async function fetchMyDashboard(): Promise<MyDashboard> {
-  const res = await axiosInstance.get('/me/dashboard');
-  return res.data;
-}
 
 export async function fetchMyPosts(): Promise<PostSummary[]> {
   const res = await axiosInstance.get('/me/posts');
