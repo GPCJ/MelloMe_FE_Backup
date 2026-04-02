@@ -14,8 +14,8 @@
 
 ## 04-02
 - 도전: `components/ui/button.tsx`
-- 막힌 곳: (드릴 후 기록)
-- 수준: (드릴 후 기록)
+- 막힌 곳: cva() 괄호 누락, export 빠짐
+- 수준: ★★☆
 - 메모: TS 문법 집중 — intersection type, VariantProps<typeof>, 제네릭, type import
 
 ## 04-01
