@@ -30,14 +30,15 @@
 - **[백엔드 대기]** 치료사 인증 즉시 승인 로직 미구현 — 신청 시 자동 승인 합의됐으나 미반영
 - **[완료]** 대댓글 구조 확인 + FNC-038 보완 ✅ — 대댓글에 답글 버튼 추가 완료 (2026-03-31, 직접 코딩)
 - **[계획]** [MSW 기반 선구현](./project_msw_preimpl_plan.md) — FNC-022/031/033/034/035/039, 백엔드 연결 전 프론트 완성 전략
-- **[디자이너 대기]** 좋아요 3종 리액션 UI — 백엔드 구현 완료, 디자인 확정 후 프론트 구현 가능
+- **[진행 예정]** [피그마 UI 리디자인](./project_figma_ui_redesign_spec.md) — 스펙 확정, 다음 세션에서 구현 계획 작성 후 진행
+- **[백엔드 대기]** [게시글 title 필드 optional/삭제 요청](./project_post_title_removal.md) — 프론트는 빈 문자열 임시 전송
 - **[완료]** 치료사 인증 API 연결 ✅ — Vercel 배포 후 테스트 성공, 409 에러 메시지 분기 처리 완료 (2026-03-30)
 - **[완료]** 코드 품질 잔여 이슈 ✅ — isAuthor 닉네임 비교 → canEdit/canDelete로 해결 (2026-03-30)
 - **[MVP — 백엔드 대기]** 팔로우 시스템 — REQ-005/011, 백엔드 설계 논의 필요 (복귀 후 최우선 논의)
 - **[MVP — 백엔드 대기]** 인증 전용 게시글 블러 — REQ-003, postType 또는 별도 필드 필요, 기존 postType:'COMMUNITY' 고정과 충돌 가능
 - **[MVP — 백엔드 대기]** 스크랩/마이페이지 API — REQ-010~012, 요구사항 업데이트로 MVP 편입
 - **[Post-MVP]** 신고/알림/DM/어드민/AI — REQ-015~019
-- **[MVP 이후]** 사용자 데이터 수집 로직 — 공부 선행 필요 ([상세](./project_future_analytics.md))
+- **[MVP 이후]** [유저 행동 데이터 수집 — GA4+Clarity 조합 학습 완료, 도입 시 바로 참고](./project_future_analytics.md)
 - **[MVP 이후]** 회원가입 응답에 토큰 포함 요청 ([상세](./project_signup_token.md))
 
 ## 디자이너 협업 대기
@@ -86,7 +87,7 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - [로그인 상태 유지 체크박스, 비밀번호 찾기 링크 — 동작 안 함](./project_ui_only_features.md)
 
 ## 정책 결정
-- [게시물 열람 권한 — 비로그인 접근 불가, ProtectedRoute 적용](./project_post_visibility.md)
+- [게시물 열람 권한 — 로그인만 필요, 공개 게시물은 미인증도 열람 가능](./project_post_visibility.md)
 - [테스트 데이터 삽입 — 백엔드에 요청, 프론트에서 직접 삽입 안 함](./project_test_data_policy.md)
 - [모바일 앱 확장 ADR (2026-03-26)](./project_mobile_expansion_adr.md) — MVP 웹 우선, RN 제외, PWA/Capacitor 유저테스트 후 결정
 - [Next.js 도입 보류 (2026-03-27)](./project_nextjs_decision.md) — 해결할 문제 없음, 콘텐츠 비로그인 공개 시점에 재검토
@@ -121,6 +122,7 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - [외부 레포 push 전 사용자 최종 승인 필수](./feedback_push_requires_approval.md)
 - [push-airo 시 .claude/ 등 Claude 파일 누락 방지 — reset --hard 방식만 사용](./feedback_push_airo_claude_files.md)
 - [피그마 스크린샷이 코드 추출보다 효율적](./feedback_figma_screenshot_preferred.md) — to-code 추출은 토큰 낭비, 스크린샷+설명 선호
+- [피그마 프레임 일괄 Export 방법](./feedback_figma_export_method.md) — PNG 2x로 내보내기, 전체 스크린샷은 해상도 부족
 
 ## MSW / API
 - [MSW 래퍼 + axios 인터셉터 수정 완료 (2026-03-19)](./project_msw_wrapper.md)
@@ -131,7 +133,8 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 
 ## UI 개편
 - [피그마 와이어프레임 기반 전체 UI 개편 완료 (2026-03-20)](./project_ui_redesign.md) — Notion 트러블슈팅 #003 미작성
-- [홈 피드 리디자인 완료 (2026-04-01)](./project_home_feed_redesign.md) — 탭+필터칩+리스트형 피드, 검색 모드 isSearchMode 설계 확정
+- [홈 피드 리디자인 완료 (2026-04-01)](./project_home_feed_redesign.md) — 탭+필터칩+리스트형 피드, 검색 모드 isSearchMode → 별도 /search 페이지로 변경
+- [TipTap 제거 → textarea 통일](./project_tiptap_removal.md) — 모바일 확장 대비, PC/모바일 포맷 통일
 
 ## 백엔드 이슈
 - [로그인 응답 구조 불일치 — 수정 대기 중](./project_backend_login_response.md)
