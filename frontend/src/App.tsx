@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import GuestRoute from './components/GuestRoute';
@@ -52,6 +52,7 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
 
+          <Route path="/my-page" element={<Navigate to="/profile" replace />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

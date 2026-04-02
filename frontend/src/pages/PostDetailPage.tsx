@@ -12,7 +12,7 @@ import {
 import ReactionBar from '../components/ReactionBar';
 import VerifiedBadge from '../components/VerifiedBadge';
 import { getReaction } from '../api/posts';
-import type { PostReaction, ReactionType } from '../types/post';
+import { useReactionToggle } from '../hooks/useReactionToggle';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -29,7 +29,6 @@ import {
   fetchComments,
   createComment,
   deleteComment,
-  toggleReaction,
 } from '../api/posts';
 import type { PostDetail, CommentResponse } from '../types/post';
 import { THERAPY_AREA_LABELS } from '../constants/post';
@@ -76,8 +75,13 @@ export default function PostDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [reaction, setReaction] = useState<PostReaction | null>(null);
-  const [toggling, setToggling] = useState(false);
+  const { reaction, setReaction, toggling, handleToggle } = useReactionToggle({
+    postId: Number(postId) || 0,
+    empathyCount: 0,
+    appreciateCount: 0,
+    helpfulCount: 0,
+    myReactionType: null,
+  });
 
   const [commentInput, setCommentInput] = useState('');
   const [replyTo, setReplyTo] = useState<{
@@ -102,35 +106,6 @@ export default function PostDetailPage() {
       .catch(() => setError('게시글을 불러오는 데 실패했습니다.'))
       .finally(() => setLoading(false));
   }, [postId]);
-
-  async function handleToggleReaction(type: ReactionType) {
-    if (!post || toggling || !reaction) return;
-    setToggling(true);
-
-    const wasActive = reaction.myReactionType === type;
-    const countKey = type === 'EMPATHY' ? 'empathyCount' : type === 'APPRECIATE' ? 'appreciateCount' : 'helpfulCount';
-
-    const prev = { ...reaction };
-    setReaction({
-      ...reaction,
-      myReactionType: wasActive ? null : type,
-      [countKey]: reaction[countKey] + (wasActive ? -1 : 1),
-      ...(reaction.myReactionType && !wasActive && reaction.myReactionType !== type
-        ? {
-            [reaction.myReactionType === 'EMPATHY' ? 'empathyCount' : reaction.myReactionType === 'APPRECIATE' ? 'appreciateCount' : 'helpfulCount']:
-              reaction[reaction.myReactionType === 'EMPATHY' ? 'empathyCount' : reaction.myReactionType === 'APPRECIATE' ? 'appreciateCount' : 'helpfulCount'] - 1,
-          }
-        : {}),
-    });
-
-    try {
-      await toggleReaction(post.id, type);
-    } catch {
-      setReaction(prev);
-    } finally {
-      setToggling(false);
-    }
-  }
 
   async function handleDeletePost() {
     if (!post || !confirm('게시글을 삭제할까요?')) return;
@@ -254,9 +229,11 @@ export default function PostDetailPage() {
         </div>
 
         {/* 제목 */}
-        <h1 className="text-xl font-bold text-gray-900 mb-4 leading-snug">
-          {post.title}
-        </h1>
+        {post.title && (
+          <h1 className="text-xl font-bold text-gray-900 mb-4 leading-snug">
+            {post.title}
+          </h1>
+        )}
 
         {/* 본문 */}
         <div
@@ -268,7 +245,7 @@ export default function PostDetailPage() {
         <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
           <ReactionBar
             reaction={reaction}
-            onToggle={handleToggleReaction}
+            onToggle={handleToggle}
             disabled={toggling}
           />
           <span className="flex items-center gap-1.5 text-sm text-gray-400 ml-auto">

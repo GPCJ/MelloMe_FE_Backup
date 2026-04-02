@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search } from 'lucide-react';
 import PostCard from '../components/PostCard';
@@ -45,6 +45,10 @@ export default function SearchPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (searched) handleSearch();
+  }, [therapyArea]);
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter') handleSearch();

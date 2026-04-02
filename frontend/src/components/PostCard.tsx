@@ -1,12 +1,11 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Bookmark, MessageCircle, Eye } from 'lucide-react';
-import type { PostSummary, PostReaction, ReactionType } from '../types/post';
+import type { PostSummary } from '../types/post';
 import { THERAPY_AREA_LABELS } from '../constants/post';
 import { formatRelativeTime } from '../utils/formatDate';
 import VerifiedBadge from './VerifiedBadge';
 import ReactionBar from './ReactionBar';
-import { toggleReaction } from '../api/posts';
+import { useReactionToggle } from '../hooks/useReactionToggle';
 
 // 목데이터 — 백엔드 태그 필드 구현 전까지 사용
 const MOCK_HASHTAGS: Record<string, string[]> = {};
@@ -46,46 +45,14 @@ export default function PostCard({ post }: PostCardProps) {
 
   const hashtags = MOCK_HASHTAGS[post.id] ?? (therapyLabel ? [`#${therapyLabel}`] : []);
 
-  // 리액션 로컬 상태 (목데이터 — 백엔드 API 반환값으로 교체 예정)
-  const [reaction, setReaction] = useState<PostReaction>({
+  // TODO: PostSummary API에 리액션 카운트 포함 시 초기값 연결 필요
+  const { reaction, toggling, handleToggle } = useReactionToggle({
     postId: post.id,
     empathyCount: 0,
     appreciateCount: 0,
     helpfulCount: 0,
     myReactionType: null,
   });
-  const [toggling, setToggling] = useState(false);
-
-  async function handleToggle(type: ReactionType) {
-    if (toggling) return;
-    setToggling(true);
-
-    const wasActive = reaction.myReactionType === type;
-    const countKey = type === 'EMPATHY' ? 'empathyCount' : type === 'APPRECIATE' ? 'appreciateCount' : 'helpfulCount';
-
-    // 낙관적 업데이트
-    const prev = { ...reaction };
-    setReaction({
-      ...reaction,
-      myReactionType: wasActive ? null : type,
-      [countKey]: reaction[countKey] + (wasActive ? -1 : 1),
-      // 이전 리액션이 있었고 다른 타입으로 변경 시 이전 카운트 감소
-      ...(reaction.myReactionType && !wasActive && reaction.myReactionType !== type
-        ? {
-            [reaction.myReactionType === 'EMPATHY' ? 'empathyCount' : reaction.myReactionType === 'APPRECIATE' ? 'appreciateCount' : 'helpfulCount']:
-              reaction[reaction.myReactionType === 'EMPATHY' ? 'empathyCount' : reaction.myReactionType === 'APPRECIATE' ? 'appreciateCount' : 'helpfulCount'] - 1,
-          }
-        : {}),
-    });
-
-    try {
-      await toggleReaction(post.id, type);
-    } catch {
-      setReaction(prev);
-    } finally {
-      setToggling(false);
-    }
-  }
 
   return (
     <Link to={`/posts/${post.id}`} className="block">
