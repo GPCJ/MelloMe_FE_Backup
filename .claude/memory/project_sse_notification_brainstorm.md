@@ -1,36 +1,41 @@
 ---
-name: SSE 알림 기능 브레인스토밍 진행 상황
-description: SSE 기반 알림 기능 설계 브레인스토밍 중단 지점 및 미결 사항
+name: SSE 알림 기능 설계 현황
+description: SSE 알림 기능 착수 시 바로 참고할 설계 결정 요약 및 남은 작업 — MVP 범위 밖, 학습 목적으로 선행 설계
 type: project
 ---
 
-## 진행 상황 (2026-04-01, 미완료)
+## 설계 완료 사항 (2026-04-02)
 
-brainstorming 스킬 진행 중 — 설계 문서 작성 전 단계에서 중단.
-내일 이어서 진행 예정.
+### 확정된 아키텍처 (3단계)
 
-**완료된 단계**
-- 프로젝트 컨텍스트 파악 완료
-- 알림 이벤트 범위 확인: A(게시글 댓글), B(대댓글), C(팔로우), D(리액션), E(공지사항) 모두 포함 예정
-- SSE 기본 동작 원리 설명 완료
-- 프론트 아키텍처 3가지 옵션 제안 완료
+1. **실시간 기술**: SSE (서버→클라이언트 단방향, Polling/WebSocket 대비 적합)
+2. **프론트 구조**: 옵션 B — Zustand store에 SSE 연결 + 알림 상태 통합 (`connect()`/`disconnect()` + `notifications`/`unreadCount`)
+3. **토큰 인증**: `@microsoft/fetch-event-source` 라이브러리 — Authorization 헤더로 Access Token 전달 (EventSource는 헤더 미지원이라 우회)
 
-**확정된 방향**
-- SSE 연결은 로그인 중 앱 전체에서 항상 유지
-- 아키텍처 옵션 B (Zustand store 안에 SSE 연결 통합) 유력 — 최종 확정 필요
+상세 트레이드오프 비교: [project_sse_architecture_decision.md](./project_sse_architecture_decision.md) 참고
 
-**3가지 아키텍처 옵션 요약**
-- **옵션 A**: useSSE 커스텀 훅 + Zustand store 분리 (훅-store 연결 번거로움)
-- **옵션 B**: Zustand store 안에 SSE 연결 통합 — connect()/disconnect() 메서드 (추천)
-- **옵션 C**: NotificationService 싱글톤 클래스 + Zustand (오버엔지니어링)
+### 알림 이벤트 범위
+A(게시글 댓글), B(대댓글), C(팔로우), D(리액션), E(공지사항)
 
-**내일 이어서 집중할 사항**
-1. 아키텍처 옵션 B 최종 확정 및 상세 설계
-2. 토큰 인증 문제 — EventSource는 Authorization 헤더 미지원
-   - 멜로미: Access Token 헤더 방식 → 백엔드에 확인 필요
-   - 옵션: 쿼리 파라미터로 토큰 전달 vs httpOnly 쿠키 활용
-3. 백엔드에 확인할 사항 목록 작성 (SSE 엔드포인트 경로, 이벤트 타입 형식, 인증 방식)
-4. UI는 디자이너 확정 후 → 지금은 타입/hook/store 구조만 설계
+---
 
-**Why:** 백엔드가 알림 기능 구현 중이고 프론트에 준비 요청. 곧 연동 필요.
-**How to apply:** 내일 대화 시작 시 이 메모리 참고해서 바로 이어서 진행.
+## 착수 시 해야 할 일
+
+### 1. 백엔드 확인 (먼저)
+- SSE 엔드포인트 경로
+- Authorization 헤더 인증 가능 여부
+- 이벤트 타입/데이터 JSON 형식
+- 기존 알림 목록 조회 API 유무
+- 읽음 처리 API 유무
+
+### 2. 프론트 구현 (백엔드 확인 후)
+- `@microsoft/fetch-event-source` 설치
+- `useNotificationStore.ts` 작성 (connect/disconnect + 알림 상태)
+- 알림 관련 TypeScript 타입 정의
+- 로그인 시 connect, 로그아웃 시 disconnect 연결
+- UI는 디자이너 확정 후
+
+---
+
+**Why:** Post-MVP 기능이지만 백엔드가 구현 중이라 프론트 설계를 선행. 학습 목적 겸용.
+**How to apply:** 실제 구현 착수 시 이 파일 + architecture_decision 파일 읽고 바로 시작.

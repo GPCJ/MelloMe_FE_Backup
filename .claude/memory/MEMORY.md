@@ -127,6 +127,7 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 
 ## SSE / 알림
 - [SSE 알림 기능 브레인스토밍 진행 중 (2026-04-01)](./project_sse_notification_brainstorm.md) — 옵션B 유력, 토큰 인증 이슈 미결, 내일 이어서
+- [SSE 아키텍처 결정 — 옵션B 확정 (2026-04-02)](./project_sse_architecture_decision.md) — 3옵션 비교 근거, 빌더스 리그 🏗설계 결정 소재
 
 ## UI 개편
 - [피그마 와이어프레임 기반 전체 UI 개편 완료 (2026-03-20)](./project_ui_redesign.md) — Notion 트러블슈팅 #003 미작성
