@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Search } from 'lucide-react';
 import PostCard from '../components/PostCard';
 import { fetchPosts } from '../api/posts';
@@ -15,6 +15,7 @@ const FILTER_CHIPS: { value: TherapyArea | ''; label: string }[] = [
 
 export default function SearchPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [query, setQuery] = useState('');
   const [therapyArea, setTherapyArea] = useState<TherapyArea | ''>('');
@@ -45,6 +46,24 @@ export default function SearchPage() {
       setLoading(false);
     }
   }
+
+  // URL ?q= 파라미터로 진입 시 자동 검색
+  useEffect(() => {
+    const q = searchParams.get('q');
+    if (q) {
+      setQuery(q);
+      setLoading(true);
+      setSearched(true);
+      fetchPosts({}).then((data) => {
+        const filtered = data.posts.filter(
+          (p) =>
+            p.contentPreview?.includes(q) ||
+            p.authorNickname.includes(q),
+        );
+        setResults(filtered);
+      }).catch(() => setResults([])).finally(() => setLoading(false));
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (searched) handleSearch();
