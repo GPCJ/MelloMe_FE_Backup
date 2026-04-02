@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Bell, Home, PenSquare, PlusCircle, Search, User } from 'lucide-react';
+import { Bell, Home, PlusCircle, Search, User } from 'lucide-react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { buttonVariants } from '@/components/ui/button';
 import {
@@ -21,8 +20,6 @@ export default function Layout() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
-  const [headerQuery, setHeaderQuery] = useState('');
-
   function handleLogout() {
     clearAuth();
     navigate('/login');
@@ -82,33 +79,6 @@ export default function Layout() {
 
           {/* Right Side */}
           <div className="flex items-center gap-2">
-            {/* 데스크탑 검색바 */}
-            <div className="hidden md:flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-1.5">
-              <Search size={16} className="text-gray-400 shrink-0" />
-              <input
-                type="text"
-                value={headerQuery}
-                onChange={(e) => setHeaderQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && headerQuery.trim()) {
-                    navigate(`/search?q=${encodeURIComponent(headerQuery.trim())}`);
-                    setHeaderQuery('');
-                  }
-                }}
-                placeholder="검색"
-                className="bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none w-40"
-              />
-            </div>
-
-            {/* 데스크탑 글쓰기 버튼 */}
-            <button
-              onClick={() => navigate('/posts/new')}
-              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              <PenSquare size={16} />
-              글쓰기
-            </button>
-
             {/* 모바일 검색 아이콘 */}
             <button
               onClick={() => navigate('/search')}

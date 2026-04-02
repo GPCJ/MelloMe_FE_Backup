@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Paperclip } from 'lucide-react';
+import { ArrowLeft, Image, Lock, LockOpen, Paperclip } from 'lucide-react';
 import SimpleTextEditor from '../components/SimpleTextEditor';
 import { createPost } from '../api/posts';
 import type { TherapyArea } from '../types/post';
@@ -11,6 +11,7 @@ export default function PostCreatePage() {
 
   const [content, setContent] = useState('');
   const [therapyArea, setTherapyArea] = useState<TherapyArea>('UNSPECIFIED');
+  const [isPublic, setIsPublic] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,22 +77,59 @@ export default function PostCreatePage() {
 
         {error && <p className="text-sm text-red-500">{error}</p>}
 
-        {/* 하단: 첨부 아이콘 + 게시 버튼 */}
-        <div className="flex items-center justify-between pt-2 border-t border-gray-200">
-          <button
-            type="button"
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <Paperclip size={20} />
-          </button>
+        {/* 하단 액션 */}
+        <div className="pt-2 border-t border-gray-200 flex flex-col gap-3">
+          {/* 모바일: 아이콘 행 */}
+          <div className="flex items-center md:hidden">
+            <button type="button" className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+              <Image size={20} />
+            </button>
+            <button type="button" className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+              <Paperclip size={20} />
+            </button>
+            <div className="flex-1" />
+            <button
+              type="button"
+              onClick={() => setIsPublic((v) => !v)}
+              className={`p-2 transition-colors ${isPublic ? 'text-gray-400 hover:text-gray-600' : 'text-gray-900'}`}
+            >
+              {isPublic ? <LockOpen size={20} /> : <Lock size={20} />}
+            </button>
+          </div>
+
+          {/* 모바일: 풀너비 게시하기 */}
           <button
             type="button"
             onClick={handleSubmit}
             disabled={!canSubmit}
-            className="px-6 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="md:hidden w-full py-3 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {submitting ? '등록 중...' : '게시 하기'}
           </button>
+
+          {/* 데스크탑: 한 줄 (클립 | 자물쇠 + 게시하기) */}
+          <div className="hidden md:flex items-center justify-between">
+            <button type="button" className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+              <Paperclip size={20} />
+            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsPublic((v) => !v)}
+                className={`p-2 transition-colors ${isPublic ? 'text-gray-400 hover:text-gray-600' : 'text-gray-900'}`}
+              >
+                {isPublic ? <LockOpen size={20} /> : <Lock size={20} />}
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={!canSubmit}
+                className="px-6 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {submitting ? '등록 중...' : '게시 하기'}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
