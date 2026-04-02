@@ -135,6 +135,8 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - [피그마 와이어프레임 기반 전체 UI 개편 완료 (2026-03-20)](./project_ui_redesign.md) — Notion 트러블슈팅 #003 미작성
 - [홈 피드 리디자인 완료 (2026-04-01)](./project_home_feed_redesign.md) — 탭+필터칩+리스트형 피드, 검색 모드 isSearchMode → 별도 /search 페이지로 변경
 - [TipTap 제거 → textarea 통일](./project_tiptap_removal.md) — 모바일 확장 대비, PC/모바일 포맷 통일
+- [헤더 검색/글쓰기 버튼 PostListPage로 이동 (2026-04-02)](./project_header_refactor.md) — 데스크탑 전용, 모바일 헤더 유지
+- [게시글 공개/비공개 UI 선반영 (2026-04-02)](./project_post_visibility_ui.md) — isPublic 토글 UI만, API 미연동
 
 ## 백엔드 이슈
 - [로그인 응답 구조 불일치 — 수정 대기 중](./project_backend_login_response.md)
