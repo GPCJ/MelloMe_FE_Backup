@@ -34,6 +34,9 @@
 - **[백엔드 대기]** [게시글 title 필드 optional/삭제 요청](./project_post_title_removal.md) — 프론트는 빈 문자열 임시 전송
 - **[완료]** 치료사 인증 API 연결 ✅ — Vercel 배포 후 테스트 성공, 409 에러 메시지 분기 처리 완료 (2026-03-30)
 - **[완료]** 코드 품질 잔여 이슈 ✅ — isAuthor 닉네임 비교 → canEdit/canDelete로 해결 (2026-03-30)
+- **[완료]** [리디자인 디테일 수정 + 인증 FNC 보강 (2026-04-02)](./project_code_detail_fixes.md) ✅
+- **[완료]** [회원가입 닉네임 제거 — 랜덤 부여 방식 전환 (2026-04-02)](./project_signup_nickname_change.md) ✅
+- **[백엔드 공유 예정]** [백엔드 API 요청 우선순위 P0/P1/P2 (2026-04-02)](./project_backend_priority_list.md)
 - **[MVP — 백엔드 대기]** 팔로우 시스템 — REQ-005/011, 백엔드 설계 논의 필요 (복귀 후 최우선 논의)
 - **[MVP — 백엔드 대기]** 인증 전용 게시글 블러 — REQ-003, postType 또는 별도 필드 필요, 기존 postType:'COMMUNITY' 고정과 충돌 가능
 - **[MVP — 백엔드 대기]** 스크랩/마이페이지 API — REQ-010~012, 요구사항 업데이트로 MVP 편입
@@ -51,7 +54,8 @@
 
 ## 기능명세
 - [프론트 기능명세 체계 변경 (2026-04-01)](./project_feature_spec_frontend.md) — 도메인별 순차 작성, FNC-001~, `docs/feature-spec/{도메인}.md`
-- 현재 작성 완료: `docs/feature-spec/auth.md` (인증+인증/인가+관리자, FNC-001~009)
+- 현재 작성 완료: `docs/feature-spec/auth.md` (인증+인증/인가, FNC-001~007)
+- [FNC-008/009 삭제, FNC-004 P2 하향 (2026-04-02)](./project_feature_spec_auth_update.md) — 관리자 페이지 불필요, 백엔드 직접 승인
 - 기존 명세 `docs/feature-spec-frontend.md`는 다음 도메인 참조용으로 보존
 
 ## 백엔드 스펙

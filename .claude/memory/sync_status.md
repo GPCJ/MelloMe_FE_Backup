@@ -6,7 +6,7 @@ type: project
 
 ## 마지막 동기화
 
-- **시간**: 2026-04-02 19:06 KST
+- **시간**: 2026-04-02 20:10 KST
 - **환경**: WSL2 (윈도우)
 - **레포**: https://github.com/GPCJ/MelloMe_FE_Backup
 
