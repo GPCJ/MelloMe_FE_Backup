@@ -81,15 +81,14 @@ EOF
     # 로컬 메모리 → 레포 내 메모리 폴더로 복사
     mkdir -p "$MEMORY_IN_REPO"
     rsync -a --delete --exclude='.git' "$MEMORY_SRC/" "$MEMORY_IN_REPO/"
-    # 원격과 동기화 (충돌 자동 해결)
-    git add .claude/memory
-    safe_pull_rebase
+    # 메모리 변경사항 커밋 후 원격과 동기화
     git add .claude/memory
     if git diff --cached --quiet; then
       echo "ℹ️  메모리 변경 사항 없음."
     else
-      git commit -m "chore: claude memory sync $(date '+%Y-%m-%d %H:%M')"
+      git commit -m "chore: sync_status 업데이트"
     fi
+    safe_pull_rebase
     git push origin main
     echo "✅ push 완료."
     ;;
