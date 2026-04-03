@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { isAxiosError } from 'axios';
 import { Plus, ChevronLeft, ChevronRight, PenSquare, Search } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -76,7 +77,13 @@ export default function PostListPage() {
       page: currentPage - 1,
     })
       .then(setData)
-      .catch(() => setError('게시글을 불러오는 데 실패했습니다.'))
+      .catch((err) => {
+        if (isAxiosError(err) && err.response?.status === 403) {
+          navigate('/therapist-verifications', { replace: true });
+          return;
+        }
+        setError('게시글을 불러오는 데 실패했습니다.');
+      })
       .finally(() => setLoading(false));
   }, [therapyArea, currentPage, activeTab]);
 
