@@ -55,15 +55,19 @@ export default function LandingPage() {
               </span>
             )}
           </div>
+
+          {/* Center Nav */}
+          <nav className="flex items-center">
+            <Link
+              to="/posts"
+              className="text-sm font-medium px-3 py-2 rounded-md text-gray-500 hover:text-gray-900 transition-colors"
+            >
+              ���뮤니티
+            </Link>
+          </nav>
+
           <div className="flex items-center gap-3">
-            {isVerified ? (
-              <Link
-                to="/posts"
-                className="px-4 py-1.5 text-sm font-medium text-white bg-gray-900 rounded-lg"
-              >
-                커뮤니티
-              </Link>
-            ) : isNotRequested ? (
+            {isNotRequested ? (
               <Link
                 to="/therapist-verifications"
                 className="px-4 py-1.5 text-sm font-medium text-white bg-gray-800 rounded-lg"

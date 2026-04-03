@@ -79,7 +79,8 @@ export default function PostListPage() {
       .then(setData)
       .catch((err) => {
         if (isAxiosError(err) && err.response?.status === 403) {
-          navigate('/therapist-verifications', { replace: true });
+          setData({ posts: [], page: 0, size: 0, totalPages: 0, totalElements: 0, hasNext: false });
+          setError('공개 게시물이 없습니다.');
           return;
         }
         setError('게시글을 불러오는 데 실패했습니다.');
@@ -176,7 +177,7 @@ export default function PostListPage() {
       {activeTab === 'all' ? (
         <div className="bg-white">
           {error && (
-            <p className="text-center text-destructive py-12">{error}</p>
+            <p className={`text-center py-12 ${error === '공개 게시물이 없습니다.' ? 'text-gray-400' : 'text-destructive'}`}>{error}</p>
           )}
 
           {loading
