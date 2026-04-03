@@ -91,6 +91,9 @@
 - [shadcn/ui 기본 사용 원칙](./feedback_shadcn_default.md) — CSS 변수 기반 스타일링
 - [Notion 운영 방침](./project_notion_page_policy.md) — PM 주요 독자
 
+## 노션 초안 (다른 기기에서 업로드 대기)
+- [노션 업로드 대기 초안](./notion_draft.md) — `/draft-notion`으로 생성, `/pull-mello` 후 확인
+
 ## 공유 문서
 - [팀 요구사항 Google Sheets](./reference_requirements_doc.md) — REQ-001~012 MVP
 - [Notion 진행 상황](./reference_notion_progress.md) / [트러블슈팅](./reference_notion_troubleshooting.md)
