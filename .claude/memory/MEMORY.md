@@ -191,6 +191,7 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 
 ## 기술부채 / 보류
 - [보류된 리팩토링 항목](./project_pending_refactor.md) — refresh plain axios 교체 등 나중에 처리할 항목
+- [403→공개게시물없음 표시 한계](./project_403_public_post_tradeoff.md) — 공개/비공개 API 지원 시 PostListPage 분기 교체 필요
 
 ## 학습
 - [프론트엔드 코드 학습 전체 완료](./project_code_learning.md)
