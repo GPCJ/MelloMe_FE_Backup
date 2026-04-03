@@ -28,7 +28,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     if (tokens) {
-      getMe().then((freshUser) => setAuth(freshUser, tokens));
+      getMe().then((freshUser) => setAuth(freshUser, null, tokens));
     }
   }, []);
   const verificationStatus = user?.therapistVerification?.status ?? null;
