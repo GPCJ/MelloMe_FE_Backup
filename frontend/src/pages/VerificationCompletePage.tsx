@@ -10,7 +10,7 @@ export default function VerificationCompletePage() {
 
   useEffect(() => {
     getMe().then((freshUser) => {
-      if (tokens) setAuth(freshUser, tokens);
+      if (tokens) setAuth(freshUser, null, tokens);
     });
   }, []);
 

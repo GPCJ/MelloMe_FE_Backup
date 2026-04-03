@@ -34,7 +34,7 @@ export default function TherapistVerificationPage() {
 
   useEffect(() => {
     getMe().then((freshUser) => {
-      if (tokens) setAuth(freshUser, tokens);
+      if (tokens) setAuth(freshUser, null, tokens);
     });
   }, []);
 
@@ -85,7 +85,7 @@ export default function TherapistVerificationPage() {
     try {
       await applyTherapistVerification(licenseCode, file!);
       const freshUser = await getMe();
-      if (tokens) setAuth(freshUser, tokens);
+      if (tokens) setAuth(freshUser, null, tokens);
       navigate('/verification-complete');
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response
