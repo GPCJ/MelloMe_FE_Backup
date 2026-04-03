@@ -100,7 +100,7 @@
 
 ## 공유 문서
 - [팀 요구사항 Google Sheets](./reference_requirements_doc.md) — REQ-001~012 MVP
-- [Notion 진행 상황](./reference_notion_progress.md) / [트러블슈팅](./reference_notion_troubleshooting.md)
+- ~~Notion 진행 상황~~ [실효성 없음](./project_notion_progress_deprecated.md) / [트러블슈팅](./reference_notion_troubleshooting.md)
 - [Notion TIL](./reference_notion_til.md) — 자동 실행 18:30 KST / [빌더스 리그](./reference_notion_builders_league.md)
 
 ## 로컬 개발 환경
