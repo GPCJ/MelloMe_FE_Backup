@@ -38,6 +38,17 @@ export default function LandingPage() {
       verificationStatus === 'REJECTED' ||
       verificationStatus === 'PENDING');
 
+  const mswEnabled = import.meta.env.VITE_MSW_ENABLED === 'true';
+  const mswBadge = mswEnabled
+    ? { text: 'MSW', color: 'bg-orange-100 text-orange-600' }
+    : { text: 'LIVE', color: 'bg-green-100 text-green-600' };
+
+  const heroCta = isVerified
+    ? { to: '/posts', label: '커뮤니티 바로가기 →' }
+    : isNotRequested
+      ? { to: '/therapist-verifications', label: '치료사 인증하기 →' }
+      : { to: '/login', label: '시작하기 →' };
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Navbar */}
@@ -45,15 +56,9 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-6 h-14 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <h1 className="text-3xl font-bold text-gray-900">멜로미</h1>
-            {import.meta.env.VITE_MSW_ENABLED === 'true' ? (
-              <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-orange-100 text-orange-600">
-                MSW
-              </span>
-            ) : (
-              <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-green-100 text-green-600">
-                LIVE
-              </span>
-            )}
+            <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${mswBadge.color}`}>
+              {mswBadge.text}
+            </span>
           </div>
 
           {/* Center Nav */}
@@ -149,28 +154,12 @@ export default function LandingPage() {
           <p className="text-lg text-gray-500 mb-8">
             익명으로 케이스를 나누고, 동료들과 함께 성장하세요.
           </p>
-          {isVerified ? (
-            <Link
-              to="/posts"
-              className="inline-block px-6 py-2.5 text-white bg-gray-900 rounded-lg font-medium hover:bg-gray-800"
-            >
-              커뮤니티 바로가기 →
-            </Link>
-          ) : isNotRequested ? (
-            <Link
-              to="/therapist-verifications"
-              className="inline-block px-6 py-2.5 text-white bg-gray-800 rounded-lg font-medium hover:bg-gray-700"
-            >
-              치료사 인증하기 →
-            </Link>
-          ) : (
-            <Link
-              to="/login"
-              className="inline-block px-6 py-2.5 text-white bg-gray-900 rounded-lg font-medium hover:bg-gray-800"
-            >
-              시작하기 →
-            </Link>
-          )}
+          <Link
+            to={heroCta.to}
+            className="inline-block px-6 py-2.5 text-white bg-gray-900 rounded-lg font-medium hover:bg-gray-800"
+          >
+            {heroCta.label}
+          </Link>
         </div>
       </section>
 

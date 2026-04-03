@@ -12,6 +12,12 @@
 
 ---
 
+## 04-03
+- 도전: `pages/LandingPage.tsx`
+- 막힌 곳: 원본 보면서 작성. 정적 텍스트/className 세부 기억 약함
+- 수준: ★★☆
+- 메모: JSX 내 expression 제약 학습, 반복 삼항 → 변수 추출 리팩토링 적용
+
 ## 04-02
 - 도전: `components/ui/button.tsx`
 - 막힌 곳: cva() 괄호 누락, export 빠짐
