@@ -29,7 +29,7 @@
 - **[백엔드 대기]** `GET /posts` therapyArea 필터 파라미터 추가 요청 — `GET /posts?therapyArea=` 옵셔널 파라미터로 추가 요청 방식 확정 (2026-03-31)
 - **[백엔드 대기]** 치료사 인증 즉시 승인 로직 미구현 — 신청 시 자동 승인 합의됐으나 미반영
 - **[완료]** 대댓글 구조 확인 + FNC-038 보완 ✅ — 대댓글에 답글 버튼 추가 완료 (2026-03-31, 직접 코딩)
-- **[계획]** [MSW 기반 선구현](./project_msw_preimpl_plan.md) — FNC-022/031/033/034/035/039, 백엔드 연결 전 프론트 완성 전략
+- **[보류]** [MSW 기반 선구현 보류](./project_msw_preimpl_hold.md) — 배포환경에서 못 보여줌 + 리팩토링 부담, 백엔드 API 직접 연동 방식으로 전환
 - **[완료]** [피그마 UI 리디자인](./project_figma_ui_redesign_spec.md) ✅ — ReactionBar·VerifiedBadge·SimpleTextEditor, SearchPage 신설, ProfilePage 교체, 라우팅 가드 변경, TipTap/MyPage 삭제 (2026-04-02)
 - **[백엔드 대기]** [게시글 title 필드 optional/삭제 요청](./project_post_title_removal.md) — 프론트는 빈 문자열 임시 전송
 - **[완료]** 치료사 인증 API 연결 ✅ — Vercel 배포 후 테스트 성공, 409 에러 메시지 분기 처리 완료 (2026-03-30)
@@ -37,6 +37,9 @@
 - **[완료]** [리디자인 디테일 수정 + 인증 FNC 보강 (2026-04-02)](./project_code_detail_fixes.md) ✅
 - **[완료]** [회원가입 닉네임 제거 — 랜덤 부여 방식 전환 (2026-04-02)](./project_signup_nickname_change.md) ✅
 - **[백엔드 공유 예정]** [백엔드 API 요청 우선순위 P0/P1/P2 (2026-04-02)](./project_backend_priority_list.md)
+- **[완료]** [QA 개선 3건 + 추가 수정 (2026-04-03)](./project_qa_improvements_0403.md) ✅ — 랜딩 헤더 프로필, 403 안내, 프로필 접근, 커뮤니티 링크, 임시 닉네임
+- **[백엔드 대기]** [임시 닉네임 코드 제거 대기](./project_signup_nickname_temp.md) — api/auth.ts, 백엔드 nickname 필드 제거 시 삭제
+- **[백엔드 대기]** [로컬 CORS 허용 요청](./project_cors_local_suggestion.md) — localhost:5173 허용 요청 검토 중
 - **[MVP — 백엔드 대기]** 팔로우 시스템 — REQ-005/011, 백엔드 설계 논의 필요 (복귀 후 최우선 논의)
 - **[MVP — 백엔드 대기]** 인증 전용 게시글 블러 — REQ-003, postType 또는 별도 필드 필요, 기존 postType:'COMMUNITY' 고정과 충돌 가능
 - **[MVP — 백엔드 대기]** 스크랩/마이페이지 API — REQ-010~012, 요구사항 업데이트로 MVP 편입
@@ -56,7 +59,11 @@
 - [프론트 기능명세 체계 변경 (2026-04-01)](./project_feature_spec_frontend.md) — 도메인별 순차 작성, FNC-001~, `docs/feature-spec/{도메인}.md`
 - 현재 작성 완료: `docs/feature-spec/auth.md` (인증+인증/인가, FNC-001~007)
 - [FNC-008/009 삭제, FNC-004 P2 하향 (2026-04-02)](./project_feature_spec_auth_update.md) — 관리자 페이지 불필요, 백엔드 직접 승인
+- [인증 도메인 명세 점검 완료 (2026-04-03)](./project_auth_spec_review_0403.md) — 프론트 단독 작업 없음, 다음 도메인: 게시글/피드
 - 기존 명세 `docs/feature-spec-frontend.md`는 다음 도메인 참조용으로 보존
+
+## OpenAPI 명세 대기
+- [OpenAPI 업데이트 수령 대기 (2026-04-03)](./project_openapi_update_pending.md) — 수령 후 6개 항목 비교 검토, 누락분만 백엔드 공유
 
 ## 백엔드 스펙
 - [페이지네이션 0-based — 프론트에서 currentPage - 1 변환 필요](./project_pagination_spec.md)
@@ -64,6 +71,9 @@
 
 ## 정책 변경
 - [치료사 인증 정책 대폭 변경 (2026-04-01)](./project_auth_policy_change.md) — 즉시 THERAPIST + UNDER_REVIEW 사후 검토, 관리자 MVP 격상, Google OAuth 부활
+
+## 주간회의 안건
+- [로그인 상태 유지 rememberMe 정책 (04-07~08)](./project_weekly_meeting_agenda.md) — RT 만료 분기 여부 PM/백엔드 논의
 
 ## API 스펙 불일치
 - [백엔드 openapi JSON vs 프론트 코드 불일치 — 와이어프레임 공유 후 재논의](./project_api_spec_discrepancies.md)
@@ -127,6 +137,7 @@ CORS 완료 ✅, Vercel 재배포 + 로그인 테스트 통과 ✅, OAuthCallbac
 - [push-airo 시 .claude/ 등 Claude 파일 누락 방지 — reset --hard 방식만 사용](./feedback_push_airo_claude_files.md)
 - [피그마 스크린샷이 코드 추출보다 효율적](./feedback_figma_screenshot_preferred.md) — to-code 추출은 토큰 낭비, 스크린샷+설명 선호
 - [피그마 프레임 일괄 Export 방법](./feedback_figma_export_method.md) — PNG 2x로 내보내기, 전체 스크린샷은 해상도 부족
+- [git 커밋 전 diff --stat 확인 필수](./feedback_git_diff_stat_check.md) — ui 폴더 삭제 사고 교훈
 
 ## MSW / API
 - [MSW 래퍼 + axios 인터셉터 수정 완료 (2026-03-19)](./project_msw_wrapper.md)

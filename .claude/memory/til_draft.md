@@ -1,28 +1,39 @@
 # TIL
 
-## 2026-04-03 — QA 기반 UI/UX 개선 및 라우팅 가드 조정
+## 2026-04-03 — React 라우트 가드와 상태 업데이트 경쟁 조건 디버깅
 
-**분류**: React
+**분류**: React / TypeScript
 
 ### 오늘 한 것
-- 피그마 리디자인 후 데스크탑 LIVE 환경 QA 3건 개선
-- 랜딩페이지 헤더에 알림 벨 + 프로필 드롭다운 추가
-- 랜딩페이지 헤더 중앙에 커뮤니티 링크 상시 노출
-- 미인증 유저 `/posts` 403 → "공개 게시물이 없습니다" 안내 메시지 표시
-- `/profile` 라우트를 ProtectedRoute → AuthRoute로 변경
-- 회원가입 API 임시 랜덤 닉네임 자동 생성
-- shadcn/ui 컴포넌트 파일 복원
+- 배포 환경에서 회원가입 후 환영 페이지(`/welcome`)가 표시되지 않는 버그 원인 분석
+- 근본 원인 특정: `setAuth()` 호출 시 GuestRoute가 즉시 재렌더링되어 `navigate('/welcome')` 전에 `/`로 리다이렉트
+- 해결책으로 `isNewUser` 플래그를 Zustand store에 추가하여 GuestRoute에서 분기 처리
+- 백엔드 `isNewUser` 하드코딩(`false`) 문제 발견 → 백엔드에 수정 요청
 
 ### 배운 것 / 인사이트
-- git 커밋 시 특정 파일 삭제가 같은 폴더의 다른 파일까지 삭제할 수 있음 — `git diff --stat` 확인 습관 필요
-- 403 에러를 일괄 리다이렉트하기보다, 서비스 정책에 맞는 UX(빈 상태 안내)로 처리하는 것이 더 나을 수 있음
+- **Zustand + React Router 경쟁 조건**: `setAuth()`로 외부 store를 업데이트하면, 해당 store를 구독하는 라우트 가드(GuestRoute)가 같은 렌더링 사이클에서 재평가됨. 다음 줄의 `navigate()`가 실행되기 전에 가드의 `<Navigate>` 컴포넌트가 먼저 리다이렉트를 수행할 수 있음
+- **프론트 버그라고 생각했지만 백엔드도 관련**: 프론트 수정을 완료했는데도 동작 안 해서 추적했더니, 백엔드 `login()` 메서드에서 `isNewUser`가 항상 `false`로 하드코딩되어 있었음. **증상이 프론트에서 보여도 원인은 백엔드일 수 있다**
+- **Swagger로 실제 응답 확인하는 습관**: 프론트 코드의 타입 정의와 실제 백엔드 응답이 일치하는지 Swagger에서 직접 확인하는 것이 디버깅 시간을 크게 줄여줌
 
 ### 포트폴리오 어필 포인트
-- QA → 개선 도출 → 구현 → 배포 → 재검증 사이클을 직접 수행
+- React Router 가드 컴포넌트와 Zustand 외부 store 간의 렌더링 경쟁 조건을 체계적으로 분석하고 해결한 경험
+- 프론트엔드 버그 추적 과정에서 백엔드 코드까지 읽어 근본 원인을 특정한 풀스택 디버깅 역량
 
 ---
 
 # 빌더스 리그
 
 ## 🛠 트러블슈팅
-- shadcn/ui 폴더 전체 삭제 사고: `연습.tsx` 삭제 커밋에서 ui 폴더 전체가 함께 삭제됨 → `git ls-tree`로 이전 커밋 파일 목록 확인 → `git checkout <hash> -- <path>`로 복원
+
+**문제**: 배포 환경에서 회원가입 완료 후 환영 페이지 대신 랜딩 페이지(`/`)로 이동
+
+**원인 분석 (2단계)**:
+1. **프론트**: SignupPage에서 `setAuth()` → GuestRoute 재렌더링 → `user` 존재 + `canAccessCommunity: false` → `<Navigate to="/" />` 실행 → `navigate('/welcome')`보다 먼저 리다이렉트
+2. **백엔드**: 해결책으로 `isNewUser` 플래그 도입했으나, `AuthService.login()`에서 `LoginResponse.of(false, ...)` 하드코딩 → 프론트에 항상 `false` 전달
+
+**해결**: 
+- Zustand store에 `isNewUser` 필드 추가, GuestRoute에서 `isNewUser: true`면 `/welcome`으로 분기
+- WelcomePage 마운트 시 `isNewUser: null`로 초기화 (재진입 방지)
+- 백엔드에 `isNewUser` 실제 로직 구현 요청
+
+**핵심 교훈**: 라우트 가드 안에서 외부 store 상태를 참조할 때, 상태 업데이트와 프로그래밍적 네비게이션의 실행 순서를 고려해야 한다
