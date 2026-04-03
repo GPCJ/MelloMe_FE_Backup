@@ -62,7 +62,7 @@ export default function LandingPage() {
               to="/posts"
               className="text-sm font-medium px-3 py-2 rounded-md text-gray-500 hover:text-gray-900 transition-colors"
             >
-              ���뮤니티
+              커뮤니티
             </Link>
           </nav>
 
