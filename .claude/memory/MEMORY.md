@@ -22,6 +22,9 @@
 - 상세: [API 이슈 #1~#21](./project_api_issues_2026_03_24.md) / [API 스펙 불일치](./project_api_spec_discrepancies.md)
 - [OpenAPI 업데이트 수령 대기](./project_openapi_update_pending.md) — 수령 후 6개 항목 비교 검토
 
+## README
+- [README 작성 계획 — MVP 완성 후 작성](./project_readme_plan.md) — 9개 섹션 구성 확정, 포트폴리오/채용 목적
+
 ## 아키텍처 점검
 - [프론트 아키텍처 점검 Before (04-03)](./project_architecture_review_0403.md) — 4개 개선 포인트, 기능 추가 시 After 적용
 
