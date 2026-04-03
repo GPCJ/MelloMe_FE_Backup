@@ -8,4 +8,4 @@ type: reference
 
 **URL:** https://docs.google.com/spreadsheets/d/1jgiYARm1P0AFhUk68fDDeH81KZ-8j6Nh9AUOhNBikQk/edit?pli=1&gid=135755195#gid=135755195
 
-**내용:** REQ-001~009 MVP 범위, REQ-010~ Post-MVP 범위 정의
+**내용:** REQ-001~012 MVP 범위, REQ-013~019 Post-MVP 범위 정의 (2026-03-30 2차 업데이트 반영)

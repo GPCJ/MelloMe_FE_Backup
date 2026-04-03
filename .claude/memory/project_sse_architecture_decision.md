@@ -57,3 +57,24 @@ type: project
 - 🏗 **설계 결정**: 3가지 아키텍처 옵션 비교 후 프로젝트 규모와 팀 컨텍스트에 맞는 선택
 - 🤖 **AI 협업**: 브레인스토밍 단계에서 옵션 도출 → 트레이드오프 분석 → 최종 결정은 본인
 - 📈 **확장 고려**: MVP 이후 알림 종류 증가 시 옵션 C로 리팩토링 가능한 마이그레이션 경로 확보
+
+---
+
+## 착수 시 체크리스트 (brainstorm 파일 통합)
+
+### 알림 이벤트 범위
+A(게시글 댓글), B(대댓글), C(팔로우), D(리액션), E(공지사항)
+
+### 1. 백엔드 확인 (먼저)
+- SSE 엔드포인트 경로
+- Authorization 헤더 인증 가능 여부
+- 이벤트 타입/데이터 JSON 형식
+- 기존 알림 목록 조회 API 유무
+- 읽음 처리 API 유무
+
+### 2. 프론트 구현 (백엔드 확인 후)
+- `@microsoft/fetch-event-source` 설치
+- `useNotificationStore.ts` 작성 (connect/disconnect + 알림 상태)
+- 알림 관련 TypeScript 타입 정의
+- 로그인 시 connect, 로그아웃 시 disconnect 연결
+- UI는 디자이너 확정 후
