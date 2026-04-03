@@ -22,6 +22,9 @@
 - 상세: [API 이슈 #1~#21](./project_api_issues_2026_03_24.md) / [API 스펙 불일치](./project_api_spec_discrepancies.md)
 - [OpenAPI 업데이트 수령 대기](./project_openapi_update_pending.md) — 수령 후 6개 항목 비교 검토
 
+## 아키텍처 점검
+- [프론트 아키텍처 점검 Before (04-03)](./project_architecture_review_0403.md) — 4개 개선 포인트, 기능 추가 시 After 적용
+
 ## 프론트 보류/기술부채
 - [MSW 선구현 보류](./project_msw_preimpl_hold.md) — 백엔드 직접 연동 전환
 - [보류된 리팩토링 항목](./project_pending_refactor.md) — refresh plain axios 교체 등
@@ -85,6 +88,7 @@
 - [TS 타입 체크 `npx tsc -b`](./feedback_ts_type_check.md) / [shadcn asChild 미지원](./feedback_shadcn_button_aschild.md)
 - [GitHub 토큰 채팅 금지](./feedback_github_token.md) (만료 예상: 04-12) / [브랜치 main만](./feedback_branch_preference.md)
 - [슬래시 커맨드 스크립트 파일 금지](./feedback_no_scripts_for_commands.md) / [외부 push 전 승인 필수](./feedback_push_requires_approval.md)
+- [커맨드 네이밍 — 범용 목적엔 범용 이름](./feedback_draft_notion_naming.md)
 - [push-airo reset --hard 방식](./feedback_push_airo_claude_files.md)
 - [피그마 스크린샷 선호](./feedback_figma_screenshot_preferred.md) / [프레임 Export PNG 2x](./feedback_figma_export_method.md)
 - [git 커밋 전 diff --stat 필수](./feedback_git_diff_stat_check.md)
