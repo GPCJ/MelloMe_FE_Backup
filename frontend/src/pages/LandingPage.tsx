@@ -1,11 +1,30 @@
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { Bell } from 'lucide-react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { getMe } from '../api/auth';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+const mockAnnouncements = [
+  { id: 1, title: '멜로미 커뮤니티 오픈 안내', date: '2024.03.19' },
+  { id: 2, title: '커뮤니티 이용 가이드', date: '2024.03.18' },
+  { id: 3, title: '회원 인증 절차 안내', date: '2024.03.17' },
+];
 
 export default function LandingPage() {
-  const { user, tokens, setAuth } = useAuthStore();
+  const navigate = useNavigate();
+  const { user, tokens, setAuth, clearAuth } = useAuthStore();
   const isVerified = user?.canAccessCommunity === true;
+
+  function handleLogout() {
+    clearAuth();
+    navigate('/login');
+  }
 
   useEffect(() => {
     if (tokens) {
@@ -51,6 +70,52 @@ export default function LandingPage() {
               >
                 치료사 인증
               </Link>
+            ) : null}
+
+            {user ? (
+              <>
+                {/* Notification Bell */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="relative p-2 text-gray-500 hover:text-gray-900 rounded-md transition-colors">
+                    <Bell size={20} />
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-80 p-0">
+                    <div className="px-4 py-3 border-b">
+                      <span className="font-bold text-base">공지사항</span>
+                    </div>
+                    {mockAnnouncements.map((a) => (
+                      <div
+                        key={a.id}
+                        className="px-4 py-3 border-b hover:bg-gray-50 cursor-pointer"
+                      >
+                        <p className="font-medium text-sm">{a.title}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{a.date}</p>
+                      </div>
+                    ))}
+                    <div className="px-4 py-3 text-center text-sm text-gray-400">
+                      준비 중입니다
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Profile */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex items-center gap-2 px-1 py-1 rounded-md hover:bg-gray-100 transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-purple-300 flex items-center justify-center text-white text-sm font-bold">
+                      {user.nickname[0]}
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => navigate('/profile')}>
+                      프로필
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout}>
+                      로그아웃
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
             ) : (
               <>
                 <Link

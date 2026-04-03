@@ -43,13 +43,13 @@ function App() {
             <Route path="/posts" element={<PostListPage />} />
             <Route path="/posts/:postId" element={<PostDetailPage />} />
             <Route path="/search" element={<SearchPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
 
           {/* 로그인 + 치료사 인증 필요 */}
           <Route element={<ProtectedRoute />}>
             <Route path="/posts/new" element={<PostCreatePage />} />
             <Route path="/posts/:postId/edit" element={<PostEditPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
           </Route>
 
           <Route path="/my-page" element={<Navigate to="/profile" replace />} />
