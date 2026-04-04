@@ -90,7 +90,7 @@ export default function ProfilePage() {
   }, [activeTab, scrapsPage]);
 
   const isVerified =
-    user?.therapistVerification?.status === 'APPROVED';
+    user?.role === 'THERAPIST' || user?.role === 'ADMIN';
 
   return (
     <div className="pb-20 md:pb-8">

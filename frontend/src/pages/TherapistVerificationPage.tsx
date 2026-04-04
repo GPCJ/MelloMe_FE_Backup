@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { applyTherapistVerification, getMyVerification } from '../api/auth';
-import { useAuthStore } from '../stores/useAuthStore';
 import type { TherapistVerificationDetail } from '../types/auth';
 
 // TODO: 백엔드 논의 필요 — 인증용 치료영역 enum 확정 전 와이어프레임 기준 임시 정의
@@ -24,7 +23,6 @@ const VERIFICATION_THERAPY_CHIPS = [
 
 export default function TherapistVerificationPage() {
   const navigate = useNavigate();
-  const user = useAuthStore((s) => s.user);
 
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [licenseCode, setLicenseCode] = useState('');
@@ -67,7 +65,7 @@ export default function TherapistVerificationPage() {
     if (e.dataTransfer.files?.[0]) validateAndSetFile(e.dataTransfer.files[0]);
   }
 
-  const verificationStatus = verification?.status ?? user?.therapistVerification?.status;
+  const verificationStatus = verification?.status;
   const canSubmit =
     file !== null &&
     licenseCode.trim() !== '' &&

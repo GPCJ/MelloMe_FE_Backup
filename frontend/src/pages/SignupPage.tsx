@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function SignupPage() {
   const navigate = useNavigate();
-  const setAuth = useAuthStore((s) => s.setAuth);
+  const setTokens = useAuthStore((s) => s.setTokens);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,8 +33,8 @@ export default function SignupPage() {
     setError('');
     setLoading(true);
     try {
-      const { user, tokens } = await signup(email, password, agreeTerms, agreePrivacy);
-      setAuth(user, tokens);
+      const { accessToken } = await signup(email, password, agreeTerms, agreePrivacy);
+      setTokens({ accessToken });
       navigate('/welcome', { replace: true });
     } catch (err) {
       if (

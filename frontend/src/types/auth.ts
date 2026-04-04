@@ -6,13 +6,6 @@ export interface MeResponse {
   nickname: string;
   profileImageUrl: string | null;
   role: UserRole;
-  canAccessCommunity: boolean;
-  therapistVerification: {
-    status: 'NOT_REQUESTED' | 'PENDING' | 'APPROVED' | 'REJECTED';
-    requestedAt: string | null;
-    reviewedAt: string | null;
-    rejectionReason: string | null;
-  };
 }
 
 export interface Tokens {
@@ -20,9 +13,8 @@ export interface Tokens {
   accessTokenExpiresInSec?: number;
 }
 
-export interface AuthResponse {
-  user: MeResponse;
-  tokens: Tokens;
+export interface LoginResponse {
+  accessToken: string;
 }
 
 export interface TherapistVerificationDetail {

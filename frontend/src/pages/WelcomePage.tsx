@@ -1,16 +1,39 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { getMe } from '../api/auth';
 import { useAuthStore } from '../stores/useAuthStore';
 
 export default function WelcomePage() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
+  const [loading, setLoading] = useState(!user);
+
+  useEffect(() => {
+    if (!user) {
+      getMe()
+        .then((freshUser) => {
+          setUser(freshUser);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    }
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <p className="text-sm text-gray-400">로딩 중...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center px-4 text-center">
       <div className="text-5xl mb-6">🎉</div>
       <h1 className="text-2xl font-bold text-gray-900 mb-2">
-        환영합니다, {user?.nickname ?? ''}님!
+        환영합니다{user?.nickname ? `, ${user.nickname}` : ''}님!
       </h1>
       <p className="text-sm text-gray-500 mb-2">
         멜로미 회원가입이 완료되었어요.

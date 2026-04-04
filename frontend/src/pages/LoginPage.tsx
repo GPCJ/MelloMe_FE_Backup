@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
-import { login } from '../api/auth';
+import { login, getMe } from '../api/auth';
 import { useAuthStore } from '../stores/useAuthStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,7 +16,8 @@ import {
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const setAuth = useAuthStore((s) => s.setAuth);
+  const setTokens = useAuthStore((s) => s.setTokens);
+  const setUser = useAuthStore((s) => s.setUser);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,15 +29,14 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      const { user, tokens } = await login(email, password);
-      setAuth(user, tokens);
-      const verStatus = user.therapistVerification?.status;
-      if (user.canAccessCommunity) {
+      const { accessToken } = await login(email, password);
+      setTokens({ accessToken });
+      const user = await getMe();
+      setUser(user);
+      if (user.role !== 'USER') {
         navigate('/posts');
-      } else if (verStatus === 'NOT_REQUESTED' || verStatus === 'REJECTED') {
-        navigate('/therapist-verifications');
       } else {
-        navigate('/');
+        navigate('/therapist-verifications');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');

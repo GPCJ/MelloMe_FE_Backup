@@ -60,8 +60,7 @@ axiosInstance.interceptors.response.use(
       const { data } = await axiosInstance.post('/auth/refresh')
       const newAccessToken: string = data.accessToken
 
-      const { user } = useAuthStore.getState()
-      if (user) useAuthStore.getState().setAuth(user, { accessToken: newAccessToken })
+      useAuthStore.getState().setTokens({ accessToken: newAccessToken })
       axiosInstance.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`
       originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
 

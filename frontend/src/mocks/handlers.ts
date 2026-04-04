@@ -243,31 +243,23 @@ const testAccounts: Record<
   {
     id: number;
     role: string;
-    canAccessCommunity: boolean;
     nickname: string;
-    therapistVerification: { status: string; requestedAt?: string; reviewedAt?: string; rejectionReason?: string | null };
   }
 > = {
   'testUser@test.com': {
     id: 10,
     role: 'USER',
-    canAccessCommunity: false,
     nickname: '새내기치료사',
-    therapistVerification: { status: 'NOT_REQUESTED' },
   },
   'testTherapist@test.com': {
     id: 1,
     role: 'THERAPIST',
-    canAccessCommunity: true,
     nickname: '테스트치료사',
-    therapistVerification: { status: 'APPROVED', requestedAt: '2026-03-01T00:00:00Z', reviewedAt: '2026-03-01T00:05:00Z', rejectionReason: null },
   },
   'admin@test.com': {
     id: 99,
     role: 'ADMIN',
-    canAccessCommunity: true,
     nickname: '관리자',
-    therapistVerification: { status: 'APPROVED', requestedAt: '2026-01-01T00:00:00Z', reviewedAt: '2026-01-01T00:00:00Z', rejectionReason: null },
   },
 };
 
@@ -284,12 +276,14 @@ export const handlers = [
     testAccounts[body.email] = {
       id: Date.now(),
       role: 'USER',
-      canAccessCommunity: false,
       nickname,
-      therapistVerification: { status: 'NOT_REQUESTED' },
     };
     signedUpEmails.add(body.email);
-    return HttpResponse.json({ success: true }, { status: 201 });
+    currentUserEmail = body.email;
+    return HttpResponse.json({
+      success: true,
+      data: { accessToken: mockTokens.accessToken },
+    }, { status: 201 });
   }),
 
   http.post(`${API}/auth/login`, async ({ request }) => {
@@ -299,19 +293,7 @@ export const handlers = [
       currentUserEmail = body.email;
       return HttpResponse.json({
         success: true,
-        data: {
-          isNewUser: true,
-          user: {
-            id: account.id,
-            email: body.email,
-            nickname: account.nickname,
-            profileImageUrl: null,
-            role: account.role,
-            canAccessCommunity: account.canAccessCommunity,
-            therapistVerification: account.therapistVerification,
-          },
-          tokens: mockTokens,
-        },
+        data: { accessToken: mockTokens.accessToken },
       });
     }
     return HttpResponse.json(
@@ -340,25 +322,19 @@ export const handlers = [
     }
     const account = testAccounts[currentUserEmail];
     return HttpResponse.json({
-      id: account.id,
-      email: currentUserEmail,
-      nickname: account.nickname,
-      profileImageUrl: null,
-      role: account.role,
-      canAccessCommunity: account.canAccessCommunity,
-      therapistVerification: account.therapistVerification,
+      success: true,
+      data: {
+        id: account.id,
+        email: currentUserEmail,
+        nickname: account.nickname,
+        profileImageUrl: null,
+        role: account.role,
+      },
     });
   }),
 
   http.post(`${API}/therapist-verifications`, () => {
     if (currentUserEmail && testAccounts[currentUserEmail]) {
-      testAccounts[currentUserEmail].therapistVerification = {
-        status: 'APPROVED',
-        requestedAt: new Date().toISOString(),
-        reviewedAt: new Date().toISOString(),
-        rejectionReason: null,
-      };
-      testAccounts[currentUserEmail].canAccessCommunity = true;
       testAccounts[currentUserEmail].role = 'THERAPIST';
     }
     return HttpResponse.json({ success: true }, { status: 201 });
@@ -446,7 +422,7 @@ export const handlers = [
       authorId: currentAccount?.id ?? 1,
       authorNickname: currentAccount?.nickname ?? '테스트치료사',
       authorProfileImageUrl: null,
-      authorVerificationStatus: currentAccount?.therapistVerification?.status ?? 'NOT_REQUESTED',
+      authorVerificationStatus: currentAccount?.role === 'THERAPIST' || currentAccount?.role === 'ADMIN' ? 'APPROVED' : 'NOT_REQUESTED',
       canEdit: true,
       canDelete: true,
       createdAt: new Date().toISOString(),

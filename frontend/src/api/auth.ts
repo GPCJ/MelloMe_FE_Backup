@@ -1,7 +1,7 @@
 import axiosInstance from './axiosInstance'
-import type { AuthResponse, MeResponse, TherapistVerificationDetail } from '../types/auth'
+import type { LoginResponse, MeResponse, TherapistVerificationDetail } from '../types/auth'
 
-export async function login(email: string, password: string): Promise<AuthResponse> {
+export async function login(email: string, password: string): Promise<LoginResponse> {
   const { data } = await axiosInstance.post('/auth/login', { email, password })
   return data
 }
@@ -11,7 +11,7 @@ export async function signup(
   password: string,
   termsAgreed: boolean,      // TODO: 백엔드 필드명 확인 후 수정
   privacyPolicyAgreed: boolean, // TODO: 백엔드 필드명 확인 후 수정
-): Promise<AuthResponse> {
+): Promise<LoginResponse> {
   const { data } = await axiosInstance.post('/auth/signup', { email, password, termsAgreed, privacyPolicyAgreed })
   return data
 }

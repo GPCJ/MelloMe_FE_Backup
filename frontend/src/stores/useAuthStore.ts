@@ -5,7 +5,8 @@ import type { MeResponse, Tokens } from '../types/auth';
 interface AuthState {
   user: MeResponse | null;
   tokens: Tokens | null;
-  setAuth: (user: MeResponse, tokens: Tokens) => void;
+  setTokens: (tokens: Tokens) => void;
+  setUser: (user: MeResponse) => void;
   clearAuth: () => void;
 }
 
@@ -15,7 +16,8 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       tokens: null,
-      setAuth: (user, tokens) => set({ user, tokens }),
+      setTokens: (tokens) => set({ tokens }),
+      setUser: (user) => set({ user }),
       clearAuth: () => set({ user: null, tokens: null }),
     }),
     { name: 'auth-storage' },

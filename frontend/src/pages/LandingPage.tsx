@@ -18,8 +18,8 @@ const mockAnnouncements = [
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { user, tokens, setAuth, clearAuth } = useAuthStore();
-  const isVerified = user?.canAccessCommunity === true;
+  const { user, tokens, setUser, clearAuth } = useAuthStore();
+  const isVerified = !!user && user.role !== 'USER';
 
   async function handleLogout() {
     try {
@@ -34,15 +34,10 @@ export default function LandingPage() {
 
   useEffect(() => {
     if (tokens) {
-      getMe().then((freshUser) => setAuth(freshUser, tokens));
+      getMe().then(setUser).catch(() => {});
     }
   }, []);
-  const verificationStatus = user?.therapistVerification?.status ?? null;
-  const isNotRequested =
-    !!user &&
-    (verificationStatus === 'NOT_REQUESTED' ||
-      verificationStatus === 'REJECTED' ||
-      verificationStatus === 'PENDING');
+  const isNotVerified = !!user && user.role === 'USER';
 
   const mswEnabled = import.meta.env.VITE_MSW_ENABLED === 'true';
   const mswBadge = mswEnabled
@@ -51,7 +46,7 @@ export default function LandingPage() {
 
   const heroCta = isVerified
     ? { to: '/posts', label: '커뮤니티 바로가기 →' }
-    : isNotRequested
+    : isNotVerified
       ? { to: '/therapist-verifications', label: '치료사 인증하기 →' }
       : { to: '/login', label: '시작하기 →' };
 
@@ -78,7 +73,7 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-3">
-            {isNotRequested ? (
+            {isNotVerified ? (
               <Link
                 to="/therapist-verifications"
                 className="px-4 py-1.5 text-sm font-medium text-white bg-gray-800 rounded-lg"
@@ -118,7 +113,7 @@ export default function LandingPage() {
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex items-center gap-2 px-1 py-1 rounded-md hover:bg-gray-100 transition-colors">
                     <div className="w-8 h-8 rounded-full bg-purple-300 flex items-center justify-center text-white text-sm font-bold">
-                      {user.nickname[0]}
+                      {user.nickname?.[0] ?? '?'}
                     </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
