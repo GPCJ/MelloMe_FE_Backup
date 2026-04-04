@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Camera } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Camera, Pencil } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import PostCard from '../components/PostCard';
 import { fetchMyPosts, fetchMyComments, fetchMyScraps } from '../api/mypage';
@@ -177,9 +177,15 @@ export default function ProfilePage() {
                 {user?.nickname?.[0] ?? '?'}
               </div>
             )}
-            <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-              <Camera size={20} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
+            {editingNickname ? (
+              <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-gray-900 flex items-center justify-center ring-2 ring-white">
+                <Pencil size={12} className="text-white" />
+              </div>
+            ) : (
+              <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                <Camera size={20} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            )}
             {uploadingImage && (
               <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
