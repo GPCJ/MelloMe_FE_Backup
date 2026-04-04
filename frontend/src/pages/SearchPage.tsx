@@ -34,7 +34,7 @@ export default function SearchPage() {
         ...(therapyArea ? { therapyArea } : {}),
         ...(query.trim() ? { keyword: query.trim() } : {}),
       });
-      setResults(data.posts);
+      setResults(data.items);
     } catch {
       setResults([]);
       setError('검색 중 오류가 발생했습니다.');
@@ -52,7 +52,7 @@ export default function SearchPage() {
       setSearched(true);
       fetchPosts({ keyword: q })
         .then((data) => {
-          setResults(data.posts);
+          setResults(data.items);
         })
         .catch(() => {
           setResults([]);

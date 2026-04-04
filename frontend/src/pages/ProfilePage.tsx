@@ -296,11 +296,11 @@ export default function ProfilePage() {
           <>
             {loadingPosts && <TabSkeleton />}
             {errorPosts && <TabError onRetry={() => loadPosts(postsPage)} />}
-            {!loadingPosts && !errorPosts && postsData?.posts.length === 0 && (
+            {!loadingPosts && !errorPosts && postsData?.items.length === 0 && (
               <TabEmpty message="작성한 글이 없어요." />
             )}
             {!loadingPosts &&
-              postsData?.posts.map((post) => <PostCard key={post.id} post={post} />)}
+              postsData?.items.map((post) => <PostCard key={post.id} post={post} />)}
             {!loadingPosts && postsData && postsData.totalPages > 1 && (
               <div className="flex items-center justify-center gap-1 py-6">
                 <button
@@ -342,11 +342,11 @@ export default function ProfilePage() {
           <>
             {loadingComments && <TabSkeleton />}
             {errorComments && <TabError onRetry={() => loadComments(commentsPage)} />}
-            {!loadingComments && !errorComments && commentsData?.comments.length === 0 && (
+            {!loadingComments && !errorComments && commentsData?.items.length === 0 && (
               <TabEmpty message="답글 단 글이 없어요." />
             )}
             {!loadingComments &&
-              commentsData?.comments.map(({ post }) => (
+              commentsData?.items.map(({ post }) => (
                 <PostCard key={post.id} post={post} />
               ))}
             {!loadingComments && commentsData && commentsData.totalPages > 1 && (
@@ -390,11 +390,11 @@ export default function ProfilePage() {
           <>
             {loadingScraps && <TabSkeleton />}
             {errorScraps && <TabError onRetry={() => loadScraps(scrapsPage)} />}
-            {!loadingScraps && !errorScraps && scrapsData?.scraps.length === 0 && (
+            {!loadingScraps && !errorScraps && scrapsData?.items.length === 0 && (
               <TabEmpty message="스크랩한 글이 없어요." />
             )}
             {!loadingScraps &&
-              scrapsData?.scraps.map(({ post }) => (
+              scrapsData?.items.map(({ post }) => (
                 <PostCard key={post.id} post={post} />
               ))}
             {!loadingScraps && scrapsData && scrapsData.totalPages > 1 && (
