@@ -21,8 +21,9 @@
 - **✅ 추가 확정**: DELETE /me (회원탈퇴) / PATCH /me (프로필수정)
 - **❌ P0 잔존**: title optional (여전히 required)
 - **❌ P1 잔존**: 팔로우 / 블러
-- **❓ 확인 필요**: 회원가입 토큰 (서버 {id,email}만 반환, 프론트 tokens 기대) / isNewUser 실제 값
-- **🔄 백엔드 요청 필요**: [인증 API 관심사 분리](./project_auth_api_separation.md) — login/signup→accessToken만, GET /me→5개 필드, canAccessCommunity+therapistVerification 제거
+- **✅ 해소**: 로그인/회원가입 응답 → [프론트 대응 완료 (04-04)](./project_login_signup_response_update.md) / 환영페이지 리다이렉트 버그 미해결
+- **⚠️ 백엔드 응답 대격변**: [응답 형식 전면 통일 진행 중](./project_backend_response_format_flux.md) — 프론트 연동 일시 중단
+- **❓ 확인 필요**: isNewUser 실제 값
 - 상세: [API 이슈 #1~#21](./project_api_issues_2026_03_24.md) / [API 스펙 불일치](./project_api_spec_discrepancies.md)
 - [OpenAPI 업데이트 수령 대기](./project_openapi_update_pending.md) — 수령 후 6개 항목 비교 검토
 - [마이페이지 Swagger 확정 + ProfilePage 버그](./project_mypage_swagger_confirmed.md) — /me/activity → /me/comments+/me/scraps 분리 필요
@@ -110,9 +111,10 @@
 - [git 커밋 전 diff --stat 필수](./feedback_git_diff_stat_check.md)
 - [shadcn/ui 기본 사용 원칙](./feedback_shadcn_default.md) — CSS 변수 기반 스타일링
 - [에러 삼키지 말고 실패 표시](./feedback_error_handling_visible.md) — .catch(()=>{}) 금지, QA 친화적 메시지
-- [GitHub Issues로 기술부채 관리](./feedback_github_issues.md) — 요청 시에만 gh issue create
+- [GitHub Issues로 기술부채 관리](./feedback_github_issues.md) — 요청 시에만 gh issue create / [두 레포 동시 생성](./feedback_github_issues_dual_repo.md)
 - [API 에러 원인별 분기](./feedback_error_handling_by_cause.md) — 401은 인터셉터, 500/네트워크는 무시. 무조건 clearAuth() 금지
 - [토큰 사용량 최소화](./feedback_token_usage_awareness.md) — 에이전트 남용 금지, 직접 grep/read 우선
+- [집중력 떨어질 때 간결하게](./feedback_concise_when_tired.md) — 짧은 문장, 한번에 하나의 정보만
 - [Notion 운영 방침](./project_notion_page_policy.md) — PM 주요 독자
 
 ## 노션 초안 (다른 기기에서 업로드 대기)
