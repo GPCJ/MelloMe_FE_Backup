@@ -9,10 +9,17 @@ export async function login(email: string, password: string): Promise<LoginRespo
 export async function signup(
   email: string,
   password: string,
-  termsAgreed: boolean,      // TODO: 백엔드 필드명 확인 후 수정
-  privacyPolicyAgreed: boolean, // TODO: 백엔드 필드명 확인 후 수정
+  termsAgreed: boolean,
+  privacyPolicyAgreed: boolean,
 ): Promise<LoginResponse> {
-  const { data } = await axiosInstance.post('/auth/signup', { email, password, termsAgreed, privacyPolicyAgreed })
+  const { data } = await axiosInstance.post('/auth/signup', {
+    email,
+    password,
+    agreements: [
+      { type: 'SERVICE_TERMS', version: 'v1.0', agreed: termsAgreed },
+      { type: 'PRIVACY_POLICY', version: 'v1.0', agreed: privacyPolicyAgreed },
+    ],
+  })
   return data
 }
 
