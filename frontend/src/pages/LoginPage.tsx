@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
-import { login } from '../api/auth';
+import { login, getMe } from '../api/auth';
 import { useAuthStore } from '../stores/useAuthStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const setTokens = useAuthStore((s) => s.setTokens);
   const setUser = useAuthStore((s) => s.setUser);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,6 +33,22 @@ export default function LoginPage() {
       const { user, tokens } = await login(email, password);
       setTokens(tokens);
       setUser(user);
+
+      // [임시 대응] 탈퇴(소프트 삭제) 계정 감지
+      // 현재 백엔드는 탈퇴 유저에게 만료된 AT를 발급하여 서비스를 차단함.
+      // 로그인은 성공하지만 만료된 AT로 인해 모든 API가 401을 반환하므로,
+      // getMe()를 호출하여 AT 유효성을 검증한다.
+      // TODO: 백엔드에서 탈퇴 유저 로그인 시 명확한 에러 응답(예: 403 DELETED_ACCOUNT)을
+      //       반환하도록 변경되면 이 로직을 제거하고 catch에서 직접 분기할 것.
+      //       관련 이슈: AIRO-offical/therapist_community_BE#32
+      try {
+        await getMe();
+      } catch {
+        clearAuth();
+        setError('탈퇴된 계정입니다. 새로운 계정으로 가입해주세요.');
+        return;
+      }
+
       if (user.role !== 'USER') {
         navigate('/posts');
       } else {
