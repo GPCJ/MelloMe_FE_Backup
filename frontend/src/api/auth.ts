@@ -1,5 +1,5 @@
 import axiosInstance from './axiosInstance'
-import type { LoginResponse, MeResponse, TherapistVerificationDetail } from '../types/auth'
+import type { LoginResponse, SignupResponse, MeResponse, TherapistVerificationDetail } from '../types/auth'
 
 export async function login(email: string, password: string): Promise<LoginResponse> {
   const { data } = await axiosInstance.post('/auth/login', { email, password })
@@ -11,7 +11,7 @@ export async function signup(
   password: string,
   termsAgreed: boolean,
   privacyPolicyAgreed: boolean,
-): Promise<LoginResponse> {
+): Promise<SignupResponse> {
   const { data } = await axiosInstance.post('/auth/signup', {
     email,
     password,

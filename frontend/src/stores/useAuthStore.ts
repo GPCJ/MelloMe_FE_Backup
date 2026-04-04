@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { MeResponse, Tokens } from '../types/auth';
+import type { LoginUser, MeResponse, Tokens } from '../types/auth';
 
 interface AuthState {
-  user: MeResponse | null;
+  user: LoginUser | MeResponse | null;
   tokens: Tokens | null;
   setTokens: (tokens: Tokens) => void;
-  setUser: (user: MeResponse) => void;
+  setUser: (user: LoginUser | MeResponse) => void;
   clearAuth: () => void;
 }
 

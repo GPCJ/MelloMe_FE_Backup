@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
-import { login, getMe } from '../api/auth';
+import { login } from '../api/auth';
 import { useAuthStore } from '../stores/useAuthStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,9 +29,8 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      const { accessToken } = await login(email, password);
-      setTokens({ accessToken });
-      const user = await getMe();
+      const { user, tokens } = await login(email, password);
+      setTokens(tokens);
       setUser(user);
       if (user.role !== 'USER') {
         navigate('/posts');

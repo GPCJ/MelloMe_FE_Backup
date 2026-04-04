@@ -13,8 +13,36 @@ export interface Tokens {
   accessTokenExpiresInSec?: number;
 }
 
+export type TherapistVerificationStatus = 'NOT_REQUESTED' | 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export interface TherapistVerificationSummary {
+  status: TherapistVerificationStatus;
+  requestedAt: string | null;
+  reviewedAt: string | null;
+  rejectionReason: string | null;
+}
+
+export interface LoginUser {
+  id: number;
+  email: string;
+  nickname: string;
+  profileImageUrl: string | null;
+  role: UserRole;
+  canAccessCommunity: boolean;
+  therapistVerification: TherapistVerificationSummary;
+}
+
 export interface LoginResponse {
+  user: LoginUser;
+  tokens: Tokens;
+}
+
+export interface SignupResponse {
+  id: number;
+  email: string;
+  nickname: string;
   accessToken: string;
+  role: UserRole;
 }
 
 export interface TherapistVerificationDetail {

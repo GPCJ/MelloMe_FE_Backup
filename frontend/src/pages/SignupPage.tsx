@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 export default function SignupPage() {
   const navigate = useNavigate();
   const setTokens = useAuthStore((s) => s.setTokens);
+  const setUser = useAuthStore((s) => s.setUser);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,8 +34,15 @@ export default function SignupPage() {
     setError('');
     setLoading(true);
     try {
-      const { accessToken } = await signup(email, password, agreeTerms, agreePrivacy);
-      setTokens({ accessToken });
+      const data = await signup(email, password, agreeTerms, agreePrivacy);
+      setTokens({ accessToken: data.accessToken });
+      setUser({
+        id: data.id,
+        email: data.email,
+        nickname: data.nickname,
+        profileImageUrl: null,
+        role: data.role,
+      });
       navigate('/welcome', { replace: true });
     } catch (err) {
       if (
