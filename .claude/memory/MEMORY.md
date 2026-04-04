@@ -22,6 +22,7 @@
 - **❌ P0 잔존**: title optional (여전히 required)
 - **❌ P1 잔존**: 팔로우 / 블러
 - **❓ 확인 필요**: 회원가입 토큰 (서버 {id,email}만 반환, 프론트 tokens 기대) / isNewUser 실제 값
+- **🔄 백엔드 요청 필요**: [인증 API 관심사 분리](./project_auth_api_separation.md) — login/signup→accessToken만, GET /me→5개 필드, canAccessCommunity+therapistVerification 제거
 - 상세: [API 이슈 #1~#21](./project_api_issues_2026_03_24.md) / [API 스펙 불일치](./project_api_spec_discrepancies.md)
 - [OpenAPI 업데이트 수령 대기](./project_openapi_update_pending.md) — 수령 후 6개 항목 비교 검토
 - [마이페이지 Swagger 확정 + ProfilePage 버그](./project_mypage_swagger_confirmed.md) — /me/activity → /me/comments+/me/scraps 분리 필요
@@ -83,7 +84,7 @@
 - [UI만 구현된 기능](./project_ui_only_features.md) — 체크박스, 비밀번호 찾기, 검색바, 배너 통계
 
 ## CSV API 검토 진행
-- [시트8.csv 38개 항목 검토 현황](./project_csv_api_review_progress.md) — 1~22번 완료, **23번(PATCH /posts/{postId})부터 재개**
+- [시트8.csv 38개 항목 검토 현황](./project_csv_api_review_progress.md) — 1~26번 완료, **27번(GET /posts/{postId}/scrap)부터 재개**
 - [/home 엔드포인트 관심사 분리](./project_home_endpoint_redesign.md) — /home 경량화 + 확장 설계, 백엔드 요청 필요
 - [PATCH /me 이미지 업로드 방식](./project_patch_me_image_discussion.md) — multipart 직접 업로드 제안, 백엔드 논의 필요
 
@@ -109,6 +110,9 @@
 - [git 커밋 전 diff --stat 필수](./feedback_git_diff_stat_check.md)
 - [shadcn/ui 기본 사용 원칙](./feedback_shadcn_default.md) — CSS 변수 기반 스타일링
 - [에러 삼키지 말고 실패 표시](./feedback_error_handling_visible.md) — .catch(()=>{}) 금지, QA 친화적 메시지
+- [GitHub Issues로 기술부채 관리](./feedback_github_issues.md) — 요청 시에만 gh issue create
+- [API 에러 원인별 분기](./feedback_error_handling_by_cause.md) — 401은 인터셉터, 500/네트워크는 무시. 무조건 clearAuth() 금지
+- [토큰 사용량 최소화](./feedback_token_usage_awareness.md) — 에이전트 남용 금지, 직접 grep/read 우선
 - [Notion 운영 방침](./project_notion_page_policy.md) — PM 주요 독자
 
 ## 노션 초안 (다른 기기에서 업로드 대기)
@@ -133,6 +137,7 @@
 - [메모리 동기화 커맨드](./project_memory_sync.md) — `/push-mello`, `/pull-mello`
 - [포트폴리오 프로젝트 세팅](./project_portfolio_setup.md) — `~/portfolio`, 컨텍스트 분리
 - GitHub 인증: `~/.git-credentials`에서 `ghp_...` 토큰 교체
+- [gh CLI 설치 + 인증 완료](./reference_gh_cli.md) — 계정 GPCJ, 이슈 관리용
 - [Vercel SPA 라우팅 설정](./feedback_vercel_spa_routing.md)
 - [Vercel → AWS 이전 예정](./project_aws_migration_plan.md) — 시기 미정
 

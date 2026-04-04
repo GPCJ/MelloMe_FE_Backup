@@ -6,7 +6,7 @@ type: project
 
 파일: `/Users/jin/Downloads/멜로미 요구_기능 명세 - 시트8.csv` (38개 API)
 
-## 검토 완료 (1~22번)
+## 검토 완료 (1~26번)
 
 | # | API | 결과 |
 |---|-----|------|
@@ -27,10 +27,14 @@ type: project
 | 15 | GET /therapist-verifications/me/image | 보류 (이미지 표시 UI 없음) |
 | 16-19 | 관리자 API | 스킵 (백엔드 미개발) |
 | 20 | GET /posts | **수정 완료** (BoardType→PostType, keyword/postType 추가, 서버사이드 검색 전환) |
-| 21 | POST /posts | **수정 완료** (postType 제거, ageGroup optional 추가) |
-| 22 | GET /posts/{postId} | 이상 없음 |
+| 21 | POST /posts | 보류 — title/ageGroup 400 에러, 백엔드 수정 대기 |
+| 22 | GET /posts/{postId} | 이상 없음 (Swagger 스펙 대조 완료) |
+| 23 | PATCH /posts/{postId} | 보류 — 21번과 동일한 title/ageGroup required 문제 |
+| 24 | DELETE /posts/{postId} | 이상 없음 |
+| 25 | GET /posts/{postId}/reaction | 이상 없음 (Swagger 스펙 대조 완료) |
+| 26 | PUT /posts/{postId}/reaction | 이상 없음 (낙관적 업데이트 방식, 응답값 미사용은 개선 가능) |
 
-## 주요 변경사항 (이번 세션)
+## 주요 변경사항 (이전 세션)
 
 ### 에러 처리 개선
 - .catch(() => {}) 에러 삼키기 → try/catch + alert 에러 표시로 전환 (LandingPage, Layout, ProfilePage)
@@ -56,8 +60,8 @@ type: project
 5. **API 스펙 검증**: Swagger와 프론트 코드를 대조하며 postType 불일치 직접 발견
 
 ## 다음 재개 지점
-- **23번: PATCH /posts/{postId}** 부터
+- **27번: GET /posts/{postId}/scrap** 부터
 
-**Why:** 항목별 그때그때 수정 방식으로 진행 중.
+**Why:** 항목별 그때그때 수정 방식으로 진행 중. Swagger 스펙 대조 기준으로 전환.
 
-**How to apply:** 다음 세션 시작 시 이 파일 참고해서 23번부터 재개.
+**How to apply:** 다음 세션 시작 시 이 파일 참고해서 27번부터 재개.
