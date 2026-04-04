@@ -19,6 +19,8 @@
 - **→ [추가 개발 요청 20개](./project_backend_additional_requests.md)** — P0~PostMVP 신규 API 목록
 - **✅ 해소**: therapyArea 필터 / 즉시 승인 / 스크랩 API / GET /me/posts / 파일 업로드 / **GET /me/comments** (답글 단 글)
 - **✅ 추가 확정**: DELETE /me (회원탈퇴) / PATCH /me (프로필수정)
+- **✅ 해소**: PATCH /me 프로필 수정 → [구현 완료 + 임시 대응 이슈](./project_profile_edit_feature.md)
+- **✅ 해소**: POST /me/profile-image 이미지 업로드 구현 완료
 - **❌ P0 잔존**: title optional (여전히 required)
 - **❌ P1 잔존**: 팔로우 / 블러
 - **✅ 해소**: 로그인/회원가입 응답 → [프론트 대응 완료 (04-04)](./project_login_signup_response_update.md) / 환영페이지 리다이렉트 버그 미해결
@@ -43,6 +45,7 @@
 - [닉네임 정책 변경 + 임시 코드](./project_signup_nickname_change.md) — 백엔드 nickname 제거 시 프론트 코드 삭제
 - 환영 페이지 버그 v2 — 프론트 isNewUser 방식 재설계 완료(04-03), 백엔드 isNewUser 하드코딩 수정 대기
 - [랜딩 /me 호출 정책](./project_landing_me_call_decision.md) — MVP 매번 호출, React Query 도입 시 캐싱 전환
+- [Paginated 프로퍼티 fallback 매핑](./project_paginated_type_fix.md) — 백엔드 `posts`/`comments`/`scraps` → API 함수에서 `items` 매핑, comments·scraps 미확인
 
 ## 디자이너 협업
 - [대기 항목 + 워크플로우 + 모바일 퍼스트](./project_designer_pending.md) — 10개 UI 항목, 데일리 사이클
