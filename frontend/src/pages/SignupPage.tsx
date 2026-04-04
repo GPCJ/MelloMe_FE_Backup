@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { signup, login } from '../api/auth';
+import { signup } from '../api/auth';
 import { useAuthStore } from '../stores/useAuthStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,9 +33,8 @@ export default function SignupPage() {
     setError('');
     setLoading(true);
     try {
-      await signup(email, password);
-      const { isNewUser, user, tokens } = await login(email, password);
-      setAuth(user, isNewUser, tokens);
+      const { user, tokens } = await signup(email, password, agreeTerms, agreePrivacy);
+      setAuth(user, tokens);
       navigate('/welcome', { replace: true });
     } catch (err) {
       if (

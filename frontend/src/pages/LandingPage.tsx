@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import { useAuthStore } from '../stores/useAuthStore';
-import { getMe } from '../api/auth';
+import { getMe, logout } from '../api/auth';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,14 +21,20 @@ export default function LandingPage() {
   const { user, tokens, setAuth, clearAuth } = useAuthStore();
   const isVerified = user?.canAccessCommunity === true;
 
-  function handleLogout() {
+  async function handleLogout() {
+    try {
+      await logout();
+    } catch {
+      alert('로그아웃에 실패했습니다. 다시 시도해주세요. (네트워크 탭 참조)');
+      return;
+    }
     clearAuth();
     navigate('/login');
   }
 
   useEffect(() => {
     if (tokens) {
-      getMe().then((freshUser) => setAuth(freshUser, null, tokens));
+      getMe().then((freshUser) => setAuth(freshUser, tokens));
     }
   }, []);
   const verificationStatus = user?.therapistVerification?.status ?? null;

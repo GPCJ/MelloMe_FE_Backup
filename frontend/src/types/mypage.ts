@@ -27,7 +27,20 @@ export interface MyScrappedPost {
   scrappedAt: string;
 }
 
-export interface MyActivity {
-  commentedPosts: MyCommentedPost[];
-  scrappedPosts: MyScrappedPost[];
+export interface PaginatedComments {
+  comments: MyCommentedPost[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+}
+
+export interface PaginatedScraps {
+  scraps: MyScrappedPost[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
 }

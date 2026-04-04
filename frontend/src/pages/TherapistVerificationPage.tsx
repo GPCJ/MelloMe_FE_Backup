@@ -4,8 +4,9 @@ import { ArrowLeft, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { applyTherapistVerification, getMe } from '../api/auth';
+import { applyTherapistVerification, getMyVerification } from '../api/auth';
 import { useAuthStore } from '../stores/useAuthStore';
+import type { TherapistVerificationDetail } from '../types/auth';
 
 // TODO: 백엔드 논의 필요 — 인증용 치료영역 enum 확정 전 와이어프레임 기준 임시 정의
 // 게시글 필터용 TherapyArea(5개)와 별개로 인증 전용 목록(9개)
@@ -23,7 +24,7 @@ const VERIFICATION_THERAPY_CHIPS = [
 
 export default function TherapistVerificationPage() {
   const navigate = useNavigate();
-  const { user, tokens, setAuth } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
 
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [licenseCode, setLicenseCode] = useState('');
@@ -31,11 +32,12 @@ export default function TherapistVerificationPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [verification, setVerification] = useState<TherapistVerificationDetail | null>(null);
 
   useEffect(() => {
-    getMe().then((freshUser) => {
-      if (tokens) setAuth(freshUser, null, tokens);
-    });
+    getMyVerification()
+      .then(setVerification)
+      .catch(() => {});
   }, []);
 
   function toggleArea(area: string) {
@@ -65,7 +67,7 @@ export default function TherapistVerificationPage() {
     if (e.dataTransfer.files?.[0]) validateAndSetFile(e.dataTransfer.files[0]);
   }
 
-  const verificationStatus = user?.therapistVerification?.status;
+  const verificationStatus = verification?.status ?? user?.therapistVerification?.status;
   const canSubmit =
     file !== null &&
     licenseCode.trim() !== '' &&
@@ -84,8 +86,8 @@ export default function TherapistVerificationPage() {
     setError('');
     try {
       await applyTherapistVerification(licenseCode, file!);
-      const freshUser = await getMe();
-      if (tokens) setAuth(freshUser, null, tokens);
+      const freshVerification = await getMyVerification();
+      setVerification(freshVerification);
       navigate('/verification-complete');
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response
@@ -112,6 +114,26 @@ export default function TherapistVerificationPage() {
         </button>
         <h1 className="text-xl font-bold text-gray-900">치료사 인증</h1>
       </div>
+
+      {/* 인증 현황 (PENDING 또는 REJECTED일 때) */}
+      {verification && (verificationStatus === 'PENDING' || verificationStatus === 'REJECTED') && (
+        <div className={`rounded-xl border p-4 mb-4 ${
+          verificationStatus === 'PENDING' ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'
+        }`}>
+          <p className="text-sm font-semibold text-gray-900 mb-2">
+            {verificationStatus === 'PENDING' ? '심사 중' : '인증 거절'}
+          </p>
+          <div className="text-sm text-gray-600 flex flex-col gap-1">
+            <span>신청일: {new Date(verification.createdAt).toLocaleDateString('ko-KR')}</span>
+            {verificationStatus === 'REJECTED' && verification.rejectReason && (
+              <span>거절 사유: {verification.rejectReason}</span>
+            )}
+            {verification.reviewedAt && (
+              <span>심사일: {new Date(verification.reviewedAt).toLocaleDateString('ko-KR')}</span>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* 메인 카드 */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">

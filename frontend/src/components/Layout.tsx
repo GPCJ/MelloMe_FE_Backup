@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, Home, PlusCircle, Search, User } from 'lucide-react';
 import { useAuthStore } from '../stores/useAuthStore';
+import { logout } from '../api/auth';
 import { buttonVariants } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -20,7 +21,13 @@ export default function Layout() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
-  function handleLogout() {
+  async function handleLogout() {
+    try {
+      await logout();
+    } catch {
+      alert('로그아웃에 실패했습니다. 다시 시도해주세요. (네트워크 탭 참조)');
+      return;
+    }
     clearAuth();
     navigate('/login');
   }

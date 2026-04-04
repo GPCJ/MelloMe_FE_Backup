@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import PostCard from '../components/PostCard';
-import { fetchMyPosts, fetchMyActivity } from '../api/mypage';
+import { fetchMyPosts, fetchMyComments, fetchMyScraps } from '../api/mypage';
+import { deleteAccount } from '../api/auth';
 import { useAuthStore } from '../stores/useAuthStore';
-import type { MyActivity } from '../types/mypage';
-import type { PostSummary } from '../types/post';
+import type { PaginatedComments, PaginatedScraps } from '../types/mypage';
+import type { PaginatedPosts } from '../types/post';
 
 type Tab = 'posts' | 'commented' | 'scrapped';
 
@@ -18,44 +20,77 @@ const TABS: { key: Tab; label: string }[] = [
 export default function ProfilePage() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
+
+  async function handleDeleteAccount() {
+    if (!window.confirm('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
+    try {
+      await deleteAccount();
+      clearAuth();
+      navigate('/login');
+    } catch {
+      alert('회원 탈퇴에 실패했습니다. 다시 시도해주세요.(네트워크 탭 참조)');
+    }
+  }
 
   const [activeTab, setActiveTab] = useState<Tab>('posts');
-  const [myPosts, setMyPosts] = useState<PostSummary[] | null>(null);
-  const [activity, setActivity] = useState<MyActivity | null>(null);
-  const [loadingPosts, setLoadingPosts] = useState(false);
-  const [loadingActivity, setLoadingActivity] = useState(false);
-  const [errorPosts, setErrorPosts] = useState(false);
-  const [errorActivity, setErrorActivity] = useState(false);
 
-  function loadPosts() {
+  const [postsData, setPostsData] = useState<PaginatedPosts | null>(null);
+  const [postsPage, setPostsPage] = useState(1);
+  const [loadingPosts, setLoadingPosts] = useState(false);
+  const [errorPosts, setErrorPosts] = useState(false);
+
+  const [commentsData, setCommentsData] = useState<PaginatedComments | null>(null);
+  const [commentsPage, setCommentsPage] = useState(1);
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [errorComments, setErrorComments] = useState(false);
+
+  const [scrapsData, setScrapsData] = useState<PaginatedScraps | null>(null);
+  const [scrapsPage, setScrapsPage] = useState(1);
+  const [loadingScraps, setLoadingScraps] = useState(false);
+  const [errorScraps, setErrorScraps] = useState(false);
+
+  function loadPosts(page = postsPage) {
     setErrorPosts(false);
     setLoadingPosts(true);
-    fetchMyPosts()
-      .then(setMyPosts)
+    fetchMyPosts(page - 1)
+      .then(setPostsData)
       .catch(() => setErrorPosts(true))
       .finally(() => setLoadingPosts(false));
   }
 
-  function loadActivity() {
-    setErrorActivity(false);
-    setLoadingActivity(true);
-    fetchMyActivity()
-      .then(setActivity)
-      .catch(() => setErrorActivity(true))
-      .finally(() => setLoadingActivity(false));
+  function loadComments(page = commentsPage) {
+    setErrorComments(false);
+    setLoadingComments(true);
+    fetchMyComments(page - 1)
+      .then(setCommentsData)
+      .catch(() => setErrorComments(true))
+      .finally(() => setLoadingComments(false));
+  }
+
+  function loadScraps(page = scrapsPage) {
+    setErrorScraps(false);
+    setLoadingScraps(true);
+    fetchMyScraps(page - 1)
+      .then(setScrapsData)
+      .catch(() => setErrorScraps(true))
+      .finally(() => setLoadingScraps(false));
   }
 
   useEffect(() => {
-    if (activeTab === 'posts' && !myPosts) loadPosts();
-    if ((activeTab === 'commented' || activeTab === 'scrapped') && !activity)
-      loadActivity();
-  }, [activeTab]);
+    if (activeTab === 'posts') loadPosts(postsPage);
+  }, [activeTab, postsPage]);
+
+  useEffect(() => {
+    if (activeTab === 'commented') loadComments(commentsPage);
+  }, [activeTab, commentsPage]);
+
+  useEffect(() => {
+    if (activeTab === 'scrapped') loadScraps(scrapsPage);
+  }, [activeTab, scrapsPage]);
 
   const isVerified =
     user?.therapistVerification?.status === 'APPROVED';
-
-  const commentedPosts = activity?.commentedPosts ?? [];
-  const scrappedPosts = activity?.scrappedPosts ?? [];
 
   return (
     <div className="pb-20 md:pb-8">
@@ -104,6 +139,12 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+        <button
+          onClick={handleDeleteAccount}
+          className="mt-4 text-sm text-gray-400 hover:text-red-500 transition-colors"
+        >
+          회원 탈퇴
+        </button>
       </div>
 
       {/* 탭 */}
@@ -131,42 +172,141 @@ export default function ProfilePage() {
         {activeTab === 'posts' && (
           <>
             {loadingPosts && <TabSkeleton />}
-            {errorPosts && <TabError onRetry={loadPosts} />}
-            {!loadingPosts && !errorPosts && myPosts?.length === 0 && (
+            {errorPosts && <TabError onRetry={() => loadPosts(postsPage)} />}
+            {!loadingPosts && !errorPosts && postsData?.posts.length === 0 && (
               <TabEmpty message="작성한 글이 없어요." />
             )}
             {!loadingPosts &&
-              myPosts?.map((post) => <PostCard key={post.id} post={post} />)}
+              postsData?.posts.map((post) => <PostCard key={post.id} post={post} />)}
+            {!loadingPosts && postsData && postsData.totalPages > 1 && (
+              <div className="flex items-center justify-center gap-1 py-6">
+                <button
+                  onClick={() => setPostsPage(postsPage - 1)}
+                  disabled={postsPage === 1}
+                  className="p-2 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                {Array.from({ length: postsData.totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => setPostsPage(page)}
+                      className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
+                        postsPage === page
+                          ? 'bg-gray-900 text-white'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
+                <button
+                  onClick={() => setPostsPage(postsPage + 1)}
+                  disabled={postsPage === postsData.totalPages}
+                  className="p-2 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
           </>
         )}
 
         {/* 답글 단 글 */}
         {activeTab === 'commented' && (
           <>
-            {loadingActivity && <TabSkeleton />}
-            {errorActivity && <TabError onRetry={loadActivity} />}
-            {!loadingActivity && !errorActivity && commentedPosts.length === 0 && (
+            {loadingComments && <TabSkeleton />}
+            {errorComments && <TabError onRetry={() => loadComments(commentsPage)} />}
+            {!loadingComments && !errorComments && commentsData?.comments.length === 0 && (
               <TabEmpty message="답글 단 글이 없어요." />
             )}
-            {!loadingActivity &&
-              commentedPosts.map(({ post }) => (
+            {!loadingComments &&
+              commentsData?.comments.map(({ post }) => (
                 <PostCard key={post.id} post={post} />
               ))}
+            {!loadingComments && commentsData && commentsData.totalPages > 1 && (
+              <div className="flex items-center justify-center gap-1 py-6">
+                <button
+                  onClick={() => setCommentsPage(commentsPage - 1)}
+                  disabled={commentsPage === 1}
+                  className="p-2 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                {Array.from({ length: commentsData.totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCommentsPage(page)}
+                      className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
+                        commentsPage === page
+                          ? 'bg-gray-900 text-white'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
+                <button
+                  onClick={() => setCommentsPage(commentsPage + 1)}
+                  disabled={commentsPage === commentsData.totalPages}
+                  className="p-2 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
           </>
         )}
 
         {/* 스크랩 */}
         {activeTab === 'scrapped' && (
           <>
-            {loadingActivity && <TabSkeleton />}
-            {errorActivity && <TabError onRetry={loadActivity} />}
-            {!loadingActivity && !errorActivity && scrappedPosts.length === 0 && (
+            {loadingScraps && <TabSkeleton />}
+            {errorScraps && <TabError onRetry={() => loadScraps(scrapsPage)} />}
+            {!loadingScraps && !errorScraps && scrapsData?.scraps.length === 0 && (
               <TabEmpty message="스크랩한 글이 없어요." />
             )}
-            {!loadingActivity &&
-              scrappedPosts.map(({ post }) => (
+            {!loadingScraps &&
+              scrapsData?.scraps.map(({ post }) => (
                 <PostCard key={post.id} post={post} />
               ))}
+            {!loadingScraps && scrapsData && scrapsData.totalPages > 1 && (
+              <div className="flex items-center justify-center gap-1 py-6">
+                <button
+                  onClick={() => setScrapsPage(scrapsPage - 1)}
+                  disabled={scrapsPage === 1}
+                  className="p-2 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                {Array.from({ length: scrapsData.totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => setScrapsPage(page)}
+                      className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
+                        scrapsPage === page
+                          ? 'bg-gray-900 text-white'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
+                <button
+                  onClick={() => setScrapsPage(scrapsPage + 1)}
+                  disabled={scrapsPage === scrapsData.totalPages}
+                  className="p-2 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>

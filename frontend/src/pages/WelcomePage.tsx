@@ -1,15 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '../stores/useAuthStore';
-import { useEffect } from 'react';
 
 export default function WelcomePage() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
-
-  useEffect(() => {
-    useAuthStore.setState({ isNewUser: null });
-  }, []);
 
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center px-4 text-center">

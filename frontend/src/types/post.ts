@@ -1,4 +1,3 @@
-export type BoardType = 'therapy_board' | 'document_board' | 'anonymous_board';
 export type PostSort = 'LATEST' | 'MOST_VIEWED';
 export type ReactionType = 'EMPATHY' | 'APPRECIATE' | 'HELPFUL';
 
@@ -54,7 +53,6 @@ export interface PostDetail {
   id: number;
   title: string;
   content: string;
-  postType: string;
   authorId: number;
   authorNickname: string;
   therapyArea?: TherapyArea;
@@ -80,8 +78,8 @@ export interface PaginatedPosts {
 export interface PostCreateRequest {
   title: string;
   content: string;
-  postType: string;
   therapyArea: TherapyArea;
+  ageGroup?: string;
 }
 
 export interface PostUpdateRequest {

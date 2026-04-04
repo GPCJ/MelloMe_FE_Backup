@@ -28,8 +28,8 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      const { isNewUser, user, tokens } = await login(email, password);
-      setAuth(user, isNewUser, tokens);
+      const { user, tokens } = await login(email, password);
+      setAuth(user, tokens);
       const verStatus = user.therapistVerification?.status;
       if (user.canAccessCommunity) {
         navigate('/posts');

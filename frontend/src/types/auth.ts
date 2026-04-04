@@ -21,9 +21,26 @@ export interface Tokens {
 }
 
 export interface AuthResponse {
-  isNewUser: boolean;
   user: MeResponse;
   tokens: Tokens;
+}
+
+export interface TherapistVerificationDetail {
+  id: number;
+  userId: number;
+  userEmail: string;
+  userNickname: string;
+  licenseCode: string;
+  licenseImageOriginName: string;
+  licenseImageDownloadUrl: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  reviewedById: number | null;
+  reviewedByNickname: string | null;
+  reviewedAt: string | null;
+  rejectReason: string | null;
+  createdAt: string;
+  updatedAt: string;
+  demoted: boolean;
 }
 
 export interface UserSummary {

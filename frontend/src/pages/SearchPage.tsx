@@ -32,16 +32,9 @@ export default function SearchPage() {
     try {
       const data = await fetchPosts({
         ...(therapyArea ? { therapyArea } : {}),
+        ...(query.trim() ? { keyword: query.trim() } : {}),
       });
-      // 클라이언트 사이드 텍스트 필터 (백엔드 검색 API 없음)
-      const filtered = query.trim()
-        ? data.posts.filter(
-            (p) =>
-              p.contentPreview?.includes(query) ||
-              p.authorNickname.includes(query),
-          )
-        : data.posts;
-      setResults(filtered);
+      setResults(data.posts);
     } catch {
       setResults([]);
       setError('검색 중 오류가 발생했습니다.');
@@ -57,14 +50,9 @@ export default function SearchPage() {
       setQuery(q);
       setLoading(true);
       setSearched(true);
-      fetchPosts({})
+      fetchPosts({ keyword: q })
         .then((data) => {
-          const filtered = data.posts.filter(
-            (p) =>
-              p.contentPreview?.includes(q) ||
-              p.authorNickname.includes(q),
-          );
-          setResults(filtered);
+          setResults(data.posts);
         })
         .catch(() => {
           setResults([]);

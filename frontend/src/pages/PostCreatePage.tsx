@@ -25,8 +25,8 @@ export default function PostCreatePage() {
       const post = await createPost({
         title: '',
         content,
-        postType: 'COMMUNITY',
         therapyArea,
+        ageGroup: '',
       });
       navigate(`/posts/${post.id}`);
     } catch {
