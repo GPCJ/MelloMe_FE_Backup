@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
-import { login, getMe } from '../api/auth';
+import { login } from '../api/auth';
 import { useAuthStore } from '../stores/useAuthStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,18 +34,30 @@ export default function LoginPage() {
       setTokens(tokens);
       setUser(user);
 
-      // [임시 대응] 탈퇴(소프트 삭제) 계정 감지
+      // [임시 대응 — 부분적 커버] 탈퇴(소프트 삭제) 계정 감지
       // 현재 백엔드는 탈퇴 유저에게 만료된 AT를 발급하여 서비스를 차단함.
-      // 로그인은 성공하지만 만료된 AT로 인해 모든 API가 401을 반환하므로,
-      // getMe()를 호출하여 AT 유효성을 검증한다.
+      // JWT payload의 exp를 디코딩하여 발급 시점에 이미 만료된 토큰인지 확인한다.
+      //
+      // 한계:
+      // - 로그인 시점에서만 감지 가능. 이미 진입한 상태(페이지 새로고침 등)에서는
+      //   인터셉터 refresh가 RT로 새 AT를 발급받아 우회되며, 모든 페이지가
+      //   스켈레톤 UI만 표시되는 "서비스 장애" UX가 됨.
+      // - 프론트만으로는 완전한 해결 불가 — 백엔드 수정이 필요함.
+      //
       // TODO: 백엔드에서 탈퇴 유저 로그인 시 명확한 에러 응답(예: 403 DELETED_ACCOUNT)을
       //       반환하도록 변경되면 이 로직을 제거하고 catch에서 직접 분기할 것.
       //       관련 이슈: AIRO-offical/therapist_community_BE#32
       try {
-        await getMe();
+        const payload = JSON.parse(atob(tokens.accessToken.split('.')[1]));
+        if (payload.exp * 1000 < Date.now()) {
+          clearAuth();
+          setError('탈퇴된 계정입니다. 새로운 계정으로 가입해주세요.');
+          return;
+        }
       } catch {
+        // JWT 디코딩 실패 — 비정상 토큰이므로 차단
         clearAuth();
-        setError('탈퇴된 계정입니다. 새로운 계정으로 가입해주세요.');
+        setError('로그인에 실패했습니다. 다시 시도해주세요.');
         return;
       }
 

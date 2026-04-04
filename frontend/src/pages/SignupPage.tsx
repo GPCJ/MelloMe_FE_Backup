@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { signup } from '../api/auth';
 import { useAuthStore } from '../stores/useAuthStore';
 import { Button } from '@/components/ui/button';
@@ -9,9 +9,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function SignupPage() {
-  const navigate = useNavigate();
   const setTokens = useAuthStore((s) => s.setTokens);
   const setUser = useAuthStore((s) => s.setUser);
+  const setPendingRedirect = useAuthStore((s) => s.setPendingRedirect);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -35,6 +35,10 @@ export default function SignupPage() {
     setLoading(true);
     try {
       const data = await signup(email, password, agreeTerms, agreePrivacy);
+      // pendingRedirect를 setUser보다 먼저 설정해야 한다.
+      // setUser → 리렌더 → GuestRoute 평가 순서이므로,
+      // GuestRoute가 평가되는 시점에 이미 목적지가 store에 있어야 함.
+      setPendingRedirect('/welcome');
       setTokens({ accessToken: data.accessToken });
       setUser({
         id: data.id,
@@ -43,7 +47,6 @@ export default function SignupPage() {
         profileImageUrl: null,
         role: data.role,
       });
-      navigate('/welcome', { replace: true, state: { redirectTo: '/welcome' } });
     } catch (err) {
       if (
         err &&
