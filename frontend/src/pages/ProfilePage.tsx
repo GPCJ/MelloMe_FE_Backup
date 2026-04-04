@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Camera } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import PostCard from '../components/PostCard';
 import { fetchMyPosts, fetchMyComments, fetchMyScraps } from '../api/mypage';
-import { deleteAccount } from '../api/auth';
+import { deleteAccount, uploadProfileImage, updateMyProfile } from '../api/auth';
 import { useAuthStore } from '../stores/useAuthStore';
 import type { PaginatedComments, PaginatedScraps } from '../types/mypage';
 import type { PaginatedPosts } from '../types/post';
@@ -20,7 +20,69 @@ const TABS: { key: Tab; label: string }[] = [
 export default function ProfilePage() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
   const clearAuth = useAuthStore((s) => s.clearAuth);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [editingNickname, setEditingNickname] = useState(false);
+  const [nicknameInput, setNicknameInput] = useState('');
+  const [savingNickname, setSavingNickname] = useState(false);
+
+  // 프론트 선검사 — 불필요한 업로드 방지 (서버에서도 검증하지만 UX 개선 목적)
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+  const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
+  async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      alert('jpg, png, webp 파일만 업로드할 수 있습니다.');
+      return;
+    }
+    if (file.size > MAX_SIZE) {
+      alert('5MB 이하의 파일만 업로드할 수 있습니다.');
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const { profileImageUrl } = await uploadProfileImage(file);
+      // 응답 URL로 스토어 직접 갱신 — getMe() 재호출 대비 API 1회 절약
+      if (user) setUser({ ...user, profileImageUrl });
+    } catch {
+      alert('프로필 이미지 변경에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setUploadingImage(false);
+      // 같은 파일 재선택 가능하도록 초기화
+      e.target.value = '';
+    }
+  }
+
+  function startEditNickname() {
+    setNicknameInput(user?.nickname ?? '');
+    setEditingNickname(true);
+  }
+
+  async function handleSaveNickname() {
+    const trimmed = nicknameInput.trim();
+    if (!trimmed || trimmed === user?.nickname) {
+      setEditingNickname(false);
+      return;
+    }
+
+    setSavingNickname(true);
+    try {
+      // profileImageUrl: 스토어 값 그대로 전달 — PATCH /me 400 에러 방지 (임시 대응)
+      const updated = await updateMyProfile(trimmed, user?.profileImageUrl ?? null);
+      setUser({ ...user!, ...updated });
+      setEditingNickname(false);
+    } catch {
+      alert('닉네임 변경에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setSavingNickname(false);
+    }
+  }
 
   async function handleDeleteAccount() {
     if (!window.confirm('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
@@ -97,35 +159,88 @@ export default function ProfilePage() {
       {/* 프로필 헤더 */}
       <div className="px-6 py-6 bg-white border-b border-gray-200">
         <div className="flex items-center gap-4">
-          {/* 아바타 */}
-          {user?.profileImageUrl ? (
-            <img
-              src={user.profileImageUrl}
-              alt={user.nickname}
-              className="w-16 h-16 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-16 h-16 rounded-full bg-purple-300 flex items-center justify-center text-white text-2xl font-bold shrink-0">
-              {user?.nickname?.[0] ?? '?'}
+          {/* 아바타 — 클릭 시 이미지 변경 */}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadingImage}
+            className="relative shrink-0 group"
+          >
+            {user?.profileImageUrl ? (
+              <img
+                src={user.profileImageUrl}
+                alt={user.nickname}
+                className="w-16 h-16 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-purple-300 flex items-center justify-center text-white text-2xl font-bold">
+                {user?.nickname?.[0] ?? '?'}
+              </div>
+            )}
+            <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+              <Camera size={20} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
-          )}
+            {uploadingImage && (
+              <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              </div>
+            )}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handleImageChange}
+            className="hidden"
+          />
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-lg font-bold text-gray-900">
-                {user?.nickname}
-              </span>
-              {isVerified ? (
-                <span className="px-2 py-0.5 rounded-full bg-green-50 text-green-700 text-xs font-medium">
-                  인증됨
-                </span>
+              {editingNickname ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={nicknameInput}
+                    onChange={(e) => setNicknameInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSaveNickname();
+                      if (e.key === 'Escape') setEditingNickname(false);
+                    }}
+                    autoFocus
+                    className="text-lg font-bold text-gray-900 border-b-2 border-gray-300 focus:border-gray-900 outline-none bg-transparent w-32"
+                  />
+                  <button
+                    onClick={handleSaveNickname}
+                    disabled={savingNickname}
+                    className="text-xs text-white bg-gray-900 px-2.5 py-1 rounded-md hover:bg-gray-800 disabled:opacity-50"
+                  >
+                    {savingNickname ? '저장 중...' : '저장'}
+                  </button>
+                  <button
+                    onClick={() => setEditingNickname(false)}
+                    className="text-xs text-gray-500 hover:text-gray-700"
+                  >
+                    취소
+                  </button>
+                </div>
               ) : (
-                <button
-                  onClick={() => navigate('/therapist-verifications')}
-                  className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-xs font-medium hover:bg-gray-200 transition-colors"
-                >
-                  인증하기
-                </button>
+                <>
+                  <span className="text-lg font-bold text-gray-900">
+                    {user?.nickname}
+                  </span>
+                  {isVerified ? (
+                    <span className="px-2 py-0.5 rounded-full bg-green-50 text-green-700 text-xs font-medium">
+                      인증됨
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => navigate('/therapist-verifications')}
+                      className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-xs font-medium hover:bg-gray-200 transition-colors"
+                    >
+                      인증하기
+                    </button>
+                  )}
+                </>
               )}
             </div>
             {/* 팔로워/팔로잉 — 백엔드 대기, 0 표시 */}
@@ -139,12 +254,20 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-        <button
-          onClick={handleDeleteAccount}
-          className="mt-4 text-sm text-gray-400 hover:text-red-500 transition-colors"
-        >
-          회원 탈퇴
-        </button>
+        <div className="flex items-center gap-3 mt-4">
+          <button
+            onClick={startEditNickname}
+            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            프로필 수정
+          </button>
+          <button
+            onClick={handleDeleteAccount}
+            className="text-sm text-gray-400 hover:text-red-500 transition-colors"
+          >
+            회원 탈퇴
+          </button>
+        </div>
       </div>
 
       {/* 탭 */}

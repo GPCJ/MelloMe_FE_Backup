@@ -28,7 +28,7 @@ export interface MyScrappedPost {
 }
 
 export interface PaginatedComments {
-  comments: MyCommentedPost[];
+  items: MyCommentedPost[];
   page: number;
   size: number;
   totalElements: number;
@@ -37,7 +37,7 @@ export interface PaginatedComments {
 }
 
 export interface PaginatedScraps {
-  scraps: MyScrappedPost[];
+  items: MyScrappedPost[];
   page: number;
   size: number;
   totalElements: number;

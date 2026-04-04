@@ -67,7 +67,7 @@ export interface PostDetail {
 }
 
 export interface PaginatedPosts {
-  posts: PostSummary[];
+  items: PostSummary[];
   page: number;
   size: number;
   totalElements: number;

@@ -41,6 +41,25 @@ export async function getMyVerification(): Promise<TherapistVerificationDetail> 
   return data
 }
 
+// PATCH /me — 닉네임 수정용. profileImageUrl은 400 방지를 위해 스토어 값 그대로 전달 (임시 대응, #이슈 참고)
+export async function updateMyProfile(
+  nickname: string,
+  profileImageUrl: string | null,
+): Promise<MeResponse> {
+  const { data } = await axiosInstance.patch('/me', { nickname, profileImageUrl })
+  return data
+}
+
+// 프로필 이미지 업로드 — 응답의 profileImageUrl로 스토어 직접 갱신 (getMe() 재호출 대비 API 1회 절약)
+export async function uploadProfileImage(file: File): Promise<{ profileImageUrl: string }> {
+  const formData = new FormData()
+  formData.append('file', file)
+  const { data } = await axiosInstance.post('/me/profile-image', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return data
+}
+
 export async function applyTherapistVerification(
   licenseCode: string,
   licenseImage: File,

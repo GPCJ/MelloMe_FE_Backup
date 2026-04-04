@@ -43,7 +43,7 @@ export default function SignupPage() {
         profileImageUrl: null,
         role: data.role,
       });
-      navigate('/welcome', { replace: true });
+      navigate('/welcome', { replace: true, state: { redirectTo: '/welcome' } });
     } catch (err) {
       if (
         err &&

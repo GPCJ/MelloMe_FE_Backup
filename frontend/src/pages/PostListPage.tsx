@@ -79,7 +79,7 @@ export default function PostListPage() {
       .then(setData)
       .catch((err) => {
         if (isAxiosError(err) && err.response?.status === 403) {
-          setData({ posts: [], page: 0, size: 0, totalPages: 0, totalElements: 0, hasNext: false });
+          setData({ items: [], page: 0, size: 0, totalPages: 0, totalElements: 0, hasNext: false });
           setError('공개 게시물이 없습니다.');
           return;
         }
@@ -184,9 +184,9 @@ export default function PostListPage() {
             ? Array.from({ length: 4 }).map((_, i) => (
                 <PostCardSkeleton key={i} />
               ))
-            : data?.posts.map((post) => <PostCard key={post.id} post={post} />)}
+            : data?.items.map((post) => <PostCard key={post.id} post={post} />)}
 
-          {!loading && !error && data?.posts.length === 0 && (
+          {!loading && !error && data?.items.length === 0 && (
             <div className="text-center py-16">
               <p className="text-gray-400 mb-4">아직 게시글이 없어요.</p>
               <Link
