@@ -21,6 +21,7 @@
 - **✅ 추가 확정**: DELETE /me (회원탈퇴) / PATCH /me (프로필수정)
 - **✅ 해소**: PATCH /me 프로필 수정 → [구현 완료 + 임시 대응 이슈](./project_profile_edit_feature.md)
 - **✅ 해소**: POST /me/profile-image 이미지 업로드 구현 완료
+- **⚠️ P0 백엔드 요청**: [탈퇴 유저 로그인 시 만료된 AT 문제](./project_soft_delete_login_workaround.md) — 프론트 JWT exp 체크 임시 대응 중, 백엔드 수정 필요
 - **❌ P0 잔존**: title optional (여전히 required)
 - **❌ P1 잔존**: 팔로우 / 블러
 - **✅ 해소**: 로그인/회원가입 응답 → [프론트 대응 완료 (04-04)](./project_login_signup_response_update.md) / 환영페이지 리다이렉트 버그 미해결
@@ -114,7 +115,8 @@
 - [git 커밋 전 diff --stat 필수](./feedback_git_diff_stat_check.md)
 - [shadcn/ui 기본 사용 원칙](./feedback_shadcn_default.md) — CSS 변수 기반 스타일링
 - [에러 삼키지 말고 실패 표시](./feedback_error_handling_visible.md) — .catch(()=>{}) 금지, QA 친화적 메시지
-- [GitHub Issues로 기술부채 관리](./feedback_github_issues.md) — 요청 시에만 gh issue create / [두 레포 동시 생성](./feedback_github_issues_dual_repo.md)
+- [GitHub Issues로 기술부채 관리](./feedback_github_issues.md) — 요청 시에만 gh issue create / [두 레포 동시 생성 — 목적별 판단](./feedback_github_issues_dual_repo.md)
+- [백엔드 협업 전달 전략](./project_backend_communication.md) — 문제+기대결과만 전달, 구현 방식 위임, LLM 복붙 형태
 - [API 에러 원인별 분기](./feedback_error_handling_by_cause.md) — 401은 인터셉터, 500/네트워크는 무시. 무조건 clearAuth() 금지
 - [토큰 사용량 최소화](./feedback_token_usage_awareness.md) — 에이전트 남용 금지, 직접 grep/read 우선
 - [집중력 떨어질 때 간결하게](./feedback_concise_when_tired.md) — 짧은 문장, 한번에 하나의 정보만
