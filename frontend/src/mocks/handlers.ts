@@ -280,9 +280,16 @@ export const handlers = [
     };
     signedUpEmails.add(body.email);
     currentUserEmail = body.email;
+    const account = testAccounts[body.email];
     return HttpResponse.json({
       success: true,
-      data: { accessToken: mockTokens.accessToken },
+      data: {
+        id: account.id,
+        email: body.email,
+        nickname: account.nickname,
+        accessToken: mockTokens.accessToken,
+        role: account.role,
+      },
     }, { status: 201 });
   }),
 
@@ -293,7 +300,26 @@ export const handlers = [
       currentUserEmail = body.email;
       return HttpResponse.json({
         success: true,
-        data: { accessToken: mockTokens.accessToken },
+        data: {
+          user: {
+            id: account.id,
+            email: body.email,
+            nickname: account.nickname,
+            profileImageUrl: null,
+            role: account.role,
+            canAccessCommunity: account.role !== 'USER',
+            therapistVerification: {
+              status: 'NOT_REQUESTED',
+              requestedAt: null,
+              reviewedAt: null,
+              rejectionReason: null,
+            },
+          },
+          tokens: {
+            accessToken: mockTokens.accessToken,
+            accessTokenExpiresInSec: mockTokens.accessTokenExpiresInSec,
+          },
+        },
       });
     }
     return HttpResponse.json(
