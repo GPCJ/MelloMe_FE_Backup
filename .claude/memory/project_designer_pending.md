@@ -32,6 +32,7 @@ type: project
 - **스크랩 버튼** — 게시글 내 위치·디자인 (REQ-010)
 - **데스크탑 헤더 글쓰기 버튼** — PC 환경에서 글쓰기 진입점 필요, 알림 아이콘 왼쪽 제안 → 디자이너 답변 대기 (2026-04-01)
 - **VerificationCompletePage** — PENDING(신청 접수) / APPROVED(승인 완료) 두 상태 화면 디자인 (현재 임시 텍스트로 분기 처리 중)
+- **치료사 인증 상세 정보 UI** — TherapistVerificationPage에서 거절 사유, 신청 일시, 심사 일시 등 표시 디자인 필요 (GET /therapist-verifications/me 연동 예정)
 
 ## 완료
 (없음)

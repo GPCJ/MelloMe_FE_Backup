@@ -14,13 +14,17 @@
 ## MVP 요구사항
 - [MVP 요구사항 상세 및 핵심지표](./project_mvp_requirements.md) — REQ-001~012 MVP, REQ-013~019 Post-MVP
 
-## 백엔드 대기 항목 (04-03 최신화)
+## 백엔드 대기 항목 (04-04 업데이트)
 - **→ [통합 우선순위 리스트 P0/P1/P2/Post-MVP](./project_backend_priority_list.md)** ← `/check-backend` 참조 파일
-- **P0**: therapyArea 필터 / title optional / 즉시 승인 / isNewUser 하드코딩
-- **P1**: 팔로우 / 블러 / 스크랩 / GET /me/posts / visibility 필드 / nickname 제거
-- **P2**: 파일 업로드 / 회원가입 토큰 / 답글 단 글 / 검색 API / CORS localhost
+- **→ [추가 개발 요청 20개](./project_backend_additional_requests.md)** — P0~PostMVP 신규 API 목록
+- **✅ 해소**: therapyArea 필터 / 즉시 승인 / 스크랩 API / GET /me/posts / 파일 업로드 / **GET /me/comments** (답글 단 글)
+- **✅ 추가 확정**: DELETE /me (회원탈퇴) / PATCH /me (프로필수정)
+- **❌ P0 잔존**: title optional (여전히 required)
+- **❌ P1 잔존**: 팔로우 / 블러
+- **❓ 확인 필요**: 회원가입 토큰 (서버 {id,email}만 반환, 프론트 tokens 기대) / isNewUser 실제 값
 - 상세: [API 이슈 #1~#21](./project_api_issues_2026_03_24.md) / [API 스펙 불일치](./project_api_spec_discrepancies.md)
 - [OpenAPI 업데이트 수령 대기](./project_openapi_update_pending.md) — 수령 후 6개 항목 비교 검토
+- [마이페이지 Swagger 확정 + ProfilePage 버그](./project_mypage_swagger_confirmed.md) — /me/activity → /me/comments+/me/scraps 분리 필요
 
 ## README
 - [README 작성 계획 — MVP 완성 후 작성](./project_readme_plan.md) — 9개 섹션 구성 확정, 포트폴리오/채용 목적
@@ -36,6 +40,7 @@
 - [게시글 title 필드 제거](./project_post_title_removal.md) — 빈 문자열 임시 전송, 백엔드 optional 요청 대기
 - [닉네임 정책 변경 + 임시 코드](./project_signup_nickname_change.md) — 백엔드 nickname 제거 시 프론트 코드 삭제
 - 환영 페이지 버그 v2 — 프론트 isNewUser 방식 재설계 완료(04-03), 백엔드 isNewUser 하드코딩 수정 대기
+- [랜딩 /me 호출 정책](./project_landing_me_call_decision.md) — MVP 매번 호출, React Query 도입 시 캐싱 전환
 
 ## 디자이너 협업
 - [대기 항목 + 워크플로우 + 모바일 퍼스트](./project_designer_pending.md) — 10개 UI 항목, 데일리 사이클
@@ -77,10 +82,17 @@
 - [UX 설계 논의 아카이브](./project_ux_design_decisions.md)
 - [UI만 구현된 기능](./project_ui_only_features.md) — 체크박스, 비밀번호 찾기, 검색바, 배너 통계
 
+## CSV API 검토 진행
+- [시트8.csv 38개 항목 검토 현황](./project_csv_api_review_progress.md) — 1~22번 완료, **23번(PATCH /posts/{postId})부터 재개**
+- [/home 엔드포인트 관심사 분리](./project_home_endpoint_redesign.md) — /home 경량화 + 확장 설계, 백엔드 요청 필요
+- [PATCH /me 이미지 업로드 방식](./project_patch_me_image_discussion.md) — multipart 직접 업로드 제안, 백엔드 논의 필요
+
 ## 개발 규칙 / 피드백
 - **[최우선]** [코드 작업 전 트레이드오프 설명 필수](./feedback_tradeoff_before_code.md)
 - [MVP 코드 수정 기준 이분법](./feedback_mvp_fix_criteria.md) — 방어 코드 즉시, 기획 의존 보류
 - [UI는 디자이너 확인 후 구현](./feedback_ui_designer_confirm.md)
+- [코드 수정 프로세스 — grep 선행 필수](./feedback_code_change_process.md)
+- [CSV API 검토 시 그때그때 수정 방식](./feedback_api_review_approach.md)
 - [navigate(-1) fallback 금지](./feedback_navigate_back.md)
 - [질문 방식 — 객관식 vs 주관식](./feedback_question_style.md)
 - [/wrap-up으로 세션 마무리](./feedback_session_bridge_removed.md) + [중요 내용 장기 메모리 저장](./feedback_session_bridge_longterm.md)
@@ -96,6 +108,7 @@
 - [피그마 스크린샷 선호](./feedback_figma_screenshot_preferred.md) / [프레임 Export PNG 2x](./feedback_figma_export_method.md)
 - [git 커밋 전 diff --stat 필수](./feedback_git_diff_stat_check.md)
 - [shadcn/ui 기본 사용 원칙](./feedback_shadcn_default.md) — CSS 변수 기반 스타일링
+- [에러 삼키지 말고 실패 표시](./feedback_error_handling_visible.md) — .catch(()=>{}) 금지, QA 친화적 메시지
 - [Notion 운영 방침](./project_notion_page_policy.md) — PM 주요 독자
 
 ## 노션 초안 (다른 기기에서 업로드 대기)

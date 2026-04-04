@@ -31,6 +31,9 @@ Claude가 생성한 코드가 많아지면서 인지부채가 쌓인 상태.
 ## 인지부채 추가 항목
 
 - **#007 후보** — 리액션 API 리팩토링 (2026-03-30): `likePost`/`unlikePost` → `getReaction`/`toggleReaction` 교체, `ReactionType` enum 변경, `PostReaction` 인터페이스 추가. 소스코드 흐름 이해 필요.
+- **#008** — `POST /auth/refresh` 동작 원리: refresh 토큰 사용 조건(401 발생 시), 과정(axiosInstance interceptor), 결과(새 accessToken 저장 + 실패 요청 재시도) 전체 흐름 이해 필요.
+
+- **#009** — 마이페이지 3종 탭 데이터 흐름: `ProfilePage.tsx` → `api/mypage.ts` → `types/mypage.ts` 3레이어 구조. 탭별 독립 상태(data/page/loading/error) + useEffect 트리거 + 페이지네이션 패턴. 탭 클릭 시에만 해당 API 호출되는 흐름 복습 필요.
 
 ## 다음 세션에서 할 일
 - jin24님이 어떤 영역부터 시작할지 선택
