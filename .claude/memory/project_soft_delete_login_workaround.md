@@ -1,31 +1,34 @@
 ---
-name: 탈퇴 유저 로그인 시 만료된 AT 문제 + 프론트 임시 대응
-description: 소프트 삭제 유저 로그인 → 만료된 AT → 스켈레톤 장애 UX. JWT exp 체크 임시 대응 중, 백엔드 수정 필요
+name: 탈퇴 유저 로그인/로그아웃 문제 — 현황
+description: 탈퇴 유저 로그인 시 정상 토큰 발급 + 로그아웃 데드락 해결 이력. 백엔드 에러 응답 배포 대기 중
 type: project
 ---
 
-## 문제
+## 현재 상태 (04-05)
 
-백엔드가 탈퇴(소프트 삭제) 유저에게 만료된 AT를 발급하여 서비스 차단.
-유저 입장에서는 로그인 성공 후 모든 페이지가 스켈레톤 UI만 표시 → 서비스 장애처럼 보임.
+백엔드가 탈퇴 유저 로그인 시 **에러 응답 반환하도록 수정 완료했으나 미배포**. 배포 후 프론트 catch에서 에러 코드 분기 추가 필요.
 
-## 프론트 임시 대응 (부분 커버)
+## 해결된 것: 로그아웃 데드락
 
-`src/pages/LoginPage.tsx` → `handleEmailLogin()`에서 로그인 직후 JWT exp 디코딩 체크.
-발급 시점에 이미 만료된 토큰이면 "탈퇴된 계정입니다" 표시.
+탈퇴 계정으로 로그인된 상태에서 로그아웃 불가 버그 → **인터셉터 데드락**이 근본 원인.
+- refresh 요청이 같은 axiosInstance를 사용 → refresh 자체가 401 시 자기 큐에 걸림 → `isRefreshing` 영원히 `true`
+- `await logout()`이 큐에서 무한 대기 → 이후 `clearAuth()`, `navigate()` 실행 안 됨
+- **수정**: fire-and-forget 방식 — `clearAuth()` + `navigate('/login')` 먼저, `logout().catch(() => {})` 나중
 
-| 시도 | 결과 |
-|------|------|
-| v1: getMe() 검증 | ❌ 인터셉터 refresh가 RT로 새 AT 발급받아 우회 |
-| v2: JWT exp 체크 (현재) | ⚠️ 로그인 시점만 감지. 페이지 새로고침 등 진입 후 동일 문제 |
+## 해결된 것: clearAuth localStorage
 
-## 결론
+`clearAuth()`에 `localStorage.removeItem('auth-storage')` 명시 추가 — persist 미들웨어 경합 방지.
 
-프론트만으로 완전 해결 불가. 백엔드에서 탈퇴 유저 로그인 시 에러 응답 + RT 무효화 필요.
+## 무력화된 것: JWT exp 워크어라운드
 
-**Why:** 만료된 AT vs 정상 세션 만료가 동일한 401로 보여 프론트에서 구분 불가
-**How to apply:** 백엔드 수정 후 JWT exp 체크 workaround 제거하고 catch에서 에러 코드 분기
+백엔드가 탈퇴 유저에게 **더 이상 만료된 AT를 주지 않음** (정상 30분 토큰 발급 확인).
+→ JWT exp 체크 코드 제거 완료 (04-05). `canAccessCommunity: false`도 일반 미인증 유저와 동일하여 판별 불가.
 
-## 전달 방식
+## 남은 작업
 
-GitHub 이슈 대신 디스코드로 직접 공유. LLM 전달용 텍스트 작성 완료 (04-05 대화 참조).
+백엔드 배포 후:
+1. 탈퇴 유저 로그인 시 백엔드 에러 응답 확인 (상태코드 + 에러코드)
+2. `LoginPage.tsx` catch에서 에러 코드 분기 추가 (TODO 주석 위치)
+
+**Why:** 프론트만으로 탈퇴 유저 판별 불가 — 응답에 구분 필드 없음
+**How to apply:** 백엔드 배포 소식 오면 즉시 디버그 + 프론트 분기 구현

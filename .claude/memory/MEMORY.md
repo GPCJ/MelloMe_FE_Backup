@@ -21,7 +21,8 @@
 - **✅ 추가 확정**: DELETE /me (회원탈퇴) / PATCH /me (프로필수정)
 - **✅ 해소**: PATCH /me 프로필 수정 → [구현 완료 + 임시 대응 이슈](./project_profile_edit_feature.md)
 - **✅ 해소**: POST /me/profile-image 이미지 업로드 구현 완료
-- **⚠️ P0 백엔드 요청**: [탈퇴 유저 로그인 시 만료된 AT 문제](./project_soft_delete_login_workaround.md) — 프론트 JWT exp 체크 임시 대응 중, 백엔드 수정 필요
+- **⚠️ P0 백엔드 배포 대기**: [탈퇴 유저 로그인/로그아웃](./project_soft_delete_login_workaround.md) — 로그아웃 데드락 해결, JWT exp 제거, 백엔드 에러 응답 배포 대기
+- [API 명세 Swagger 통일](./project_api_spec_platform.md) — 구글 시트 폐기
 - **❌ P0 잔존**: title optional (여전히 required)
 - **❌ P1 잔존**: 팔로우 / 블러
 - **✅ 해소**: 로그인/회원가입 응답 → [프론트 대응 완료 (04-04)](./project_login_signup_response_update.md) / 환영페이지 리다이렉트 버그 미해결
