@@ -8,6 +8,7 @@ import { deleteAccount, uploadProfileImage, updateMyProfile } from '../api/auth'
 import { useAuthStore } from '../stores/useAuthStore';
 import type { PaginatedComments, PaginatedScraps } from '../types/mypage';
 import type { PaginatedPosts } from '../types/post';
+import { resolveImageUrl } from '../utils/resolveImageUrl';
 
 type Tab = 'posts' | 'commented' | 'scrapped';
 
@@ -168,7 +169,7 @@ export default function ProfilePage() {
           >
             {user?.profileImageUrl ? (
               <img
-                src={user.profileImageUrl}
+                src={resolveImageUrl(user.profileImageUrl) ?? undefined}
                 alt={user.nickname}
                 className="w-16 h-16 rounded-full object-cover"
               />

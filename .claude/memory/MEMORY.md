@@ -44,7 +44,7 @@
 - [게시글 공개/비공개 UI 선반영](./project_post_visibility_ui.md) — isPublic 토글 UI만, API 미연동
 - [게시글 title 필드 제거](./project_post_title_removal.md) — 빈 문자열 임시 전송, 백엔드 optional 요청 대기
 - [닉네임 정책 변경 + 임시 코드](./project_signup_nickname_change.md) — 백엔드 nickname 제거 시 프론트 코드 삭제
-- 환영 페이지 버그 v2 — 프론트 isNewUser 방식 재설계 완료(04-03), 백엔드 isNewUser 하드코딩 수정 대기
+- ✅ 환영 페이지 버그 해결 (04-05) — WelcomePage 삭제, SignupPage 내부 상태 전환 방식으로 근본 수정. GuestRoute race condition 완전 제거
 - [랜딩 /me 호출 정책](./project_landing_me_call_decision.md) — MVP 매번 호출, React Query 도입 시 캐싱 전환
 - [Paginated 프로퍼티 fallback 매핑](./project_paginated_type_fix.md) — 백엔드 `posts`/`comments`/`scraps` → API 함수에서 `items` 매핑, comments·scraps 미확인
 
