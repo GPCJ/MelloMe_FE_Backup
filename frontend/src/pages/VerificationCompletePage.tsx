@@ -23,7 +23,7 @@ export default function VerificationCompletePage() {
   if (loading) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
-        <p className="text-sm text-gray-400">로딩 ���...</p>
+        <p className="text-sm text-gray-400">로딩 중...</p>
       </div>
     );
   }
@@ -73,7 +73,7 @@ export default function VerificationCompletePage() {
         <>
           <div className="text-5xl mb-6">📋</div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            인증 신청�� 접수되었습니다
+            인증 신청이 접수되었습니다
           </h1>
           <p className="text-sm text-gray-500 mb-8">
             검토 후 승인되면 커뮤니티를 이용할 수 있어요.
