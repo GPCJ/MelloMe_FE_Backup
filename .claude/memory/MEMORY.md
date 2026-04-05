@@ -116,7 +116,8 @@
 - [shadcn/ui 기본 사용 원칙](./feedback_shadcn_default.md) — CSS 변수 기반 스타일링
 - [에러 삼키지 말고 실패 표시](./feedback_error_handling_visible.md) — .catch(()=>{}) 금지, QA 친화적 메시지
 - [GitHub Issues로 기술부채 관리](./feedback_github_issues.md) — 요청 시에만 gh issue create / [두 레포 동시 생성 — 목적별 판단](./feedback_github_issues_dual_repo.md)
-- [백엔드 협업 전달 전략](./project_backend_communication.md) — 문제+기대결과만 전달, 구현 방식 위임, LLM 복붙 형태
+- [백엔드 협업 전달 전략 + 도구](./project_backend_communication.md) — Swagger 공식 명세, GitHub Issues 이슈 관리, 문제+기대결과만 전달
+- [이슈 동기화 정책 — 멜로미 ↔ 아이로](./project_issue_sync_policy.md) — 두 레포 이슈 매핑 현황
 - [API 에러 원인별 분기](./feedback_error_handling_by_cause.md) — 401은 인터셉터, 500/네트워크는 무시. 무조건 clearAuth() 금지
 - [토큰 사용량 최소화](./feedback_token_usage_awareness.md) — 에이전트 남용 금지, 직접 grep/read 우선
 - [집중력 떨어질 때 간결하게](./feedback_concise_when_tired.md) — 짧은 문장, 한번에 하나의 정보만
