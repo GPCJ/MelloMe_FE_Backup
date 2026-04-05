@@ -1,19 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Image, Lock, LockOpen, Paperclip, X } from 'lucide-react';
+import { ArrowLeft, Image, Lock, LockOpen, Paperclip } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import SimpleTextEditor from '../components/SimpleTextEditor';
+import FilePreviewGrid from '../components/FilePreviewGrid';
 import { fetchPost, updatePost, uploadPostAttachment, deletePostAttachment } from '../api/posts';
+import { useFileAttachment } from '../hooks/useFileAttachment';
 import type { Attachment, TherapyArea } from '../types/post';
 import { THERAPY_CHIPS } from '../constants/post';
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-
-interface PendingFile {
-  file: File;
-  previewUrl: string | null;
-}
 
 export default function PostEditPage() {
   const { postId } = useParams<{ postId: string }>();
@@ -29,11 +23,19 @@ export default function PostEditPage() {
   const [error, setError] = useState<string | null>(null);
   const [existingAttachments, setExistingAttachments] = useState<Attachment[]>([]);
   const [removedAttachmentIds, setRemovedAttachmentIds] = useState<number[]>([]);
-  const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
 
-  const imageInputRef = useRef<HTMLInputElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const remainingExisting = existingAttachments.length - removedAttachmentIds.length;
+
+  const {
+    pendingFiles,
+    fileError,
+    imageInputRef,
+    fileInputRef,
+    addFiles,
+    removeFile: removePendingFile,
+    clearFileError,
+  } = useFileAttachment(remainingExisting);
 
   const hasChanges =
     content !== initialContent ||
@@ -74,31 +76,6 @@ export default function PostEditPage() {
 
   const canSubmit = content.trim().length > 0 && hasChanges && !submitting;
 
-  function addFiles(files: FileList | null) {
-    if (!files) return;
-    const newFiles: PendingFile[] = [];
-    for (const file of Array.from(files)) {
-      if (file.size > MAX_FILE_SIZE) {
-        setError(`${file.name}: 10MB 이하 파일만 첨부할 수 있습니다.`);
-        continue;
-      }
-      const isImage = IMAGE_TYPES.includes(file.type);
-      newFiles.push({
-        file,
-        previewUrl: isImage ? URL.createObjectURL(file) : null,
-      });
-    }
-    setPendingFiles((prev) => [...prev, ...newFiles]);
-  }
-
-  function removePendingFile(index: number) {
-    setPendingFiles((prev) => {
-      const removed = prev[index];
-      if (removed.previewUrl) URL.revokeObjectURL(removed.previewUrl);
-      return prev.filter((_, i) => i !== index);
-    });
-  }
-
   function removeExistingAttachment(attachmentId: number) {
     setRemovedAttachmentIds((prev) => [...prev, attachmentId]);
   }
@@ -108,10 +85,15 @@ export default function PostEditPage() {
     const pid = Number(postId);
     setSubmitting(true);
     setError(null);
+    clearFileError();
+
+    let postUpdated = false;
     try {
       await updatePost(pid, { title: '', content, therapyArea });
+      postUpdated = true;
 
       const totalOps = removedAttachmentIds.length + pendingFiles.length;
+      let failedCount = 0;
       if (totalOps > 0) {
         let done = 0;
         setUploadProgress(`첨부파일 처리 중... (0/${totalOps})`);
@@ -119,19 +101,35 @@ export default function PostEditPage() {
         for (const attachmentId of removedAttachmentIds) {
           done++;
           setUploadProgress(`첨부파일 처리 중... (${done}/${totalOps})`);
-          await deletePostAttachment(pid, attachmentId);
+          try {
+            await deletePostAttachment(pid, attachmentId);
+          } catch {
+            failedCount++;
+          }
         }
 
         for (const pf of pendingFiles) {
           done++;
           setUploadProgress(`첨부파일 업로드 중... (${done}/${totalOps})`);
-          await uploadPostAttachment(pid, pf.file);
+          try {
+            await uploadPostAttachment(pid, pf.file);
+          } catch {
+            failedCount++;
+          }
         }
       }
 
+      if (failedCount > 0) {
+        alert(`게시글은 수정되었지만 ${failedCount}개 첨부파일 처리에 실패했습니다.`);
+      }
       navigate(`/posts/${postId}`);
     } catch {
-      setError('게시글 수정에 실패했습니다. 다시 시도해주세요.');
+      if (postUpdated) {
+        alert('첨부파일 처리에 실패했습니다. 게시글 상세로 이동합니다.');
+        navigate(`/posts/${postId}`);
+      } else {
+        setError('게시글 수정에 실패했습니다. 다시 시도해주세요.');
+      }
     } finally {
       setSubmitting(false);
       setUploadProgress(null);
@@ -192,51 +190,14 @@ export default function PostEditPage() {
           placeholder="내용을 입력해주세요"
         />
 
-        {/* 기존 + 새 첨부파일 프리뷰 */}
-        {(existingAttachments.filter((a) => !removedAttachmentIds.includes(a.id)).length > 0 || pendingFiles.length > 0) && (
-          <div className="flex flex-wrap gap-2">
-            {existingAttachments
-              .filter((a) => !removedAttachmentIds.includes(a.id))
-              .map((a) => (
-                <div key={a.id} className="relative group border border-gray-200 rounded-lg overflow-hidden">
-                  {IMAGE_TYPES.includes(a.contentType) ? (
-                    <img src={a.downloadUrl} alt={a.originalFilename} className="w-24 h-24 object-cover" />
-                  ) : (
-                    <div className="w-24 h-24 flex flex-col items-center justify-center bg-gray-50 px-1">
-                      <Paperclip size={16} className="text-gray-400 mb-1" />
-                      <span className="text-xs text-gray-500 text-center truncate w-full">{a.originalFilename}</span>
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => removeExistingAttachment(a.id)}
-                    className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-              ))}
-            {pendingFiles.map((pf, i) => (
-              <div key={`new-${i}`} className="relative group border border-blue-200 rounded-lg overflow-hidden">
-                {pf.previewUrl ? (
-                  <img src={pf.previewUrl} alt={pf.file.name} className="w-24 h-24 object-cover" />
-                ) : (
-                  <div className="w-24 h-24 flex flex-col items-center justify-center bg-blue-50 px-1">
-                    <Paperclip size={16} className="text-blue-400 mb-1" />
-                    <span className="text-xs text-blue-500 text-center truncate w-full">{pf.file.name}</span>
-                  </div>
-                )}
-                <button
-                  type="button"
-                  onClick={() => removePendingFile(i)}
-                  className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* 첨부파일 프리뷰 */}
+        <FilePreviewGrid
+          pendingFiles={pendingFiles}
+          onRemovePending={removePendingFile}
+          existingAttachments={existingAttachments}
+          removedAttachmentIds={removedAttachmentIds}
+          onRemoveExisting={removeExistingAttachment}
+        />
 
         {/* 숨겨진 file inputs */}
         <input
@@ -255,7 +216,7 @@ export default function PostEditPage() {
           onChange={(e) => { addFiles(e.target.files); e.target.value = ''; }}
         />
 
-        {error && <p className="text-sm text-red-500">{error}</p>}
+        {(error || fileError) && <p className="text-sm text-red-500">{error || fileError}</p>}
         {uploadProgress && <p className="text-sm text-blue-600">{uploadProgress}</p>}
 
         {/* 하단 액션 */}
