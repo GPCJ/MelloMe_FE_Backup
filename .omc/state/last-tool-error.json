@@ -1,7 +1,0 @@
-{
-  "tool_name": "mcp__filesystem__read_text_file",
-  "tool_input_preview": "{\"path\":\"/Users/jin/.claude/projects/-Users-jin-my-project/38788e88-6e81-4da1-8f21-d0d4cf4e14da/tool-results/mcp-filesystem-read_multiple_files-1775375516052.txt\",\"head\":2000}",
-  "error": "Access denied - path outside allowed directories: /Users/jin/.claude/projects/-Users-jin-my-project/38788e88-6e81-4da1-8f21-d0d4cf4e14da/tool-results/mcp-filesystem-read_multiple_files-1775375516052.txt not in /Users/jin/my-project",
-  "timestamp": "2026-04-05T07:51:58.570Z",
-  "retry_count": 2
-}

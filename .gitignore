@@ -21,6 +21,9 @@ openapi-3.0.yaml
 .claude/worktrees/
 */.claude/settings.local.json
 
+# OMC (런타임 임시 상태 파일)
+.omc/
+
 # 토큰/인증 파일
 *token*
 *Token*

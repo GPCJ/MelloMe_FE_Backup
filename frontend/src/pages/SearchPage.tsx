@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import PostCard from '../components/PostCard';
@@ -18,6 +18,18 @@ const SORT_OPTIONS: { value: PostSort; label: string }[] = [
   { value: 'MOST_VIEWED', label: '조회순' },
 ];
 
+function getPageNumbers(current: number, total: number): (number | '...')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages: (number | '...')[] = [1];
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  if (start > 2) pages.push('...');
+  for (let i = start; i <= end; i++) pages.push(i);
+  if (end < total - 1) pages.push('...');
+  pages.push(total);
+  return pages;
+}
+
 export default function SearchPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -32,29 +44,32 @@ export default function SearchPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  async function doSearch(page: number) {
-    if (!query.trim() && !therapyArea) return;
-    setLoading(true);
-    setSearched(true);
-    setError(null);
-    try {
-      const data = await fetchPosts({
-        ...(therapyArea ? { therapyArea } : {}),
-        ...(query.trim() ? { keyword: query.trim() } : {}),
-        sortType,
-        page: page - 1,
-        size: 10,
-      });
-      setResults(data.items);
-      setTotalPages(data.totalPages || 1);
-      setCurrentPage(page);
-    } catch {
-      setResults([]);
-      setError('검색 중 오류가 발생했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  }
+  const doSearch = useCallback(
+    async (page: number) => {
+      if (!query.trim() && !therapyArea) return;
+      setLoading(true);
+      setSearched(true);
+      setError(null);
+      try {
+        const data = await fetchPosts({
+          ...(therapyArea ? { therapyArea } : {}),
+          ...(query.trim() ? { keyword: query.trim() } : {}),
+          sortType,
+          page: page - 1,
+          size: 10,
+        });
+        setResults(data.items ?? []);
+        setTotalPages(data.totalPages ?? 1);
+        setCurrentPage(page);
+      } catch {
+        setResults([]);
+        setError('검색 중 오류가 발생했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [query, therapyArea, sortType],
+  );
 
   function handleSearch() {
     setCurrentPage(1);
@@ -71,28 +86,21 @@ export default function SearchPage() {
     const q = searchParams.get('q');
     if (q) {
       setQuery(q);
-      setLoading(true);
-      setSearched(true);
-      fetchPosts({ keyword: q, sortType, page: 0, size: 10 })
-        .then((data) => {
-          setResults(data.items);
-          setTotalPages(data.totalPages || 1);
-          setCurrentPage(1);
-        })
-        .catch(() => {
-          setResults([]);
-          setError('검색 중 오류가 발생했습니다.');
-        })
-        .finally(() => setLoading(false));
     }
   }, [searchParams]);
 
-  // 필터/정렬 변경 시 재검색
+  // query가 URL에서 세팅된 후 검색 실행 + 필터/정렬 변경 시 재검색
   useEffect(() => {
-    if (searched) doSearch(1);
-  }, [therapyArea, sortType]);
+    const q = searchParams.get('q');
+    if (q && query === q && !searched) {
+      doSearch(1);
+    } else if (searched) {
+      doSearch(1);
+    }
+  }, [therapyArea, sortType, doSearch]);
 
   function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.nativeEvent.isComposing) return;
     if (e.key === 'Enter') handleSearch();
   }
 
@@ -102,7 +110,7 @@ export default function SearchPage() {
       <div className="sticky top-14 z-40 bg-white border-b border-gray-200">
         <div className="flex items-center gap-2 px-4 py-3">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/posts')}
             className="p-1 text-gray-500 hover:text-gray-900 transition-colors shrink-0"
           >
             <ArrowLeft size={20} />
@@ -193,19 +201,25 @@ export default function SearchPage() {
           >
             <ChevronLeft size={18} />
           </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`w-8 h-8 rounded-full text-sm ${
-                page === currentPage
-                  ? 'bg-gray-900 text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              {page}
-            </button>
-          ))}
+          {getPageNumbers(currentPage, totalPages).map((page, idx) =>
+            page === '...' ? (
+              <span key={`ellipsis-${idx}`} className="w-8 text-center text-gray-400 text-sm">
+                ...
+              </span>
+            ) : (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`w-8 h-8 rounded-full text-sm ${
+                  page === currentPage
+                    ? 'bg-gray-900 text-white'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                {page}
+              </button>
+            ),
+          )}
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage >= totalPages}
