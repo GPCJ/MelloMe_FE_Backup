@@ -62,7 +62,6 @@ export default function PostEditPage() {
         title: '',
         content,
         therapyArea,
-        ageGroup: '',
       });
       navigate(`/posts/${postId}`);
     } catch {
