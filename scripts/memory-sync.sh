@@ -57,7 +57,7 @@ case "$1" in
     if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
       echo "⚠️  커밋되지 않은 변경사항 감지 → 자동 커밋 진행"
       git add -A
-      git commit -m "chore: push 전 변경사항 자동 커밋 $(date '+%Y-%m-%d %H:%M')"
+      git commit -m "${COMMIT_MSG:-chore: push 전 변경사항 자동 커밋 $(date '+%Y-%m-%d %H:%M')}"
     fi
     # sync_status.md 최신화
     SYNC_TIME=$(date '+%Y-%m-%d %H:%M KST')
