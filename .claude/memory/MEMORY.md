@@ -38,6 +38,10 @@
 ## 아키텍처 점검
 - [프론트 아키텍처 점검 Before (04-03)](./project_architecture_review_0403.md) — 4개 개선 포인트, 기능 추가 시 After 적용
 
+## 게시글 첨부파일 업로드
+- [프론트 구현 완료, 백엔드 400 버그 대기](./project_post_attachment_feature.md) — airo 이슈 #8 등록
+- [axiosInstance FormData Content-Type 버그 수정](./project_axios_formdata_fix.md) — 인터셉터로 일괄 해결
+
 ## 프론트 보류/기술부채
 - [MSW 선구현 보류](./project_msw_preimpl_hold.md) — 백엔드 직접 연동 전환
 - [보류된 리팩토링 항목](./project_pending_refactor.md) — refresh plain axios 교체 등
