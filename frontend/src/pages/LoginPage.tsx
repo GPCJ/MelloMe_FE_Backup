@@ -31,38 +31,18 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const { user, tokens } = await login(email, password);
-      console.log('[Login] 로그인 응답 수신:', { user, hasAT: !!tokens.accessToken });
-
       setTokens(tokens);
       setUser(user);
 
-      // [임시 대응] 탈퇴 계정 감지 — JWT exp 디코딩
-      try {
-        const payload = JSON.parse(atob(tokens.accessToken.split('.')[1]));
-        const isExpired = payload.exp * 1000 < Date.now();
-        console.log('[Login] JWT exp 체크:', { exp: new Date(payload.exp * 1000).toISOString(), now: new Date().toISOString(), isExpired });
+      // TODO: 백엔드에서 탈퇴 유저 로그인 시 에러 응답 반환하도록 수정 예정
+      // 배포 후 catch에서 DELETED_ACCOUNT 에러 코드 분기 추가할 것
 
-        if (isExpired) {
-          clearAuth();
-          setError('탈퇴된 계정입니다. 새로운 계정으로 가입해주세요.');
-          console.log('[Login] 탈퇴 계정 감지 → clearAuth + 에러 표시');
-          return;
-        }
-      } catch {
-        clearAuth();
-        setError('로그인에 실패했습니다. 다시 시도해주세요.');
-        console.log('[Login] JWT 디코딩 실패 → clearAuth');
-        return;
-      }
-
-      console.log('[Login] 정상 로그인 → navigate:', user.role !== 'USER' ? '/posts' : '/therapist-verifications');
       if (user.role !== 'USER') {
         navigate('/posts');
       } else {
         navigate('/therapist-verifications');
       }
     } catch (err) {
-      console.log('[Login] login() API 에러:', err);
       setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
     } finally {
       setLoading(false);
