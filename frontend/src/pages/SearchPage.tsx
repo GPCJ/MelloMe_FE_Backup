@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import PostCard from '../components/PostCard';
@@ -44,32 +44,33 @@ export default function SearchPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const doSearch = useCallback(
-    async (page: number) => {
-      if (!query.trim() && !therapyArea) return;
-      setLoading(true);
-      setSearched(true);
-      setError(null);
-      try {
-        const data = await fetchPosts({
-          ...(therapyArea ? { therapyArea } : {}),
-          ...(query.trim() ? { keyword: query.trim() } : {}),
-          sortType,
-          page: page - 1,
-          size: 10,
-        });
-        setResults(data.items ?? []);
-        setTotalPages(data.totalPages ?? 1);
-        setCurrentPage(page);
-      } catch {
-        setResults([]);
-        setError('검색 중 오류가 발생했습니다.');
-      } finally {
-        setLoading(false);
-      }
-    },
-    [query, therapyArea, sortType],
-  );
+  const queryRef = useRef(query);
+  queryRef.current = query;
+
+  async function doSearch(page: number) {
+    const kw = queryRef.current.trim();
+    if (!kw && !therapyArea) return;
+    setLoading(true);
+    setSearched(true);
+    setError(null);
+    try {
+      const data = await fetchPosts({
+        ...(therapyArea ? { therapyArea } : {}),
+        ...(kw ? { keyword: kw } : {}),
+        sortType,
+        page: page - 1,
+        size: 10,
+      });
+      setResults(data.items ?? []);
+      setTotalPages(data.totalPages ?? 1);
+      setCurrentPage(page);
+    } catch {
+      setResults([]);
+      setError('검색 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function handleSearch() {
     setCurrentPage(1);
@@ -86,18 +87,17 @@ export default function SearchPage() {
     const q = searchParams.get('q');
     if (q) {
       setQuery(q);
+      queryRef.current = q;
+      doSearch(1);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  // query가 URL에서 세팅된 후 검색 실행 + 필터/정렬 변경 시 재검색
+  // 필터/정렬 변경 시 재검색
   useEffect(() => {
-    const q = searchParams.get('q');
-    if (q && query === q && !searched) {
-      doSearch(1);
-    } else if (searched) {
-      doSearch(1);
-    }
-  }, [therapyArea, sortType, doSearch]);
+    if (searched) doSearch(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [therapyArea, sortType]);
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.nativeEvent.isComposing) return;
