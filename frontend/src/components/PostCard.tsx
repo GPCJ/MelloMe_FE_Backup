@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Bookmark, MessageCircle, Eye } from 'lucide-react';
 import type { PostSummary } from '../types/post';
 import { THERAPY_AREA_LABELS } from '../constants/post';
 import { formatRelativeTime } from '../utils/formatDate';
 import { resolveImageUrl } from '../utils/resolveImageUrl';
+import { scrapPost, unscrapPost } from '../api/posts';
 import VerifiedBadge from './VerifiedBadge';
 import ReactionBar from './ReactionBar';
 import { useReactionToggle } from '../hooks/useReactionToggle';
@@ -47,6 +49,28 @@ export default function PostCard({ post }: PostCardProps) {
 
   const hashtags = MOCK_HASHTAGS[post.id] ?? (therapyLabel ? [`#${therapyLabel}`] : []);
 
+  const [scrapped, setScrapped] = useState(false);
+  const [scrapLoading, setScrapLoading] = useState(false);
+
+  const handleScrapToggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (scrapLoading) return;
+    setScrapLoading(true);
+    try {
+      if (scrapped) {
+        await unscrapPost(post.id);
+      } else {
+        await scrapPost(post.id);
+      }
+      setScrapped(!scrapped);
+    } catch {
+      // TODO: 에러 토스트 추가
+    } finally {
+      setScrapLoading(false);
+    }
+  };
+
   // TODO: PostSummary API에 리액션 카운트 포함 시 초기값 연결 필요
   const { reaction, toggling, handleToggle } = useReactionToggle({
     postId: post.id,
@@ -72,9 +96,17 @@ export default function PostCard({ post }: PostCardProps) {
           <span className="text-[11px] text-gray-500">
             {formatRelativeTime(post.createdAt)}
           </span>
-          <span className="ml-auto text-gray-300">
-            <Bookmark size={16} />
-          </span>
+          <button
+            type="button"
+            onClick={handleScrapToggle}
+            disabled={scrapLoading}
+            className="ml-auto"
+          >
+            <Bookmark
+              size={16}
+              className={scrapped ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
+            />
+          </button>
         </div>
 
         {/* 2행: 해시태그 */}
