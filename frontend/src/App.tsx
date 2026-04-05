@@ -14,7 +14,6 @@ import PostEditPage from './pages/PostEditPage';
 import SearchPage from './pages/SearchPage';
 import ProfilePage from './pages/ProfilePage';
 import TherapistVerificationPage from './pages/TherapistVerificationPage';
-import WelcomePage from './pages/WelcomePage';
 import VerificationCompletePage from './pages/VerificationCompletePage';
 
 function App() {
@@ -28,12 +27,15 @@ function App() {
           {/* 비로그인 전용 라우트 */}
           <Route element={<GuestRoute />}>
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
           </Route>
 
-          {/* 회원가입 후 전환 페이지 */}
+          {/* SignupPage는 GuestRoute 밖에 배치.
+              GuestRoute 안에 있으면 setUser() 호출 시 GuestRoute가 먼저 리렌더되어
+              환영 UI를 보여주기 전에 랜딩페이지로 튕기는 race condition 발생.
+              로그인 유저 접근 차단은 SignupPage 내부에서 직접 처리. */}
+          <Route path="/signup" element={<SignupPage />} />
+
           <Route element={<AuthRoute />}>
-            <Route path="/welcome" element={<WelcomePage />} />
             <Route path="/verification-complete" element={<VerificationCompletePage />} />
           </Route>
 
