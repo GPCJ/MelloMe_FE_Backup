@@ -81,15 +81,16 @@ export default function PostCreatePage() {
         <div className="pt-2 border-t border-gray-200 flex flex-col gap-3">
           {/* 모바일: 아이콘 행 */}
           <div className="flex items-center md:hidden">
-            <button type="button" className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+            <button type="button" aria-label="이미지 첨부" className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
               <Image size={20} />
             </button>
-            <button type="button" className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+            <button type="button" aria-label="파일 첨부" className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
               <Paperclip size={20} />
             </button>
             <div className="flex-1" />
             <button
               type="button"
+              aria-label={isPublic ? '비공개로 전환' : '공개로 전환'}
               onClick={() => setIsPublic((v) => !v)}
               className={`p-2 transition-colors ${isPublic ? 'text-gray-400 hover:text-gray-600' : 'text-gray-900'}`}
             >
@@ -107,11 +108,16 @@ export default function PostCreatePage() {
             {submitting ? '등록 중...' : '게시하기'}
           </button>
 
-          {/* 데스크탑: 한 줄 (클립 | 자물쇠 + 게시하기) */}
+          {/* 데스크탑: 한 줄 (아이콘들 | 자물쇠 + 게시하기) */}
           <div className="hidden md:flex items-center justify-between">
-            <button type="button" className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-              <Paperclip size={20} />
-            </button>
+            <div className="flex items-center">
+              <button type="button" className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                <Image size={20} />
+              </button>
+              <button type="button" className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                <Paperclip size={20} />
+              </button>
+            </div>
             <div className="flex items-center gap-2">
               <button
                 type="button"

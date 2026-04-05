@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Paperclip } from 'lucide-react';
+import { ArrowLeft, Image, Lock, LockOpen, Paperclip } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import SimpleTextEditor from '../components/SimpleTextEditor';
 import { fetchPost, updatePost } from '../api/posts';
@@ -16,6 +16,7 @@ export default function PostEditPage() {
   const [therapyArea, setTherapyArea] = useState<TherapyArea>('UNSPECIFIED');
   const [initialTherapyArea, setInitialTherapyArea] = useState<TherapyArea>('UNSPECIFIED');
   const [loading, setLoading] = useState(true);
+  const [isPublic, setIsPublic] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,7 +52,7 @@ export default function PostEditPage() {
       .finally(() => setLoading(false));
   }, [postId]);
 
-  const canSubmit = content.trim().length > 0 && !submitting;
+  const canSubmit = content.trim().length > 0 && hasChanges && !submitting;
 
   async function handleSubmit() {
     if (!postId || !canSubmit) return;
@@ -127,22 +128,65 @@ export default function PostEditPage() {
 
         {error && <p className="text-sm text-red-500">{error}</p>}
 
-        {/* 하단: 첨부 아이콘 + 게시 버튼 */}
-        <div className="flex items-center justify-between pt-2 border-t border-gray-200">
-          <button
-            type="button"
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <Paperclip size={20} />
-          </button>
+        {/* 하단 액션 */}
+        <div className="pt-2 border-t border-gray-200 flex flex-col gap-3">
+          {/* 모바일: 아이콘 행 */}
+          <div className="flex items-center md:hidden">
+            <button type="button" aria-label="이미지 첨부" className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+              <Image size={20} />
+            </button>
+            <button type="button" aria-label="파일 첨부" className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+              <Paperclip size={20} />
+            </button>
+            <div className="flex-1" />
+            <button
+              type="button"
+              aria-label={isPublic ? '비공개로 전환' : '공개로 전환'}
+              onClick={() => setIsPublic((v) => !v)}
+              className={`p-2 transition-colors ${isPublic ? 'text-gray-400 hover:text-gray-600' : 'text-gray-900'}`}
+            >
+              {isPublic ? <LockOpen size={20} /> : <Lock size={20} />}
+            </button>
+          </div>
+
+          {/* 모바일: 풀너비 수정하기 */}
           <button
             type="button"
             onClick={handleSubmit}
             disabled={!canSubmit}
-            className="px-6 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="md:hidden w-full py-3 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {submitting ? '수정 중...' : '수정하기'}
           </button>
+
+          {/* 데스크탑: 한 줄 (아이콘들 | 자물쇠 + 수정하기) */}
+          <div className="hidden md:flex items-center justify-between">
+            <div className="flex items-center">
+              <button type="button" className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                <Image size={20} />
+              </button>
+              <button type="button" className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                <Paperclip size={20} />
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsPublic((v) => !v)}
+                className={`p-2 transition-colors ${isPublic ? 'text-gray-400 hover:text-gray-600' : 'text-gray-900'}`}
+              >
+                {isPublic ? <LockOpen size={20} /> : <Lock size={20} />}
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={!canSubmit}
+                className="px-6 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {submitting ? '수정 중...' : '수정하기'}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
