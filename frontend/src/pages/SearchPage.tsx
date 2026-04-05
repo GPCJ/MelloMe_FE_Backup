@@ -35,8 +35,6 @@ export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const isComposingRef = useRef(false);
-  const pendingSubmitRef = useRef(false);
   const [therapyArea, setTherapyArea] = useState<TherapyArea | ''>('');
   const [sortType, setSortType] = useState<PostSort>('LATEST');
   const [results, setResults] = useState<PostSummary[] | null>(null);
@@ -85,21 +83,8 @@ export default function SearchPage() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (isComposingRef.current) {
-      // 조합 중이면 submit 보류 → compositionEnd에서 실행
-      pendingSubmitRef.current = true;
-      return;
-    }
-    executeSearch();
-  }
-
-  function handleCompositionEnd() {
-    isComposingRef.current = false;
-    if (pendingSubmitRef.current) {
-      pendingSubmitRef.current = false;
-      // compositionend 후 input.value가 확정되도록 다음 틱에서 실행
-      requestAnimationFrame(() => executeSearch());
-    }
+    // 한글 IME 조합 완료 후 input.value가 확정되도록 다음 프레임에서 실행
+    requestAnimationFrame(() => executeSearch());
   }
 
   function handlePageChange(page: number) {
@@ -142,8 +127,6 @@ export default function SearchPage() {
               type="text"
               name="keyword"
               defaultValue={searchParams.get('q') ?? ''}
-              onCompositionStart={() => { isComposingRef.current = true; }}
-              onCompositionEnd={handleCompositionEnd}
               placeholder="검색어를 입력하세요"
               className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none"
               autoFocus
