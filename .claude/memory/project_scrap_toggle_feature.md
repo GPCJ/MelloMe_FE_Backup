@@ -1,6 +1,6 @@
 ---
 name: 스크랩 토글 기능 구현 상태
-description: PostCard 스크랩 버튼 구현 완료 + 백엔드 isScrapped 필드 요청 필요
+description: PostCard 스크랩 버튼 구현 완료 + 백엔드 isScrapped 필드 합의 완료, 구현 대기
 type: project
 ---
 
@@ -14,6 +14,8 @@ type: project
 - 로컬 state 기반 → 새로고침 시 스크랩 표시 초기화
 - **Why:** 백엔드 PostSummary에 `isScrapped` 필드가 없음
 
-## 백엔드 요청 필요
-- PostSummary 응답에 `isScrapped` 필드 추가 요청
+## 백엔드 합의 완료 — 구현 대기
+- 방식 1(서버 `isScrapped` 필드) 확정 — 백엔드에서 유저 스크랩 ID와 게시물 ID 참조해서 boolean 내려주기로 합의
+- 방식 2(프론트 `/me/scraps` 매칭)는 보류
+- 이슈: 아이로 #7 / 멜로미 #7
 - **How to apply:** 필드 추가되면 `useState(post.isScrapped)`로 초기값 전환

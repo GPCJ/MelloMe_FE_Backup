@@ -49,7 +49,7 @@
 - [랜딩 /me 호출 정책](./project_landing_me_call_decision.md) — MVP 매번 호출, React Query 도입 시 캐싱 전환
 - [Paginated 프로퍼티 fallback 매핑](./project_paginated_type_fix.md) — 백엔드 `posts`/`comments`/`scraps` → API 함수에서 `items` 매핑
 - [내 댓글 탭 응답 형식 수정 완료](./project_my_comments_fix.md) — MyComment 타입 + CommentItem UI, 백엔드 응답에 프론트 맞춤
-- [스크랩 토글 구현 + isScrapped 요청 필요](./project_scrap_toggle_feature.md) — 로컬 state 기반, 새로고침 시 초기화 한계
+- [스크랩 토글 구현 + isScrapped 합의 완료](./project_scrap_toggle_feature.md) — 로컬 state 임시, 백엔드 필드 추가 대기 (이슈 #7)
 
 ## 디자이너 협업
 - [대기 항목 + 워크플로우 + 모바일 퍼스트](./project_designer_pending.md) — 10개 UI 항목, 데일리 사이클
