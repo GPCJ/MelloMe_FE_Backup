@@ -18,7 +18,6 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const setTokens = useAuthStore((s) => s.setTokens);
   const setUser = useAuthStore((s) => s.setUser);
-  const clearAuth = useAuthStore((s) => s.clearAuth);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
