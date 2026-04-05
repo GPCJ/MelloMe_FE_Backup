@@ -13,6 +13,10 @@ axiosInstance.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+  // FormData 전송 시 Content-Type 삭제 → 브라우저가 multipart boundary 자동 설정
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type']
+  }
   return config
 })
 
