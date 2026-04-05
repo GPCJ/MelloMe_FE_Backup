@@ -32,9 +32,9 @@ function getPageNumbers(current: number, total: number): (number | '...')[] {
 
 export default function SearchPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [query, setQuery] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
   const [therapyArea, setTherapyArea] = useState<TherapyArea | ''>('');
   const [sortType, setSortType] = useState<PostSort>('LATEST');
   const [results, setResults] = useState<PostSummary[] | null>(null);
@@ -44,19 +44,18 @@ export default function SearchPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const queryRef = useRef(query);
-  queryRef.current = query;
+  // 현재 검색 키워드 (검색 실행 시점에 확정된 값)
+  const keywordRef = useRef('');
 
-  async function doSearch(page: number) {
-    const kw = queryRef.current.trim();
-    if (!kw && !therapyArea) return;
+  async function doSearch(keyword: string, page: number) {
+    if (!keyword && !therapyArea) return;
     setLoading(true);
     setSearched(true);
     setError(null);
     try {
       const data = await fetchPosts({
         ...(therapyArea ? { therapyArea } : {}),
-        ...(kw ? { keyword: kw } : {}),
+        ...(keyword ? { keyword } : {}),
         sortType,
         page: page - 1,
         size: 10,
@@ -72,37 +71,39 @@ export default function SearchPage() {
     }
   }
 
-  function handleSearch() {
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const value = inputRef.current?.value.trim() ?? '';
+    keywordRef.current = value;
+    // URL 업데이트
+    if (value) {
+      setSearchParams({ q: value });
+    }
     setCurrentPage(1);
-    doSearch(1);
+    doSearch(value, 1);
   }
 
   function handlePageChange(page: number) {
-    doSearch(page);
+    doSearch(keywordRef.current, page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // URL ?q= 파라미터로 진입 시 자동 검색
   useEffect(() => {
     const q = searchParams.get('q');
-    if (q) {
-      setQuery(q);
-      queryRef.current = q;
-      doSearch(1);
+    if (q && inputRef.current) {
+      inputRef.current.value = q;
+      keywordRef.current = q;
+      doSearch(q, 1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  }, []);
 
   // 필터/정렬 변경 시 재검색
   useEffect(() => {
-    if (searched) doSearch(1);
+    if (searched) doSearch(keywordRef.current, 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [therapyArea, sortType]);
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    handleSearch();
-  }
 
   return (
     <div className="pb-20 md:pb-8">
@@ -118,9 +119,10 @@ export default function SearchPage() {
           </button>
           <div className="flex-1 flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2">
             <input
+              ref={inputRef}
               type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              name="keyword"
+              defaultValue={searchParams.get('q') ?? ''}
               placeholder="검색어를 입력하세요"
               className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none"
               autoFocus
@@ -139,6 +141,7 @@ export default function SearchPage() {
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
             {FILTER_CHIPS.map((chip) => (
               <button
+                type="button"
                 key={chip.value}
                 onClick={() => setTherapyArea(chip.value)}
                 className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
