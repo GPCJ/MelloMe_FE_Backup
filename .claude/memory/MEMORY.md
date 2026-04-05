@@ -21,7 +21,7 @@
 - **✅ 추가 확정**: DELETE /me (회원탈퇴) / PATCH /me (프로필수정)
 - **✅ 해소**: PATCH /me 프로필 수정 → [구현 완료 + 임시 대응 이슈](./project_profile_edit_feature.md)
 - **✅ 해소**: POST /me/profile-image 이미지 업로드 구현 완료
-- **⚠️ P0 백엔드 배포 대기**: [탈퇴 유저 로그인/로그아웃](./project_soft_delete_login_workaround.md) — 로그아웃 데드락 해결, JWT exp 제거, 백엔드 에러 응답 배포 대기
+- **⚠️ P0 에러코드 분리 대기**: [탈퇴 유저 로그인](./project_soft_delete_login_workaround.md) — INVALID_CREDENTIALS 통일 문제, DELETED_ACCOUNT 요청 (이슈 #3) + 프론트 인터셉터/catch 버그 미수정
 - [API 명세 Swagger 통일](./project_api_spec_platform.md) — 구글 시트 폐기
 - **❌ P0 잔존**: title optional (여전히 required)
 - **❌ P1 잔존**: 팔로우 / 블러
@@ -142,7 +142,7 @@
 - [Claude Code aliases](./project_bash_aliases.md) — `mel` / `mel-dev` / `mel-review` / `portfolio`
 - [플러그인 + hook 설정](./project_superpowers_plugin.md) — superpowers, frontend-design, 버그 감지 hook
 - [워크트리 정리 완료 — main/public 2브랜치](./project_worktree_cleanup.md)
-- [airo remote 설정](./project_airo_repo.md) / [백업 레포 URL](./reference_backup_repos.md)
+- [airo remote 설정](./project_airo_repo.md) / [백업 레포 URL](./reference_backup_repos.md) / [push-airo 스크립트화](./project_push_airo_script.md)
 - [메모리 동기화 커맨드](./project_memory_sync.md) — `/push-mello`, `/pull-mello`
 - [포트폴리오 프로젝트 세팅](./project_portfolio_setup.md) — `~/portfolio`, 컨텍스트 분리
 - GitHub 인증: `~/.git-credentials`에서 `ghp_...` 토큰 교체
