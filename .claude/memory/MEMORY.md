@@ -47,7 +47,8 @@
 - [닉네임 정책 변경 + 임시 코드](./project_signup_nickname_change.md) — 백엔드 nickname 제거 시 프론트 코드 삭제
 - 환영 페이지 버그 v2 — 프론트 isNewUser 방식 재설계 완료(04-03), 백엔드 isNewUser 하드코딩 수정 대기
 - [랜딩 /me 호출 정책](./project_landing_me_call_decision.md) — MVP 매번 호출, React Query 도입 시 캐싱 전환
-- [Paginated 프로퍼티 fallback 매핑](./project_paginated_type_fix.md) — 백엔드 `posts`/`comments`/`scraps` → API 함수에서 `items` 매핑, comments·scraps 미확인
+- [Paginated 프로퍼티 fallback 매핑](./project_paginated_type_fix.md) — 백엔드 `posts`/`comments`/`scraps` → API 함수에서 `items` 매핑
+- [내 댓글 탭 응답 형식 수정 완료](./project_my_comments_fix.md) — MyComment 타입 + CommentItem UI, 백엔드 응답에 프론트 맞춤
 
 ## 디자이너 협업
 - [대기 항목 + 워크플로우 + 모바일 퍼스트](./project_designer_pending.md) — 10개 UI 항목, 데일리 사이클
