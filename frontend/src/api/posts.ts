@@ -9,6 +9,7 @@ import type {
   ReactionType,
   PostReaction,
   CommentResponse,
+  Attachment,
 } from '../types/post';
 
 export async function fetchPosts(params: {
@@ -79,4 +80,25 @@ export async function getReaction(postId: number): Promise<PostReaction> {
 
 export async function toggleReaction(postId: number, reactionType: ReactionType): Promise<void> {
   await axiosInstance.put(`/posts/${postId}/reaction`, { reactionType });
+}
+
+export async function uploadPostAttachment(
+  postId: number,
+  file: File,
+): Promise<Attachment> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await axiosInstance.post(
+    `/posts/${postId}/attachments`,
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } },
+  );
+  return res.data;
+}
+
+export async function deletePostAttachment(
+  postId: number,
+  attachmentId: number,
+): Promise<void> {
+  await axiosInstance.delete(`/posts/${postId}/attachments/${attachmentId}`);
 }

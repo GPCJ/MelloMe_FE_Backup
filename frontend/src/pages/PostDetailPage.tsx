@@ -8,6 +8,8 @@ import {
   MoreVertical,
   Pencil,
   Trash2,
+  Download,
+  FileText,
 } from 'lucide-react';
 import ReactionBar from '../components/ReactionBar';
 import VerifiedBadge from '../components/VerifiedBadge';
@@ -240,6 +242,42 @@ export default function PostDetailPage() {
           className="post-content mb-6"
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
         />
+
+        {/* 첨부파일 */}
+        {post.attachments && post.attachments.length > 0 && (
+          <div className="mb-6 pt-4 border-t border-gray-100">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">
+              첨부파일 ({post.attachments.length})
+            </h3>
+            <div className="flex flex-col gap-2">
+              {post.attachments.map((att) => {
+                const isImage = att.contentType.startsWith('image/');
+                return (
+                  <div key={att.id}>
+                    {isImage && (
+                      <img
+                        src={att.downloadUrl}
+                        alt={att.originalFilename}
+                        className="rounded-lg max-h-80 object-contain mb-2"
+                      />
+                    )}
+                    <a
+                      href={att.downloadUrl}
+                      download={att.originalFilename}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm text-gray-700"
+                    >
+                      {isImage ? <Download size={16} /> : <FileText size={16} />}
+                      <span className="truncate flex-1">{att.originalFilename}</span>
+                      <span className="text-xs text-gray-400 shrink-0">
+                        {(att.sizeBytes / 1024).toFixed(0)}KB
+                      </span>
+                    </a>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* 리액션 + 댓글 수 */}
         <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
