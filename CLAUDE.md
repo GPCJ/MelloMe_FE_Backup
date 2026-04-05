@@ -75,3 +75,11 @@ src/
 - OpenAPI 스펙: `/openapi-3.0.yaml`
 - 백엔드 주소: `http://localhost:8080`
 - 개발 시 MSW로 API 모킹 가능
+
+---
+
+# superpowers 스킬 사용 정책
+
+- **기본값: superpowers 스킬을 사용하지 않음**
+- 메시지가 `obra:`로 시작하면 관련 superpowers 스킬을 검토하고 적용
+- 스킬을 사용하면 좋겠다고 판단될 경우, 자동으로 사용하지 말고 **반드시 사용자에게 먼저 물어보고 허가를 받을 것**

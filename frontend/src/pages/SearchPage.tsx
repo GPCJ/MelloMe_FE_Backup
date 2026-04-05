@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Search } from 'lucide-react';
+import { ArrowLeft, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import PostCard from '../components/PostCard';
 import { fetchPosts } from '../api/posts';
-import type { TherapyArea, PostSummary } from '../types/post';
+import type { TherapyArea, PostSort, PostSummary } from '../types/post';
 
 const FILTER_CHIPS: { value: TherapyArea | ''; label: string }[] = [
   { value: '', label: '전체' },
@@ -13,18 +13,26 @@ const FILTER_CHIPS: { value: TherapyArea | ''; label: string }[] = [
   { value: 'COGNITIVE', label: '인지치료' },
 ];
 
+const SORT_OPTIONS: { value: PostSort; label: string }[] = [
+  { value: 'LATEST', label: '최신순' },
+  { value: 'MOST_VIEWED', label: '조회순' },
+];
+
 export default function SearchPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const [query, setQuery] = useState('');
   const [therapyArea, setTherapyArea] = useState<TherapyArea | ''>('');
+  const [sortType, setSortType] = useState<PostSort>('LATEST');
   const [results, setResults] = useState<PostSummary[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  async function handleSearch() {
+  async function doSearch(page: number) {
     if (!query.trim() && !therapyArea) return;
     setLoading(true);
     setSearched(true);
@@ -33,14 +41,29 @@ export default function SearchPage() {
       const data = await fetchPosts({
         ...(therapyArea ? { therapyArea } : {}),
         ...(query.trim() ? { keyword: query.trim() } : {}),
+        sortType,
+        page: page - 1,
+        size: 10,
       });
       setResults(data.items);
+      setTotalPages(data.totalPages || 1);
+      setCurrentPage(page);
     } catch {
       setResults([]);
       setError('검색 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleSearch() {
+    setCurrentPage(1);
+    doSearch(1);
+  }
+
+  function handlePageChange(page: number) {
+    doSearch(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // URL ?q= 파라미터로 진입 시 자동 검색
@@ -50,9 +73,11 @@ export default function SearchPage() {
       setQuery(q);
       setLoading(true);
       setSearched(true);
-      fetchPosts({ keyword: q })
+      fetchPosts({ keyword: q, sortType, page: 0, size: 10 })
         .then((data) => {
           setResults(data.items);
+          setTotalPages(data.totalPages || 1);
+          setCurrentPage(1);
         })
         .catch(() => {
           setResults([]);
@@ -62,9 +87,10 @@ export default function SearchPage() {
     }
   }, [searchParams]);
 
+  // 필터/정렬 변경 시 재검색
   useEffect(() => {
-    if (searched) handleSearch();
-  }, [therapyArea]);
+    if (searched) doSearch(1);
+  }, [therapyArea, sortType]);
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter') handleSearch();
@@ -100,21 +126,34 @@ export default function SearchPage() {
           </div>
         </div>
 
-        {/* 필터 칩 */}
-        <div className="flex items-center gap-2 px-4 py-2 overflow-x-auto scrollbar-hide">
-          {FILTER_CHIPS.map((chip) => (
-            <button
-              key={chip.value}
-              onClick={() => setTherapyArea(chip.value)}
-              className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                therapyArea === chip.value
-                  ? 'bg-gray-900 text-white'
-                  : 'bg-white text-neutral-950 border border-gray-200'
-              }`}
-            >
-              {chip.label}
-            </button>
-          ))}
+        {/* 필터 칩 + 정렬 */}
+        <div className="flex items-center justify-between px-4 py-2">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+            {FILTER_CHIPS.map((chip) => (
+              <button
+                key={chip.value}
+                onClick={() => setTherapyArea(chip.value)}
+                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  therapyArea === chip.value
+                    ? 'bg-gray-900 text-white'
+                    : 'bg-white text-neutral-950 border border-gray-200'
+                }`}
+              >
+                {chip.label}
+              </button>
+            ))}
+          </div>
+          <select
+            value={sortType}
+            onChange={(e) => setSortType(e.target.value as PostSort)}
+            className="shrink-0 ml-2 text-xs text-gray-600 border border-gray-200 rounded-md px-2 py-1.5 bg-white"
+          >
+            {SORT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -143,6 +182,39 @@ export default function SearchPage() {
           </p>
         )}
       </div>
+
+      {/* 페이지네이션 */}
+      {searched && !loading && totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 py-6">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage <= 1}
+            className="p-1 text-gray-400 disabled:opacity-30"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              className={`w-8 h-8 rounded-full text-sm ${
+                page === currentPage
+                  ? 'bg-gray-900 text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage >= totalPages}
+            className="p-1 text-gray-400 disabled:opacity-30"
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

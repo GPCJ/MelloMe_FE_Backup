@@ -5,6 +5,7 @@ import type {
   PostCreateRequest,
   PostUpdateRequest,
   PostSort,
+  PostType,
   TherapyArea,
   ReactionType,
   PostReaction,
@@ -16,6 +17,7 @@ export async function fetchPosts(params: {
   therapyArea?: TherapyArea;
   sortType?: PostSort;
   keyword?: string;
+  postType?: PostType;
   page?: number;
   size?: number;
 }): Promise<PaginatedPosts> {

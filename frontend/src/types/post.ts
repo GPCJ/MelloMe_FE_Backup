@@ -1,4 +1,5 @@
 export type PostSort = 'LATEST' | 'MOST_VIEWED';
+export type PostType = 'COMMUNITY' | 'RESOURCE';
 export type ReactionType = 'EMPATHY' | 'APPRECIATE' | 'HELPFUL';
 
 export interface PostReaction {
@@ -10,10 +11,15 @@ export interface PostReaction {
 }
 export type TherapyArea =
   | 'UNSPECIFIED'
-  | 'OCCUPATIONAL'
+  | 'SENSORY_INTEGRATION'
   | 'SPEECH'
+  | 'OCCUPATIONAL'
   | 'COGNITIVE'
-  | 'PLAY';
+  | 'PHYSICAL'
+  | 'ART'
+  | 'MUSIC'
+  | 'PLAY'
+  | 'BEHAVIOR';
 export type AgeGroup =
   | 'UNSPECIFIED'
   | 'AGE_0_2'
@@ -25,6 +31,7 @@ export type AgeGroup =
 
 export interface PostSummary {
   id: number;
+  postType?: PostType;
   title: string;
   contentPreview?: string;
   authorNickname: string;
