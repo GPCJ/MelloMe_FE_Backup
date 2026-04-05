@@ -12,10 +12,23 @@ export default function PostEditPage() {
   const navigate = useNavigate();
 
   const [content, setContent] = useState('');
+  const [initialContent, setInitialContent] = useState('');
   const [therapyArea, setTherapyArea] = useState<TherapyArea>('UNSPECIFIED');
+  const [initialTherapyArea, setInitialTherapyArea] = useState<TherapyArea>('UNSPECIFIED');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const hasChanges = content !== initialContent || therapyArea !== initialTherapyArea;
+
+  useEffect(() => {
+    if (!hasChanges) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [hasChanges]);
 
   useEffect(() => {
     if (!postId || isNaN(Number(postId))) {
@@ -25,8 +38,14 @@ export default function PostEditPage() {
     }
     fetchPost(Number(postId))
       .then((post) => {
+        if (!post.canEdit) {
+          setError('수정 권한이 없습니다.');
+          return;
+        }
         setContent(post.content);
+        setInitialContent(post.content);
         setTherapyArea(post.therapyArea ?? 'UNSPECIFIED');
+        setInitialTherapyArea(post.therapyArea ?? 'UNSPECIFIED');
       })
       .catch(() => setError('게시글을 불러오는 데 실패했습니다.'))
       .finally(() => setLoading(false));
@@ -40,8 +59,10 @@ export default function PostEditPage() {
     setError(null);
     try {
       await updatePost(Number(postId), {
+        title: '',
         content,
-        ...(therapyArea !== 'UNSPECIFIED' ? { therapyArea } : {}),
+        therapyArea,
+        ageGroup: '',
       });
       navigate(`/posts/${postId}`);
     } catch {
@@ -71,7 +92,7 @@ export default function PostEditPage() {
       {/* 헤더 */}
       <div className="flex items-center gap-3 mb-6">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate(`/posts/${postId}`)}
           className="p-1 text-gray-500 hover:text-gray-900 transition-colors"
         >
           <ArrowLeft size={20} />
@@ -121,7 +142,7 @@ export default function PostEditPage() {
             disabled={!canSubmit}
             className="px-6 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {submitting ? '수정 중...' : '게시 하기'}
+            {submitting ? '수정 중...' : '수정하기'}
           </button>
         </div>
       </div>
