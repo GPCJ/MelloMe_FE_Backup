@@ -21,18 +21,10 @@ export default function LandingPage() {
   const { user, tokens, setUser, clearAuth } = useAuthStore();
   const isVerified = !!user && user.role !== 'USER';
 
-  async function handleLogout() {
-    console.log('[Landing handleLogout] 시작');
-    try {
-      await logout();
-      console.log('[Landing handleLogout] logout() 성공');
-    } catch (err) {
-      console.log('[Landing handleLogout] logout() 실패:', err);
-    }
-    console.log('[Landing handleLogout] clearAuth() 호출 직전');
+  function handleLogout() {
     clearAuth();
-    console.log('[Landing handleLogout] navigate(/login) 호출 직전');
     navigate('/login');
+    logout().catch(() => {});
   }
 
   useEffect(() => {

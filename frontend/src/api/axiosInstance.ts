@@ -37,8 +37,6 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
 
-    console.log('[인터셉터] 에러:', error.response?.status, originalRequest.url, '_retry:', originalRequest._retry)
-
     if (error.response?.status !== 401 || originalRequest._retry) {
       return Promise.reject(error)
     }
@@ -59,10 +57,8 @@ axiosInstance.interceptors.response.use(
     isRefreshing = true
 
     try {
-      console.log('[인터셉터] refresh 시도')
       const { data } = await axiosInstance.post('/auth/refresh')
       const newAccessToken: string = data.accessToken
-      console.log('[인터셉터] refresh 성공, setTokens 호출')
 
       useAuthStore.getState().setTokens({ accessToken: newAccessToken })
       axiosInstance.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`
@@ -71,9 +67,7 @@ axiosInstance.interceptors.response.use(
       processQueue(null, newAccessToken)
       return axiosInstance(originalRequest)
     } catch (refreshError) {
-      console.log('[인터셉터] refresh 실패:', refreshError)
       processQueue(refreshError, null)
-      console.log('[인터셉터] refresh 실패 → clearAuth 호출')
       useAuthStore.getState().clearAuth()
       return Promise.reject(refreshError)
     } finally {

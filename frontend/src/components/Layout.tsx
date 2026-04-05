@@ -21,18 +21,10 @@ export default function Layout() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
-  async function handleLogout() {
-    console.log('[Layout handleLogout] 시작');
-    try {
-      await logout();
-      console.log('[Layout handleLogout] logout() 성공');
-    } catch (err) {
-      console.log('[Layout handleLogout] logout() 실패:', err);
-    }
-    console.log('[Layout handleLogout] clearAuth() 호출 직전');
+  function handleLogout() {
     clearAuth();
-    console.log('[Layout handleLogout] navigate(/login) 호출 직전');
     navigate('/login');
+    logout().catch(() => {});
   }
 
   const roleLabel =
