@@ -6,7 +6,7 @@ import PostCard from '../components/PostCard';
 import { fetchMyPosts, fetchMyComments, fetchMyScraps } from '../api/mypage';
 import { deleteAccount, uploadProfileImage, updateMyProfile } from '../api/auth';
 import { useAuthStore } from '../stores/useAuthStore';
-import type { PaginatedComments, PaginatedScraps } from '../types/mypage';
+import type { MyComment, PaginatedComments, PaginatedScraps } from '../types/mypage';
 import type { PaginatedPosts } from '../types/post';
 import { resolveImageUrl } from '../utils/resolveImageUrl';
 
@@ -352,8 +352,8 @@ export default function ProfilePage() {
               <TabEmpty message="답글 단 글이 없어요." />
             )}
             {!loadingComments &&
-              commentsData?.items.map(({ post }) => (
-                <PostCard key={post.id} post={post} />
+              commentsData?.items.map((comment) => (
+                <CommentItem key={comment.commentId} comment={comment} />
               ))}
             {!loadingComments && commentsData && commentsData.totalPages > 1 && (
               <div className="flex items-center justify-center gap-1 py-6">
@@ -479,5 +479,22 @@ function TabError({ onRetry }: { onRetry: () => void }) {
 function TabEmpty({ message }: { message: string }) {
   return (
     <p className="text-sm text-gray-400 text-center py-12">{message}</p>
+  );
+}
+
+function CommentItem({ comment }: { comment: MyComment }) {
+  const navigate = useNavigate();
+
+  return (
+    <button
+      type="button"
+      onClick={() => navigate(`/posts/${comment.postId}`)}
+      className="w-full text-left px-6 py-4 border-b border-gray-200 hover:bg-gray-50 transition-colors"
+    >
+      <p className="text-sm text-gray-900 line-clamp-2">{comment.content}</p>
+      <p className="text-xs text-gray-400 mt-1">
+        {new Date(comment.createdAt).toLocaleDateString('ko-KR')}
+      </p>
+    </button>
   );
 }

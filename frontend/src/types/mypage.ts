@@ -16,10 +16,12 @@ export interface MyDashboard {
   };
 }
 
-export interface MyCommentedPost {
-  post: PostSummary;
-  myCommentPreview: string;
-  myCommentCreatedAt: string;
+export interface MyComment {
+  commentId: number;
+  content: string;
+  postId: number;
+  createdAt: string;
+  isDeleted: boolean;
 }
 
 export interface MyScrappedPost {
@@ -28,7 +30,7 @@ export interface MyScrappedPost {
 }
 
 export interface PaginatedComments {
-  items: MyCommentedPost[];
+  items: MyComment[];
   page: number;
   size: number;
   totalElements: number;
