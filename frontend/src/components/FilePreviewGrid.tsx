@@ -48,7 +48,7 @@ export default function FilePreviewGrid({
       ))}
       {pendingFiles.map((pf, i) => (
         <div
-          key={`${pf.file.name}-${pf.file.lastModified}`}
+          key={`${pf.file.name}-${pf.file.lastModified}-${i}`}
           className={`relative group border rounded-lg overflow-hidden ${
             existingAttachments.length > 0 ? 'border-blue-200' : 'border-gray-200'
           }`}

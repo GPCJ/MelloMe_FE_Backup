@@ -91,6 +91,7 @@ export async function uploadPostAttachment(
   const res = await axiosInstance.post(
     `/posts/${postId}/attachments`,
     formData,
+    { headers: { 'Content-Type': undefined } },
   );
   return res.data;
 }

@@ -5,7 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import SimpleTextEditor from '../components/SimpleTextEditor';
 import FilePreviewGrid from '../components/FilePreviewGrid';
 import { fetchPost, updatePost, uploadPostAttachment, deletePostAttachment } from '../api/posts';
-import { useFileAttachment } from '../hooks/useFileAttachment';
+import { useFileAttachment, IMAGE_ACCEPT } from '../hooks/useFileAttachment';
 import type { Attachment, TherapyArea } from '../types/post';
 import { THERAPY_CHIPS } from '../constants/post';
 
@@ -87,10 +87,8 @@ export default function PostEditPage() {
     setError(null);
     clearFileError();
 
-    let postUpdated = false;
     try {
       await updatePost(pid, { title: '', content, therapyArea });
-      postUpdated = true;
 
       const totalOps = removedAttachmentIds.length + pendingFiles.length;
       let failedCount = 0;
@@ -124,12 +122,7 @@ export default function PostEditPage() {
       }
       navigate(`/posts/${postId}`);
     } catch {
-      if (postUpdated) {
-        alert('첨부파일 처리에 실패했습니다. 게시글 상세로 이동합니다.');
-        navigate(`/posts/${postId}`);
-      } else {
-        setError('게시글 수정에 실패했습니다. 다시 시도해주세요.');
-      }
+      setError('게시글 수정에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setSubmitting(false);
       setUploadProgress(null);
@@ -203,7 +196,7 @@ export default function PostEditPage() {
         <input
           ref={imageInputRef}
           type="file"
-          accept="image/jpeg,image/png,image/gif,image/webp"
+          accept={IMAGE_ACCEPT}
           multiple
           className="hidden"
           onChange={(e) => { addFiles(e.target.files); e.target.value = ''; }}
@@ -223,10 +216,10 @@ export default function PostEditPage() {
         <div className="pt-2 border-t border-gray-200 flex flex-col gap-3">
           {/* 모바일: 아이콘 행 */}
           <div className="flex items-center md:hidden">
-            <button type="button" aria-label="이미지 첨부" onClick={() => imageInputRef.current?.click()} className="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+            <button type="button" aria-label="이미지 첨부" onClick={() => imageInputRef.current?.click()} disabled={submitting} className="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
               <Image size={20} />
             </button>
-            <button type="button" aria-label="파일 첨부" onClick={() => fileInputRef.current?.click()} className="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+            <button type="button" aria-label="파일 첨부" onClick={() => fileInputRef.current?.click()} disabled={submitting} className="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
               <Paperclip size={20} />
             </button>
             <div className="flex-1" />
@@ -253,10 +246,10 @@ export default function PostEditPage() {
           {/* 데스크탑: 한 줄 (아이콘들 | 자물쇠 + 수정하기) */}
           <div className="hidden md:flex items-center justify-between">
             <div className="flex items-center">
-              <button type="button" onClick={() => imageInputRef.current?.click()} className="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+              <button type="button" onClick={() => imageInputRef.current?.click()} disabled={submitting} className="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
                 <Image size={20} />
               </button>
-              <button type="button" onClick={() => fileInputRef.current?.click()} className="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+              <button type="button" onClick={() => fileInputRef.current?.click()} disabled={submitting} className="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
                 <Paperclip size={20} />
               </button>
             </div>

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 export const MAX_FILE_COUNT = 10;
 export const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+export const IMAGE_ACCEPT = IMAGE_TYPES.join(',');
 
 export interface PendingFile {
   file: File;

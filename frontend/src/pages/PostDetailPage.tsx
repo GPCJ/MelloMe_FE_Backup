@@ -169,7 +169,7 @@ export default function PostDetailPage() {
       {/* 상단 내비 */}
       <div className="flex items-center justify-between mb-4">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/posts')}
           className="p-2 -ml-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
         >
           <ArrowLeft size={20} />
@@ -269,7 +269,9 @@ export default function PostDetailPage() {
                       {isImage ? <Download size={16} /> : <FileText size={16} />}
                       <span className="truncate flex-1">{att.originalFilename}</span>
                       <span className="text-xs text-gray-400 shrink-0">
-                        {(att.sizeBytes / 1024).toFixed(0)}KB
+                        {att.sizeBytes >= 1024 * 1024
+                          ? `${(att.sizeBytes / (1024 * 1024)).toFixed(1)}MB`
+                          : `${(att.sizeBytes / 1024).toFixed(0)}KB`}
                       </span>
                     </a>
                   </div>
