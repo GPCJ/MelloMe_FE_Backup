@@ -22,12 +22,16 @@ export default function Layout() {
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
   async function handleLogout() {
+    console.log('[Layout handleLogout] 시작');
     try {
       await logout();
-    } catch {
-      // 서버 로그아웃 실패해도 클라이언트는 무조건 정리
+      console.log('[Layout handleLogout] logout() 성공');
+    } catch (err) {
+      console.log('[Layout handleLogout] logout() 실패:', err);
     }
+    console.log('[Layout handleLogout] clearAuth() 호출 직전');
     clearAuth();
+    console.log('[Layout handleLogout] navigate(/login) 호출 직전');
     navigate('/login');
   }
 

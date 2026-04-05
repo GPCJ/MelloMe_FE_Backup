@@ -19,8 +19,11 @@ export const useAuthStore = create<AuthState>()(
       setTokens: (tokens) => set({ tokens }),
       setUser: (user) => set({ user }),
       clearAuth: () => {
+        console.log('[clearAuth] 호출됨');
+        console.log('[clearAuth] localStorage BEFORE:', localStorage.getItem('auth-storage'));
         set({ user: null, tokens: null });
         localStorage.removeItem('auth-storage');
+        console.log('[clearAuth] localStorage AFTER:', localStorage.getItem('auth-storage'));
       },
     }),
     { name: 'auth-storage' },

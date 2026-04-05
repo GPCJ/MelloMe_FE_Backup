@@ -22,12 +22,16 @@ export default function LandingPage() {
   const isVerified = !!user && user.role !== 'USER';
 
   async function handleLogout() {
+    console.log('[Landing handleLogout] 시작');
     try {
       await logout();
-    } catch {
-      // 서버 로그아웃 실패해도 클라이언트는 무조건 정리
+      console.log('[Landing handleLogout] logout() 성공');
+    } catch (err) {
+      console.log('[Landing handleLogout] logout() 실패:', err);
     }
+    console.log('[Landing handleLogout] clearAuth() 호출 직전');
     clearAuth();
+    console.log('[Landing handleLogout] navigate(/login) 호출 직전');
     navigate('/login');
   }
 
