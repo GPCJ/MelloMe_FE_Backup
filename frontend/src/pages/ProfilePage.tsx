@@ -8,7 +8,7 @@ import { deleteAccount, uploadProfileImage, updateMyProfile } from '../api/auth'
 import { useAuthStore } from '../stores/useAuthStore';
 import type { PaginatedComments, PaginatedScraps } from '../types/mypage';
 import type { PaginatedPosts } from '../types/post';
-import { resolveImageUrl } from '../utils/resolveImageUrl';
+import { useImageUrl } from '../hooks/useImageUrl';
 
 type Tab = 'posts' | 'commented' | 'scrapped';
 
@@ -28,6 +28,7 @@ export default function ProfilePage() {
   const [editingNickname, setEditingNickname] = useState(false);
   const [nicknameInput, setNicknameInput] = useState('');
   const [savingNickname, setSavingNickname] = useState(false);
+  const profileImageSrc = useImageUrl(user?.profileImageUrl);
 
   // 프론트 선검사 — 불필요한 업로드 방지 (서버에서도 검증하지만 UX 개선 목적)
   const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -167,10 +168,10 @@ export default function ProfilePage() {
             disabled={uploadingImage}
             className="relative shrink-0 group"
           >
-            {user?.profileImageUrl ? (
+            {profileImageSrc ? (
               <img
-                src={resolveImageUrl(user.profileImageUrl) ?? undefined}
-                alt={user.nickname}
+                src={profileImageSrc}
+                alt={user?.nickname ?? ''}
                 className="w-16 h-16 rounded-full object-cover"
               />
             ) : (

@@ -3,7 +3,7 @@ import { Bookmark, MessageCircle, Eye } from 'lucide-react';
 import type { PostSummary } from '../types/post';
 import { THERAPY_AREA_LABELS } from '../constants/post';
 import { formatRelativeTime } from '../utils/formatDate';
-import { resolveImageUrl } from '../utils/resolveImageUrl';
+import { useImageUrl } from '../hooks/useImageUrl';
 import VerifiedBadge from './VerifiedBadge';
 import ReactionBar from './ReactionBar';
 import { useReactionToggle } from '../hooks/useReactionToggle';
@@ -22,7 +22,7 @@ function ProfileAvatar({
   nickname: string;
   imageUrl?: string | null;
 }) {
-  const resolved = resolveImageUrl(imageUrl);
+  const resolved = useImageUrl(imageUrl);
   if (resolved) {
     return (
       <img
