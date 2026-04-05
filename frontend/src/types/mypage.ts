@@ -1,4 +1,3 @@
-import type { PostSummary } from './post';
 
 export interface MyDashboard {
   stats: {
@@ -25,7 +24,13 @@ export interface MyComment {
 }
 
 export interface MyScrappedPost {
-  post: PostSummary;
+  postId: number;
+  contentPreview: string;
+  authorNickname: string;
+  therapyArea: string;
+  ageGroup: string | null;
+  viewCount: number;
+  postCreatedAt: string;
   scrappedAt: string;
 }
 

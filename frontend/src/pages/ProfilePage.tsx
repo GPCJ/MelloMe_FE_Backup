@@ -7,7 +7,7 @@ import { fetchMyPosts, fetchMyComments, fetchMyScraps } from '../api/mypage';
 import { deleteAccount, uploadProfileImage, updateMyProfile } from '../api/auth';
 import { useAuthStore } from '../stores/useAuthStore';
 import type { MyComment, PaginatedComments, PaginatedScraps } from '../types/mypage';
-import type { PaginatedPosts } from '../types/post';
+import type { PaginatedPosts, PostSummary } from '../types/post';
 import { resolveImageUrl } from '../utils/resolveImageUrl';
 
 type Tab = 'posts' | 'commented' | 'scrapped';
@@ -400,8 +400,19 @@ export default function ProfilePage() {
               <TabEmpty message="스크랩한 글이 없어요." />
             )}
             {!loadingScraps &&
-              scrapsData?.items.map(({ post }) => (
-                <PostCard key={post.id} post={post} />
+              scrapsData?.items.map((scrap) => (
+                <PostCard
+                  key={scrap.postId}
+                  post={{
+                    id: scrap.postId,
+                    title: '',
+                    contentPreview: scrap.contentPreview,
+                    authorNickname: scrap.authorNickname,
+                    therapyArea: scrap.therapyArea as PostSummary['therapyArea'],
+                    viewCount: scrap.viewCount,
+                    createdAt: scrap.postCreatedAt,
+                  }}
+                />
               ))}
             {!loadingScraps && scrapsData && scrapsData.totalPages > 1 && (
               <div className="flex items-center justify-center gap-1 py-6">
