@@ -21,8 +21,10 @@ export function useImageUrl(path: string | null | undefined): string | null {
 
     let revoked = false
 
+    const requestPath = path.replace(/^\/api\/v1/, '')
+
     axiosInstance
-      .get(path, { responseType: 'blob' })
+      .get(requestPath, { responseType: 'blob' })
       .then(({ data }) => {
         if (revoked) return
         const objectUrl = URL.createObjectURL(data)
