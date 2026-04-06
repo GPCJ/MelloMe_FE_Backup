@@ -33,3 +33,9 @@ type: project
 - **해결책**: `import axios from 'axios'`로 plain axios 사용해서 refresh 경로 분리
 - **Why:** 현재 기능상 문제는 없으나 의도하지 않은 이중 호출 가능성 존재. 백엔드 연결 후 실제 토큰 갱신 시 확인 필요.
 - **How to apply:** 백엔드 연결 후 401 인터셉터 통합 테스트 시점에 같이 처리
+
+## 인지부채 (이해도 점검 대상)
+- **#005 후보** — multipart/form-data 연결 과정 (2026-03-25 구현, 이해 미완)
+- **#007 후보** — 리액션 API 리팩토링 소스코드 흐름
+- **#009** — 마이페이지 3탭 데이터 흐름 (ProfilePage → api/mypage → types/mypage)
+- 점검 방식: Claude가 질문 → jin24 답변 → 모르는 부분 같이 짚기
