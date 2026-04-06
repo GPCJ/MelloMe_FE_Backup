@@ -49,6 +49,9 @@ export default function PostCard({ post }: PostCardProps) {
 
   const hashtags = MOCK_HASHTAGS[post.id] ?? (therapyLabel ? [`#${therapyLabel}`] : []);
 
+  // TODO: 자신의 게시물에 스크랩 못하도록 차단
+  // - PostSummary에 authorId 추가 백엔드 요청 필요
+  // - authorId === currentUserId이면 스크랩 버튼 숨김 처리
   const [scrapped, setScrapped] = useState(false);
   const [scrapLoading, setScrapLoading] = useState(false);
 

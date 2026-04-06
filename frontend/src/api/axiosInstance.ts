@@ -61,7 +61,10 @@ axiosInstance.interceptors.response.use(
     isRefreshing = true
 
     try {
-      const { data } = await axiosInstance.post('/auth/refresh')
+      // _retry: true를 붙여서 refresh 요청의 401이 다시 토큰 갱신 로직을 타지 않도록 함.
+      // 없으면 refresh 401 → isRefreshing 중이라 failedQueue 진입 → processQueue 호출 불가 → 데드락.
+      // TODO: 리팩토링 시 refresh 전용 axios 인스턴스 분리로 대체 (관심사 분리)
+      const { data } = await axiosInstance.post('/auth/refresh', null, { _retry: true } as any)
       const newAccessToken: string = data.accessToken
 
       useAuthStore.getState().setTokens({ accessToken: newAccessToken })
