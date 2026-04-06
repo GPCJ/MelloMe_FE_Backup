@@ -63,6 +63,14 @@ export async function createComment(
   return res.data;
 }
 
+export async function updateComment(
+  commentId: number,
+  data: { content: string },
+): Promise<CommentResponse> {
+  const res = await axiosInstance.patch(`/comments/${commentId}`, data);
+  return res.data;
+}
+
 export async function deleteComment(commentId: number): Promise<void> {
   await axiosInstance.delete(`/comments/${commentId}`);
 }

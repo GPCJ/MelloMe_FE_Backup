@@ -30,6 +30,7 @@ import {
   deletePost,
   fetchComments,
   createComment,
+  updateComment,
   deleteComment,
 } from '../api/posts';
 import type { PostDetail, CommentResponse } from '../types/post';
@@ -135,6 +136,17 @@ export default function PostDetailPage() {
       alert('댓글 작성에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleEditComment(commentId: number, content: string) {
+    try {
+      const updated = await updateComment(commentId, { content });
+      setComments((prev) =>
+        prev.map((c) => (c.id === commentId ? { ...c, content: updated.content } : c)),
+      );
+    } catch {
+      alert('댓글 수정에 실패했습니다. 다시 시도해주세요.');
     }
   }
 
@@ -351,6 +363,7 @@ export default function PostDetailPage() {
                     nickname: comment.authorNickname,
                   })
                 }
+                onEdit={handleEditComment}
                 onDelete={() => handleDeleteComment(comment.id)}
               />
               {getReplies(comment.id).map((reply) => (
@@ -368,6 +381,7 @@ export default function PostDetailPage() {
                         nickname: reply.authorNickname,
                       })
                     }
+                    onEdit={handleEditComment}
                     onDelete={() => handleDeleteComment(reply.id)}
                   />
                 </div>
@@ -389,6 +403,7 @@ interface CommentItemProps {
   comment: CommentResponse;
   isAuthor: boolean;
   onReply: () => void;
+  onEdit: (commentId: number, content: string) => Promise<void>;
   onDelete: () => void;
   replyToNickname?: string;
 }
@@ -397,9 +412,28 @@ function CommentItem({
   comment,
   isAuthor,
   onReply,
+  onEdit,
   onDelete,
   replyToNickname,
 }: CommentItemProps) {
+  const [editing, setEditing] = useState(false);
+  const [editContent, setEditContent] = useState(comment.content ?? '');
+  const [saving, setSaving] = useState(false);
+
+  async function handleSave() {
+    if (!editContent.trim() || editContent === comment.content) {
+      setEditing(false);
+      return;
+    }
+    setSaving(true);
+    try {
+      await onEdit(comment.id, editContent);
+      setEditing(false);
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <div className="py-4">
       <div className="flex items-start gap-3">
@@ -422,10 +456,37 @@ function CommentItem({
               {formatRelativeTime(comment.createdAt)}
             </span>
           </div>
-          <p className="text-sm text-gray-700 leading-relaxed">
-            {comment.deleted ? '삭제된 댓글입니다.' : comment.content}
-          </p>
-          {!comment.deleted && (
+          {/* TODO: 댓글 수정 UI — 디자이너 확정 후 수정 필요 */}
+          {editing ? (
+            <div>
+              <Textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                rows={2}
+                className="mb-2 resize-none text-sm"
+              />
+              <div className="flex gap-2">
+                <Button size="sm" onClick={handleSave} disabled={saving || !editContent.trim()}>
+                  수정
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setEditing(false);
+                    setEditContent(comment.content ?? '');
+                  }}
+                >
+                  취소
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-700 leading-relaxed">
+              {comment.deleted ? '삭제된 댓글입니다.' : comment.content}
+            </p>
+          )}
+          {!comment.deleted && !editing && (
             <div className="flex gap-3 mt-2">
               {onReply && (
                 <button
@@ -433,6 +494,14 @@ function CommentItem({
                   className="text-xs text-gray-400 hover:text-gray-700"
                 >
                   답글
+                </button>
+              )}
+              {isAuthor && (
+                <button
+                  onClick={() => setEditing(true)}
+                  className="text-xs text-gray-400 hover:text-gray-700"
+                >
+                  수정
                 </button>
               )}
               {isAuthor && (
