@@ -88,7 +88,10 @@ export async function getReaction(postId: number): Promise<PostReaction> {
   return res.data;
 }
 
-export async function toggleReaction(postId: number, reactionType: ReactionType): Promise<void> {
+export async function toggleReaction(
+  postId: number,
+  reactionType: ReactionType,
+): Promise<void> {
   await axiosInstance.put(`/posts/${postId}/reaction`, { reactionType });
 }
 
