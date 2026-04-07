@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { isAxiosError } from 'axios';
-import { Plus, ChevronLeft, ChevronRight, PenSquare, Search } from 'lucide-react';
+import { Plus, PenSquare, Search } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { fetchPosts } from '../api/posts';
 import type { TherapyArea, PaginatedPosts } from '../types/post';
 import PostCard from '../components/PostCard';
+import Pagination from '../components/Pagination';
 
 const FILTER_CHIPS: { value: TherapyArea | ''; label: string }[] = [
   { value: '', label: '전체' },
@@ -79,7 +80,14 @@ export default function PostListPage() {
       .then(setData)
       .catch((err) => {
         if (isAxiosError(err) && err.response?.status === 403) {
-          setData({ items: [], page: 0, size: 0, totalPages: 0, totalElements: 0, hasNext: false });
+          setData({
+            items: [],
+            page: 0,
+            size: 0,
+            totalPages: 0,
+            totalElements: 0,
+            hasNext: false,
+          });
           setError('공개 게시물이 없습니다.');
           return;
         }
@@ -177,7 +185,11 @@ export default function PostListPage() {
       {activeTab === 'all' ? (
         <div className="bg-white">
           {error && (
-            <p className={`text-center py-12 ${error === '공개 게시물이 없습니다.' ? 'text-gray-400' : 'text-destructive'}`}>{error}</p>
+            <p
+              className={`text-center py-12 ${error === '공개 게시물이 없습니다.' ? 'text-gray-400' : 'text-destructive'}`}
+            >
+              {error}
+            </p>
           )}
 
           {loading
@@ -199,37 +211,11 @@ export default function PostListPage() {
           )}
 
           {!loading && totalPages > 1 && (
-            <div className="flex items-center justify-center gap-1 py-6">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="p-2 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft size={16} />
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <button
-                    key={page}
-                    onClick={() => handlePageChange(page)}
-                    className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
-                      currentPage === page
-                        ? 'bg-gray-900 text-white'
-                        : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ),
-              )}
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="p-2 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                <ChevronRight size={16} />
-              </button>
-            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           )}
         </div>
       ) : (

@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Search } from 'lucide-react';
 import PostCard from '../components/PostCard';
 import { fetchPosts } from '../api/posts';
 import type { TherapyArea, PostSort, PostSummary } from '../types/post';
+import Pagination from '../components/Pagination';
 
 const FILTER_CHIPS: { value: TherapyArea | ''; label: string }[] = [
   { value: '', label: '전체' },
@@ -17,18 +18,6 @@ const SORT_OPTIONS: { value: PostSort; label: string }[] = [
   { value: 'LATEST', label: '최신순' },
   { value: 'MOST_VIEWED', label: '조회순' },
 ];
-
-function getPageNumbers(current: number, total: number): (number | '...')[] {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-  const pages: (number | '...')[] = [1];
-  const start = Math.max(2, current - 1);
-  const end = Math.min(total - 1, current + 1);
-  if (start > 2) pages.push('...');
-  for (let i = start; i <= end; i++) pages.push(i);
-  if (end < total - 1) pages.push('...');
-  pages.push(total);
-  return pages;
-}
 
 export default function SearchPage() {
   const navigate = useNavigate();
@@ -113,7 +102,10 @@ export default function SearchPage() {
     <div className="pb-20 md:pb-8">
       {/* 검색 헤더 */}
       <div className="sticky top-14 z-40 bg-white border-b border-gray-200">
-        <form onSubmit={handleSubmit} className="flex items-center gap-2 px-4 py-3">
+        <form
+          onSubmit={handleSubmit}
+          className="flex items-center gap-2 px-4 py-3"
+        >
           <button
             type="button"
             onClick={() => navigate('/posts')}
@@ -200,41 +192,11 @@ export default function SearchPage() {
 
       {/* 페이지네이션 */}
       {searched && !loading && totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 py-6">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage <= 1}
-            className="p-1 text-gray-400 disabled:opacity-30"
-          >
-            <ChevronLeft size={18} />
-          </button>
-          {getPageNumbers(currentPage, totalPages).map((page, idx) =>
-            page === '...' ? (
-              <span key={`ellipsis-${idx}`} className="w-8 text-center text-gray-400 text-sm">
-                ...
-              </span>
-            ) : (
-              <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`w-8 h-8 rounded-full text-sm ${
-                  page === currentPage
-                    ? 'bg-gray-900 text-white'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                {page}
-              </button>
-            ),
-          )}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage >= totalPages}
-            className="p-1 text-gray-400 disabled:opacity-30"
-          >
-            <ChevronRight size={18} />
-          </button>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       )}
     </div>
   );
