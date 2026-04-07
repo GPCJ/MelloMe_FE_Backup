@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
-import { login } from '../api/auth';
-import { useAuthStore } from '../stores/useAuthStore';
+import { login } from '../../api/auth';
+import { useAuthStore } from '../../stores/useAuthStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

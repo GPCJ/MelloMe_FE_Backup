@@ -1,5 +1,5 @@
 import { Heart, Star, Lightbulb } from 'lucide-react';
-import type { ReactionType, PostReaction } from '../types/post';
+import type { ReactionType, PostReaction } from '../../types/post';
 
 const REACTIONS: {
   type: ReactionType;

@@ -2,13 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Camera, Pencil } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import PostCard from '../components/PostCard';
-import { fetchMyPosts, fetchMyComments, fetchMyScraps } from '../api/mypage';
-import { deleteAccount, uploadProfileImage, updateMyProfile } from '../api/auth';
-import { useAuthStore } from '../stores/useAuthStore';
-import type { MyComment, PaginatedComments, PaginatedScraps } from '../types/mypage';
-import type { PaginatedPosts, PostSummary } from '../types/post';
-import { resolveImageUrl } from '../utils/resolveImageUrl';
+import PostCard from '../../components/post/PostCard';
+import { fetchMyPosts, fetchMyComments, fetchMyScraps } from '../../api/mypage';
+import { deleteAccount, uploadProfileImage, updateMyProfile } from '../../api/auth';
+import { useAuthStore } from '../../stores/useAuthStore';
+import type { MyComment, PaginatedComments, PaginatedScraps } from '../../types/mypage';
+import type { PaginatedPosts, PostSummary } from '../../types/post';
+import { resolveImageUrl } from '../../utils/resolveImageUrl';
 
 type Tab = 'posts' | 'commented' | 'scrapped';
 

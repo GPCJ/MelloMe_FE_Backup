@@ -4,10 +4,10 @@ import { isAxiosError } from 'axios';
 import { Plus, PenSquare, Search } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { fetchPosts } from '../api/posts';
-import type { TherapyArea, PaginatedPosts } from '../types/post';
-import PostCard from '../components/PostCard';
-import Pagination from '../components/Pagination';
+import { fetchPosts } from '../../api/posts';
+import type { TherapyArea, PaginatedPosts } from '../../types/post';
+import PostCard from '../../components/post/PostCard';
+import Pagination from '../../components/common/Pagination';
 
 const FILTER_CHIPS: { value: TherapyArea | ''; label: string }[] = [
   { value: '', label: '전체' },

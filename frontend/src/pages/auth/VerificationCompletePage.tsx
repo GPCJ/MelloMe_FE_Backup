@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { getMe, getMyVerification } from '../api/auth';
-import { useAuthStore } from '../stores/useAuthStore';
-import type { TherapistVerificationDetail } from '../types/auth';
+import { getMe, getMyVerification } from '../../api/auth';
+import { useAuthStore } from '../../stores/useAuthStore';
+import type { TherapistVerificationDetail } from '../../types/auth';
 
 export default function VerificationCompletePage() {
   const navigate = useNavigate();

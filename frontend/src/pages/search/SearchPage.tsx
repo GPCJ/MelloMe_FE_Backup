@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Search } from 'lucide-react';
-import PostCard from '../components/PostCard';
-import { fetchPosts } from '../api/posts';
-import type { TherapyArea, PostSort, PostSummary } from '../types/post';
-import Pagination from '../components/Pagination';
+import PostCard from '../../components/post/PostCard';
+import { fetchPosts } from '../../api/posts';
+import type { TherapyArea, PostSort, PostSummary } from '../../types/post';
+import Pagination from '../../components/common/Pagination';
 
 const FILTER_CHIPS: { value: TherapyArea | ''; label: string }[] = [
   { value: '', label: '전체' },

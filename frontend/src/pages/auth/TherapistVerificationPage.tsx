@@ -4,8 +4,8 @@ import { ArrowLeft, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { applyTherapistVerification, getMyVerification } from '../api/auth';
-import type { TherapistVerificationDetail } from '../types/auth';
+import { applyTherapistVerification, getMyVerification } from '../../api/auth';
+import type { TherapistVerificationDetail } from '../../types/auth';
 
 // TODO: 백엔드 논의 필요 — 인증용 치료영역 enum 확정 전 와이어프레임 기준 임시 정의
 // 게시글 필터용 TherapyArea(5개)와 별개로 인증 전용 목록(9개)

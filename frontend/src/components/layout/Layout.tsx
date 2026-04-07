@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, Home, PlusCircle, Search, User } from 'lucide-react';
-import { useAuthStore } from '../stores/useAuthStore';
-import { logout } from '../api/auth';
+import { useAuthStore } from '../../stores/useAuthStore';
+import { logout } from '../../api/auth';
 import { buttonVariants } from '@/components/ui/button';
 import {
   DropdownMenu,

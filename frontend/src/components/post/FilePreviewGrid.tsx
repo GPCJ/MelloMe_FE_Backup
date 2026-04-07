@@ -1,6 +1,6 @@
 import { Paperclip, X } from 'lucide-react';
-import type { PendingFile } from '../hooks/useFileAttachment';
-import type { Attachment } from '../types/post';
+import type { PendingFile } from '../../hooks/useFileAttachment';
+import type { Attachment } from '../../types/post';
 
 interface FilePreviewGridProps {
   pendingFiles: PendingFile[];

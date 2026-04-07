@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Bookmark, MessageCircle, Eye } from 'lucide-react';
-import type { PostSummary } from '../types/post';
-import { THERAPY_AREA_LABELS } from '../constants/post';
-import { formatRelativeTime } from '../utils/formatDate';
-import { resolveImageUrl } from '../utils/resolveImageUrl';
-import { scrapPost, unscrapPost } from '../api/posts';
+import type { PostSummary } from '../../types/post';
+import { THERAPY_AREA_LABELS } from '../../constants/post';
+import { formatRelativeTime } from '../../utils/formatDate';
+import { resolveImageUrl } from '../../utils/resolveImageUrl';
+import { scrapPost, unscrapPost } from '../../api/posts';
 import VerifiedBadge from './VerifiedBadge';
 import ReactionBar from './ReactionBar';
-import { useReactionToggle } from '../hooks/useReactionToggle';
+import { useReactionToggle } from '../../hooks/useReactionToggle';
 
 // 목데이터 — 백엔드 태그 필드 구현 전까지 사용
 const MOCK_HASHTAGS: Record<string, string[]> = {};

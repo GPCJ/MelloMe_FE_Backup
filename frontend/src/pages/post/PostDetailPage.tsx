@@ -11,31 +11,23 @@ import {
   Download,
   FileText,
 } from 'lucide-react';
-import ReactionBar from '../components/ReactionBar';
-import VerifiedBadge from '../components/VerifiedBadge';
-import { getReaction } from '../api/posts';
-import { useReactionToggle } from '../hooks/useReactionToggle';
-import { Button } from '@/components/ui/button';
+import ReactionBar from '../../components/post/ReactionBar';
+import VerifiedBadge from '../../components/post/VerifiedBadge';
+import { getReaction } from '../../api/posts';
+import { useReactionToggle } from '../../hooks/useReactionToggle';
+import CommentCard from '../../components/post/CommentCard';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Textarea } from '@/components/ui/textarea';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  fetchPost,
-  deletePost,
-  fetchComments,
-  createComment,
-  updateComment,
-  deleteComment,
-} from '../api/posts';
-import type { PostDetail, CommentResponse } from '../types/post';
-import { THERAPY_AREA_LABELS } from '../constants/post';
-import { formatRelativeTime } from '../utils/formatDate';
+import { fetchPost, deletePost, fetchComments } from '../../api/posts';
+import type { PostDetail, CommentResponse } from '../../types/post';
+import { THERAPY_AREA_LABELS } from '../../constants/post';
+import { formatRelativeTime } from '../../utils/formatDate';
 
 function AuthorAvatar({ nickname }: { nickname: string }) {
   return (
@@ -86,13 +78,6 @@ export default function PostDetailPage() {
     myReactionType: null,
   });
 
-  const [commentInput, setCommentInput] = useState('');
-  const [replyTo, setReplyTo] = useState<{
-    id: number;
-    nickname: string;
-  } | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-
   useEffect(() => {
     if (!postId || isNaN(Number(postId))) {
       setError('게시글을 찾을 수 없어요.');
@@ -117,46 +102,6 @@ export default function PostDetailPage() {
       navigate('/posts');
     } catch {
       alert('게시글 삭제에 실패했습니다. 다시 시도해주세요.');
-    }
-  }
-
-  async function handleSubmitComment(e: React.FormEvent) {
-    e.preventDefault();
-    if (!postId || !commentInput.trim()) return;
-    setSubmitting(true);
-    try {
-      const newComment = await createComment(Number(postId), {
-        content: commentInput,
-        ...(replyTo !== null && { parentCommentId: replyTo.id }),
-      });
-      setComments((prev) => [...prev, newComment]);
-      setCommentInput('');
-      setReplyTo(null);
-    } catch {
-      alert('댓글 작성에 실패했습니다. 다시 시도해주세요.');
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  async function handleEditComment(commentId: number, content: string) {
-    try {
-      const updated = await updateComment(commentId, { content });
-      setComments((prev) =>
-        prev.map((c) => (c.id === commentId ? { ...c, content: updated.content } : c)),
-      );
-    } catch {
-      alert('댓글 수정에 실패했습니다. 다시 시도해주세요.');
-    }
-  }
-
-  async function handleDeleteComment(commentId: number) {
-    if (!postId || !confirm('댓글을 삭제할까요?')) return;
-    try {
-      await deleteComment(commentId);
-      setComments((prev) => prev.filter((c) => c.id !== commentId));
-    } catch {
-      alert('댓글 삭제에 실패했습니다. 다시 시도해주세요.');
     }
   }
 
@@ -278,8 +223,14 @@ export default function PostDetailPage() {
                       download={att.originalFilename}
                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm text-gray-700"
                     >
-                      {isImage ? <Download size={16} /> : <FileText size={16} />}
-                      <span className="truncate flex-1">{att.originalFilename}</span>
+                      {isImage ? (
+                        <Download size={16} />
+                      ) : (
+                        <FileText size={16} />
+                      )}
+                      <span className="truncate flex-1">
+                        {att.originalFilename}
+                      </span>
                       <span className="text-xs text-gray-400 shrink-0">
                         {att.sizeBytes >= 1024 * 1024
                           ? `${(att.sizeBytes / (1024 * 1024)).toFixed(1)}MB`
@@ -300,219 +251,40 @@ export default function PostDetailPage() {
             onToggle={handleToggle}
             disabled={toggling}
           />
-          <span className="flex items-center gap-1.5 text-sm text-gray-400 ml-auto">
+          <button
+            onClick={() => navigate(`/posts/${postId}/comments`)}
+            className="flex items-center gap-1.5 text-sm text-gray-400 ml-auto hover:text-gray-600 transition-colors"
+          >
             <MessageSquare size={16} />
             댓글 {comments.length}
-          </span>
+          </button>
         </div>
       </div>
 
       {/* 댓글 섹션 */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div>
         <h2 className="text-base font-bold text-gray-900 mb-4">
-          댓글 {comments.length}
+          댓글 {topComments.length}
         </h2>
-
-        {/* 댓글 입력 */}
-        <form onSubmit={handleSubmitComment} className="mb-6">
-          {replyTo !== null && (
-            <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
-              <span>
-                <span className="font-medium text-gray-600">
-                  {replyTo.nickname}
-                </span>
-                에게 답글 작성 중
-              </span>
-              <button
-                type="button"
-                onClick={() => setReplyTo(null)}
-                className="underline hover:text-gray-700"
-              >
-                취소
-              </button>
-            </div>
-          )}
-          <Textarea
-            value={commentInput}
-            onChange={(e) => setCommentInput(e.target.value)}
-            placeholder="댓글을 입력해주세요"
-            rows={3}
-            className="mb-2 resize-none"
-          />
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              size="sm"
-              disabled={submitting || !commentInput.trim()}
-            >
-              댓글 작성
-            </Button>
-          </div>
-        </form>
-
-        {/* 댓글 목록 */}
-        <div className="flex flex-col divide-y divide-gray-100">
+        <div className="flex flex-col gap-3">
           {topComments.map((comment) => (
-            <div key={comment.id}>
-              <CommentItem
+            <div
+              key={comment.id}
+              onClick={() =>
+                navigate(`/posts/${postId}/comments/${comment.id}`)
+              }
+              className="cursor-pointer"
+            >
+              <CommentCard
                 comment={comment}
-                isAuthor={comment.canDelete}
-                onReply={() =>
-                  setReplyTo({
-                    id: comment.id,
-                    nickname: comment.authorNickname,
-                  })
-                }
-                onEdit={handleEditComment}
-                onDelete={() => handleDeleteComment(comment.id)}
+                replyCount={getReplies(comment.id).length}
               />
-              {getReplies(comment.id).map((reply) => (
-                <div
-                  key={reply.id}
-                  className="pl-6 border-l-2 border-gray-100 ml-4"
-                >
-                  <CommentItem
-                    comment={reply}
-                    isAuthor={reply.canDelete}
-                    replyToNickname={comment.authorNickname}
-                    onReply={() =>
-                      setReplyTo({
-                        id: comment.id,
-                        nickname: reply.authorNickname,
-                      })
-                    }
-                    onEdit={handleEditComment}
-                    onDelete={() => handleDeleteComment(reply.id)}
-                  />
-                </div>
-              ))}
             </div>
           ))}
-          {comments.length === 0 && (
+          {topComments.length === 0 && (
             <p className="text-sm text-gray-400 text-center py-6">
               첫 댓글을 남겨보세요!
             </p>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-interface CommentItemProps {
-  comment: CommentResponse;
-  isAuthor: boolean;
-  onReply: () => void;
-  onEdit: (commentId: number, content: string) => Promise<void>;
-  onDelete: () => void;
-  replyToNickname?: string;
-}
-
-function CommentItem({
-  comment,
-  isAuthor,
-  onReply,
-  onEdit,
-  onDelete,
-  replyToNickname,
-}: CommentItemProps) {
-  const [editing, setEditing] = useState(false);
-  const [editContent, setEditContent] = useState(comment.content ?? '');
-  const [saving, setSaving] = useState(false);
-
-  async function handleSave() {
-    if (!editContent.trim() || editContent === comment.content) {
-      setEditing(false);
-      return;
-    }
-    setSaving(true);
-    try {
-      await onEdit(comment.id, editContent);
-      setEditing(false);
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  return (
-    <div className="py-4">
-      <div className="flex items-start gap-3">
-        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs font-bold shrink-0">
-          {comment.authorNickname[0] ?? '?'}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm font-semibold text-gray-900">
-                {comment.authorNickname}
-              </span>
-              {replyToNickname && (
-                <span className="text-xs text-gray-400">
-                  ↳ @{replyToNickname}
-                </span>
-              )}
-            </div>
-            <span className="text-xs text-gray-400 shrink-0">
-              {formatRelativeTime(comment.createdAt)}
-            </span>
-          </div>
-          {/* TODO: 댓글 수정 UI — 디자이너 확정 후 수정 필요 */}
-          {editing ? (
-            <div>
-              <Textarea
-                value={editContent}
-                onChange={(e) => setEditContent(e.target.value)}
-                rows={2}
-                className="mb-2 resize-none text-sm"
-              />
-              <div className="flex gap-2">
-                <Button size="sm" onClick={handleSave} disabled={saving || !editContent.trim()}>
-                  수정
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => {
-                    setEditing(false);
-                    setEditContent(comment.content ?? '');
-                  }}
-                >
-                  취소
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <p className="text-sm text-gray-700 leading-relaxed">
-              {comment.deleted ? '삭제된 댓글입니다.' : comment.content}
-            </p>
-          )}
-          {!comment.deleted && !editing && (
-            <div className="flex gap-3 mt-2">
-              {onReply && (
-                <button
-                  onClick={onReply}
-                  className="text-xs text-gray-400 hover:text-gray-700"
-                >
-                  답글
-                </button>
-              )}
-              {isAuthor && (
-                <button
-                  onClick={() => setEditing(true)}
-                  className="text-xs text-gray-400 hover:text-gray-700"
-                >
-                  수정
-                </button>
-              )}
-              {isAuthor && (
-                <button
-                  onClick={onDelete}
-                  className="text-xs text-gray-400 hover:text-red-500"
-                >
-                  삭제
-                </button>
-              )}
-            </div>
           )}
         </div>
       </div>

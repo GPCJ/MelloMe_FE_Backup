@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Image, Lock, LockOpen, Paperclip } from 'lucide-react';
-import SimpleTextEditor from '../components/SimpleTextEditor';
-import FilePreviewGrid from '../components/FilePreviewGrid';
-import { createPost, uploadPostAttachment } from '../api/posts';
-import { useFileAttachment, IMAGE_ACCEPT } from '../hooks/useFileAttachment';
-import type { TherapyArea } from '../types/post';
-import { THERAPY_CHIPS } from '../constants/post';
+import SimpleTextEditor from '../../components/post/SimpleTextEditor';
+import FilePreviewGrid from '../../components/post/FilePreviewGrid';
+import { createPost, uploadPostAttachment } from '../../api/posts';
+import { useFileAttachment, IMAGE_ACCEPT } from '../../hooks/useFileAttachment';
+import type { TherapyArea } from '../../types/post';
+import { THERAPY_CHIPS } from '../../constants/post';
 
 export default function PostCreatePage() {
   const navigate = useNavigate();

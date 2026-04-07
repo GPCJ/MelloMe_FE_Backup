@@ -1,20 +1,22 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Layout from './components/Layout';
-import ProtectedRoute from './components/ProtectedRoute';
-import GuestRoute from './components/GuestRoute';
-import AuthRoute from './components/AuthRoute';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
+import Layout from './components/layout/Layout';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import GuestRoute from './components/auth/GuestRoute';
+import AuthRoute from './components/auth/AuthRoute';
+import LoginPage from './pages/auth/LoginPage';
+import SignupPage from './pages/auth/SignupPage';
 import NotFoundPage from './pages/NotFoundPage';
 import LandingPage from './pages/LandingPage';
-import PostListPage from './pages/PostListPage';
-import PostDetailPage from './pages/PostDetailPage';
-import PostCreatePage from './pages/PostCreatePage';
-import PostEditPage from './pages/PostEditPage';
-import SearchPage from './pages/SearchPage';
-import ProfilePage from './pages/ProfilePage';
-import TherapistVerificationPage from './pages/TherapistVerificationPage';
-import VerificationCompletePage from './pages/VerificationCompletePage';
+import PostListPage from './pages/post/PostListPage';
+import PostDetailPage from './pages/post/PostDetailPage';
+import PostCreatePage from './pages/post/PostCreatePage';
+import PostEditPage from './pages/post/PostEditPage';
+import CommentWritePage from './pages/post/CommentWritePage';
+import CommentDetailPage from './pages/post/CommentDetailPage';
+import SearchPage from './pages/search/SearchPage';
+import ProfilePage from './pages/profile/ProfilePage';
+import TherapistVerificationPage from './pages/auth/TherapistVerificationPage';
+import VerificationCompletePage from './pages/auth/VerificationCompletePage';
 
 function App() {
   return (
@@ -44,6 +46,8 @@ function App() {
             <Route path="/therapist-verifications" element={<TherapistVerificationPage />} />
             <Route path="/posts" element={<PostListPage />} />
             <Route path="/posts/:postId" element={<PostDetailPage />} />
+            <Route path="/posts/:postId/comments" element={<CommentWritePage />} />
+            <Route path="/posts/:postId/comments/:commentId" element={<CommentDetailPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>

@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Image, Lock, LockOpen, Paperclip } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import SimpleTextEditor from '../components/SimpleTextEditor';
-import FilePreviewGrid from '../components/FilePreviewGrid';
-import { fetchPost, updatePost, uploadPostAttachment, deletePostAttachment } from '../api/posts';
-import { useFileAttachment, IMAGE_ACCEPT } from '../hooks/useFileAttachment';
-import type { Attachment, TherapyArea } from '../types/post';
-import { THERAPY_CHIPS } from '../constants/post';
+import SimpleTextEditor from '../../components/post/SimpleTextEditor';
+import FilePreviewGrid from '../../components/post/FilePreviewGrid';
+import { fetchPost, updatePost, uploadPostAttachment, deletePostAttachment } from '../../api/posts';
+import { useFileAttachment, IMAGE_ACCEPT } from '../../hooks/useFileAttachment';
+import type { Attachment, TherapyArea } from '../../types/post';
+import { THERAPY_CHIPS } from '../../constants/post';
 
 export default function PostEditPage() {
   const { postId } = useParams<{ postId: string }>();
