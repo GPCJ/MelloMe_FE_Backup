@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, MessageSquare, MoreVertical } from 'lucide-react';
+import { ArrowLeft, MoreVertical } from 'lucide-react';
 import CommentCard from '../../components/post/CommentCard';
 import CommentInput from '../../components/post/CommentInput';
-import { fetchComments, createComment } from '../../api/posts';
+import { useReplyInput } from '../../hooks/useReplyInput';
+import { useCommentSubmit } from '../../hooks/useCommentSubmit';
+import { fetchComments } from '../../api/posts';
 import type { CommentResponse } from '../../types/post';
 
 export default function CommentDetailPage() {
@@ -22,10 +24,21 @@ export default function CommentDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [showReplyInput, setShowReplyInput] = useState(false);
-  const [replyInput, setReplyInput] = useState('');
-  const [replyToNickname, setReplyToNickname] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const {
+    showReplyInput,
+    replyInput,
+    setReplyInput,
+    replyToNickname,
+    handleReplyClick,
+    resetReply,
+  } = useReplyInput();
+
+  const { submitting, handleSubmit: handleSubmitReply } = useCommentSubmit({
+    postId: Number(postId) || 0,
+    parentCommentId: Number(commentId) || undefined,
+    onSuccess: (newReply) => setReplies((prev) => [...prev, newReply]),
+    onReset: resetReply,
+  });
 
   useEffect(() => {
     if (!postId || !commentId) return;
@@ -58,32 +71,6 @@ export default function CommentDetailPage() {
     }
   }, [autoReply, parentComment]);
 
-  function handleReplyClick(nickname: string) {
-    setReplyToNickname(nickname);
-    setReplyInput(`@${nickname} `);
-    setShowReplyInput(true);
-  }
-
-  async function handleSubmitReply(e: React.FormEvent) {
-    e.preventDefault();
-    if (!postId || !commentId || !replyInput.trim()) return;
-    setSubmitting(true);
-    try {
-      const newReply = await createComment(Number(postId), {
-        content: replyInput,
-        parentCommentId: Number(commentId),
-      });
-      setReplies((prev) => [...prev, newReply]);
-      setReplyInput('');
-      setReplyToNickname(null);
-      setShowReplyInput(false);
-    } catch {
-      alert('답글 작성에 실패했습니다. 다시 시도해주세요.');
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
   if (loading) return null;
   if (error || !parentComment)
     return (
@@ -105,6 +92,7 @@ export default function CommentDetailPage() {
           </button>
           <h1 className="text-base font-bold text-gray-900">댓글 달기</h1>
         </div>
+        {/* TODO: MVP 이후 케밥 메뉴 기능 추가 (신고, 차단 등) */}
         <button className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
           <MoreVertical size={20} />
         </button>
@@ -124,7 +112,7 @@ export default function CommentDetailPage() {
         <CommentInput
           value={replyInput}
           onChange={setReplyInput}
-          onSubmit={handleSubmitReply}
+          onSubmit={(e) => handleSubmitReply(e, replyInput)}
           submitting={submitting}
           placeholder="답글을 입력하세요..."
           buttonText="답글 작성"
@@ -146,7 +134,7 @@ export default function CommentDetailPage() {
       )}
 
       {/* 모바일 하단 고정 💬 트리거 / 답글 입력 */}
-      {showReplyInput ? (
+      {showReplyInput && (
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3">
           <div className="max-w-3xl mx-auto">
             {replyToNickname && (
@@ -159,11 +147,7 @@ export default function CommentDetailPage() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowReplyInput(false);
-                    setReplyInput('');
-                    setReplyToNickname(null);
-                  }}
+                  onClick={resetReply}
                   className="underline hover:text-gray-700"
                 >
                   취소
@@ -173,7 +157,7 @@ export default function CommentDetailPage() {
             <CommentInput
               value={replyInput}
               onChange={setReplyInput}
-              onSubmit={handleSubmitReply}
+              onSubmit={(e) => handleSubmitReply(e, replyInput)}
               submitting={submitting}
               placeholder="답글을 입력하세요..."
               buttonText="답글 작성"
@@ -181,13 +165,6 @@ export default function CommentDetailPage() {
             />
           </div>
         </div>
-      ) : (
-        <button
-          onClick={() => handleReplyClick(parentComment.authorNickname)}
-          className="md:hidden fixed bottom-6 right-6 w-12 h-12 bg-gray-500 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-600 transition-colors"
-        >
-          <MessageSquare size={20} />
-        </button>
       )}
     </div>
   );

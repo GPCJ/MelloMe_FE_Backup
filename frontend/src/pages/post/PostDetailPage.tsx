@@ -18,6 +18,7 @@ import { getReaction } from '../../api/posts';
 import { useReactionToggle } from '../../hooks/useReactionToggle';
 import CommentCard from '../../components/post/CommentCard';
 import CommentInput from '../../components/post/CommentInput';
+import { useCommentSubmit } from '../../hooks/useCommentSubmit';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -30,7 +31,6 @@ import {
   fetchPost,
   deletePost,
   fetchComments,
-  createComment,
   scrapPost,
   unscrapPost,
 } from '../../api/posts';
@@ -81,7 +81,6 @@ export default function PostDetailPage() {
   const [scrapped, setScrapped] = useState(false);
   const [scrapLoading, setScrapLoading] = useState(false);
   const [commentInput, setCommentInput] = useState('');
-  const [submitting, setSubmitting] = useState(false);
 
   const { reaction, setReaction, toggling, handleToggle } = useReactionToggle({
     postId: Number(postId) || 0,
@@ -89,6 +88,14 @@ export default function PostDetailPage() {
     appreciateCount: 0,
     helpfulCount: 0,
     myReactionType: null,
+  });
+
+  const { submitting, handleSubmit: handleSubmitComment } = useCommentSubmit({
+    postId: Number(postId) || 0,
+    onSuccess: (newComment) => {
+      setComments((prev) => [...prev, newComment]);
+      setCommentInput('');
+    },
   });
 
   useEffect(() => {
@@ -118,22 +125,6 @@ export default function PostDetailPage() {
     }
   }
 
-  async function handleSubmitComment(e: React.FormEvent) {
-    e.preventDefault();
-    if (!postId || !commentInput.trim()) return;
-    setSubmitting(true);
-    try {
-      const newComment = await createComment(Number(postId), {
-        content: commentInput,
-      });
-      setComments((prev) => [...prev, newComment]);
-      setCommentInput('');
-    } catch {
-      alert('댓글 작성에 실패했습니다. 다시 시도해주세요.');
-    } finally {
-      setSubmitting(false);
-    }
-  }
 
   async function handleScrapToggle() {
     if (!post || scrapLoading) return;
@@ -333,7 +324,7 @@ export default function PostDetailPage() {
           <CommentInput
             value={commentInput}
             onChange={setCommentInput}
-            onSubmit={handleSubmitComment}
+            onSubmit={(e) => handleSubmitComment(e, commentInput)}
             submitting={submitting}
           />
         </div>
