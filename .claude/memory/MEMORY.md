@@ -78,7 +78,7 @@
 - [와이어프레임 색상 보수적](./feedback_wireframe_color.md) / [서버 에러 시 프론트 먼저](./feedback_backend_blame.md)
 - [compact/clear 타이밍](./feedback_compact_timing.md) / [TS 타입 체크 tsc -b](./feedback_ts_type_check.md)
 - [shadcn asChild 미지원](./feedback_shadcn_button_aschild.md) / [shadcn/ui 기본 사용 원칙](./feedback_shadcn_default.md)
-- [GitHub 토큰 채팅 금지](./feedback_github_token.md) (만료 ~04-12) / [브랜치 main만](./feedback_branch_preference.md)
+- [GitHub 토큰 채팅 금지](./feedback_github_token.md) / [브랜치 main만](./feedback_branch_preference.md) / [credentials 갱신 방법](./feedback_github_credentials_renewal.md)
 - [백엔드 이슈에 LLM 프롬프트](./feedback_backend_llm_prompt.md) / [슬래시 커맨드 스크립트 금지](./feedback_no_scripts_for_commands.md)
 - [외부 push 전 승인 필수](./feedback_push_requires_approval.md) / [push-airo reset --hard](./feedback_push_airo_claude_files.md)
 - [git 커밋 전 diff --stat](./feedback_git_diff_stat_check.md) / [커맨드 네이밍 — 범용 이름](./feedback_draft_notion_naming.md)
