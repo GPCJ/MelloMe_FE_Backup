@@ -37,14 +37,7 @@ import {
 import type { PostDetail, CommentResponse } from '../../types/post';
 import { THERAPY_AREA_LABELS } from '../../constants/post';
 import { formatRelativeTime } from '../../utils/formatDate';
-
-function AuthorAvatar({ nickname }: { nickname: string }) {
-  return (
-    <div className="w-9 h-9 rounded-full bg-purple-300 flex items-center justify-center text-white text-sm font-bold shrink-0">
-      {nickname[0] ?? '?'}
-    </div>
-  );
-}
+import UserAvatar from '../../components/common/UserAvatar';
 
 function PostDetailSkeleton() {
   return (
@@ -201,7 +194,7 @@ export default function PostDetailPage() {
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
         {/* 작성자 정보 */}
         <div className="flex items-center gap-3 mb-5 pb-5 border-b border-gray-100">
-          <AuthorAvatar nickname={post.authorNickname} />
+          <UserAvatar nickname={post.authorNickname} imageUrl={post.authorProfileImageUrl} size="md" />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-gray-900">

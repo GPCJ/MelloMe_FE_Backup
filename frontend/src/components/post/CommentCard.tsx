@@ -1,6 +1,7 @@
 import { Heart, Star, Lightbulb, MessageSquare } from 'lucide-react';
 import type { CommentResponse } from '../../types/post';
 import { formatRelativeTime } from '../../utils/formatDate';
+import UserAvatar from '../common/UserAvatar';
 
 interface CommentCardProps {
   comment: CommentResponse;
@@ -19,9 +20,7 @@ export default function CommentCard({
     <div className="bg-white rounded-xl border border-gray-200 p-4">
       {/* 작성자 정보 */}
       <div className="flex items-center gap-2 mb-2">
-        <div className="w-8 h-8 rounded-full bg-purple-300 flex items-center justify-center text-white text-xs font-bold shrink-0">
-          {comment.authorNickname[0] ?? '?'}
-        </div>
+        <UserAvatar nickname={comment.authorNickname} imageUrl={comment.authorProfileImageUrl} size="sm" />
         <div className="flex items-center gap-1.5 flex-1 min-w-0">
           <span className="text-sm font-semibold text-gray-900">
             {comment.authorNickname}

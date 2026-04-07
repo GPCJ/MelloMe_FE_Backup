@@ -4,41 +4,17 @@ import { Bookmark, MessageCircle, Eye } from 'lucide-react';
 import type { PostSummary } from '../../types/post';
 import { THERAPY_AREA_LABELS } from '../../constants/post';
 import { formatRelativeTime } from '../../utils/formatDate';
-import { resolveImageUrl } from '../../utils/resolveImageUrl';
 import { scrapPost, unscrapPost } from '../../api/posts';
 import VerifiedBadge from './VerifiedBadge';
 import ReactionBar from './ReactionBar';
 import { useReactionToggle } from '../../hooks/useReactionToggle';
+import UserAvatar from '../common/UserAvatar';
 
 // 목데이터 — 백엔드 태그 필드 구현 전까지 사용
 const MOCK_HASHTAGS: Record<string, string[]> = {};
 
 interface PostCardProps {
   post: PostSummary;
-}
-
-function ProfileAvatar({
-  nickname,
-  imageUrl,
-}: {
-  nickname: string;
-  imageUrl?: string | null;
-}) {
-  const resolved = resolveImageUrl(imageUrl);
-  if (resolved) {
-    return (
-      <img
-        src={resolved}
-        alt={nickname}
-        className="w-5 h-5 rounded-full object-cover"
-      />
-    );
-  }
-  return (
-    <div className="w-5 h-5 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center">
-      <span className="text-white text-[8px] font-medium">{nickname[0]}</span>
-    </div>
-  );
 }
 
 export default function PostCard({ post }: PostCardProps) {
@@ -88,9 +64,10 @@ export default function PostCard({ post }: PostCardProps) {
       <div className="px-6 py-5 border-b border-gray-200">
         {/* 1행: 프로필 + 닉네임 + 인증뱃지 + 시간 + 북마크 */}
         <div className="flex items-center gap-1.5 mb-2.5">
-          <ProfileAvatar
+          <UserAvatar
             nickname={post.authorNickname}
             imageUrl={post.authorProfileImageUrl}
+            size="xs"
           />
           <span className="text-sm font-medium text-neutral-950">
             {post.authorNickname}

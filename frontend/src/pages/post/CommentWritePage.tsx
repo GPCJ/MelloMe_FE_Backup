@@ -12,6 +12,7 @@ import { fetchPost, createComment } from '../../api/posts';
 import type { PostDetail } from '../../types/post';
 import { THERAPY_AREA_LABELS } from '../../constants/post';
 import { formatRelativeTime } from '../../utils/formatDate';
+import UserAvatar from '../../components/common/UserAvatar';
 
 export default function CommentWritePage() {
   const { postId } = useParams<{ postId: string }>();
@@ -91,9 +92,7 @@ export default function CommentWritePage() {
       {/* 게시글 본문 */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
         <div className="flex items-center gap-3 mb-5 pb-5 border-b border-gray-100">
-          <div className="w-9 h-9 rounded-full bg-purple-300 flex items-center justify-center text-white text-sm font-bold shrink-0">
-            {post.authorNickname[0] ?? '?'}
-          </div>
+          <UserAvatar nickname={post.authorNickname} imageUrl={post.authorProfileImageUrl} size="md" />
           <div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-gray-900">

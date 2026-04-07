@@ -2,6 +2,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, Home, PlusCircle, Search, User } from 'lucide-react';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { logout } from '../../api/auth';
+import UserAvatar from '../common/UserAvatar';
 import { buttonVariants } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -118,9 +119,7 @@ export default function Layout() {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center gap-2 px-1 py-1 rounded-md hover:bg-gray-100 transition-colors">
-                  <div className="w-8 h-8 rounded-full bg-purple-300 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                    {user.nickname?.[0] ?? '?'}
-                  </div>
+                  <UserAvatar nickname={user.nickname ?? ''} imageUrl={user.profileImageUrl} size="sm" />
                   <div className="hidden md:flex flex-col items-start">
                     <span className="text-sm font-medium leading-tight">
                       {user.nickname}

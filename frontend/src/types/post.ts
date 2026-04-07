@@ -62,6 +62,7 @@ export interface PostDetail {
   content: string;
   authorId: number;
   authorNickname: string;
+  authorProfileImageUrl?: string | null;
   therapyArea?: TherapyArea;
   ageGroup?: AgeGroup;
   viewCount: number;
@@ -102,6 +103,7 @@ export interface CommentResponse {
   parentCommentId?: number | null;
   authorId: number;
   authorNickname: string;
+  authorProfileImageUrl?: string | null;
   authorRole: string;
   content?: string;
   deleted: boolean;

@@ -8,7 +8,7 @@ import { deleteAccount, uploadProfileImage, updateMyProfile } from '../../api/au
 import { useAuthStore } from '../../stores/useAuthStore';
 import type { MyComment, PaginatedComments, PaginatedScraps } from '../../types/mypage';
 import type { PaginatedPosts, PostSummary } from '../../types/post';
-import { resolveImageUrl } from '../../utils/resolveImageUrl';
+import UserAvatar from '../../components/common/UserAvatar';
 
 type Tab = 'posts' | 'commented' | 'scrapped';
 
@@ -166,17 +166,7 @@ export default function ProfilePage() {
             disabled={uploadingImage}
             className="relative shrink-0 group"
           >
-            {user?.profileImageUrl ? (
-              <img
-                src={resolveImageUrl(user.profileImageUrl) ?? undefined}
-                alt={user?.nickname ?? ''}
-                className="w-16 h-16 rounded-full object-cover"
-              />
-            ) : (
-              <div className="w-16 h-16 rounded-full bg-purple-300 flex items-center justify-center text-white text-2xl font-bold">
-                {user?.nickname?.[0] ?? '?'}
-              </div>
-            )}
+            <UserAvatar nickname={user?.nickname ?? ''} imageUrl={user?.profileImageUrl} size="lg" />
             {editingNickname ? (
               <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-gray-900 flex items-center justify-center ring-2 ring-white">
                 <Pencil size={12} className="text-white" />
