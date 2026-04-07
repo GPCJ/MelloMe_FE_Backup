@@ -7,6 +7,7 @@ import ReactionBar from '../../components/post/ReactionBar';
 import { getReaction } from '../../api/posts';
 import { useReactionToggle } from '../../hooks/useReactionToggle';
 import { Badge } from '@/components/ui/badge';
+import CommentInput from '../../components/post/CommentInput';
 import { fetchPost, createComment } from '../../api/posts';
 import type { PostDetail } from '../../types/post';
 import { THERAPY_AREA_LABELS } from '../../constants/post';
@@ -131,27 +132,17 @@ export default function CommentWritePage() {
       </div>
 
       {/* 하단 고정 댓글 입력 */}
-      <form
-        onSubmit={handleSubmit}
-        className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3"
-      >
-        <div className="max-w-3xl mx-auto flex items-center gap-2">
-          <input
-            type="text"
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3">
+        <div className="max-w-3xl mx-auto">
+          <CommentInput
             value={commentInput}
-            onChange={(e) => setCommentInput(e.target.value)}
-            placeholder="댓글을 입력하세요..."
-            className="flex-1 px-4 py-2 text-sm border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-300"
+            onChange={setCommentInput}
+            onSubmit={handleSubmit}
+            submitting={submitting}
+            autoFocus
           />
-          <button
-            type="submit"
-            disabled={submitting || !commentInput.trim()}
-            className="px-4 py-2 text-sm font-medium text-white bg-purple-500 rounded-full hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
-          >
-            댓글 달기
-          </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

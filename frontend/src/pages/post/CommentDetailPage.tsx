@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, MessageSquare, MoreVertical } from 'lucide-react';
 import CommentCard from '../../components/post/CommentCard';
+import CommentInput from '../../components/post/CommentInput';
 import { fetchComments, createComment } from '../../api/posts';
 import type { CommentResponse } from '../../types/post';
 
@@ -11,6 +12,8 @@ export default function CommentDetailPage() {
     commentId: string;
   }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const autoReply = (location.state as { autoReply?: boolean })?.autoReply;
 
   const [parentComment, setParentComment] = useState<CommentResponse | null>(
     null,
@@ -22,7 +25,6 @@ export default function CommentDetailPage() {
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyInput, setReplyInput] = useState('');
   const [replyToNickname, setReplyToNickname] = useState<string | null>(null);
-  const [desktopReplyInput, setDesktopReplyInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -49,6 +51,13 @@ export default function CommentDetailPage() {
       .finally(() => setLoading(false));
   }, [postId, commentId]);
 
+  // autoReply state로 진입 시 자동으로 답글 입력 활성화
+  useEffect(() => {
+    if (autoReply && parentComment) {
+      handleReplyClick(parentComment.authorNickname);
+    }
+  }, [autoReply, parentComment]);
+
   function handleReplyClick(nickname: string) {
     setReplyToNickname(nickname);
     setReplyInput(`@${nickname} `);
@@ -68,24 +77,6 @@ export default function CommentDetailPage() {
       setReplyInput('');
       setReplyToNickname(null);
       setShowReplyInput(false);
-    } catch {
-      alert('답글 작성에 실패했습니다. 다시 시도해주세요.');
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  async function handleSubmitDesktopReply(e: React.FormEvent) {
-    e.preventDefault();
-    if (!postId || !commentId || !desktopReplyInput.trim()) return;
-    setSubmitting(true);
-    try {
-      const newReply = await createComment(Number(postId), {
-        content: desktopReplyInput,
-        parentCommentId: Number(commentId),
-      });
-      setReplies((prev) => [...prev, newReply]);
-      setDesktopReplyInput('');
     } catch {
       alert('답글 작성에 실패했습니다. 다시 시도해주세요.');
     } finally {
@@ -129,25 +120,16 @@ export default function CommentDetailPage() {
       </div>
 
       {/* 데스크탑 인라인 답글 입력 */}
-      <form
-        onSubmit={handleSubmitDesktopReply}
-        className="hidden md:flex items-center gap-2 mb-4"
-      >
-        <input
-          type="text"
-          value={desktopReplyInput}
-          onChange={(e) => setDesktopReplyInput(e.target.value)}
+      <div className="hidden md:block mb-4">
+        <CommentInput
+          value={replyInput}
+          onChange={setReplyInput}
+          onSubmit={handleSubmitReply}
+          submitting={submitting}
           placeholder="답글을 입력하세요..."
-          className="flex-1 px-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300"
+          buttonText="답글 작성"
         />
-        <button
-          type="submit"
-          disabled={submitting || !desktopReplyInput.trim()}
-          className="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
-        >
-          답글 작성
-        </button>
-      </form>
+      </div>
 
       {/* 대댓글 목록 */}
       {replies.length > 0 && (
@@ -165,10 +147,7 @@ export default function CommentDetailPage() {
 
       {/* 모바일 하단 고정 💬 트리거 / 답글 입력 */}
       {showReplyInput ? (
-        <form
-          onSubmit={handleSubmitReply}
-          className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3"
-        >
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3">
           <div className="max-w-3xl mx-auto">
             {replyToNickname && (
               <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
@@ -191,25 +170,17 @@ export default function CommentDetailPage() {
                 </button>
               </div>
             )}
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={replyInput}
-                onChange={(e) => setReplyInput(e.target.value)}
-                placeholder="답글을 입력하세요..."
-                autoFocus
-                className="flex-1 px-4 py-2 text-sm border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-300"
-              />
-              <button
-                type="submit"
-                disabled={submitting || !replyInput.trim()}
-                className="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-full hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
-              >
-                답글 작성
-              </button>
-            </div>
+            <CommentInput
+              value={replyInput}
+              onChange={setReplyInput}
+              onSubmit={handleSubmitReply}
+              submitting={submitting}
+              placeholder="답글을 입력하세요..."
+              buttonText="답글 작성"
+              autoFocus
+            />
           </div>
-        </form>
+        </div>
       ) : (
         <button
           onClick={() => handleReplyClick(parentComment.authorNickname)}
