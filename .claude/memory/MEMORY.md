@@ -107,6 +107,10 @@
 - [회원가입 토큰 반환 요청](./project_signup_token.md) — MVP 이후
 - [README 작성 계획](./project_readme_plan.md) — MVP 완성 후
 
+## 단기 메모
+- [무한 스크롤 3단계 로드맵](./project_infinite_scroll_roadmap.md) — MVP/MVP+/장기, 팀 공유용
+- **[04-07 브리핑]** [검색 기능 코드 리뷰 + 학습 상태](./project_search_code_review.md) — 이슈 8개 발견, 코드 파악 중 (이해→수정 순서)
+
 ## 노션 초안
 - [업로드 대기 초안](./notion_draft.md) — `/pull-mello` 후 확인
 
