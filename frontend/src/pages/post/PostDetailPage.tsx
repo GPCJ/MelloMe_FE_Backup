@@ -337,12 +337,12 @@ export default function PostDetailPage() {
             value={commentInput}
             onChange={(e) => setCommentInput(e.target.value)}
             placeholder="댓글을 입력하세요..."
-            className="flex-1 px-4 py-2 text-sm border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-300"
+            className="flex-1 px-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300"
           />
           <button
             type="submit"
             disabled={submitting || !commentInput.trim()}
-            className="px-4 py-2 text-sm font-medium text-white bg-purple-500 rounded-full hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
+            className="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
           >
             댓글 작성
           </button>
