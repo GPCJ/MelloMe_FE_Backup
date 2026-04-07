@@ -35,6 +35,7 @@ export default function Layout() {
         : '';
 
   const isActive = (path: string) => location.pathname.startsWith(path);
+  const isCommentPage = /^\/posts\/\d+\/comments/.test(location.pathname);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -152,8 +153,8 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      {/* Bottom Navigation (Mobile) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-3">
+      {/* Bottom Navigation (Mobile) — 댓글 페이지에서는 숨김 */}
+      <nav className={`md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-3${isCommentPage ? ' hidden' : ''}`}>
         <Link
           to="/posts"
           className={`flex flex-col items-center gap-1 ${isActive('/posts') && !isActive('/posts/new') ? 'text-gray-900' : 'text-gray-500'}`}

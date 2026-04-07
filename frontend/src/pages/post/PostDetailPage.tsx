@@ -29,6 +29,7 @@ import {
   fetchPost,
   deletePost,
   fetchComments,
+  createComment,
   scrapPost,
   unscrapPost,
 } from '../../api/posts';
@@ -78,6 +79,8 @@ export default function PostDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [scrapped, setScrapped] = useState(false);
   const [scrapLoading, setScrapLoading] = useState(false);
+  const [commentInput, setCommentInput] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const { reaction, setReaction, toggling, handleToggle } = useReactionToggle({
     postId: Number(postId) || 0,
@@ -111,6 +114,23 @@ export default function PostDetailPage() {
       navigate('/posts');
     } catch {
       alert('게시글 삭제에 실패했습니다. 다시 시도해주세요.');
+    }
+  }
+
+  async function handleSubmitComment(e: React.FormEvent) {
+    e.preventDefault();
+    if (!postId || !commentInput.trim()) return;
+    setSubmitting(true);
+    try {
+      const newComment = await createComment(Number(postId), {
+        content: commentInput,
+      });
+      setComments((prev) => [...prev, newComment]);
+      setCommentInput('');
+    } catch {
+      alert('댓글 작성에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -289,11 +309,15 @@ export default function PostDetailPage() {
           />
           <button
             onClick={() => navigate(`/posts/${postId}/comments`)}
-            className="flex items-center gap-1.5 text-sm text-gray-400 ml-auto hover:text-gray-600 transition-colors"
+            className="flex md:hidden items-center gap-1.5 text-sm text-gray-400 ml-auto hover:text-gray-600 transition-colors"
           >
             <MessageSquare size={16} />
             댓글 {comments.length}
           </button>
+          <span className="hidden md:flex items-center gap-1.5 text-sm text-gray-400 ml-auto">
+            <MessageSquare size={16} />
+            댓글 {comments.length}
+          </span>
         </div>
       </div>
 
@@ -302,6 +326,28 @@ export default function PostDetailPage() {
         <h2 className="text-base font-bold text-gray-900 mb-4">
           댓글 {topComments.length}
         </h2>
+
+        {/* 데스크탑 인라인 댓글 입력 */}
+        <form
+          onSubmit={handleSubmitComment}
+          className="hidden md:flex items-center gap-2 mb-4"
+        >
+          <input
+            type="text"
+            value={commentInput}
+            onChange={(e) => setCommentInput(e.target.value)}
+            placeholder="댓글을 입력하세요..."
+            className="flex-1 px-4 py-2 text-sm border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-300"
+          />
+          <button
+            type="submit"
+            disabled={submitting || !commentInput.trim()}
+            className="px-4 py-2 text-sm font-medium text-white bg-purple-500 rounded-full hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
+          >
+            댓글 작성
+          </button>
+        </form>
+
         <div className="flex flex-col gap-3">
           {topComments.map((comment) => (
             <div
