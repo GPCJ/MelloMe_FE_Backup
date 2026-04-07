@@ -1,4 +1,4 @@
-import { Heart, MessageSquare, Bookmark, Share2 } from 'lucide-react';
+import { Heart, Star, Lightbulb, MessageSquare } from 'lucide-react';
 import type { CommentResponse } from '../../types/post';
 import { formatRelativeTime } from '../../utils/formatDate';
 
@@ -42,36 +42,38 @@ export default function CommentCard({
 
       {/* 리액션 아이콘 */}
       {!comment.deleted && (
-        <div className="flex items-center gap-4 text-gray-400">
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1 text-xs hover:text-red-400 transition-colors"
-          >
-            <Heart size={14} />
-          </button>
+        <div className="flex items-center text-gray-400">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-1 text-xs hover:text-red-400 transition-colors"
+            >
+              <Heart size={14} />
+            </button>
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-1 text-xs hover:text-yellow-500 transition-colors"
+            >
+              <Star size={14} />
+            </button>
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-1 text-xs hover:text-amber-500 transition-colors"
+            >
+              <Lightbulb size={14} />
+            </button>
+          </div>
           <button
             onClick={(e) => {
               e.stopPropagation();
               onMessageClick?.();
             }}
-            className="flex items-center gap-1 text-xs hover:text-gray-600 transition-colors"
+            className="flex items-center gap-1 text-xs hover:text-gray-600 transition-colors ml-auto"
           >
             <MessageSquare size={14} />
             {replyCount != null && replyCount > 0 && (
               <span>{replyCount}</span>
             )}
-          </button>
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1 text-xs hover:text-yellow-500 transition-colors"
-          >
-            <Bookmark size={14} />
-          </button>
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1 text-xs hover:text-blue-400 transition-colors"
-          >
-            <Share2 size={14} />
           </button>
         </div>
       )}
