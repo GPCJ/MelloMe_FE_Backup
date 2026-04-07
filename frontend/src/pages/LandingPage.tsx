@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Bell } from 'lucide-react';
+import UserAvatar from '../components/common/UserAvatar';
 import { useAuthStore } from '../stores/useAuthStore';
 import { getMe, logout } from '../api/auth';
 import {
@@ -107,9 +108,7 @@ export default function LandingPage() {
                 {/* Profile */}
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex items-center gap-2 px-1 py-1 rounded-md hover:bg-gray-100 transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-purple-300 flex items-center justify-center text-white text-sm font-bold">
-                      {user.nickname?.[0] ?? '?'}
-                    </div>
+                    <UserAvatar nickname={user.nickname} imageUrl={user.profileImageUrl} size="sm" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => navigate('/profile')}>
