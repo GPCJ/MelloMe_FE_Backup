@@ -53,12 +53,6 @@ case "$1" in
   push-mello)
     echo "📤 메모리 → 레포 sync 후 push 중..."
     cd "$PROJECT_REPO"
-    # 커밋 안 된 변경사항 + untracked 파일 확인 후 자동 커밋
-    if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
-      echo "⚠️  커밋되지 않은 변경사항 감지 → 자동 커밋 진행"
-      git add -A
-      git commit -m "${COMMIT_MSG:-chore: push 전 변경사항 자동 커밋 $(date '+%Y-%m-%d %H:%M')}"
-    fi
     # sync_status.md 최신화
     SYNC_TIME=$(date '+%Y-%m-%d %H:%M KST')
     cat > "$MEMORY_SRC/sync_status.md" << EOF
@@ -81,12 +75,12 @@ EOF
     # 로컬 메모리 → 레포 내 메모리 폴더로 복사
     mkdir -p "$MEMORY_IN_REPO"
     rsync -a --delete --exclude='.git' "$MEMORY_SRC/" "$MEMORY_IN_REPO/"
-    # 메모리 변경사항 커밋 후 원격과 동기화
-    git add .claude/memory
+    # 모든 변경사항(코드 + 메모리)을 하나의 커밋으로
+    git add -A
     if git diff --cached --quiet; then
-      echo "ℹ️  메모리 변경 사항 없음."
+      echo "ℹ️  변경 사항 없음."
     else
-      git commit -m "chore: sync_status 업데이트"
+      git commit -m "${COMMIT_MSG:-chore: push 변경사항 동기화 $(date '+%Y-%m-%d %H:%M')}"
     fi
     safe_pull_rebase
     git push origin main
