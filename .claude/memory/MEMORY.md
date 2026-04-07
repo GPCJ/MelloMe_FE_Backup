@@ -29,6 +29,9 @@
 - [API 명세 Swagger 통일](./project_api_spec_platform.md)
 - [마이페이지 Swagger 확정](./project_mypage_swagger_confirmed.md) — /me/comments+/me/scraps 분리
 
+## 공통 컴포넌트
+- [UserAvatar 공통 컴포넌트 통합](./project_user_avatar_component.md) — 6곳 아바타 통합, PostDetail/CommentResponse 타입 확장
+
 ## 프론트 보류/기술부채
 - [보류된 리팩토링 + 인지부채](./project_pending_refactor.md) — AbortController, refresh plain axios, 이해도 점검
 - [403→공개게시물없음 표시 한계](./project_403_public_post_tradeoff.md)

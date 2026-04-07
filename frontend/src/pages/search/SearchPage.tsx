@@ -2,17 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Search } from 'lucide-react';
 import PostCard from '../../components/post/PostCard';
+import FilterChips from '../../components/common/FilterChips';
 import { fetchPosts } from '../../api/posts';
 import type { TherapyArea, PostSort, PostSummary } from '../../types/post';
 import Pagination from '../../components/common/Pagination';
-
-const FILTER_CHIPS: { value: TherapyArea | ''; label: string }[] = [
-  { value: '', label: '전체' },
-  { value: 'OCCUPATIONAL', label: '작업치료' },
-  { value: 'SPEECH', label: '언어치료' },
-  { value: 'PLAY', label: '놀이치료' },
-  { value: 'COGNITIVE', label: '인지치료' },
-];
 
 const SORT_OPTIONS: { value: PostSort; label: string }[] = [
   { value: 'LATEST', label: '최신순' },
@@ -134,22 +127,7 @@ export default function SearchPage() {
 
         {/* 필터 칩 + 정렬 */}
         <div className="flex items-center justify-between px-4 py-2">
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            {FILTER_CHIPS.map((chip) => (
-              <button
-                type="button"
-                key={chip.value}
-                onClick={() => setTherapyArea(chip.value)}
-                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  therapyArea === chip.value
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-white text-neutral-950 border border-gray-200'
-                }`}
-              >
-                {chip.label}
-              </button>
-            ))}
-          </div>
+          <FilterChips value={therapyArea} onChange={setTherapyArea} />
           <select
             value={sortType}
             onChange={(e) => setSortType(e.target.value as PostSort)}

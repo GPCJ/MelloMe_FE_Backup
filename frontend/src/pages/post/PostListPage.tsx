@@ -7,15 +7,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { fetchPosts } from '../../api/posts';
 import type { TherapyArea, PaginatedPosts } from '../../types/post';
 import PostCard from '../../components/post/PostCard';
+import FilterChips from '../../components/common/FilterChips';
 import Pagination from '../../components/common/Pagination';
-
-const FILTER_CHIPS: { value: TherapyArea | ''; label: string }[] = [
-  { value: '', label: '전체' },
-  { value: 'OCCUPATIONAL', label: '작업치료' },
-  { value: 'SPEECH', label: '언어치료' },
-  { value: 'PLAY', label: '놀이치료' },
-  { value: 'COGNITIVE', label: '인지치료' },
-];
 
 type FeedTab = 'all' | 'following';
 
@@ -165,20 +158,8 @@ export default function PostListPage() {
       </div>
 
       {/* 필터 칩 */}
-      <div className="flex items-center gap-2 p-4 border-b border-gray-200 overflow-x-auto scrollbar-hide">
-        {FILTER_CHIPS.map((chip) => (
-          <button
-            key={chip.value}
-            onClick={() => handleFilterClick(chip.value)}
-            className={`shrink-0 px-3 py-2 rounded-full text-xs font-medium transition-colors ${
-              therapyArea === chip.value
-                ? 'bg-gray-900 text-white'
-                : 'bg-white text-neutral-950 border border-gray-200'
-            }`}
-          >
-            {chip.label}
-          </button>
-        ))}
+      <div className="p-4 border-b border-gray-200">
+        <FilterChips value={therapyArea} onChange={handleFilterClick} />
       </div>
 
       {/* 피드 콘텐츠 */}
