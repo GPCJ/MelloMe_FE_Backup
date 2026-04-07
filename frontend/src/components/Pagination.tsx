@@ -6,7 +6,7 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-// 순수 유틸 함수
+// 현재 페이지 기준 앞뒤 1칸 + 양 끝 표시: [1, ..., 4, 5, 6, ..., 10]
 function getPageNumbers(current: number, total: number): (number | '...')[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
   const pages: (number | '...')[] = [1];
