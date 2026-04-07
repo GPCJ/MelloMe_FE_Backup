@@ -70,7 +70,7 @@
 - **[최우선]** [코드 작업 전 트레이드오프 설명 필수](./feedback_tradeoff_before_code.md)
 - [MVP 코드 수정 기준](./feedback_mvp_fix_criteria.md) / [UI는 디자이너 확인 후](./feedback_ui_designer_confirm.md)
 - [코드 수정 프로세스 — grep 선행](./feedback_code_change_process.md) / [코드 생성 승인 요청](./feedback_code_approval.md)
-- [CSV 검토 시 그때그때 수정](./feedback_api_review_approach.md) / [navigate(-1) 금지](./feedback_navigate_back.md)
+- [CSV 검토 시 그때그때 수정](./feedback_api_review_approach.md) / [navigate(-1) 금지](./feedback_navigate_back.md) / [모바일/데스크탑 UX 분기](./feedback_mobile_desktop_ux.md)
 - [질문 방식 — 객관식 vs 주관식](./feedback_question_style.md) / [불확실하면 질문](./feedback_ask_when_uncertain.md)
 - [/wrap-up으로 세션 마무리](./feedback_session_bridge_removed.md) / [집중력↓ 시 간결하게](./feedback_concise_when_tired.md)
 - [피그마 공유 — 스크린샷+Export PNG 2x](./feedback_figma_sharing.md) / [figma 링크→메모리 저장](./feedback_figma_link_recognition.md)
@@ -114,6 +114,7 @@
 - [무한 스크롤 3단계 로드맵](./project_infinite_scroll_roadmap.md) — MVP/MVP+/장기, 팀 공유용
 - [검색 코드 리뷰 + C+A 개선 전략](./project_search_code_review.md) — Pagination 완료, FilterChips 미진행
 - [Pagination 추출 완료](./project_pagination_extraction.md) — 04-07 커밋 32ac85a
+- [댓글 UI 리디자인](./project_comment_ui_redesign.md) — 3페이지 구조, 모바일/데스크탑 분기, 04-07 완료
 
 ## 노션 초안
 - [업로드 대기 초안](./notion_draft.md) — `/pull-mello` 후 확인
