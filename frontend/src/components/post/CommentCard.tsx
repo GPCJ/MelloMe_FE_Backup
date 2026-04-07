@@ -48,7 +48,6 @@ export default function CommentCard({
             className="flex items-center gap-1 text-xs hover:text-red-400 transition-colors"
           >
             <Heart size={14} />
-            <span>7</span>
           </button>
           <button
             onClick={(e) => {
@@ -58,21 +57,21 @@ export default function CommentCard({
             className="flex items-center gap-1 text-xs hover:text-gray-600 transition-colors"
           >
             <MessageSquare size={14} />
-            <span>{replyCount ?? 0}</span>
+            {replyCount != null && replyCount > 0 && (
+              <span>{replyCount}</span>
+            )}
           </button>
           <button
             onClick={(e) => e.stopPropagation()}
             className="flex items-center gap-1 text-xs hover:text-yellow-500 transition-colors"
           >
             <Bookmark size={14} />
-            <span>15</span>
           </button>
           <button
             onClick={(e) => e.stopPropagation()}
             className="flex items-center gap-1 text-xs hover:text-blue-400 transition-colors"
           >
             <Share2 size={14} />
-            <span>75</span>
           </button>
         </div>
       )}
