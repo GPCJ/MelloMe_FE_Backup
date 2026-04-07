@@ -10,6 +10,7 @@ import {
   Trash2,
   Download,
   FileText,
+  Bookmark,
 } from 'lucide-react';
 import ReactionBar from '../../components/post/ReactionBar';
 import VerifiedBadge from '../../components/post/VerifiedBadge';
@@ -24,7 +25,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { fetchPost, deletePost, fetchComments } from '../../api/posts';
+import {
+  fetchPost,
+  deletePost,
+  fetchComments,
+  scrapPost,
+  unscrapPost,
+} from '../../api/posts';
 import type { PostDetail, CommentResponse } from '../../types/post';
 import { THERAPY_AREA_LABELS } from '../../constants/post';
 import { formatRelativeTime } from '../../utils/formatDate';
@@ -69,6 +76,8 @@ export default function PostDetailPage() {
   const [comments, setComments] = useState<CommentResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [scrapped, setScrapped] = useState(false);
+  const [scrapLoading, setScrapLoading] = useState(false);
 
   const { reaction, setReaction, toggling, handleToggle } = useReactionToggle({
     postId: Number(postId) || 0,
@@ -102,6 +111,23 @@ export default function PostDetailPage() {
       navigate('/posts');
     } catch {
       alert('게시글 삭제에 실패했습니다. 다시 시도해주세요.');
+    }
+  }
+
+  async function handleScrapToggle() {
+    if (!post || scrapLoading) return;
+    setScrapLoading(true);
+    try {
+      if (scrapped) {
+        await unscrapPost(post.id);
+      } else {
+        await scrapPost(post.id);
+      }
+      setScrapped(!scrapped);
+    } catch {
+      alert('스크랩에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setScrapLoading(false);
     }
   }
 
@@ -164,7 +190,7 @@ export default function PostDetailPage() {
         {/* 작성자 정보 */}
         <div className="flex items-center gap-3 mb-5 pb-5 border-b border-gray-100">
           <AuthorAvatar nickname={post.authorNickname} />
-          <div>
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-gray-900">
                 {post.authorNickname}
@@ -185,6 +211,16 @@ export default function PostDetailPage() {
               </span>
             </div>
           </div>
+          <button
+            onClick={handleScrapToggle}
+            disabled={scrapLoading}
+            className="p-1.5 shrink-0 transition-colors"
+          >
+            <Bookmark
+              size={20}
+              className={scrapped ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 hover:text-gray-500'}
+            />
+          </button>
         </div>
 
         {/* 제목 */}
