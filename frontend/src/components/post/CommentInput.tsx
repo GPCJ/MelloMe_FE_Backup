@@ -25,7 +25,7 @@ export default function CommentInput({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         autoFocus={autoFocus}
-        className="flex-1 px-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300"
+        className="flex-1 px-4 py-2 text-base border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300"
       />
       <button
         type="submit"

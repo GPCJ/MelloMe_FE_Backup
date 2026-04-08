@@ -77,61 +77,66 @@ export default function CommentWritePage() {
       : null;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
-      {/* 헤더 */}
-      <div className="flex items-center gap-3 mb-4">
-        <button
-          onClick={() => navigate(`/posts/${postId}`)}
-          className="p-2 -ml-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
-        >
-          <ArrowLeft size={20} />
-        </button>
-        <h1 className="text-base font-bold text-gray-900">댓글 달기</h1>
-      </div>
+    <div className="flex flex-col h-dvh">
+      {/* 스크롤 영역 */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-3xl mx-auto px-4 py-6">
+          {/* 헤더 */}
+          <div className="flex items-center gap-3 mb-4">
+            <button
+              onClick={() => navigate(`/posts/${postId}`)}
+              className="p-2 -ml-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <h1 className="text-base font-bold text-gray-900">댓글 달기</h1>
+          </div>
 
-      {/* 게시글 본문 */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
-        <div className="flex items-center gap-3 mb-5 pb-5 border-b border-gray-100">
-          <UserAvatar nickname={post.authorNickname} imageUrl={post.authorProfileImageUrl} size="md" />
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-gray-900">
-                {post.authorNickname}
-              </span>
-              <VerifiedBadge status={post.authorVerificationStatus} />
-              {therapyLabel && (
-                <Badge variant="secondary" className="text-xs">
-                  {therapyLabel}
-                </Badge>
-              )}
+          {/* 게시글 본문 */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
+            <div className="flex items-center gap-3 mb-5 pb-5 border-b border-gray-100">
+              <UserAvatar nickname={post.authorNickname} imageUrl={post.authorProfileImageUrl} size="md" />
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-gray-900">
+                    {post.authorNickname}
+                  </span>
+                  <VerifiedBadge status={post.authorVerificationStatus} />
+                  {therapyLabel && (
+                    <Badge variant="secondary" className="text-xs">
+                      {therapyLabel}
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-0.5">
+                  <span>{formatRelativeTime(post.createdAt)}</span>
+                  <span>·</span>
+                  <span className="flex items-center gap-0.5">
+                    <Eye size={11} />
+                    조회 {post.viewCount}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-0.5">
-              <span>{formatRelativeTime(post.createdAt)}</span>
-              <span>·</span>
-              <span className="flex items-center gap-0.5">
-                <Eye size={11} />
-                조회 {post.viewCount}
-              </span>
+
+            <div
+              className="post-content mb-6"
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
+            />
+
+            <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
+              <ReactionBar
+                reaction={reaction}
+                onToggle={handleToggle}
+                disabled={toggling}
+              />
             </div>
           </div>
         </div>
-
-        <div
-          className="post-content mb-6"
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
-        />
-
-        <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
-          <ReactionBar
-            reaction={reaction}
-            onToggle={handleToggle}
-            disabled={toggling}
-          />
-        </div>
       </div>
 
-      {/* 하단 고정 댓글 입력 */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3">
+      {/* 하단 댓글 입력 */}
+      <div className="bg-white border-t border-gray-200 px-4 py-3">
         <div className="max-w-3xl mx-auto">
           <CommentInput
             value={commentInput}
