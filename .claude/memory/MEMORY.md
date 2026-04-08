@@ -114,6 +114,9 @@
 ## 폴더 구조
 - [프론트 폴더 구조 리팩토링 04-07](./project_folder_restructure.md) — components/pages 도메인별 하위 폴더 재구성, import 경로 변경됨
 
+## ⭐ 04-09 1순위
+- [댓글 UI 코드 리뷰 — h-dvh 문제 외 3건](./project_comment_ui_review_0409.md)
+
 ## 단기 메모
 - [무한 스크롤 3단계 로드맵](./project_infinite_scroll_roadmap.md) — MVP/MVP+/장기, 팀 공유용
 - [검색 코드 리뷰 + C+A 개선 전략](./project_search_code_review.md) — Pagination 완료, FilterChips 미진행
