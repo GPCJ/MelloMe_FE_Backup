@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import { ArrowLeft, Eye } from 'lucide-react';
+import { ArrowLeft, Eye, MoreVertical } from 'lucide-react';
 import VerifiedBadge from '../../components/post/VerifiedBadge';
 import ReactionBar from '../../components/post/ReactionBar';
 import { getReaction } from '../../api/posts';
@@ -82,14 +82,19 @@ export default function CommentWritePage() {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-3xl mx-auto px-4 py-6">
           {/* 헤더 */}
-          <div className="flex items-center gap-3 mb-4">
-            <button
-              onClick={() => navigate(`/posts/${postId}`)}
-              className="p-2 -ml-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <ArrowLeft size={20} />
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate(`/posts/${postId}`)}
+                className="p-2 -ml-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <ArrowLeft size={20} />
+              </button>
+              <h1 className="text-base font-bold text-gray-900">댓글 달기</h1>
+            </div>
+            <button className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
+              <MoreVertical size={20} />
             </button>
-            <h1 className="text-base font-bold text-gray-900">댓글 달기</h1>
           </div>
 
           {/* 게시글 본문 */}

@@ -90,7 +90,7 @@ export default function CommentDetailPage() {
           >
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-base font-bold text-gray-900">댓글 달기</h1>
+          <h1 className="text-base font-bold text-gray-900">답글 달기</h1>
         </div>
         {/* TODO: MVP 이후 케밥 메뉴 기능 추가 (신고, 차단 등) */}
         <button className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
