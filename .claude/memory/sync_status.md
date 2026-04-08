@@ -6,7 +6,7 @@ type: project
 
 ## 마지막 동기화
 
-- **시간**: 2026-04-08 20:56 KST
+- **시간**: 2026-04-08 21:03 KST
 - **환경**: macOS (맥북)
 - **레포**: https://github.com/GPCJ/MelloMe_FE_Backup
 
