@@ -3,13 +3,13 @@ import { Bell, Home, PlusCircle, Search, User, ArrowLeft } from 'lucide-react';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { logout } from '../../api/auth';
 import UserAvatar from '../common/UserAvatar';
-import { buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/shadcn-ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/shadcn-ui/dropdown-menu';
 
 const mockAnnouncements = [
   { id: 1, title: '멜로미 커뮤니티 오픈 안내', date: '2024.03.19' },

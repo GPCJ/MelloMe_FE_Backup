@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Bell, TrendingUp, ThumbsUp, Eye } from 'lucide-react'
-import { buttonVariants } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { buttonVariants } from '@/components/shadcn-ui/button'
+import { Card, CardContent } from '@/components/shadcn-ui/card'
 
 const announcements = [
   { id: 1, title: '멜로미 커뮤니티에 오신 것을 환영합니다!', date: '2026.03.05' },

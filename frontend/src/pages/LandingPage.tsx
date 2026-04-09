@@ -9,7 +9,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/shadcn-ui/dropdown-menu';
 
 const mockAnnouncements = [
   { id: 1, title: '멜로미 커뮤니티 오픈 안내', date: '2024.03.19' },

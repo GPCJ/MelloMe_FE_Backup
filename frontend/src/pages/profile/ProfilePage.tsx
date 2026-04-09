@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Camera, Pencil } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import PostCard from '../../components/post/PostCard';
 import { fetchMyPosts, fetchMyComments, fetchMyScraps } from '../../api/mypage';
 import { deleteAccount, uploadProfileImage, updateMyProfile } from '../../api/auth';

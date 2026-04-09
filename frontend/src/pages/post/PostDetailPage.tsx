@@ -19,14 +19,14 @@ import { useReactionToggle } from '../../hooks/useReactionToggle';
 import CommentCard from '../../components/post/CommentCard';
 import CommentInput from '../../components/post/CommentInput';
 import { useCommentSubmit } from '../../hooks/useCommentSubmit';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/shadcn-ui/badge';
+import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/shadcn-ui/dropdown-menu';
 import {
   fetchPost,
   deletePost,

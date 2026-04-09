@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { signup } from '../../api/auth';
 import { useAuthStore } from '../../stores/useAuthStore';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/shadcn-ui/button';
+import { Input } from '@/components/shadcn-ui/input';
+import { Label } from '@/components/shadcn-ui/label';
+import { Checkbox } from '@/components/shadcn-ui/checkbox';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/shadcn-ui/card';
 
 export default function SignupPage() {
   const navigate = useNavigate();

@@ -6,7 +6,7 @@ import VerifiedBadge from '../../components/post/VerifiedBadge';
 import ReactionBar from '../../components/post/ReactionBar';
 import { getReaction } from '../../api/posts';
 import { useReactionToggle } from '../../hooks/useReactionToggle';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/components/shadcn-ui/badge';
 import CommentInput from '../../components/post/CommentInput';
 import { fetchPost, createComment } from '../../api/posts';
 import type { PostDetail } from '../../types/post';

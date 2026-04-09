@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Image, Lock, LockOpen, Paperclip } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import SimpleTextEditor from '../../components/post/SimpleTextEditor';
 import FilePreviewGrid from '../../components/post/FilePreviewGrid';
 import { fetchPost, updatePost, uploadPostAttachment, deletePostAttachment } from '../../api/posts';
