@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, MoreVertical } from 'lucide-react';
+import { useParams, useLocation } from 'react-router-dom';
 import CommentCard from '../../components/post/CommentCard';
 import CommentInput from '../../components/post/CommentInput';
+import MobilePageHeader from '@/components/common/MobilePageHeader';
 import { useReplyInput } from '../../hooks/useReplyInput';
 import { useCommentSubmit } from '../../hooks/useCommentSubmit';
 import { fetchComments } from '../../api/posts';
@@ -13,7 +13,6 @@ export default function CommentDetailPage() {
     postId: string;
     commentId: string;
   }>();
-  const navigate = useNavigate();
   const location = useLocation();
   const autoReply = (location.state as { autoReply?: boolean })?.autoReply;
 
@@ -82,21 +81,7 @@ export default function CommentDetailPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
       {/* 헤더 */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate(`/posts/${postId}`)}
-            className="p-2 -ml-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <h1 className="text-base font-bold text-gray-900">답글 달기</h1>
-        </div>
-        {/* TODO: MVP 이후 케밥 메뉴 기능 추가 (신고, 차단 등) */}
-        <button className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
-          <MoreVertical size={20} />
-        </button>
-      </div>
+      <MobilePageHeader title="게시글" backTo={`/posts/${postId}`} />
 
       {/* 부모 댓글 */}
       <div className="mb-2">

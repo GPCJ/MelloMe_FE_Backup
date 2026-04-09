@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Bell, Home, PlusCircle, Search, User, ArrowLeft } from 'lucide-react';
+import { Bell, Home, PlusCircle, Search, User } from 'lucide-react';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { logout } from '../../api/auth';
 import UserAvatar from '../common/UserAvatar';
@@ -36,33 +36,22 @@ export default function Layout() {
         : '';
 
   const isActive = (path: string) => location.pathname.startsWith(path);
-  const isCommentPage = /^\/posts\/\d+\/comments/.test(location.pathname);
-  const commentPostId = location.pathname.match(/^\/posts\/(\d+)\/comments/)?.[1];
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 hidden md:block">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
             {/* 데스크탑 로고 */}
-            <Link to="/" className="hidden md:block text-2xl font-bold text-gray-900">
+            <Link
+              to="/"
+              className="hidden md:block text-2xl font-bold text-gray-900"
+            >
               멜로미
             </Link>
-            {/* 모바일 타이틀 */}
-            {isCommentPage ? (
-              <button
-                onClick={() => navigate(`/posts/${commentPostId}`)}
-                className="md:hidden p-2 -ml-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <ArrowLeft size={20} />
-              </button>
-            ) : (
-              <span className="md:hidden text-lg font-bold text-gray-900">
-                치료사 커뮤니티
-              </span>
-            )}
+
             {/* MSW ON/OFF 확인 UI — 데스크탑만 */}
             <span className="hidden md:inline-block">
               {import.meta.env.VITE_MSW_ENABLED === 'true' ? (
@@ -129,7 +118,11 @@ export default function Layout() {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center gap-2 px-1 py-1 rounded-md hover:bg-gray-100 transition-colors">
-                  <UserAvatar nickname={user.nickname ?? ''} imageUrl={user.profileImageUrl} size="sm" />
+                  <UserAvatar
+                    nickname={user.nickname ?? ''}
+                    imageUrl={user.profileImageUrl}
+                    size="sm"
+                  />
                   <div className="hidden md:flex flex-col items-start">
                     <span className="text-sm font-medium leading-tight">
                       {user.nickname}
@@ -162,8 +155,10 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      {/* Bottom Navigation (Mobile) — 댓글 페이지에서는 숨김 */}
-      <nav className={`md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-3${isCommentPage ? ' hidden' : ''}`}>
+      {/* Bottom Navigation (Mobile) */}
+      <nav
+        className={`md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-3`}
+      >
         <Link
           to="/posts"
           className={`flex flex-col items-center gap-1 ${isActive('/posts') && !isActive('/posts/new') ? 'text-gray-900' : 'text-gray-500'}`}

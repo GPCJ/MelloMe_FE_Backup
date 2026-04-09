@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import { ArrowLeft, Eye, MoreVertical } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import VerifiedBadge from '../../components/post/VerifiedBadge';
 import ReactionBar from '../../components/post/ReactionBar';
 import { getReaction } from '../../api/posts';
 import { useReactionToggle } from '../../hooks/useReactionToggle';
 import { Badge } from '@/components/shadcn-ui/badge';
 import CommentInput from '../../components/post/CommentInput';
+import MobilePageHeader from '@/components/common/MobilePageHeader';
 import { fetchPost, createComment } from '../../api/posts';
 import type { PostDetail } from '../../types/post';
 import { THERAPY_AREA_LABELS } from '../../constants/post';
@@ -82,25 +83,16 @@ export default function CommentWritePage() {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-3xl mx-auto px-4 py-6">
           {/* 헤더 */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => navigate(`/posts/${postId}`)}
-                className="p-2 -ml-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <ArrowLeft size={20} />
-              </button>
-              <h1 className="text-base font-bold text-gray-900">댓글 달기</h1>
-            </div>
-            <button className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
-              <MoreVertical size={20} />
-            </button>
-          </div>
+          <MobilePageHeader title="게시글" backTo={`/posts/${postId}`} />
 
           {/* 게시글 본문 */}
           <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
             <div className="flex items-center gap-3 mb-5 pb-5 border-b border-gray-100">
-              <UserAvatar nickname={post.authorNickname} imageUrl={post.authorProfileImageUrl} size="md" />
+              <UserAvatar
+                nickname={post.authorNickname}
+                imageUrl={post.authorProfileImageUrl}
+                size="md"
+              />
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-gray-900">
@@ -126,7 +118,9 @@ export default function CommentWritePage() {
 
             <div
               className="post-content mb-6"
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(post.content),
+              }}
             />
 
             <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
