@@ -81,7 +81,7 @@ export default function CommentDetailPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
       {/* 헤더 */}
-      <MobilePageHeader title="게시글" backTo={`/posts/${postId}`} />
+      <MobilePageHeader title="댓글 달기" backTo={`/posts/${postId}`} />
 
       {/* 부모 댓글 */}
       <div className="mb-2">

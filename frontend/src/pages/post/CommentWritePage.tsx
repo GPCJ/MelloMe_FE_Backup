@@ -83,7 +83,7 @@ export default function CommentWritePage() {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-3xl mx-auto px-4 py-6">
           {/* 헤더 */}
-          <MobilePageHeader title="게시글" backTo={`/posts/${postId}`} />
+          <MobilePageHeader title="댓글 달기" backTo={`/posts/${postId}`} />
 
           {/* 게시글 본문 */}
           <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
