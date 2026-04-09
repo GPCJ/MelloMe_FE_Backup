@@ -132,7 +132,7 @@ export default function PostListPage() {
       </div>
 
       {/* 탭 */}
-      <div className="sticky top-14 z-40 bg-white">
+      <div className="sticky top-0 md:top-14 z-40 bg-white">
         <div className="flex">
           <button
             onClick={() => setActiveTab('all')}
