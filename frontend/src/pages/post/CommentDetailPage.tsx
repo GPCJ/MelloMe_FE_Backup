@@ -3,6 +3,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import CommentCard from '../../components/post/CommentCard';
 import CommentInput from '../../components/post/CommentInput';
 import MobilePageHeader from '@/components/common/MobilePageHeader';
+import MobileFixedBottom from '@/components/common/MobileFixedBottom';
 import { useReplyInput } from '../../hooks/useReplyInput';
 import { useCommentSubmit } from '../../hooks/useCommentSubmit';
 import { fetchComments } from '../../api/posts';
@@ -79,7 +80,7 @@ export default function CommentDetailPage() {
     );
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
+    <div className={`max-w-3xl mx-auto px-4 py-6 ${showReplyInput ? 'pb-24' : 'pb-6'}`}>
       {/* 헤더 */}
       <MobilePageHeader title="댓글 달기" backTo={`/posts/${postId}`} />
 
@@ -118,38 +119,36 @@ export default function CommentDetailPage() {
         </div>
       )}
 
-      {/* 모바일 하단 고정 💬 트리거 / 답글 입력 */}
+      {/* 모바일 하단 고정 답글 입력 */}
       {showReplyInput && (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3">
-          <div className="max-w-3xl mx-auto">
-            {replyToNickname && (
-              <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
-                <span>
-                  <span className="font-medium text-gray-600">
-                    {replyToNickname}
-                  </span>
-                  에게 답글 작성 중
+        <MobileFixedBottom className="md:hidden">
+          {replyToNickname && (
+            <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
+              <span>
+                <span className="font-medium text-gray-600">
+                  {replyToNickname}
                 </span>
-                <button
-                  type="button"
-                  onClick={resetReply}
-                  className="underline hover:text-gray-700"
-                >
-                  취소
-                </button>
-              </div>
-            )}
-            <CommentInput
-              value={replyInput}
-              onChange={setReplyInput}
-              onSubmit={(e) => handleSubmitReply(e, replyInput)}
-              submitting={submitting}
-              placeholder="답글을 입력하세요..."
-              buttonText="답글 작성"
-              autoFocus
-            />
-          </div>
-        </div>
+                에게 답글 작성 중
+              </span>
+              <button
+                type="button"
+                onClick={resetReply}
+                className="underline hover:text-gray-700"
+              >
+                취소
+              </button>
+            </div>
+          )}
+          <CommentInput
+            value={replyInput}
+            onChange={setReplyInput}
+            onSubmit={(e) => handleSubmitReply(e, replyInput)}
+            submitting={submitting}
+            placeholder="답글을 입력하세요..."
+            buttonText="답글 작성"
+            autoFocus
+          />
+        </MobileFixedBottom>
       )}
     </div>
   );

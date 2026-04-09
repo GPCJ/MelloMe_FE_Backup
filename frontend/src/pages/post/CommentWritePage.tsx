@@ -9,6 +9,7 @@ import { useReactionToggle } from '../../hooks/useReactionToggle';
 import { Badge } from '@/components/shadcn-ui/badge';
 import CommentInput from '../../components/post/CommentInput';
 import MobilePageHeader from '@/components/common/MobilePageHeader';
+import MobileFixedBottom from '@/components/common/MobileFixedBottom';
 import { fetchPost, createComment } from '../../api/posts';
 import type { PostDetail } from '../../types/post';
 import { THERAPY_AREA_LABELS } from '../../constants/post';
@@ -135,17 +136,15 @@ export default function CommentWritePage() {
       </div>
 
       {/* 하단 댓글 입력 */}
-      <div className="bg-white border-t border-gray-200 px-4 py-3">
-        <div className="max-w-3xl mx-auto">
-          <CommentInput
-            value={commentInput}
-            onChange={setCommentInput}
-            onSubmit={handleSubmit}
-            submitting={submitting}
-            autoFocus
-          />
-        </div>
-      </div>
+      <MobileFixedBottom>
+        <CommentInput
+          value={commentInput}
+          onChange={setCommentInput}
+          onSubmit={handleSubmit}
+          submitting={submitting}
+          autoFocus
+        />
+      </MobileFixedBottom>
     </div>
   );
 }
