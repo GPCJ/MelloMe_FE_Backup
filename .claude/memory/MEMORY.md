@@ -4,6 +4,7 @@
 - [인증/보안 개념 지식 수준 — 비유적 설명 선호](./user_knowledge_auth.md)
 - [개발 스타일 — 기능 구현 우선, 트러블슈팅 강점, 설계/아키텍처 약점 자각](./user_dev_style.md)
 - [AI 의존 줄이기 — 직접 코딩 목표, 힌트는 OK 코드 작성은 직접](./user_self_coding_goal.md)
+- [문서화 역량 면접 Q&A — 7개 항목별 심화 질문+답변 소재](./career_documentation_qa.md)
 
 ## 프로젝트
 멜로미 — 발달장애 아동 치료사 커뮤니티 플랫폼 (MVP 개발 중)
@@ -70,7 +71,7 @@
 - [Google OAuth 삭제 내역](./project_google_oauth_removed.md) — 재도입 시 git 참고
 
 ## 개발 규칙 / 피드백
-- **[최우선]** [코드 작업 전 트레이드오프 설명 필수](./feedback_tradeoff_before_code.md)
+- **[최우선]** [코드 작업 전 트레이드오프 설명 필수](./feedback_tradeoff_before_code.md) / [클린 커밋 히스토리 관리](./feedback_clean_commit_history.md)
 - [MVP 코드 수정 기준](./feedback_mvp_fix_criteria.md) / [UI는 디자이너 확인 후](./feedback_ui_designer_confirm.md)
 - [코드 수정 프로세스 — grep 선행](./feedback_code_change_process.md) / [코드 생성 승인 요청](./feedback_code_approval.md)
 - [노션 항목 번호 — fetch로 실제 상태 확인 후 결정](./feedback_notion_page_number_check.md)
