@@ -116,7 +116,7 @@
 - [프론트 폴더 구조 리팩토링 04-07](./project_folder_restructure.md) — components/pages 도메인별 하위 폴더 재구성, import 경로 변경됨
 
 ## ⭐ 진행 중
-- [댓글 UI 코드 리뷰 — h-dvh, pb-24 미해결](./project_comment_ui_review_0409.md)
+- [댓글 UI 코드 리뷰 — 04-09 전부 해결, MobileFixedBottom 도입](./project_comment_ui_review_0409.md)
 - [모바일 상단 헤더 리팩토링 — MobilePageHeader 추출, 디자이너 시안 대기](./project_mobile_header_refactor.md)
 
 ## 단기 메모

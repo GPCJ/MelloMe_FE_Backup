@@ -1,20 +1,19 @@
 ---
-name: 댓글 UI 코드 리뷰 — 04-09 1순위 작업
-description: 2026-04-08 댓글/대댓글 UI 코드 리뷰 결과. 04-09 첫 작업으로 처리 예정.
+name: 댓글 UI 코드 리뷰 — 04-09 작업 완료
+description: 04-08 코드 리뷰에서 발견된 h-dvh, pb-24 이슈 → 04-09 MobileFixedBottom 도입으로 전부 해결
 type: project
+originSessionId: d1067864-12df-4a7d-aed3-5e225ac5e869
 ---
-
 ## 리뷰 결과 요약
 
-### 🔴 미해결
-- **`CommentWritePage` `h-dvh` 문제**: Layout(`<main>`) 안에서 `h-dvh`(100dvh) 적용 → 하단 입력창이 화면 밖으로 밀려남. 이전 세션에서 Claude가 제안한 구조가 원인. 근본 수정 필요.
-
-### 🟡 미해결
-- **`pb-24` 고정값**: CommentDetailPage에서 하단 입력창 없을 때도 항상 96px 여백 적용됨.
-
-### ✅ 완료 / 보류
+### ✅ 완료
+- **`CommentWritePage` `h-dvh` 문제**: MobileFixedBottom(position:fixed) 도입으로 자연 해소 → h-dvh + flex 중첩 구조 제거, 플랫 구조로 변경
+- **`pb-24` 고정값**: CommentDetailPage에서 `showReplyInput` 조건부 처리 (`pb-24` / `pb-6`)
 - **페이지 헤더 공통화**: MobilePageHeader 컴포넌트로 추출 완료 (커밋 c336ca0)
-- **글로벌+페이지 헤더 중복**: 디자이너가 모바일/PC 별도 디자인 예정. 보류.
+- **모바일 키보드 대응**: useKeyboardHeight + MobileFixedBottom으로 키보드 위 입력창 고정
 
-**Why:** 2026-04-08 UI 점검 중 발견. h-dvh가 Layout 내부에서 뷰포트 기준으로 동작해 레이아웃 깨짐.
-**How to apply:** h-dvh 근본 수정 + pb-24 조건부 적용 남아있음.
+### 보류
+- **글로벌+페이지 헤더 중복**: 디자이너가 모바일/PC 별도 디자인 예정
+
+**Why:** 04-08 UI 점검 중 발견된 레이아웃 이슈들. 근본 원인은 fixed 대신 flex 레이아웃으로 하단 입력창을 배치했던 것.
+**How to apply:** 모바일 하단 고정 UI가 필요하면 MobileFixedBottom 컴포넌트 사용할 것.

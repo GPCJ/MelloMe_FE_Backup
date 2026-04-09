@@ -79,10 +79,7 @@ export default function CommentWritePage() {
       : null;
 
   return (
-    <div className="flex flex-col h-dvh">
-      {/* 스크롤 영역 */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto px-4 py-6">
+    <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
           {/* 헤더 */}
           <MobilePageHeader title="댓글 달기" backTo={`/posts/${postId}`} />
 
@@ -132,8 +129,6 @@ export default function CommentWritePage() {
               />
             </div>
           </div>
-        </div>
-      </div>
 
       {/* 하단 댓글 입력 */}
       <MobileFixedBottom>
