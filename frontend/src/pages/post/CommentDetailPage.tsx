@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
+import { MoreVertical } from 'lucide-react';
 import CommentCard from '../../components/post/CommentCard';
 import CommentInput from '../../components/post/CommentInput';
 import MobilePageHeader from '@/components/common/MobilePageHeader';
@@ -82,7 +83,15 @@ export default function CommentDetailPage() {
   return (
     <div className={`max-w-3xl mx-auto px-4 py-6 ${showReplyInput ? 'pb-24' : 'pb-6'}`}>
       {/* 헤더 */}
-      <MobilePageHeader title="댓글 달기" backTo={`/posts/${postId}`} />
+      <MobilePageHeader
+        title="댓글 달기"
+        backTo={`/posts/${postId}`}
+        rightAction={
+          <button className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
+            <MoreVertical size={20} />
+          </button>
+        }
+      />
 
       {/* 부모 댓글 */}
       <div className="mb-2">

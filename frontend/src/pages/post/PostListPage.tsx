@@ -8,6 +8,7 @@ import { fetchPosts } from '../../api/posts';
 import type { TherapyArea, PaginatedPosts } from '../../types/post';
 import PostCard from '../../components/post/PostCard';
 import FilterChips from '../../components/common/FilterChips';
+import MobilePageHeader from '@/components/common/MobilePageHeader';
 import Pagination from '../../components/common/Pagination';
 
 type FeedTab = 'all' | 'following';
@@ -104,6 +105,19 @@ export default function PostListPage() {
 
   return (
     <div className="pb-20 md:pb-8">
+      {/* 모바일 상단 헤더 */}
+      <MobilePageHeader
+        title="치료사 커뮤니티"
+        rightAction={
+          <button
+            onClick={() => navigate('/search')}
+            className="p-2 -mr-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <Search size={20} />
+          </button>
+        }
+      />
+
       {/* 데스크탑 검색바 + 글쓰기 버튼 */}
       <div className="hidden md:flex items-center gap-2 px-4 py-3 border-b border-gray-200 bg-white">
         <div className="flex-1 flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-1.5">

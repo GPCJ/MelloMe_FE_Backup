@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import { Eye } from 'lucide-react';
+import { Eye, MoreVertical } from 'lucide-react';
 import VerifiedBadge from '../../components/post/VerifiedBadge';
 import ReactionBar from '../../components/post/ReactionBar';
 import { getReaction } from '../../api/posts';
@@ -81,7 +81,15 @@ export default function CommentWritePage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
           {/* 헤더 */}
-          <MobilePageHeader title="댓글 달기" backTo={`/posts/${postId}`} />
+          <MobilePageHeader
+            title="댓글 달기"
+            backTo={`/posts/${postId}`}
+            rightAction={
+              <button className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
+                <MoreVertical size={20} />
+              </button>
+            }
+          />
 
           {/* 게시글 본문 */}
           <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
