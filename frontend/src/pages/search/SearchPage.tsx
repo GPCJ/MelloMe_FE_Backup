@@ -94,7 +94,7 @@ export default function SearchPage() {
   return (
     <div className="pb-20 md:pb-8">
       {/* 검색 헤더 */}
-      <div className="sticky top-14 z-40 bg-white border-b border-gray-200">
+      <div className="sticky top-0 md:top-14 z-40 bg-white border-b border-gray-200">
         <form
           onSubmit={handleSubmit}
           className="flex items-center gap-2 px-4 py-3"
