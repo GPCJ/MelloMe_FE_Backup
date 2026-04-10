@@ -2,6 +2,7 @@ import { Heart, Star, Lightbulb, MessageSquare } from 'lucide-react';
 import type { CommentResponse } from '../../types/post';
 import { formatRelativeTime } from '../../utils/formatDate';
 import UserAvatar from '../common/UserAvatar';
+import VerifiedBadge from './VerifiedBadge';
 
 interface CommentCardProps {
   comment: CommentResponse;
@@ -20,11 +21,20 @@ export default function CommentCard({
     <div className="bg-white rounded-xl border border-gray-200 p-4">
       {/* 작성자 정보 */}
       <div className="flex items-center gap-2 mb-2">
-        <UserAvatar nickname={comment.authorNickname} imageUrl={comment.authorProfileImageUrl} size="sm" />
+        <UserAvatar
+          nickname={comment.authorNickname}
+          imageUrl={comment.authorProfileImageUrl}
+          size="sm"
+        />
         <div className="flex items-center gap-1.5 flex-1 min-w-0">
           <span className="text-sm font-semibold text-gray-900">
             {comment.authorNickname}
           </span>
+
+          {comment.authorRole === 'THERAPIST' && (
+            <VerifiedBadge status="APPROVED" />
+          )}
+
           {replyToNickname && (
             <span className="text-xs text-gray-400">@{replyToNickname}</span>
           )}
@@ -70,9 +80,7 @@ export default function CommentCard({
             className="flex items-center gap-1 text-xs hover:text-gray-600 transition-colors ml-auto"
           >
             <MessageSquare size={14} />
-            {replyCount != null && replyCount > 0 && (
-              <span>{replyCount}</span>
-            )}
+            {replyCount != null && replyCount > 0 && <span>{replyCount}</span>}
           </button>
         </div>
       )}

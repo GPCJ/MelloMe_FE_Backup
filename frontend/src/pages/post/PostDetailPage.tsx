@@ -4,7 +4,6 @@ import DOMPurify from 'dompurify';
 import {
   Eye,
   MessageSquare,
-  ArrowLeft,
   MoreVertical,
   Pencil,
   Trash2,
@@ -19,7 +18,6 @@ import { useReactionToggle } from '../../hooks/useReactionToggle';
 import CommentCard from '../../components/post/CommentCard';
 import CommentInput from '../../components/post/CommentInput';
 import { useCommentSubmit } from '../../hooks/useCommentSubmit';
-import { Badge } from '@/components/shadcn-ui/badge';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import {
   DropdownMenu,
@@ -38,6 +36,7 @@ import type { PostDetail, CommentResponse } from '../../types/post';
 import { THERAPY_AREA_LABELS } from '../../constants/post';
 import { formatRelativeTime } from '../../utils/formatDate';
 import UserAvatar from '../../components/common/UserAvatar';
+import MobilePageHeader from '@/components/common/MobilePageHeader';
 
 function PostDetailSkeleton() {
   return (
@@ -118,7 +117,6 @@ export default function PostDetailPage() {
     }
   }
 
-
   async function handleScrapToggle() {
     if (!post || scrapLoading) return;
     setScrapLoading(true);
@@ -154,58 +152,56 @@ export default function PostDetailPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-20 md:pb-8">
-      {/* 상단 내비 */}
-      <div className="flex items-center justify-between mb-4">
-        <button
-          onClick={() => navigate('/posts')}
-          className="p-2 -ml-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
-        >
-          <ArrowLeft size={20} />
-        </button>
-        {(post.canEdit || post.canDelete) && (
-          <DropdownMenu>
-            <DropdownMenuTrigger className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
-              <MoreVertical size={20} />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {post.canEdit && (
-                <DropdownMenuItem
-                  onClick={() => navigate(`/posts/${post.id}/edit`)}
-                >
-                  <Pencil size={14} className="mr-2" />
-                  수정
-                </DropdownMenuItem>
-              )}
-              {post.canDelete && (
-                <DropdownMenuItem
-                  onClick={handleDeletePost}
-                  className="text-red-500 focus:text-red-500"
-                >
-                  <Trash2 size={14} className="mr-2" />
-                  삭제
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-      </div>
+      {/* 상단 헤더 */}
+      <MobilePageHeader
+        title="게시글"
+        backTo={`/posts`}
+        // 수정, 삭제 케밥 메뉴
+        rightAction={
+          (post.canEdit || post.canDelete) && (
+            <DropdownMenu>
+              <DropdownMenuTrigger className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
+                <MoreVertical size={20} />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {post.canEdit && (
+                  <DropdownMenuItem
+                    onClick={() => navigate(`/posts/${post.id}/edit`)}
+                  >
+                    <Pencil size={14} className="mr-2" />
+                    수정
+                  </DropdownMenuItem>
+                )}
+                {post.canDelete && (
+                  <DropdownMenuItem
+                    onClick={handleDeletePost}
+                    className="text-red-500 focus:text-red-500"
+                  >
+                    <Trash2 size={14} className="mr-2" />
+                    삭제
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )
+        }
+      />
 
       {/* 게시글 카드 */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
         {/* 작성자 정보 */}
         <div className="flex items-center gap-3 mb-5 pb-5 border-b border-gray-100">
-          <UserAvatar nickname={post.authorNickname} imageUrl={post.authorProfileImageUrl} size="md" />
+          <UserAvatar
+            nickname={post.authorNickname}
+            imageUrl={post.authorProfileImageUrl}
+            size="md"
+          />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-gray-900">
                 {post.authorNickname}
               </span>
               <VerifiedBadge status={post.authorVerificationStatus} />
-              {therapyLabel && (
-                <Badge variant="secondary" className="text-xs">
-                  {therapyLabel}
-                </Badge>
-              )}
             </div>
             <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-0.5">
               <span>{formatRelativeTime(post.createdAt)}</span>
@@ -223,16 +219,22 @@ export default function PostDetailPage() {
           >
             <Bookmark
               size={20}
-              className={scrapped ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 hover:text-gray-500'}
+              className={
+                scrapped
+                  ? 'fill-yellow-400 text-yellow-400'
+                  : 'text-gray-300 hover:text-gray-500'
+              }
             />
           </button>
         </div>
 
-        {/* 제목 */}
-        {post.title && (
-          <h1 className="text-xl font-bold text-gray-900 mb-4 leading-snug">
-            {post.title}
-          </h1>
+        {/* 해시태그 */}
+        {therapyLabel && (
+          <div className="flex flex-wrap gap-2 mb-5">
+            <span className="px-3 py-1 rounded-full bg-gray-100 text-sm text-gray-700">
+              #{therapyLabel}
+            </span>
+          </div>
         )}
 
         {/* 본문 */}
