@@ -32,6 +32,7 @@
 
 ## 공통 컴포넌트
 - [UserAvatar 공통 컴포넌트 통합](./project_user_avatar_component.md) — 6곳 아바타 통합, PostDetail/CommentResponse 타입 확장
+- [MobilePageHeader rightAction slot 패턴](./project_mobile_header_slot_pattern.md) — rightAction ReactNode로 페이지별 헤더 UI 주입, 리팩토링 기준 포함
 
 ## 프론트 보류/기술부채
 - [보류된 리팩토링 + 인지부채](./project_pending_refactor.md) — AbortController, refresh plain axios, 이해도 점검
