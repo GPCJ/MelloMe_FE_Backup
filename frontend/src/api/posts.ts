@@ -100,7 +100,8 @@ export async function uploadPostAttachment(
   file: File,
 ): Promise<Attachment> {
   const formData = new FormData();
-  formData.append('file', file);
+  const blob = new Blob([file], { type: 'application/pdf' });
+  formData.append('file', blob, file.name);
   const res = await axiosInstance.post(
     `/posts/${postId}/attachments`,
     formData,
