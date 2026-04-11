@@ -1,5 +1,6 @@
 export type PostSort = 'LATEST' | 'MOST_VIEWED';
 export type PostType = 'COMMUNITY' | 'RESOURCE';
+export type Visibility = 'PUBLIC' | 'PRIVATE';
 export type ReactionType = 'EMPATHY' | 'APPRECIATE' | 'HELPFUL';
 
 export interface PostReaction {
@@ -32,18 +33,18 @@ export type AgeGroup =
 export interface PostSummary {
   id: number;
   postType?: PostType;
-  title: string;
   contentPreview?: string;
   authorNickname: string;
   authorProfileImageUrl?: string | null;
   authorVerificationStatus?: 'NOT_REQUESTED' | 'PENDING' | 'APPROVED' | 'REJECTED';
   therapyArea?: TherapyArea;
-  ageGroup?: AgeGroup;
+  visibility?: Visibility;
   viewCount: number;
   commentCount?: number;
   hasAttachment?: boolean;
   isBlurred?: boolean;
   createdAt: string;
+  scrapped?: boolean;
 }
 
 export interface Attachment {
@@ -58,13 +59,13 @@ export interface Attachment {
 
 export interface PostDetail {
   id: number;
-  title: string;
   content: string;
+  postType?: PostType;
   authorId: number;
   authorNickname: string;
   authorProfileImageUrl?: string | null;
   therapyArea?: TherapyArea;
-  ageGroup?: AgeGroup;
+  visibility?: Visibility;
   viewCount: number;
   createdAt: string;
   updatedAt?: string;
@@ -72,6 +73,7 @@ export interface PostDetail {
   canDelete: boolean;
   attachments?: Attachment[];
   authorVerificationStatus?: 'NOT_REQUESTED' | 'PENDING' | 'APPROVED' | 'REJECTED';
+  scrapped?: boolean;
 }
 
 export interface PaginatedPosts {
@@ -84,17 +86,15 @@ export interface PaginatedPosts {
 }
 
 export interface PostCreateRequest {
-  title: string;
   content: string;
-  therapyArea: TherapyArea;
-  ageGroup?: string;
+  therapyArea?: TherapyArea;
+  visibility?: Visibility;
 }
 
 export interface PostUpdateRequest {
-  title?: string;
-  content?: string;
+  content: string;
   therapyArea?: TherapyArea;
-  ageGroup?: AgeGroup;
+  visibility?: Visibility;
 }
 
 export interface CommentResponse {

@@ -395,7 +395,6 @@ export default function ProfilePage() {
                   key={scrap.postId}
                   post={{
                     id: scrap.postId,
-                    title: '',
                     contentPreview: scrap.contentPreview,
                     authorNickname: scrap.authorNickname,
                     therapyArea: scrap.therapyArea as PostSummary['therapyArea'],

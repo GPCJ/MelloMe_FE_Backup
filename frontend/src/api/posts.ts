@@ -22,8 +22,7 @@ export async function fetchPosts(params: {
   size?: number;
 }): Promise<PaginatedPosts> {
   const res = await axiosInstance.get('/posts', { params });
-  const { posts, ...rest } = res.data;
-  return { items: posts, ...rest };
+  return res.data;
 }
 
 export async function fetchPost(postId: number): Promise<PostDetail> {

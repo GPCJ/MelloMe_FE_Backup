@@ -88,7 +88,7 @@ export default function PostEditPage() {
     clearFileError();
 
     try {
-      await updatePost(pid, { title: '', content, therapyArea });
+      await updatePost(pid, { content, therapyArea });
 
       const totalOps = removedAttachmentIds.length + pendingFiles.length;
       let failedCount = 0;

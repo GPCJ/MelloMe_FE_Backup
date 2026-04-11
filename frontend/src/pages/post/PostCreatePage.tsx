@@ -39,10 +39,8 @@ export default function PostCreatePage() {
     let createdPostId: number | null = null;
     try {
       const post = await createPost({
-        title: '',
         content,
         therapyArea,
-        ageGroup: '',
       });
       createdPostId = post.id;
 
