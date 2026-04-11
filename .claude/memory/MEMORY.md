@@ -45,8 +45,8 @@
 - [UI만 구현된 기능](./project_ui_only_features.md) — 체크박스, 비밀번호 찾기, 검색바, 배너 통계
 
 ## 게시글 첨부파일
-- [프론트 구현 완료, 백엔드 400 버그 대기](./project_post_attachment_feature.md) — airo 이슈 #8
-- [첨부파일 업로드 400 에러](./project_attachment_upload_400_bug.md) — airo 이슈 #9
+- [프론트 구현 완료 + 400 해결](./project_post_attachment_feature.md) — 백엔드 PDF만 허용, 이미지 허용 여부 미확인
+- [첨부파일 400 원인 확정 — MIME 불일치](./project_attachment_upload_400_bug.md) — 한컴 뷰어, Blob 강제 지정으로 해결
 
 ## 협업
 - [백엔드 전달 전략 + 이슈 동기화](./project_backend_communication.md) — Swagger 공식, GitHub Issues, 멜로미↔아이로
@@ -89,7 +89,7 @@
 - [외부 push 전 승인 필수](./feedback_push_requires_approval.md) / [push-airo reset --hard](./feedback_push_airo_claude_files.md)
 - [git 커밋 전 diff --stat](./feedback_git_diff_stat_check.md) / [커맨드 네이밍 — 범용 이름](./feedback_draft_notion_naming.md)
 - [에러 삼키지 말고 실패 표시](./feedback_error_handling_visible.md) / [API 에러 원인별 분기](./feedback_error_handling_by_cause.md)
-- [GitHub Issues 기술부채 관리](./feedback_github_issues.md) / [두 레포 동시 생성](./feedback_github_issues_dual_repo.md)
+- [GitHub Issues 기술부채 관리](./feedback_github_issues.md) / [이슈는 airo 레포에만](./feedback_airo_issues_only.md)
 - [토큰 사용량 최소화](./feedback_token_usage_awareness.md) / [취업 경험 Notion 정리](./feedback_career_documentation.md)
 - [Vercel SPA 라우팅](./feedback_vercel_spa_routing.md)
 
@@ -117,6 +117,7 @@
 - [프론트 폴더 구조 리팩토링 04-07](./project_folder_restructure.md) — components/pages 도메인별 하위 폴더 재구성, import 경로 변경됨
 
 ## ⭐ 진행 중
+- **[스펙 정렬 작업 P0~P2](./project_spec_alignment_todo.md)** — 04-10 Swagger 기준, P0부터 순서대로
 - [댓글 UI 코드 리뷰 — 04-09 전부 해결, MobileFixedBottom 도입](./project_comment_ui_review_0409.md)
 - [모바일 상단 헤더 리팩토링 — MobilePageHeader 추출, 디자이너 시안 대기](./project_mobile_header_refactor.md)
 

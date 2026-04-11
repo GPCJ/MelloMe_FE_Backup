@@ -81,7 +81,9 @@ export default function CommentDetailPage() {
     );
 
   return (
-    <div className={`max-w-3xl mx-auto px-4 py-6 ${showReplyInput ? 'pb-24' : 'pb-6'}`}>
+    <div
+      className={`max-w-3xl mx-auto px-4 py-6 ${showReplyInput ? 'pb-24' : 'pb-6'}`}
+    >
       {/* 헤더 */}
       <MobilePageHeader
         title="댓글 달기"
