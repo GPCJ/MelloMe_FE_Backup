@@ -9,22 +9,27 @@ const API = import.meta.env.VITE_API_BASE_URL;
 export const profileHandlers = [
   http.get(`${API}/me/posts`, () => {
     const currentAccount = currentUserEmail ? testAccounts[currentUserEmail] : null;
-    const myPosts = mockPosts
+    const items = mockPosts
       .filter((p) => p.authorId === currentAccount?.id)
       .map((p) => ({
         id: p.id,
+        postType: 'COMMUNITY' as const,
         contentPreview: p.contentPreview,
         authorNickname: p.authorNickname,
-        authorProfileImageUrl: p.authorProfileImageUrl,
-        authorVerificationStatus: p.authorVerificationStatus,
         therapyArea: p.therapyArea,
+        visibility: 'PUBLIC' as const,
         viewCount: p.viewCount,
-        commentCount: p.commentCount,
-        hasAttachment: p.hasAttachment,
-        isBlurred: false,
         createdAt: p.createdAt,
+        scrapped: false,
       }));
-    return HttpResponse.json(myPosts);
+    return HttpResponse.json({
+      items,
+      page: 0,
+      size: 10,
+      totalElements: items.length,
+      totalPages: 1,
+      hasNext: false,
+    });
   }),
 
   http.get(`${API}/me/activity`, () =>

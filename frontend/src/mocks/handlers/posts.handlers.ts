@@ -14,31 +14,25 @@ export const postsHandlers = [
       ? mockPosts.filter((p) => p.therapyArea === therapyArea)
       : mockPosts;
 
-    const currentAccount = currentUserEmail ? testAccounts[currentUserEmail] : null;
-    const posts = filtered.map((p) => ({
+    const items = filtered.map((p) => ({
       id: p.id,
+      postType: 'COMMUNITY' as const,
       contentPreview: p.contentPreview,
       authorNickname: p.authorNickname,
-      authorProfileImageUrl: p.authorProfileImageUrl,
-      authorVerificationStatus: p.authorVerificationStatus,
       therapyArea: p.therapyArea,
+      visibility: 'PUBLIC' as const,
       viewCount: p.viewCount,
-      commentCount: p.commentCount,
-      hasAttachment: p.hasAttachment,
-      isBlurred: p.isBlurred && currentAccount?.role !== 'THERAPIST' && currentAccount?.role !== 'ADMIN',
       createdAt: p.createdAt,
+      scrapped: false,
     }));
 
     return HttpResponse.json({
-      success: true,
-      data: {
-        posts,
-        page: 0,
-        size: 20,
-        totalElements: posts.length,
-        totalPages: 1,
-        hasNext: false,
-      },
+      items,
+      page: 0,
+      size: 20,
+      totalElements: items.length,
+      totalPages: 1,
+      hasNext: false,
     });
   }),
 
@@ -49,23 +43,22 @@ export const postsHandlers = [
     const currentAccount = currentUserEmail ? testAccounts[currentUserEmail] : null;
 
     return HttpResponse.json({
-      success: true,
-      data: {
-        id: post.id,
-        content: post.content,
-        authorId: post.authorId,
-        authorNickname: post.authorNickname,
-        authorVerificationStatus: post.authorVerificationStatus,
-        therapyArea: post.therapyArea,
-        viewCount: post.viewCount,
-        canEdit: currentAccount?.id === post.authorId,
-        canDelete: currentAccount?.id === post.authorId,
-        attachments: post.hasAttachment
-          ? [{ id: 1, originalFilename: '자료.pdf', contentType: 'application/pdf', sizeBytes: 1024000, extension: 'pdf', downloadUrl: '#', createdAt: post.createdAt }]
-          : [],
-        createdAt: post.createdAt,
-        updatedAt: post.updatedAt,
-      },
+      id: post.id,
+      content: post.content,
+      postType: 'COMMUNITY',
+      authorId: post.authorId,
+      authorNickname: post.authorNickname,
+      therapyArea: post.therapyArea,
+      visibility: 'PUBLIC',
+      viewCount: post.viewCount,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+      canEdit: currentAccount?.id === post.authorId,
+      canDelete: currentAccount?.id === post.authorId,
+      attachments: post.hasAttachment
+        ? [{ id: 1, originalFilename: '자료.pdf', contentType: 'application/pdf', sizeBytes: 1024000, extension: 'pdf', downloadUrl: '#', createdAt: post.createdAt }]
+        : [],
+      scrapped: false,
     });
   }),
 
