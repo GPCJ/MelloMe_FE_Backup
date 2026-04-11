@@ -6,6 +6,9 @@ export interface MeResponse {
   nickname: string;
   profileImageUrl: string | null;
   role: UserRole;
+  canAccessCommunity?: boolean;
+  communityAccessLevel?: string;
+  therapistVerification?: TherapistVerificationSummary | null;
 }
 
 export interface Tokens {
