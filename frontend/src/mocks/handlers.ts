@@ -5,7 +5,6 @@ const API = import.meta.env.VITE_API_BASE_URL;
 const mockPosts = [
   {
     id: 1,
-    title: '',
     contentPreview: '감각통합 활동에 유용한 자료를 공유합니다. 최근 3~5세 아동에게 적용해본 감각놀이 프로그램인데, 촉각 방어가 있는 아이들에게 효과가 좋았어요.',
     content: '감각통합 활동에 유용한 자료를 공유합니다.\n\n최근 3~5세 아동에게 적용해본 감각놀이 프로그램인데, 촉각 방어가 있는 아이들에게 효과가 좋았어요.\n\n1. 밀가루 반죽 놀이 (10분)\n2. 물감 손바닥 찍기 (15분)\n3. 모래 상자 탐색 (20분)\n\n각 활동마다 아이의 반응을 관찰하고 기록해두면 좋습니다. 혹시 비슷한 프로그램 운영하시는 분 계시면 의견 부탁드려요!',
     therapyArea: 'OCCUPATIONAL',
@@ -24,7 +23,6 @@ const mockPosts = [
   },
   {
     id: 2,
-    title: '',
     contentPreview: '오늘 치료 세션에서 아이가 처음으로 두 단어 조합 문장을 말했어요! "엄마 줘" 라고 했는데 정말 감동이었습니다. 6개월째 꾸준히 모델링 하고 있었는데...',
     content: '오늘 치료 세션에서 아이가 처음으로 두 단어 조합 문장을 말했어요!\n\n"엄마 줘" 라고 했는데 정말 감동이었습니다.\n6개월째 꾸준히 모델링 하고 있었는데, 드디어 자발적 발화가 나왔네요.\n\n부모님도 같이 울으셨어요 ㅠㅠ\n이 직업 하면서 이런 순간이 정말 보람차요.\n\n혹시 두 단어 조합 이후 세 단어로 확장하는 효과적인 전략 있으실까요?',
     therapyArea: 'SPEECH',
@@ -43,7 +41,6 @@ const mockPosts = [
   },
   {
     id: 3,
-    title: '',
     contentPreview: '인증된 치료사만 볼 수 있는 케이스 스터디입니다. ADHD 진단을 받은 7세 아동의 인지행동치료 6개월 경과 보고...',
     content: '인증된 치료사만 볼 수 있는 케이스 스터디입니다.\n\nADHD 진단을 받은 7세 아동의 인지행동치료 6개월 경과 보고\n\n초기 평가:\n- 주의집중 시간: 3분\n- 과제 완수율: 20%\n\n6개월 후:\n- 주의집중 시간: 12분\n- 과제 완수율: 65%\n\n사용한 기법과 세션별 변화를 상세히 공유드립니다.',
     therapyArea: 'COGNITIVE',
@@ -62,7 +59,6 @@ const mockPosts = [
   },
   {
     id: 4,
-    title: '',
     contentPreview: '놀이치료에서 경계선 설정이 어려운 아이가 있는데, 선배 치료사분들 조언 부탁드려요. 5세 남아인데 세션 중에 치료실 밖으로 나가려고 하고...',
     content: '놀이치료에서 경계선 설정이 어려운 아이가 있는데, 선배 치료사분들 조언 부탁드려요.\n\n5세 남아인데 세션 중에 치료실 밖으로 나가려고 하고, 장난감을 던지는 행동이 반복돼요.\n\n제가 시도해본 것들:\n- 타이머 활용 → 효과 미미\n- 시각적 규칙판 → 처음엔 관심 보이다가 곧 무시\n- 선택지 제공 → 때때로 효과 있음\n\n비슷한 경험 있으신 분들 어떻게 대처하셨는지 궁금합니다.',
     therapyArea: 'PLAY',
@@ -81,7 +77,6 @@ const mockPosts = [
   },
   {
     id: 5,
-    title: '',
     contentPreview: '치료사 2년차인데 번아웃이 왔어요. 하루에 세션을 6~7개씩 하다 보니 체력적으로도 정신적으로도 지치네요...',
     content: '치료사 2년차인데 번아웃이 왔어요.\n\n하루에 세션을 6~7개씩 하다 보니 체력적으로도 정신적으로도 지치네요.\n특히 보호자 상담이 힘들어요. 진전이 느린 아이의 부모님이 조급해하시면 저도 같이 불안해지고...\n\n선배 치료사분들은 어떻게 마인드 관리를 하시나요?\n번아웃 극복 경험이나 자기관리 팁 공유해주시면 감사하겠습니다.',
     therapyArea: 'UNSPECIFIED',
@@ -100,7 +95,6 @@ const mockPosts = [
   },
   {
     id: 6,
-    title: '',
     contentPreview: '인증 치료사 전용 자료입니다. 작업치료 평가 도구 비교표 (COPM, BOT-2, PDMS-2) 정리했습니다...',
     content: '인증 치료사 전용 자료입니다.\n\n작업치료 평가 도구 비교표 정리했습니다.\n\n| 평가도구 | 대상연령 | 소요시간 | 주요영역 |\n|---------|---------|---------|--------|\n| COPM | 전연령 | 20-30분 | 작업수행 |\n| BOT-2 | 4-21세 | 45-60분 | 운동능력 |\n| PDMS-2 | 0-5세 | 45-60분 | 운동발달 |\n\n각 도구별 장단점과 사용 팁은 첨부파일을 참고해주세요.',
     therapyArea: 'OCCUPATIONAL',
@@ -119,7 +113,6 @@ const mockPosts = [
   },
   {
     id: 7,
-    title: '',
     contentPreview: '치료사 면접 준비 중인데 경험 공유드려요. 저는 작년에 3군데 면접 봤는데 공통적으로 나온 질문들 정리했습니다...',
     content: '치료사 면접 준비 중인데 경험 공유드려요.\n\n저는 작년에 3군데 면접 봤는데 공통적으로 나온 질문들 정리했습니다.\n\n1. 왜 이 분야를 선택했나요?\n2. 어려운 케이스를 어떻게 대처했나요?\n3. 보호자와의 갈등 경험?\n4. 팀워크 경험?\n5. 자기계발 계획?\n\n면접 준비하시는 분들 화이팅!',
     therapyArea: 'UNSPECIFIED',
@@ -408,7 +401,6 @@ export const handlers = [
     const currentAccount = currentUserEmail ? testAccounts[currentUserEmail] : null;
     const posts = filtered.map((p) => ({
       id: p.id,
-      title: p.title,
       contentPreview: p.contentPreview,
       authorNickname: p.authorNickname,
       authorProfileImageUrl: p.authorProfileImageUrl,
@@ -444,7 +436,6 @@ export const handlers = [
       success: true,
       data: {
         id: post.id,
-        title: post.title,
         content: post.content,
         authorId: post.authorId,
         authorNickname: post.authorNickname,
@@ -467,7 +458,6 @@ export const handlers = [
     const currentAccount = currentUserEmail ? testAccounts[currentUserEmail] : null;
     const newPost = {
       id: Date.now(),
-      title: (body.title as string) || '',
       contentPreview: ((body.content as string) || '').slice(0, 100),
       content: body.content as string,
         therapyArea: (body.therapyArea as string) || 'UNSPECIFIED',
@@ -636,7 +626,6 @@ export const handlers = [
       .filter((p) => p.authorId === currentAccount?.id)
       .map((p) => ({
         id: p.id,
-        title: p.title,
         contentPreview: p.contentPreview,
         authorNickname: p.authorNickname,
         authorProfileImageUrl: p.authorProfileImageUrl,
@@ -658,7 +647,6 @@ export const handlers = [
         {
           post: {
             id: 4,
-            title: '',
             contentPreview: '놀이치료에서 경계선 설정이 어려운 아이가 있는데...',
             therapyArea: 'PLAY',
             viewCount: 156,
@@ -676,7 +664,6 @@ export const handlers = [
         {
           post: {
             id: 5,
-            title: '',
             contentPreview: '치료사 2년차인데 번아웃이 왔어요...',
             therapyArea: 'UNSPECIFIED',
             viewCount: 312,
@@ -696,7 +683,6 @@ export const handlers = [
         {
           post: {
             id: 1,
-            title: '',
             contentPreview: '감각통합 활동에 유용한 자료를 공유합니다...',
             therapyArea: 'OCCUPATIONAL',
             viewCount: 42,
@@ -713,7 +699,6 @@ export const handlers = [
         {
           post: {
             id: 2,
-            title: '',
             contentPreview: '오늘 치료 세션에서 아이가 처음으로 두 단어 조합 문장을 말했어요!...',
             therapyArea: 'SPEECH',
             viewCount: 234,

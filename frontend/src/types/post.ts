@@ -9,6 +9,10 @@ export interface PostReaction {
   appreciateCount: number;
   helpfulCount: number;
   myReactionType: ReactionType | null;
+  reactionCounts?: Record<string, number>;
+  topReactionType?: ReactionType | null;
+  topReactionCount?: number;
+  topReactionColorToken?: string;
 }
 export type TherapyArea =
   | 'UNSPECIFIED'
