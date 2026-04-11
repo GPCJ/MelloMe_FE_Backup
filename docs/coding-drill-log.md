@@ -12,6 +12,17 @@
 
 ---
 
+## 04-09
+- 도전: `stores/useAuthStore.ts`
+- 막힌 곳: 화살표 함수 객체 반환 문법, create() currying, persist 옵션 전달
+- 수준: ★★☆
+- 메모: 구조/키워드는 파악, Zustand 문법 세부 반복 필요
+
+## 04-06
+- 도전: `pages/LoginPage.tsx`
+- 막힌 곳: -
+- 수준: ★★★
+
 ## 04-03
 - 도전: `pages/LandingPage.tsx`
 - 막힌 곳: 원본 보면서 작성. 정적 텍스트/className 세부 기억 약함
