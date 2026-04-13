@@ -2,9 +2,12 @@ import { useState } from 'react';
 import type { PostReaction, ReactionType } from '../types/post';
 import { toggleReaction } from '../api/posts';
 
-function getCountKey(type: ReactionType): 'empathyCount' | 'appreciateCount' | 'helpfulCount' {
+function getCountKey(
+  type: ReactionType,
+): 'empathyCount' | 'appreciateCount' | 'helpfulCount' {
   if (type === 'EMPATHY') return 'empathyCount';
   if (type === 'APPRECIATE') return 'appreciateCount';
+  // else케이스
   return 'helpfulCount';
 }
 

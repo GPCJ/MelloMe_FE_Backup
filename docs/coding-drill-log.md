@@ -12,6 +12,12 @@
 
 ---
 
+## 04-11
+- 도전: `hooks/useReactionToggle.ts`
+- 막힌 곳: toggling 가드 패턴을 렌더링용으로 오해, 훅 요약 시 핵심 로직(낙관적 업데이트/롤백) 누락
+- 수준: ★★☆
+- 메모: early return 가드 패턴, 훅 설명 시 "재사용" 뿐 아니라 핵심 로직도 언급하기
+
 ## 04-09
 - 도전: `stores/useAuthStore.ts`
 - 막힌 곳: 화살표 함수 객체 반환 문법, create() currying, persist 옵션 전달
