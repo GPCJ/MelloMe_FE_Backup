@@ -6,6 +6,38 @@ import { currentUserEmail } from '../state';
 
 const API = import.meta.env.VITE_API_BASE_URL;
 
+// 무한 스크롤 검증용 — 60개 가짜 피드 데이터 (모듈 캐싱)
+const FEED_TOTAL = 60;
+const therapyAreas = ['UNSPECIFIED', 'SPEECH', 'PLAY', 'COGNITIVE', 'OCCUPATIONAL', 'BEHAVIOR'] as const;
+const mockFeedItems = Array.from({ length: FEED_TOTAL }, (_, i) => {
+  const id = FEED_TOTAL - i;  // 60, 59, 58, ... 1 (최신순)
+  return {
+    id,
+    postType: 'COMMUNITY' as const,
+    contentPreview: `[목업 ${id}] 무한 스크롤 검증용 게시글입니다. 스크롤하면 다음 페이지가 자동으로 로드됩니다.`,
+    authorNickname: `테스트치료사${(id % 5) + 1}`,
+    therapyArea: therapyAreas[id % therapyAreas.length],
+    visibility: 'PUBLIC' as const,
+    viewCount: 100 + id * 3,
+    popularityScore: 20 + (id % 10) * 1.5,
+    createdAt: new Date(2026, 3, 13, 12, 0, 0, -id * 60_000).toISOString(),
+    scrapped: false,
+  };
+});
+
+function encodeCursor(lastId: number): string {
+  return btoa(JSON.stringify({ lastId }));
+}
+
+function decodeCursor(cursor: string): number | null {
+  try {
+    const parsed = JSON.parse(atob(cursor));
+    return typeof parsed.lastId === 'number' ? parsed.lastId : null;
+  } catch {
+    return null;
+  }
+}
+
 export const postsHandlers = [
   http.get(`${API}/posts`, ({ request }) => {
     const url = new URL(request.url);
@@ -33,6 +65,42 @@ export const postsHandlers = [
       totalElements: items.length,
       totalPages: 1,
       hasNext: false,
+    });
+  }),
+
+  http.get(`${API}/posts/feed`, ({ request }) => {
+    const url = new URL(request.url);
+    const rawSize = Number(url.searchParams.get('size') ?? '20');
+    const size = Math.min(50, Math.max(1, isNaN(rawSize) ? 20 : rawSize));
+    const cursor = url.searchParams.get('cursor');
+
+    let startIdx = 0;
+    if (cursor) {
+      const lastId = decodeCursor(cursor);
+      if (lastId === null) {
+        return HttpResponse.json(
+          { success: false, code: 'INVALID_INPUT', message: 'invalid cursor' },
+          { status: 400 },
+        );
+      }
+      const idx = mockFeedItems.findIndex((p) => p.id === lastId);
+      startIdx = idx === -1 ? mockFeedItems.length : idx + 1;
+    }
+
+    const slice = mockFeedItems.slice(startIdx, startIdx + size);
+    const hasNext = startIdx + size < mockFeedItems.length;
+    const nextCursor = hasNext && slice.length > 0
+      ? encodeCursor(slice[slice.length - 1].id)
+      : null;
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        items: slice,
+        nextCursor,
+        hasNext,
+        size,
+      },
     });
   }),
 
