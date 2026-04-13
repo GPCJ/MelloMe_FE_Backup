@@ -1,6 +1,7 @@
 import axiosInstance from './axiosInstance';
 import type {
   PaginatedPosts,
+  CursorPagedPosts,
   PostDetail,
   PostCreateRequest,
   PostUpdateRequest,
@@ -23,6 +24,17 @@ export async function fetchPosts(params: {
 }): Promise<PaginatedPosts> {
   const res = await axiosInstance.get('/posts', { params });
   return res.data;
+}
+
+export async function fetchFeed(params: {
+  cursor?: string;
+  size?: number;
+  sort?: 'LATEST' | 'POPULAR';
+  signal?: AbortSignal;
+}): Promise<CursorPagedPosts> {
+  const { signal, ...query } = params;
+  const res = await axiosInstance.get('/posts/feed', { params: query, signal });
+  return res.data?.data ?? res.data;
 }
 
 export async function fetchPost(postId: number): Promise<PostDetail> {
