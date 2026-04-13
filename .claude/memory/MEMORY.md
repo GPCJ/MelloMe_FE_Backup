@@ -117,6 +117,7 @@
 - [프론트 폴더 구조 리팩토링 04-07](./project_folder_restructure.md) — components/pages 도메인별 하위 폴더 재구성, import 경로 변경됨
 
 ## ⭐ 진행 중
+- **[무한 스크롤 Task 1~4 완료, Task 5부터 재개](./project_infinite_scroll_progress.md)** — feat/infinite-scroll 브랜치, plan 04-13
 - **[스펙 정렬 작업 P0~P2](./project_spec_alignment_todo.md)** — 04-10 Swagger 기준, P0부터 순서대로
 - [댓글 UI 코드 리뷰 — 04-09 전부 해결, MobileFixedBottom 도입](./project_comment_ui_review_0409.md)
 - [모바일 상단 헤더 리팩토링 — MobilePageHeader 추출, 디자이너 시안 대기](./project_mobile_header_refactor.md)
