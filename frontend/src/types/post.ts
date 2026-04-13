@@ -44,6 +44,7 @@ export interface PostSummary {
   therapyArea?: TherapyArea;
   visibility?: Visibility;
   viewCount: number;
+  popularityScore?: number;
   commentCount?: number;
   hasAttachment?: boolean;
   isBlurred?: boolean;
@@ -87,6 +88,13 @@ export interface PaginatedPosts {
   totalElements: number;
   totalPages: number;
   hasNext: boolean;
+}
+
+export interface CursorPagedPosts {
+  items: PostSummary[];
+  nextCursor: string | null;
+  hasNext: boolean;
+  size: number;
 }
 
 export interface PostCreateRequest {
