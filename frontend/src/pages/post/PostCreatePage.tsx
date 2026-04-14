@@ -41,6 +41,7 @@ export default function PostCreatePage() {
       const post = await createPost({
         content,
         therapyArea,
+        visibility: isPublic ? 'PUBLIC' : 'PRIVATE',
       });
       createdPostId = post.id;
 

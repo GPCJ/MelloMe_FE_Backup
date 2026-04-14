@@ -19,6 +19,7 @@ export default function PostEditPage() {
   const [initialTherapyArea, setInitialTherapyArea] = useState<TherapyArea>('UNSPECIFIED');
   const [loading, setLoading] = useState(true);
   const [isPublic, setIsPublic] = useState(true);
+  const [initialIsPublic, setInitialIsPublic] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [existingAttachments, setExistingAttachments] = useState<Attachment[]>([]);
@@ -40,6 +41,7 @@ export default function PostEditPage() {
   const hasChanges =
     content !== initialContent ||
     therapyArea !== initialTherapyArea ||
+    isPublic !== initialIsPublic ||
     removedAttachmentIds.length > 0 ||
     pendingFiles.length > 0;
 
@@ -68,6 +70,9 @@ export default function PostEditPage() {
         setInitialContent(post.content);
         setTherapyArea(post.therapyArea ?? 'UNSPECIFIED');
         setInitialTherapyArea(post.therapyArea ?? 'UNSPECIFIED');
+        const publicFlag = post.visibility !== 'PRIVATE';
+        setIsPublic(publicFlag);
+        setInitialIsPublic(publicFlag);
         setExistingAttachments(post.attachments ?? []);
       })
       .catch(() => setError('게시글을 불러오는 데 실패했습니다.'))
@@ -88,7 +93,11 @@ export default function PostEditPage() {
     clearFileError();
 
     try {
-      await updatePost(pid, { content, therapyArea });
+      await updatePost(pid, {
+        content,
+        therapyArea,
+        visibility: isPublic ? 'PUBLIC' : 'PRIVATE',
+      });
 
       const totalOps = removedAttachmentIds.length + pendingFiles.length;
       let failedCount = 0;
