@@ -83,6 +83,13 @@ export const postsHandlers = [
   http.post(`${API}/posts`, async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>;
     const currentAccount = currentUserEmail ? testAccounts[currentUserEmail] : null;
+    const isPrivileged = currentAccount?.role === 'THERAPIST' || currentAccount?.role === 'ADMIN';
+    if (body.visibility === 'PRIVATE' && !isPrivileged) {
+      return HttpResponse.json(
+        { code: 'FORBIDDEN', message: '비공개 게시글은 치료사만 작성할 수 있습니다.' },
+        { status: 403 },
+      );
+    }
     const newPost = {
       id: Date.now(),
       contentPreview: ((body.content as string) || '').slice(0, 100),
@@ -110,6 +117,15 @@ export const postsHandlers = [
     const body = (await request.json()) as Record<string, unknown>;
     const post = mockPosts.find((p) => p.id === Number(params.postId));
     if (!post) return HttpResponse.json({ code: 'NOT_FOUND' }, { status: 404 });
+
+    const currentAccount = currentUserEmail ? testAccounts[currentUserEmail] : null;
+    const isPrivileged = currentAccount?.role === 'THERAPIST' || currentAccount?.role === 'ADMIN';
+    if (body.visibility === 'PRIVATE' && !isPrivileged) {
+      return HttpResponse.json(
+        { code: 'FORBIDDEN', message: '비공개 게시글은 치료사만 작성할 수 있습니다.' },
+        { status: 403 },
+      );
+    }
 
     if (body.content !== undefined) post.content = body.content as string;
     if (body.therapyArea !== undefined) post.therapyArea = body.therapyArea as string;

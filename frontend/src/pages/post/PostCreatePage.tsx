@@ -150,6 +150,11 @@ export default function PostCreatePage() {
 
         {/* 하단 액션 */}
         <div className="pt-2 border-t border-gray-200 flex flex-col gap-3">
+          {isPublicOnly && (
+            <p id="visibility-lock-helper" className="text-xs text-gray-500">
+              치료사 인증 후 비공개 게시글 작성이 가능합니다.
+            </p>
+          )}
           {/* 모바일: 아이콘 행 */}
           <div className="flex items-center md:hidden">
             <button type="button" aria-label="이미지 첨부" onClick={() => imageInputRef.current?.click()} disabled={submitting} className="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
@@ -162,6 +167,7 @@ export default function PostCreatePage() {
             <button
               type="button"
               aria-label={isPublicOnly ? '치료사 인증 후 비공개 작성 가능' : isPublic ? '비공개로 전환' : '공개로 전환'}
+              aria-describedby={isPublicOnly ? 'visibility-lock-helper' : undefined}
               title={isPublicOnly ? '치료사 인증 후 비공개 작성 가능' : undefined}
               onClick={togglePublic}
               disabled={isPublicOnly}
@@ -195,6 +201,7 @@ export default function PostCreatePage() {
               <button
                 type="button"
                 aria-label={isPublicOnly ? '치료사 인증 후 비공개 작성 가능' : isPublic ? '비공개로 전환' : '공개로 전환'}
+                aria-describedby={isPublicOnly ? 'visibility-lock-helper' : undefined}
                 title={isPublicOnly ? '치료사 인증 후 비공개 작성 가능' : undefined}
                 onClick={togglePublic}
                 disabled={isPublicOnly}
