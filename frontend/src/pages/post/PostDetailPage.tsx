@@ -188,6 +188,36 @@ export default function PostDetailPage() {
         }
       />
 
+      {/* 데스크탑: 카드 바깥 상단 우측 케밥 메뉴 */}
+      {(post.canEdit || post.canDelete) && (
+        <div className="hidden md:flex justify-end mb-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
+              <MoreVertical size={20} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {post.canEdit && (
+                <DropdownMenuItem
+                  onClick={() => navigate(`/posts/${post.id}/edit`)}
+                >
+                  <Pencil size={14} className="mr-2" />
+                  수정
+                </DropdownMenuItem>
+              )}
+              {post.canDelete && (
+                <DropdownMenuItem
+                  onClick={handleDeletePost}
+                  className="text-red-500 focus:text-red-500"
+                >
+                  <Trash2 size={14} className="mr-2" />
+                  삭제
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
+
       {/* 게시글 카드 */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
         {/* 작성자 정보 */}

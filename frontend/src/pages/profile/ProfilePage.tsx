@@ -1,10 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Camera, Pencil } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Camera, Pencil, Settings } from 'lucide-react';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/shadcn-ui/dropdown-menu';
+import MobilePageHeader from '@/components/common/MobilePageHeader';
 import PostCard from '../../components/post/PostCard';
 import { fetchMyPosts, fetchMyComments, fetchMyScraps } from '../../api/mypage';
-import { deleteAccount, uploadProfileImage, updateMyProfile } from '../../api/auth';
+import { deleteAccount, logout, uploadProfileImage, updateMyProfile } from '../../api/auth';
 import { useAuthStore } from '../../stores/useAuthStore';
 import type { MyComment, PaginatedComments, PaginatedScraps } from '../../types/mypage';
 import type { PaginatedPosts, PostSummary } from '../../types/post';
@@ -23,6 +30,11 @@ export default function ProfilePage() {
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
   const clearAuth = useAuthStore((s) => s.clearAuth);
+  function handleLogout() {
+    clearAuth();
+    navigate('/login');
+    logout().catch(() => {});
+  }
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [editingNickname, setEditingNickname] = useState(false);
@@ -156,6 +168,26 @@ export default function ProfilePage() {
 
   return (
     <div className="pb-20 md:pb-8">
+      <MobilePageHeader
+        title="내 프로필"
+        backTo="/posts"
+        rightAction={
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              aria-label="설정"
+              className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <Settings size={20} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleLogout}>
+                로그아웃
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        }
+      />
+
       {/* 프로필 헤더 */}
       <div className="px-6 py-6 bg-white border-b border-gray-200">
         <div className="flex items-center gap-4">
