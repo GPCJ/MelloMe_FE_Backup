@@ -1,15 +1,16 @@
 ---
-name: 백엔드 API 요청 우선순위 (2026-04-02)
-description: P0/P1/P2 분류 — P0 3개 해결 시 핵심 플로우 시연 가능
+name: 백엔드 API 요청 우선순위 (2026-04-14 업데이트)
+description: P0/P1/P2 분류 — P0 해결 시 핵심 플로우 시연 가능
 type: project
+originSessionId: f42617ce-54f8-4206-adaf-71ad712d80bc
 ---
-
-백엔드 API 요청 우선순위 정리 (2026-04-04 업데이트)
+백엔드 API 요청 우선순위 정리 (2026-04-14 업데이트)
 
 ## P0 — 이게 없으면 데모 불가
 1. ~~`GET /posts?therapyArea=` 옵셔널 파라미터 추가~~ ✅ 해소 (04-03 Swagger 확인)
 2. `title` 필드 optional 변경 (프론트 빈 문자열 전송 중) ❌ 여전히 required
 3. ~~치료사 인증 즉시 승인 로직~~ ✅ 해소 — 신청 즉시 THERAPIST 승격 반영됨
+4. **프로필 이미지 URL localhost 저장 버그** ❌ 신규 (2026-04-14) — `GET /me`의 `profileImageUrl`이 `http://localhost:8080/api/v1/me/profile-image/profile-images/xxx.jpg`로 내려옴. DB 저장값 + 이중 경로 문제. 상세: `project_profile_image_localhost_bug.md`
 
 ## P1 — MVP 필수, 데모 시 "준비 중" 표시 가능
 4. 팔로우 시스템 (POST/DELETE /users/:userId/follow + 팔로우 피드) ❌ 미지원

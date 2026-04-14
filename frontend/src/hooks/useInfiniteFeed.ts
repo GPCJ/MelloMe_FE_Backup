@@ -24,24 +24,35 @@ interface UseInfiniteFeedResult {
   retry: () => void;
 }
 
-export function useInfiniteFeed(options: UseInfiniteFeedOptions = {}): UseInfiniteFeedResult {
+export function useInfiniteFeed(
+  options: UseInfiniteFeedOptions = {},
+): UseInfiniteFeedResult {
   const { size = 20, enabled = true, initialSnapshot } = options;
 
-  const [items, setItems] = useState<PostSummary[]>(initialSnapshot?.items ?? []);
-  const [nextCursor, setNextCursor] = useState<string | null>(initialSnapshot?.nextCursor ?? null);
-  const [hasNext, setHasNext] = useState<boolean>(initialSnapshot?.hasNext ?? true);
-  const [isLoading, setIsLoading] = useState<boolean>(!initialSnapshot && enabled);
+  const [items, setItems] = useState<PostSummary[]>(
+    initialSnapshot?.items ?? [],
+  );
+  const [nextCursor, setNextCursor] = useState<string | null>(
+    initialSnapshot?.nextCursor ?? null,
+  );
+  const [hasNext, setHasNext] = useState<boolean>(
+    initialSnapshot?.hasNext ?? true,
+  );
+  const [isLoading, setIsLoading] = useState<boolean>(
+    !initialSnapshot && enabled,
+  );
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const inflightRef = useRef<AbortController | null>(null);
-  const hasInitializedRef = useRef<boolean>(!!initialSnapshot);
+  const requestIdRef = useRef(0);
 
   const fetchPage = useCallback(
     async (cursor: string | null, isInitial: boolean) => {
       if (inflightRef.current) inflightRef.current.abort();
       const controller = new AbortController();
       inflightRef.current = controller;
+      const myId = ++requestIdRef.current;
 
       if (isInitial) setIsLoading(true);
       else setIsFetchingMore(true);
@@ -53,15 +64,16 @@ export function useInfiniteFeed(options: UseInfiniteFeedOptions = {}): UseInfini
           ...(cursor ? { cursor } : {}),
           signal: controller.signal,
         });
-        if (controller.signal.aborted) return;
+        if (requestIdRef.current !== myId) return;
         setItems((prev) => (isInitial ? data.items : [...prev, ...data.items]));
         setNextCursor(data.nextCursor);
         setHasNext(data.hasNext);
       } catch (err) {
+        if (requestIdRef.current !== myId) return;
         if (isAxiosError(err) && err.code === 'ERR_CANCELED') return;
         setError('피드를 불러오는 데 실패했습니다.');
       } finally {
-        if (!controller.signal.aborted) {
+        if (requestIdRef.current === myId) {
           if (isInitial) setIsLoading(false);
           else setIsFetchingMore(false);
         }
@@ -70,10 +82,12 @@ export function useInfiniteFeed(options: UseInfiniteFeedOptions = {}): UseInfini
     [size],
   );
 
+  const itemsLengthRef = useRef(items.length);
+  itemsLengthRef.current = items.length;
+
   useEffect(() => {
     if (!enabled) return;
-    if (hasInitializedRef.current) return;
-    hasInitializedRef.current = true;
+    if (itemsLengthRef.current > 0) return;
     fetchPage(null, true);
     return () => {
       inflightRef.current?.abort();
@@ -90,5 +104,14 @@ export function useInfiniteFeed(options: UseInfiniteFeedOptions = {}): UseInfini
     fetchPage(nextCursor, items.length === 0);
   }, [nextCursor, items.length, fetchPage]);
 
-  return { items, isLoading, isFetchingMore, error, hasNext, nextCursor, loadMore, retry };
+  return {
+    items,
+    isLoading,
+    isFetchingMore,
+    error,
+    hasNext,
+    nextCursor,
+    loadMore,
+    retry,
+  };
 }

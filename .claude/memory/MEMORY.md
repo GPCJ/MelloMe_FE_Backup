@@ -14,6 +14,7 @@
 - [MVP 요구사항 상세 및 핵심지표](./project_mvp_requirements.md) — REQ-001~012 MVP, REQ-013~019 Post-MVP
 
 ## 핵심 정책
+- [USER 롤도 게시글 작성 가능 — 공개글만](./project_user_role_post_create_policy.md) — ProtectedRoute 수정 필요
 - 게시물 열람: 로그인만 필요, 공개 게시물 미인증 열람 가능, 인증 전용은 블러
 - 토큰: AT=body(localStorage ~15분), RT=httpOnly Cookie / 페이지네이션: 0-based (프론트 currentPage-1)
 - MVP 단일 게시판 (board 파라미터 미사용)
@@ -24,6 +25,7 @@
 - **→ [통합 우선순위 P0/P1/P2](./project_backend_priority_list.md)** ← `/check-backend` 참조
 - **→ [추가 개발 요청 20개](./project_backend_additional_requests.md)**
 - **⚠️ P0**: [탈퇴 유저 에러코드 분리](./project_soft_delete_login_workaround.md) — DELETED_ACCOUNT 요청 (이슈 #3)
+- **❌ P0 신규**: [프로필 이미지 URL localhost 버그](./project_profile_image_localhost_bug.md) — DB에 localhost 절대 URL persist + 이중 경로
 - **❌ P0 잔존**: title optional (여전히 required)
 - **❌ P1 잔존**: 팔로우 / 블러
 - **❓**: isNewUser 실제 값
@@ -51,6 +53,7 @@
 ## 협업
 - [백엔드 전달 전략 + 이슈 동기화](./project_backend_communication.md) — Swagger 공식, GitHub Issues, 멜로미↔아이로
 - [디자이너 대기 항목 + 모바일 퍼스트](./project_designer_pending.md)
+- **[visibility 응답 정책 충돌](./project_visibility_response_conflict.md)** — 디자이너=블러 vs 백엔드=제외, 04-14 데일리 안건
 - [주간회의 안건 04-07~08](./project_weekly_meeting_agenda.md) — rememberMe, FNC-004, Google OAuth
 
 ## 기능명세 / 아키텍처
@@ -117,7 +120,9 @@
 - [프론트 폴더 구조 리팩토링 04-07](./project_folder_restructure.md) — components/pages 도메인별 하위 폴더 재구성, import 경로 변경됨
 
 ## ⭐ 진행 중
-- **[무한 스크롤 Task 1~4 완료, Task 5부터 재개](./project_infinite_scroll_progress.md)** — feat/infinite-scroll 브랜치, plan 04-13
+- **[무한 스크롤 Task 5 완료, Task 6 디버깅 중](./project_infinite_scroll_progress.md)** — feat/infinite-scroll, E 패턴 수정 미커밋, 브라우저 검증 대기
+- **[useInfiniteFeed 무한 스켈레톤 버그 + E 패턴 복습용](./project_infinite_feed_race_fix.md)** — StrictMode+abort race, requestIdRef 원리
+- **[E패턴 학습 다이제스트 04-14](./project_infinite_feed_learning_0414.md)** — 블록 1~3 확정 멘탈 모델, 다음 세션 React Query 적용 전 리마인드용
 - **[스펙 정렬 작업 P0~P2](./project_spec_alignment_todo.md)** — 04-10 Swagger 기준, P0부터 순서대로
 - [댓글 UI 코드 리뷰 — 04-09 전부 해결, MobileFixedBottom 도입](./project_comment_ui_review_0409.md)
 - [모바일 상단 헤더 리팩토링 — MobilePageHeader 추출, 디자이너 시안 대기](./project_mobile_header_refactor.md)

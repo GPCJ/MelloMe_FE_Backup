@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { isAxiosError } from 'axios';
 import { Plus, PenSquare, Search } from 'lucide-react';
@@ -10,6 +10,8 @@ import PostCard from '../../components/post/PostCard';
 import FilterChips from '../../components/common/FilterChips';
 import MobilePageHeader from '@/components/common/MobilePageHeader';
 import Pagination from '../../components/common/Pagination';
+import { useInfiniteFeed } from '@/hooks/useInfiniteFeed';
+import { useFeedScrollStore } from '@/stores/feedScrollStore';
 
 type FeedTab = 'all' | 'following';
 
@@ -47,6 +49,39 @@ export default function PostListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const isInfiniteMode = !therapyArea && activeTab === 'all';
+
+  const consumeSnapshot = useFeedScrollStore((s) => s.consume);
+  const saveSnapshot = useFeedScrollStore((s) => s.save);
+  const initialSnapshotRef = useRef<ReturnType<typeof consumeSnapshot>>(null);
+  if (initialSnapshotRef.current === null && isInfiniteMode) {
+    initialSnapshotRef.current = consumeSnapshot();
+  }
+
+  const infinite = useInfiniteFeed({
+    size: 20,
+    enabled: isInfiniteMode,
+    initialSnapshot: initialSnapshotRef.current
+      ? {
+          items: initialSnapshotRef.current.items,
+          nextCursor: initialSnapshotRef.current.nextCursor,
+          hasNext: initialSnapshotRef.current.hasNext,
+        }
+      : undefined,
+  });
+
+  useEffect(() => {
+    if (!isInfiniteMode) return;
+    const snap = initialSnapshotRef.current;
+    if (!snap) return;
+    requestAnimationFrame(() => {
+      window.scrollTo({
+        top: snap.scrollY,
+        behavior: 'instant' as ScrollBehavior,
+      });
+    });
+  }, [isInfiniteMode]);
+
   const VALID_THERAPY_AREAS: (TherapyArea | '')[] = [
     '',
     'OCCUPATIONAL',
@@ -65,6 +100,7 @@ export default function PostListPage() {
 
   useEffect(() => {
     if (activeTab !== 'all') return;
+    if (isInfiniteMode) return;
     setLoading(true);
     setError(null);
     fetchPosts({
@@ -88,7 +124,35 @@ export default function PostListPage() {
         setError('게시글을 불러오는 데 실패했습니다.');
       })
       .finally(() => setLoading(false));
-  }, [therapyArea, currentPage, activeTab]);
+  }, [therapyArea, currentPage, activeTab, isInfiniteMode]);
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!isInfiniteMode) return;
+    const node = sentinelRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          infinite.loadMore();
+        }
+      },
+      { rootMargin: '200px' },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [isInfiniteMode, infinite.loadMore]);
+
+  function handleCardClick() {
+    if (!isInfiniteMode) return;
+    saveSnapshot({
+      items: infinite.items,
+      nextCursor: infinite.nextCursor,
+      hasNext: infinite.hasNext,
+      scrollY: window.scrollY,
+    });
+  }
 
   function handleFilterClick(value: TherapyArea | '') {
     setSearchParams(value ? { therapyArea: value } : {});
@@ -179,38 +243,97 @@ export default function PostListPage() {
       {/* 피드 콘텐츠 */}
       {activeTab === 'all' ? (
         <div className="bg-white">
-          {error && (
-            <p
-              className={`text-center py-12 ${error === '공개 게시물이 없습니다.' ? 'text-gray-400' : 'text-destructive'}`}
-            >
-              {error}
-            </p>
-          )}
+          {isInfiniteMode ? (
+            <>
+              {infinite.isLoading
+                ? Array.from({ length: 4 }).map((_, i) => (
+                    <PostCardSkeleton key={i} />
+                  ))
+                : infinite.items.map((post) => (
+                    <div key={post.id} onClickCapture={handleCardClick}>
+                      <PostCard post={post} />
+                    </div>
+                  ))}
 
-          {loading
-            ? Array.from({ length: 4 }).map((_, i) => (
-                <PostCardSkeleton key={i} />
-              ))
-            : data?.items.map((post) => <PostCard key={post.id} post={post} />)}
+              {infinite.isFetchingMore &&
+                Array.from({ length: 2 }).map((_, i) => (
+                  <PostCardSkeleton key={`more-${i}`} />
+                ))}
 
-          {!loading && !error && data?.items.length === 0 && (
-            <div className="text-center py-16">
-              <p className="text-gray-400 mb-4">아직 게시글이 없어요.</p>
-              <Link
-                to="/posts/new"
-                className={buttonVariants({ size: 'sm' }) + ' gap-1'}
-              >
-                <Plus size={15} />첫 글 작성하기
-              </Link>
-            </div>
-          )}
+              {infinite.error && (
+                <div className="flex flex-col items-center gap-3 py-8">
+                  <p className="text-sm text-destructive">{infinite.error}</p>
+                  <button
+                    onClick={infinite.retry}
+                    className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    재시도
+                  </button>
+                </div>
+              )}
 
-          {!loading && totalPages > 1 && (
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
+              {!infinite.isLoading &&
+                !infinite.error &&
+                infinite.items.length === 0 && (
+                  <div className="text-center py-16">
+                    <p className="text-gray-400 mb-4">아직 게시글이 없어요.</p>
+                    <Link
+                      to="/posts/new"
+                      className={buttonVariants({ size: 'sm' }) + ' gap-1'}
+                    >
+                      <Plus size={15} />첫 글 작성하기
+                    </Link>
+                  </div>
+                )}
+
+              {!infinite.isLoading &&
+                !infinite.hasNext &&
+                infinite.items.length > 0 && (
+                  <p className="text-center text-sm text-gray-400 py-8">
+                    마지막 글이에요
+                  </p>
+                )}
+
+              <div ref={sentinelRef} aria-hidden className="h-1" />
+            </>
+          ) : (
+            <>
+              {error && (
+                <p
+                  className={`text-center py-12 ${error === '공개 게시물이 없습니다.' ? 'text-gray-400' : 'text-destructive'}`}
+                >
+                  {error}
+                </p>
+              )}
+
+              {loading
+                ? Array.from({ length: 4 }).map((_, i) => (
+                    <PostCardSkeleton key={i} />
+                  ))
+                : data?.items.map((post) => (
+                    <PostCard key={post.id} post={post} />
+                  ))}
+
+              {!loading && !error && data?.items.length === 0 && (
+                <div className="text-center py-16">
+                  <p className="text-gray-400 mb-4">아직 게시글이 없어요.</p>
+                  <Link
+                    to="/posts/new"
+                    className={buttonVariants({ size: 'sm' }) + ' gap-1'}
+                  >
+                    <Plus size={15} />첫 글 작성하기
+                  </Link>
+                </div>
+              )}
+
+              {!loading && totalPages > 1 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
+              )}
+            </>
           )}
         </div>
       ) : (

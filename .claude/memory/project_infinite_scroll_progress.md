@@ -1,10 +1,10 @@
 ---
-name: 무한 스크롤 구현 진행 상황 (Task 1~4 완료)
-description: feat/infinite-scroll 브랜치에서 6-task 중 4개 완료, Task 5 (feedScrollStore Zustand)부터 재개
+name: 무한 스크롤 구현 진행 상황 (Task 5 완료, Task 6 디버깅 중)
+description: feat/infinite-scroll 브랜치, Task 6 PostListPage 통합 중 useInfiniteFeed 무한 스켈레톤 버그 발견 → E 패턴 수정 적용, 미커밋 브라우저 검증 대기
 type: project
 originSessionId: 7fab57ce-910c-4c2b-9d83-11bcee7bcced
 ---
-## 현재 상태 (2026-04-13)
+## 현재 상태 (2026-04-13 밤)
 
 **브랜치:** `feat/infinite-scroll`
 **Plan:** `docs/superpowers/plans/2026-04-13-msw-infinite-scroll.md`
@@ -19,11 +19,27 @@ originSessionId: 7fab57ce-910c-4c2b-9d83-11bcee7bcced
 | 2 | `10f9d2a` | feat(api): fetchFeed |
 | 3 | `9724081` | feat(msw): GET /posts/feed cursor mock (60개) |
 | 4 | `56e7293` | feat(hook): useInfiniteFeed |
+| 5 | `d519d17` | feat(store): feedScrollStore (TTL 5분, consume 1회 패턴) |
+
+## 진행 중 / 미커밋
+
+- **Task 6 (PostListPage 통합)**: 코드 편집 완료 (import/mode 분기/infinite 훅/복원 effect/offset 가드/sentinel/handleCardClick/렌더 분기 전부 반영), 아직 커밋 안 함
+- **useInfiniteFeed.ts 버그 수정 (E 패턴)**: 무한 스켈레톤 버그 발견 → `requestIdRef` + `itemsLengthRef`로 수정, 미커밋
+  - 상세: `project_infinite_feed_race_fix.md` 참조
+
+## 다음 세션 재개 순서
+
+1. `project_infinite_feed_race_fix.md` 읽어서 E 패턴 원리 복습 (사용자 요청)
+2. `npm run dev` → `/posts` 진입 → 첫 20개 렌더링 확인 (버그 재현 안 되는지)
+3. Acceptance criteria A-1~A-4, C-1~C-2 전체 시나리오 수동 검증
+4. 이상 없으면 두 파일을 나눠서 커밋:
+   - `feat(hook): fix stuck skeleton via requestId guard pattern`
+   - `feat(post): integrate infinite scroll with filter-mode hybrid + scroll restore`
+5. Task 7 리마인드 정리 → 사용자 보고
 
 ## 남은 Task
 
-- **Task 5**: `frontend/src/stores/feedScrollStore.ts` 신규 — Zustand store, 스크롤 복원용 스냅샷 저장 (TTL 5분, consume 패턴)
-- **Task 6**: `frontend/src/pages/post/PostListPage.tsx` 통합 — 필터 분기 + sentinel + 스크롤 복원 effect + 카드 클릭 시 스냅샷 저장 (가장 큰 작업, 9개 step)
+- **Task 6**: (위 미커밋 상태)
 - **Task 7**: 작업 후 리마인드 정리 (별도 PR 후보 항목 사용자에게 보고)
 
 ## 다음 세션 시작 방법
