@@ -1,80 +1,46 @@
 ---
-name: 무한 스크롤 구현 진행 상황 (Task 5 완료, Task 6 디버깅 중)
-description: feat/infinite-scroll 브랜치, Task 6 PostListPage 통합 중 useInfiniteFeed 무한 스켈레톤 버그 발견 → E 패턴 수정 적용, 미커밋 브라우저 검증 대기
+name: 무한 스크롤 구현 진행 상황 — main 머지 완료 (React Query 마이그레이션 대기)
+description: 2026-04-14 main 머지 + push 완료, 다음 단계는 React Query 마이그레이션
 type: project
-originSessionId: 7fab57ce-910c-4c2b-9d83-11bcee7bcced
+originSessionId: d12295c1-2860-4023-84f6-43c8ab8c5586
 ---
-## 현재 상태 (2026-04-13 밤)
+## 현재 상태 (2026-04-14)
 
-**브랜치:** `feat/infinite-scroll`
+**브랜치:** `feat/infinite-scroll` (유지, 다음 작업 이어감) / `main` = `7d2803e` (무한 스크롤 + visibility 통합 완료, origin에 push됨)
 **Plan:** `docs/superpowers/plans/2026-04-13-msw-infinite-scroll.md`
-**Spec:** `.omc/specs/deep-interview-msw-infinite-scroll.md` (gitignored, 로컬만)
 
-## 완료된 Task
+## 머지 이력 (2026-04-14)
 
-| Task | Commit | 내용 |
-|---|---|---|
-| Plan | `ffcc09b` | docs: implementation plan |
-| 1 | `4f52108` | feat(types): CursorPagedPosts + popularityScore |
-| 2 | `10f9d2a` | feat(api): fetchFeed |
-| 3 | `9724081` | feat(msw): GET /posts/feed cursor mock (60개) |
-| 4 | `56e7293` | feat(hook): useInfiniteFeed |
-| 5 | `d519d17` | feat(store): feedScrollStore (TTL 5분, consume 1회 패턴) |
+1. feat/infinite-scroll에 `b73cca6` 블러 복원 커밋 추가 → main 최신 로직과 충돌 리스크 발견 → `reset --hard HEAD~1`로 취소
+2. `git merge main` (feat 브랜치 쪽에서) → main의 visibility 최신 구현 자동 유입 + 무한 스크롤 코드 자동 병합 성공
+3. 메모리 파일 3개 충돌만 HEAD 버전으로 수동 해결
+4. 머지 커밋 `7d2803e`: "merge: main의 visibility 구현을 무한 스크롤 브랜치에 통합" (한국어 커밋 규칙 첫 적용)
+5. `main` 체크아웃 → `merge --ff-only feat/infinite-scroll` → `push origin main` 완료
 
-## 진행 중 / 미커밋
+## 프로덕션 배포 확인 사항
 
-- **Task 6 (PostListPage 통합)**: 코드 편집 완료 (import/mode 분기/infinite 훅/복원 effect/offset 가드/sentinel/handleCardClick/렌더 분기 전부 반영), 아직 커밋 안 함
-- **useInfiniteFeed.ts 버그 수정 (E 패턴)**: 무한 스켈레톤 버그 발견 → `requestIdRef` + `itemsLengthRef`로 수정, 미커밋
-  - 상세: `project_infinite_feed_race_fix.md` 참조
+- **Vercel `VITE_MSW_ENABLED=false` 확인됨** — MSW가 프로덕션 빌드에서 비활성
+- **백엔드 `/api/v1/posts/feed` 실구현 확인됨** (2026-04-14, Swagger)
+  - 파라미터: `size`, `cursor`
+  - 응답: `{success, data: {items, nextCursor, hasNext, size}}` envelope
+  - `fetchFeed`의 `res.data?.data ?? res.data` 언래핑이 정확히 대응
 
-## 다음 세션 재개 순서
+## 다음 단계
 
-1. `project_infinite_feed_race_fix.md` 읽어서 E 패턴 원리 복습 (사용자 요청)
-2. `npm run dev` → `/posts` 진입 → 첫 20개 렌더링 확인 (버그 재현 안 되는지)
-3. Acceptance criteria A-1~A-4, C-1~C-2 전체 시나리오 수동 검증
-4. 이상 없으면 두 파일을 나눠서 커밋:
-   - `feat(hook): fix stuck skeleton via requestId guard pattern`
-   - `feat(post): integrate infinite scroll with filter-mode hybrid + scroll restore`
-5. Task 7 리마인드 정리 → 사용자 보고
+- **React Query 마이그레이션** (2026-04-15 예정) — 직접 구현한 `useInfiniteFeed`(E 패턴: `AbortController` + `requestIdRef`)를 `useInfiniteQuery`로 교체. 아래 백로그 이슈들이 RQ 마이그레이션 중 자연 해소될 가능성 높음.
 
-## 남은 Task
+## 남은 기술부채 (RQ 마이그레이션 시 확인)
 
-- **Task 6**: (위 미커밋 상태)
-- **Task 7**: 작업 후 리마인드 정리 (별도 PR 후보 항목 사용자에게 보고)
-
-## 다음 세션 시작 방법
-
-```
-무한 스크롤 Task 5부터 이어서 진행해줘.
-브랜치 feat/infinite-scroll, plan은 docs/superpowers/plans/2026-04-13-msw-infinite-scroll.md
-```
-
-또는
-
-```
-project_infinite_scroll_progress.md 읽고 Task 5부터 이어서 진행해줘
-```
-
-## 작업 후 리마인드 (별도 PR 후보)
-
-- **B**: 빠른 스크롤 중복 호출, 마지막 페이지 호출 차단 검증
-- **D**: 401/네트워크 에러 UX, 빈 피드 UI, 새 글 작성 → mock 즉시 반영
-- **E**: useInfiniteFeed 단위 테스트 (Vitest + RTL)
-- **권한 mock**: visibility 권한별 분기 (THERAPIST → PRIVATE 포함)
-- **정렬 토글 UI**: LATEST/POPULAR — 디자이너 시안 후 별도 PR
-- **백엔드 협의**: `/posts/feed` 필터 파라미터 추가 → 받으면 하이브리드 분기 제거
-
-## 협업 워크플로우 결정
-
-- feature branch + PR + `merge --no-ff` (squash 안 함, atomic 6 commit 보존)
-- Task 6 완료 후 `gh pr create` → self-review → merge
+- **StrictMode 스크롤 복원 손실**: `initialSnapshotRef` 렌더 중 할당 방식이 React 19 StrictMode 더블마운트에서 스냅샷을 잃을 수 있음 — dev 전용, 프로덕션 무관
+- **`handleCardClick` 비네비 클릭 스냅샷 갱신**: PostCard 내 스크랩 버튼 등 비네비 요소 클릭 시에도 scrollY 저장됨 → 엣지케이스에서 과거 시점이 복원될 수 있음
+- **IntersectionObserver 재구독**: `infinite.loadMore` 참조 변경마다 observer disconnect/observe 반복 — 기능상 버그 아님, 성능 nit
+- **useInfiniteFeed 단위 테스트 부재** (Vitest + RTL)
+- **정렬 토글 UI** (LATEST/POPULAR) — 디자이너 시안 대기
+- **백엔드 협의**: `/posts/feed`에 필터 파라미터 추가 → 받으면 하이브리드 분기 제거 가능
 
 ## 핵심 결정 요약
 
-- 커서 기반 (`/posts/feed`), MSW mock 사용
-- PostListPage만, 직접 구현 (no React Query)
-- 하이브리드 분기 (필터 시 offset fallback)
-- LATEST 고정 (sort UI 별도)
-- mock 데이터: 핸들러 런타임 60개 생성, 모듈 캐싱
-- cursor: `btoa(JSON.stringify({lastId}))` (불투명)
-- 스크롤 복원 포함 (Zustand store, TTL 5분, consume 1회)
+- 커서 기반 (`/posts/feed`), LATEST 고정
+- 필터/팔로잉 탭은 기존 페이지네이션(`/posts`) 유지 — `isInfiniteMode = !therapyArea && activeTab === 'all'`
+- cursor 불투명 문자열 취급 (프론트는 인코딩 방식 몰라도 됨)
+- 스크롤 복원: Zustand store, TTL 5분, consume 1회 (`feedScrollStore`)

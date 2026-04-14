@@ -1,9 +1,19 @@
 ---
-name: visibility 응답 정책 충돌 (디자이너 vs 백엔드)
-description: PRIVATE 게시글의 USER 응답 처리 방식이 디자이너 의도와 백엔드 구현이 어긋남 — 데일리/주간회의 안건
+name: visibility 응답 정책 — 디자이너 블러 방식으로 확정 (2026-04-14)
+description: PRIVATE 게시글 USER 응답을 블러 카드로 내려주기로 확정 — 합의 완료, 백엔드 수정 대기 상태로 추적
 type: project
-originSessionId: d1955d39-18ef-4d3a-90f8-251b1dac4855
+originSessionId: d12295c1-2860-4023-84f6-43c8ab8c5586
 ---
+## 결정 (2026-04-14 합의)
+
+**디자이너 안(블러 카드) 방식으로 확정.** USER도 PRIVATE 게시글을 응답에 포함해서 받고, 본문은 `isBlurred=true` + 빈 content로 마스킹. 프론트는 이미 이 방식대로 구현되어 있음(mock + 렌더).
+
+**남은 작업**: 백엔드가 현재 "USER에게 PRIVATE 글 제외" 방식이므로 수정 필요 — 백엔드 팀에 전달 필요.
+
+---
+
+## (과거) 충돌 배경 — 참고용
+
 ## 충돌 내용
 
 `visibility=PRIVATE` (치료사 전용) 게시글을 USER 롤이 요청했을 때:

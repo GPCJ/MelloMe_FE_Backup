@@ -14,11 +14,12 @@
 - [MVP 요구사항 상세 및 핵심지표](./project_mvp_requirements.md) — REQ-001~012 MVP, REQ-013~019 Post-MVP
 
 ## 핵심 정책
-- [USER 롤도 게시글 작성 가능 — 공개글만](./project_user_role_post_create_policy.md) — ProtectedRoute 수정 필요
+- [USER 롤도 게시글 작성 가능 — 공개글만](./project_user_role_post_create_policy.md) — 04-14 main 머지 완료(770e7af), 백엔드 권한 필드 이관 대기
 - 게시물 열람: 로그인만 필요, 공개 게시물 미인증 열람 가능, 인증 전용은 블러
 - 토큰: AT=body(localStorage ~15분), RT=httpOnly Cookie / 페이지네이션: 0-based (프론트 currentPage-1)
 - MVP 단일 게시판 (board 파라미터 미사용)
 - [치료사 인증 정책 + 닉네임/title 변경](./project_auth_policy_change.md) — 즉시 THERAPIST + UNDER_REVIEW
+- **[MVP 치료사 인증 = 즉시 승인](./project_auth_policy_mvp_immediate_approval.md)** — UNDER_REVIEW 생략, 신청→APPROVED 바로
 - [댓글 시스템 — flat 2레벨, @멘션](./project_comment_system.md)
 
 ## 백엔드 대기 항목
@@ -34,7 +35,8 @@
 
 ## 공통 컴포넌트
 - [UserAvatar 공통 컴포넌트 통합](./project_user_avatar_component.md) — 6곳 아바타 통합, PostDetail/CommentResponse 타입 확장
-- [MobilePageHeader rightAction slot 패턴](./project_mobile_header_slot_pattern.md) — rightAction ReactNode로 페이지별 헤더 UI 주입, 리팩토링 기준 포함
+- [MobilePageHeader rightAction slot 패턴 + 데스크탑 회귀 주의](./project_mobile_header_slot_pattern.md) — rightAction은 md:hidden이라 데스크탑에서 사라짐, hidden md:flex 래퍼 중복 렌더 필수
+- [모바일 프로필 헤더 구현](./project_mobile_profile_header.md) — ProfilePage ← 내 프로필 ⚙️, 톱니바퀴→로그아웃 임시 구현, 설정 메뉴 확장은 팀 논의 안건
 
 ## 프론트 보류/기술부채
 - [보류된 리팩토링 + 인지부채](./project_pending_refactor.md) — AbortController, refresh plain axios, 이해도 점검
@@ -53,7 +55,7 @@
 ## 협업
 - [백엔드 전달 전략 + 이슈 동기화](./project_backend_communication.md) — Swagger 공식, GitHub Issues, 멜로미↔아이로
 - [디자이너 대기 항목 + 모바일 퍼스트](./project_designer_pending.md)
-- **[visibility 응답 정책 충돌](./project_visibility_response_conflict.md)** — 디자이너=블러 vs 백엔드=제외, 04-14 데일리 안건
+- **[visibility 응답 정책 — 블러로 확정](./project_visibility_response_conflict.md)** — 04-14 디자이너 안 채택, 백엔드 수정 대기
 - [주간회의 안건 04-07~08](./project_weekly_meeting_agenda.md) — rememberMe, FNC-004, Google OAuth
 
 ## 기능명세 / 아키텍처
@@ -78,6 +80,8 @@
 - **[최우선]** [코드 작업 전 트레이드오프 설명 필수](./feedback_tradeoff_before_code.md) / [클린 커밋 히스토리 관리](./feedback_clean_commit_history.md)
 - [MVP 코드 수정 기준](./feedback_mvp_fix_criteria.md) / [UI는 디자이너 확인 후](./feedback_ui_designer_confirm.md)
 - [코드 수정 프로세스 — grep 선행](./feedback_code_change_process.md) / [코드 생성 승인 요청](./feedback_code_approval.md)
+- [MSW는 백엔드 권한 정책 시뮬레이션](./feedback_msw_simulates_backend_policy.md) — mock이 정책 우회 허용하면 프론트 회귀 숨겨짐
+- [섞인 커밋 분리 워크플로우](./feedback_mixed_commit_split_workflow.md) — reset --mixed + stash -u로 브랜치별 분리 재커밋
 - [노션 항목 번호 — fetch로 실제 상태 확인 후 결정](./feedback_notion_page_number_check.md)
 - [CSV 검토 시 그때그때 수정](./feedback_api_review_approach.md) / [navigate(-1) 금지](./feedback_navigate_back.md) / [모바일/데스크탑 UX 분기](./feedback_mobile_desktop_ux.md)
 - [질문 방식 — 객관식 vs 주관식](./feedback_question_style.md) / [불확실하면 질문](./feedback_ask_when_uncertain.md)
@@ -90,14 +94,16 @@
 - [GitHub 토큰 채팅 금지](./feedback_github_token.md) / [브랜치 main만](./feedback_branch_preference.md) / [credentials 갱신 방법](./feedback_github_credentials_renewal.md)
 - [백엔드 이슈에 LLM 프롬프트](./feedback_backend_llm_prompt.md) / [슬래시 커맨드 스크립트 금지](./feedback_no_scripts_for_commands.md)
 - [외부 push 전 승인 필수](./feedback_push_requires_approval.md) / [push-airo reset --hard](./feedback_push_airo_claude_files.md)
+- [커밋 메시지 한국어 통일 (forward-only)](./feedback_commit_message_korean.md) — 과거 영어 커밋은 rewrite 없이 둠
 - [git 커밋 전 diff --stat](./feedback_git_diff_stat_check.md) / [커맨드 네이밍 — 범용 이름](./feedback_draft_notion_naming.md)
 - [에러 삼키지 말고 실패 표시](./feedback_error_handling_visible.md) / [API 에러 원인별 분기](./feedback_error_handling_by_cause.md)
+- [백엔드 필드 요청 전 기존 스펙 확인](./feedback_backend_field_request_check.md) / [Explore 결과 직접 검증](./feedback_explore_result_verification.md)
 - [GitHub Issues 기술부채 관리](./feedback_github_issues.md) / [이슈는 airo 레포에만](./feedback_airo_issues_only.md)
 - [토큰 사용량 최소화](./feedback_token_usage_awareness.md) / [취업 경험 Notion 정리](./feedback_career_documentation.md)
 - [Vercel SPA 라우팅](./feedback_vercel_spa_routing.md)
 
 ## 공유 문서 / 레퍼런스
-- [팀 요구사항 Google Sheets](./reference_requirements_doc.md) / [Swagger UI](./reference_swagger_endpoint.md) — EC2 `43.203.40.3:8080`
+- [팀 요구사항 Google Sheets](./reference_requirements_doc.md) / [Swagger UI](./reference_swagger_endpoint.md) — `api.melonnetherapists.com/swagger-ui/index.html`
 - [Notion TIL](./reference_notion_til.md) (18:30 KST) / [빌더스 리그](./reference_notion_builders_league.md) / [트러블슈팅](./reference_notion_troubleshooting.md)
 
 ## 환경 / 도구
@@ -119,8 +125,11 @@
 ## 폴더 구조
 - [프론트 폴더 구조 리팩토링 04-07](./project_folder_restructure.md) — components/pages 도메인별 하위 폴더 재구성, import 경로 변경됨
 
+## 📅 회의 준비
+- [2026-04-15 UI 싱크 회의](./meeting_prep_2026_04_15.md) — 원본: `docs/meetings/2026-04-15-ui-sync.md`
+
 ## ⭐ 진행 중
-- **[무한 스크롤 Task 5 완료, Task 6 디버깅 중](./project_infinite_scroll_progress.md)** — feat/infinite-scroll, E 패턴 수정 미커밋, 브라우저 검증 대기
+- **[무한 스크롤 main 머지 + push 완료](./project_infinite_scroll_progress.md)** — 7d2803e, 백엔드 /posts/feed 실구현 확인, 다음: React Query 마이그레이션
 - **[useInfiniteFeed 무한 스켈레톤 버그 + E 패턴 복습용](./project_infinite_feed_race_fix.md)** — StrictMode+abort race, requestIdRef 원리
 - **[E패턴 학습 다이제스트 04-14](./project_infinite_feed_learning_0414.md)** — 블록 1~3 확정 멘탈 모델, 다음 세션 React Query 적용 전 리마인드용
 - **[스펙 정렬 작업 P0~P2](./project_spec_alignment_todo.md)** — 04-10 Swagger 기준, P0부터 순서대로
