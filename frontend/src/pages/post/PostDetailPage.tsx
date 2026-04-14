@@ -10,6 +10,7 @@ import {
   Download,
   FileText,
   Bookmark,
+  Lock,
 } from 'lucide-react';
 import ReactionBar from '../../components/post/ReactionBar';
 import VerifiedBadge from '../../components/post/VerifiedBadge';
@@ -187,6 +188,36 @@ export default function PostDetailPage() {
         }
       />
 
+      {/* 데스크탑: 카드 바깥 상단 우측 케밥 메뉴 */}
+      {(post.canEdit || post.canDelete) && (
+        <div className="hidden md:flex justify-end mb-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
+              <MoreVertical size={20} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {post.canEdit && (
+                <DropdownMenuItem
+                  onClick={() => navigate(`/posts/${post.id}/edit`)}
+                >
+                  <Pencil size={14} className="mr-2" />
+                  수정
+                </DropdownMenuItem>
+              )}
+              {post.canDelete && (
+                <DropdownMenuItem
+                  onClick={handleDeletePost}
+                  className="text-red-500 focus:text-red-500"
+                >
+                  <Trash2 size={14} className="mr-2" />
+                  삭제
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
+
       {/* 게시글 카드 */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
         {/* 작성자 정보 */}
@@ -202,6 +233,16 @@ export default function PostDetailPage() {
                 {post.authorNickname}
               </span>
               <VerifiedBadge status={post.authorVerificationStatus} />
+              {post.visibility === 'PRIVATE' && (
+                <span
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-600 text-[11px] font-medium"
+                  aria-label="치료사 전용 게시글"
+                  title="치료사 전용 게시글"
+                >
+                  <Lock size={11} />
+                  치료사 전용
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-0.5">
               <span>{formatRelativeTime(post.createdAt)}</span>
@@ -238,10 +279,18 @@ export default function PostDetailPage() {
         )}
 
         {/* 본문 */}
-        <div
-          className="post-content mb-6"
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
-        />
+        {post.isBlurred ? (
+          <div className="bg-stone-50 rounded-lg py-12 px-4 mb-6">
+            <p className="text-center text-gray-600 text-sm">
+              인증된 회원에게만 공개된 게시물입니다.
+            </p>
+          </div>
+        ) : (
+          <div
+            className="post-content mb-6"
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
+          />
+        )}
 
         {/* 첨부파일 */}
         {post.attachments && post.attachments.length > 0 && (

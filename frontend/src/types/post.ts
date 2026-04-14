@@ -47,6 +47,7 @@ export interface PostSummary {
   popularityScore?: number;
   commentCount?: number;
   hasAttachment?: boolean;
+  // 백엔드가 인증 전용 글을 USER에게 전달할 때 true로 내려오며 content/contentPreview는 빈값으로 마스킹됨
   isBlurred?: boolean;
   createdAt: string;
   scrapped?: boolean;
@@ -78,6 +79,8 @@ export interface PostDetail {
   canDelete: boolean;
   attachments?: Attachment[];
   authorVerificationStatus?: 'NOT_REQUESTED' | 'PENDING' | 'APPROVED' | 'REJECTED';
+  // 백엔드가 인증 전용 글을 USER에게 전달할 때 true로 내려오며 content/contentPreview는 빈값으로 마스킹됨
+  isBlurred?: boolean;
   scrapped?: boolean;
 }
 

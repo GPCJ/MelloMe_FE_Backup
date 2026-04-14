@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, MessageCircle, Eye } from 'lucide-react';
+import { Bookmark, MessageCircle, Eye, Lock } from 'lucide-react';
 import type { PostSummary } from '../../types/post';
 import { THERAPY_AREA_LABELS } from '../../constants/post';
 import { formatRelativeTime } from '../../utils/formatDate';
@@ -76,6 +76,15 @@ export default function PostCard({ post }: PostCardProps) {
           <span className="text-[11px] text-gray-500">
             {formatRelativeTime(post.createdAt)}
           </span>
+          {post.visibility === 'PRIVATE' && (
+            <span
+              className="inline-flex items-center text-gray-500"
+              aria-label="치료사 전용 게시글"
+              title="치료사 전용 게시글"
+            >
+              <Lock size={12} />
+            </span>
+          )}
           <button
             type="button"
             onClick={handleScrapToggle}

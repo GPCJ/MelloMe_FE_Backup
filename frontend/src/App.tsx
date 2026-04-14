@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/layout/Layout';
-import ProtectedRoute from './components/auth/ProtectedRoute';
 import GuestRoute from './components/auth/GuestRoute';
 import AuthRoute from './components/auth/AuthRoute';
 import LoginPage from './pages/auth/LoginPage';
@@ -41,21 +40,17 @@ function App() {
             <Route path="/verification-complete" element={<VerificationCompletePage />} />
           </Route>
 
-          {/* 로그인만 필요 (치료사 인증 불필요) */}
+          {/* 로그인만 필요 (USER도 작성 가능, 단 PostCreatePage에서 공개글로 제한) */}
           <Route element={<AuthRoute />}>
             <Route path="/therapist-verifications" element={<TherapistVerificationPage />} />
             <Route path="/posts" element={<PostListPage />} />
             <Route path="/posts/:postId" element={<PostDetailPage />} />
             <Route path="/posts/:postId/comments" element={<CommentWritePage />} />
             <Route path="/posts/:postId/comments/:commentId" element={<CommentDetailPage />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-          </Route>
-
-          {/* 로그인 + 치료사 인증 필요 */}
-          <Route element={<ProtectedRoute />}>
             <Route path="/posts/new" element={<PostCreatePage />} />
             <Route path="/posts/:postId/edit" element={<PostEditPage />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
 
           <Route path="/my-page" element={<Navigate to="/profile" replace />} />
