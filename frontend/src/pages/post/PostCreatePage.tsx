@@ -5,15 +5,22 @@ import SimpleTextEditor from '../../components/post/SimpleTextEditor';
 import FilePreviewGrid from '../../components/post/FilePreviewGrid';
 import { createPost, uploadPostAttachment } from '../../api/posts';
 import { useFileAttachment, IMAGE_ACCEPT } from '../../hooks/useFileAttachment';
+import { useAuthStore } from '../../stores/useAuthStore';
 import type { TherapyArea } from '../../types/post';
 import { THERAPY_CHIPS } from '../../constants/post';
 
 export default function PostCreatePage() {
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const isPublicOnly = user?.role === 'USER';
 
   const [content, setContent] = useState('');
   const [therapyArea, setTherapyArea] = useState<TherapyArea>('UNSPECIFIED');
   const [isPublic, setIsPublic] = useState(true);
+  const togglePublic = () => {
+    if (isPublicOnly) return;
+    setIsPublic((v) => !v);
+  };
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
@@ -154,9 +161,11 @@ export default function PostCreatePage() {
             <div className="flex-1" />
             <button
               type="button"
-              aria-label={isPublic ? '비공개로 전환' : '공개로 전환'}
-              onClick={() => setIsPublic((v) => !v)}
-              className={`p-2 transition-colors cursor-pointer ${isPublic ? 'text-gray-400 hover:text-gray-600' : 'text-gray-900'}`}
+              aria-label={isPublicOnly ? '치료사 인증 후 비공개 작성 가능' : isPublic ? '비공개로 전환' : '공개로 전환'}
+              title={isPublicOnly ? '치료사 인증 후 비공개 작성 가능' : undefined}
+              onClick={togglePublic}
+              disabled={isPublicOnly}
+              className={`p-2 transition-colors ${isPublicOnly ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'} ${isPublic ? 'text-gray-400 hover:text-gray-600' : 'text-gray-900'}`}
             >
               {isPublic ? <LockOpen size={20} /> : <Lock size={20} />}
             </button>
@@ -185,8 +194,11 @@ export default function PostCreatePage() {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => setIsPublic((v) => !v)}
-                className={`p-2 transition-colors cursor-pointer ${isPublic ? 'text-gray-400 hover:text-gray-600' : 'text-gray-900'}`}
+                aria-label={isPublicOnly ? '치료사 인증 후 비공개 작성 가능' : isPublic ? '비공개로 전환' : '공개로 전환'}
+                title={isPublicOnly ? '치료사 인증 후 비공개 작성 가능' : undefined}
+                onClick={togglePublic}
+                disabled={isPublicOnly}
+                className={`p-2 transition-colors ${isPublicOnly ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'} ${isPublic ? 'text-gray-400 hover:text-gray-600' : 'text-gray-900'}`}
               >
                 {isPublic ? <LockOpen size={20} /> : <Lock size={20} />}
               </button>
