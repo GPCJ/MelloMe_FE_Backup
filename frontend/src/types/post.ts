@@ -77,6 +77,7 @@ export interface PostDetail {
   canDelete: boolean;
   attachments?: Attachment[];
   authorVerificationStatus?: 'NOT_REQUESTED' | 'PENDING' | 'APPROVED' | 'REJECTED';
+  isBlurred?: boolean;
   scrapped?: boolean;
 }
 
