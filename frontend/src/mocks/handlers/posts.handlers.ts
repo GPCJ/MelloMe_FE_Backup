@@ -10,21 +10,33 @@ export const postsHandlers = [
   http.get(`${API}/posts`, ({ request }) => {
     const url = new URL(request.url);
     const therapyArea = url.searchParams.get('therapyArea');
+    const account = currentUserEmail ? testAccounts[currentUserEmail] : null;
+    const isPrivileged = account?.role === 'THERAPIST' || account?.role === 'ADMIN';
+
     const filtered = therapyArea
       ? mockPosts.filter((p) => p.therapyArea === therapyArea)
       : mockPosts;
 
-    const items = filtered.map((p) => ({
-      id: p.id,
-      postType: 'COMMUNITY' as const,
-      contentPreview: p.contentPreview,
-      authorNickname: p.authorNickname,
-      therapyArea: p.therapyArea,
-      visibility: 'PUBLIC' as const,
-      viewCount: p.viewCount,
-      createdAt: p.createdAt,
-      scrapped: false,
-    }));
+    const items = filtered.map((p) => {
+      const isPrivate = p.visibility === 'PRIVATE';
+      const blurred = isPrivate && !isPrivileged;
+      return {
+        id: p.id,
+        postType: 'COMMUNITY' as const,
+        contentPreview: blurred ? '' : p.contentPreview,
+        authorNickname: p.authorNickname,
+        authorProfileImageUrl: p.authorProfileImageUrl,
+        authorVerificationStatus: p.authorVerificationStatus,
+        therapyArea: p.therapyArea,
+        visibility: p.visibility ?? ('PUBLIC' as const),
+        viewCount: p.viewCount,
+        commentCount: p.commentCount,
+        hasAttachment: p.hasAttachment,
+        isBlurred: blurred,
+        createdAt: p.createdAt,
+        scrapped: false,
+      };
+    });
 
     return HttpResponse.json({
       items,
@@ -41,23 +53,29 @@ export const postsHandlers = [
     if (!post) return HttpResponse.json({ code: 'NOT_FOUND' }, { status: 404 });
 
     const currentAccount = currentUserEmail ? testAccounts[currentUserEmail] : null;
+    const isPrivileged = currentAccount?.role === 'THERAPIST' || currentAccount?.role === 'ADMIN';
+    const isPrivate = post.visibility === 'PRIVATE';
+    const blurred = isPrivate && !isPrivileged;
 
     return HttpResponse.json({
       id: post.id,
-      content: post.content,
+      content: blurred ? '' : post.content,
       postType: 'COMMUNITY',
       authorId: post.authorId,
       authorNickname: post.authorNickname,
       therapyArea: post.therapyArea,
-      visibility: 'PUBLIC',
+      visibility: post.visibility ?? 'PUBLIC',
       viewCount: post.viewCount,
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
       canEdit: currentAccount?.id === post.authorId,
       canDelete: currentAccount?.id === post.authorId,
-      attachments: post.hasAttachment
-        ? [{ id: 1, originalFilename: '자료.pdf', contentType: 'application/pdf', sizeBytes: 1024000, extension: 'pdf', downloadUrl: '#', createdAt: post.createdAt }]
-        : [],
+      attachments: blurred
+        ? []
+        : post.hasAttachment
+          ? [{ id: 1, originalFilename: '자료.pdf', contentType: 'application/pdf', sizeBytes: 1024000, extension: 'pdf', downloadUrl: '#', createdAt: post.createdAt }]
+          : [],
+      isBlurred: blurred,
       scrapped: false,
     });
   }),
@@ -69,7 +87,8 @@ export const postsHandlers = [
       id: Date.now(),
       contentPreview: ((body.content as string) || '').slice(0, 100),
       content: body.content as string,
-        therapyArea: (body.therapyArea as string) || 'UNSPECIFIED',
+      therapyArea: (body.therapyArea as string) || 'UNSPECIFIED',
+      visibility: ((body.visibility as string) || 'PUBLIC') as 'PUBLIC' | 'PRIVATE',
       viewCount: 0,
       commentCount: 0,
       hasAttachment: false,
@@ -94,6 +113,9 @@ export const postsHandlers = [
 
     if (body.content !== undefined) post.content = body.content as string;
     if (body.therapyArea !== undefined) post.therapyArea = body.therapyArea as string;
+    if (body.visibility !== undefined) {
+      (post as { visibility?: 'PUBLIC' | 'PRIVATE' }).visibility = body.visibility as 'PUBLIC' | 'PRIVATE';
+    }
 
     return HttpResponse.json({
       success: true,
