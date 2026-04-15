@@ -2,8 +2,8 @@
 
 ## 작업 순서
 
-1. `./scripts/memory-sync.sh pull-mello` 실행해서 최신 메모리 동기화
-2. `.claude/memory/notion_draft.md` 읽기
+1. 먼저 `.claude/memory/notion_draft.md`를 읽어서 현재 내용을 확인하고, 사용자에게 "pull-mello로 최신 메모리를 먼저 가져올까요, 아니면 현재 초안으로 바로 노션 작성을 진행할까요?"라고 질문. 사용자가 pull을 선택한 경우에만 `./scripts/memory-sync.sh pull-mello` 실행 후 draft 재읽기
+2. 확정된 `.claude/memory/notion_draft.md` 내용으로 진행
 3. 초안 내용을 분석해서 빌더스 리그 서브페이지별로 분류:
    - **TIL**: 오늘 배운 개념·패턴·기술적 학습 → `323c8200749b80c2bbe6caf194055593`
    - **🔧 트러블슈팅**: 마주친 문제와 해결 과정 → `322c8200749b81f39f71f9c8a4d6eb44`
