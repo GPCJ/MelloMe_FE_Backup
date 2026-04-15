@@ -81,6 +81,12 @@ export const postsHandlers = [
   }),
 
   http.get(`${API}/posts/feed`, ({ request }) => {
+    // 검증 토글: P1 fallback 시나리오 수동 검증용. 검증 후 false로 되돌릴 것.
+    const FORCE_FEED_500 = false;
+    if (FORCE_FEED_500) {
+      return new HttpResponse(null, { status: 500 });
+    }
+
     const url = new URL(request.url);
     const rawSize = Number(url.searchParams.get('size') ?? '20');
     const size = Math.min(50, Math.max(1, isNaN(rawSize) ? 20 : rawSize));

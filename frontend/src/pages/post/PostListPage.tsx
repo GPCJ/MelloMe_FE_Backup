@@ -49,8 +49,9 @@ export default function PostListPage() {
   const [data, setData] = useState<PaginatedPosts | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [feedFailed, setFeedFailed] = useState(false);
 
-  const isInfiniteMode = !therapyArea && activeTab === 'all';
+  const isInfiniteMode = !therapyArea && activeTab === 'all' && !feedFailed;
 
   const consumeSnapshot = useFeedScrollStore((s) => s.consume);
   const saveSnapshot = useFeedScrollStore((s) => s.save);
@@ -69,6 +70,7 @@ export default function PostListPage() {
           hasNext: initialSnapshotRef.current.hasNext,
         }
       : undefined,
+    onError: () => setFeedFailed(true),
   });
 
   useEffect(() => {
@@ -97,6 +99,7 @@ export default function PostListPage() {
   useEffect(() => {
     if (activeTab !== 'all') return;
     if (isInfiniteMode) return;
+    if (therapyArea && !VALID_THERAPY_AREAS.includes(therapyArea)) return;
     setLoading(true);
     setError(null);
     fetchPosts({
@@ -294,6 +297,14 @@ export default function PostListPage() {
             </>
           ) : (
             <>
+              {feedFailed && (
+                <div className="bg-gray-50 border-y border-gray-200 px-4 py-2.5">
+                  <p className="text-center text-xs text-gray-500">
+                    최신 피드를 불러오지 못해 페이지 모드로 전환했어요
+                  </p>
+                </div>
+              )}
+
               {error && (
                 <p
                   className={`text-center py-12 ${error === '공개 게시물이 없습니다.' ? 'text-gray-400' : 'text-destructive'}`}

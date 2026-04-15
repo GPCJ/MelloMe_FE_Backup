@@ -11,6 +11,7 @@ interface UseInfiniteFeedOptions {
     nextCursor: string | null;
     hasNext: boolean;
   };
+  onError?: () => void;
 }
 
 interface UseInfiniteFeedResult {
@@ -46,6 +47,8 @@ export function useInfiniteFeed(
 
   const inflightRef = useRef<AbortController | null>(null);
   const requestIdRef = useRef(0);
+  const onErrorRef = useRef(options.onError);
+  onErrorRef.current = options.onError;
 
   const fetchPage = useCallback(
     async (cursor: string | null, isInitial: boolean) => {
@@ -72,6 +75,7 @@ export function useInfiniteFeed(
         if (requestIdRef.current !== myId) return;
         if (isAxiosError(err) && err.code === 'ERR_CANCELED') return;
         setError('피드를 불러오는 데 실패했습니다.');
+        onErrorRef.current?.();
       } finally {
         if (requestIdRef.current === myId) {
           if (isInitial) setIsLoading(false);
