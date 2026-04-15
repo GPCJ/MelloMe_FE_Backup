@@ -6,6 +6,7 @@ import { buttonVariants } from '@/components/shadcn-ui/button';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import { fetchPosts } from '../../api/posts';
 import type { TherapyArea, PaginatedPosts } from '../../types/post';
+import { FILTER_CHIPS } from '../../constants/post';
 import PostCard from '../../components/post/PostCard';
 import FilterChips from '../../components/common/FilterChips';
 import MobilePageHeader from '@/components/common/MobilePageHeader';
@@ -82,14 +83,9 @@ export default function PostListPage() {
     });
   }, [isInfiniteMode]);
 
-  const VALID_THERAPY_AREAS: (TherapyArea | '')[] = [
-    '',
-    'OCCUPATIONAL',
-    'SPEECH',
-    'PLAY',
-    'COGNITIVE',
-    'UNSPECIFIED',
-  ];
+  const VALID_THERAPY_AREAS: (TherapyArea | '')[] = FILTER_CHIPS.map(
+    (chip) => chip.value,
+  );
 
   useEffect(() => {
     if (therapyArea && !VALID_THERAPY_AREAS.includes(therapyArea)) {
