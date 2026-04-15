@@ -129,6 +129,9 @@
 - [2026-04-15 UI 싱크 회의](./meeting_prep_2026_04_15.md) — 원본: `docs/meetings/2026-04-15-ui-sync.md`
 
 ## ⭐ 진행 중
+- **[P1: feed → pagination auto-fallback 설계](./project_p1_feed_pagination_fallback_design.md)** — 7개 결정사항 확정 (사전 인터뷰)
+- **[P1 구현 완료 + 인지부채 HIGH](./project_p1_feed_pagination_fallback_implementation.md)** — 04-15 Claude 직접 작성, 5개 메커니즘 상세, 검증 미완(MSW FORCE_FEED_500 토글)
+- **[P0 클로즈: 필터 칩 feed 중복 요청 버그 해결 과정](./project_filter_chip_feed_dup_bug.md)** — d776f85, VALID_THERAPY_AREAS drift 진범, 5개 헛다리 가설 기록
 - **[무한 스크롤 main 머지 + push 완료](./project_infinite_scroll_progress.md)** — 7d2803e, 백엔드 /posts/feed 실구현 확인, 다음: React Query 마이그레이션
 - **[useInfiniteFeed 무한 스켈레톤 버그 + E 패턴 복습용](./project_infinite_feed_race_fix.md)** — StrictMode+abort race, requestIdRef 원리
 - **[E패턴 학습 다이제스트 04-14](./project_infinite_feed_learning_0414.md)** — 블록 1~3 확정 멘탈 모델, 다음 세션 React Query 적용 전 리마인드용

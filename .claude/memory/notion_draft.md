@@ -1,159 +1,89 @@
----
-name: 노션 업로드 대기 초안
-description: 다른 기기에서 노션에 올릴 초안 — pull-mello 후 확인
-type: project
-originSessionId: 10d34c19-4a2c-439b-9267-b37d1d65b635
----
-# TIL — 서브 페이지 추가
+# 노션 업데이트 초안 (2026-04-15) — 포트폴리오용 기능 정리
 
-**위치:** TIL 페이지 하위 서브 페이지로 추가
-**URL:** https://www.notion.so/323c8200749b80c2bbe6caf194055593
+**대상 페이지:** 멜로미 프론트엔드 개발 진행 상황
+**URL:** https://www.notion.so/322c8200749b81a2a188dd0082b6b15a
+
+(이력서/포트폴리오/면접 답변에 그대로 인용할 수 있도록 STAR 형식으로 정리)
 
 ---
 
-## 서브 페이지 1: 2026-04-11 — Swagger 스펙 정렬 + MSW 구조 재정비
+## 기능 1. 메인 피드 무한 스크롤
 
-**분류**: TypeScript / React / AI활용
+### 한 줄 요약
+페이지네이션 버튼 방식의 메인 피드를 커서 기반 무한 스크롤로 전환하여 탐색 흐름을 끊김 없이 개선
 
-### 오늘 한 것
-- **스펙 정렬 P0~P2 완료**: 백엔드 Swagger 변경사항(title/ageGroup 삭제, visibility/scrapped 추가) 프론트 전체 반영
-  - types/post.ts 타입 정렬, Visibility 타입 추가
-  - fetchPosts/mypage API 함수에서 불필요한 fallback 매핑 제거
-  - PostCreatePage/PostEditPage/ProfilePage에서 삭제된 필드 참조 정리
-  - TherapyArea 라벨 5개 추가 (감각통합/물리/미술/음악/행동)
-  - MeResponse에 커뮤니티 접근 관련 필드 3개 추가
-  - 미사용 HomePage.tsx 발견 → 삭제
-- **MSW 환경 재정비**: 729줄 단일 파일을 도메인별로 분리
-  - data/ 폴더: mock 데이터 분리 (posts, comments, users)
-  - handlers/ 폴더: 9개 도메인별 핸들러 파일 (auth, posts, comments 등)
-  - state.ts: 핸들러 간 공유 상태 분리
-  - mock 응답도 Swagger 스펙에 맞게 정렬 (items, postType, visibility, scrapped)
+### Situation
+- 멜로미 메인 피드는 "다음 페이지" 버튼 기반 페이지네이션이었음
+- 모바일 사용자 비중이 높은 커뮤니티 특성상, 버튼 클릭 → 상단 점프 → 새 목록 로딩 흐름이 탐색 피로도를 키움
+- 백엔드가 별도 커서 기반 엔드포인트(`GET /api/v1/posts/feed`)를 제공하기 시작
 
-### 배운 것 / 인사이트
-- handlers.ts가 729줄인 사실을 처음 인지 — 코드 복잡도를 정기적으로 점검하는 습관 필요
-- MSW mock 데이터가 실제 API 스펙과 다르면 개발 중 혼란이 생김 → 스펙 변경 시 mock도 같이 업데이트
-- deep-interview(OMC 스킬)로 요구사항을 먼저 정리하니 작업 범위가 명확해져서 삽질 없이 진행됨
+### Task
+- 기존 페이지네이션은 유지하되, 기본 전체 피드에만 무한 스크롤을 적용
+- 게시글 상세 진입 후 뒤로가기 시 스크롤 위치 복원
+- StrictMode·중복 요청·취소(race condition) 케이스 안전성 확보
 
-### 포트폴리오 어필 포인트
-- API 스펙 변경에 따른 프론트엔드 전수조사 + 체계적 정렬 (P0→P1→P2 우선순위 기반)
-- 단일 파일 729줄 → 도메인별 모듈화 리팩토링으로 유지보수성 개선
+### Action
+- IntersectionObserver + 커스텀 훅 `useInfiniteFeed` 직접 구현
+  - `AbortController`로 진행 중 요청 취소
+  - `requestIdRef`로 늦게 도착한 응답을 무시하는 "요청 ID 가드 패턴" 적용
+- 스크롤 복원: Zustand 스토어에 `(scrollY, snapshot, TTL 5분)` 저장, 1회 소비 후 폐기 (`feedScrollStore`)
+- 모드 분기: `isInfiniteMode = !therapyArea && activeTab === 'all'` — 필터/팔로잉 탭은 기존 페이지네이션 유지
+- API 응답 envelope(`{success, data: {items, nextCursor, hasNext}}`) 언래핑을 한 곳에서 처리해 호출부 간소화
+- MSW에 커서 기반 mock 추가하여 백엔드 준비 전부터 동일 인터페이스로 개발
 
----
+### Result
+- 04-14 main 머지·배포 완료, 백엔드 실서버 `/posts/feed` 연동 검증 완료
+- 모바일 탐색 흐름이 끊김 없이 이어지고, 상세에서 돌아와도 보던 위치가 유지됨
+- 다음 단계로 React Query `useInfiniteQuery` 마이그레이션을 계획 중 (직접 구현으로 race/취소 패턴을 학습한 뒤 라이브러리로 이관)
 
-## 서브 페이지 2: 2026-04-13 — 커서 기반 무한 스크롤 + 협업 워크플로우 시뮬레이션
-
-**분류**: React / 협업 / AI활용
-
-### 오늘 한 것
-- MSW 환경에서 커서 기반 무한 스크롤 선구현 착수 (백엔드 CORS 차단 우회)
-- AI 협업 워크플로우 4단계 적용: brainstorming → deep-interview → writing-plans → subagent-driven-development
-- Deep interview로 요구사항 모호성을 38% → 11.5%까지 수치적으로 측정·축소
-- 6-task 구현 plan 작성, 1~4번 완료 (타입 정의, fetchFeed API, MSW mock 핸들러, useInfiniteFeed 훅)
-- main 단독 개발 → feature branch + PR + `merge --no-ff` 협업 워크플로우로 전환
-
-### 배운 것 / 인사이트
-
-**1. Cursor 기반 페이지네이션 ― opaque token 패턴**
-- cursor는 마우스 커서가 아니라 "다음 호출 때 어디부터 줄지 가리키는 책갈피"
-- 서버가 만든 cursor를 프론트는 **그대로 보관했다 다시 보냄** (캐치볼처럼 왕복)
-- base64로 감싸는 이유: 프론트가 내용을 읽고 의존하는 걸 차단 → 백엔드가 cursor 형태를 바꿔도 프론트 안 깨짐
-- ❌ "보안" 효과는 미미 (base64는 암호화가 아님). 진짜 보안은 백엔드가 HMAC 서명까지 붙여서 처리
-- 이게 JWT, OAuth refresh token, DB cursor에 공통으로 쓰이는 **opaque token 패턴**
-
-**2. Cursor vs Offset 트레이드오프**
-
-| | Offset | Cursor |
-|---|---|---|
-| 임의 페이지 점프 | ✅ | ❌ |
-| 새 글 추가 시 중복/누락 | 발생 | 없음 |
-| 빅데이터 성능 | 떨어짐 | 빠름 |
-| 무한 스크롤 적합도 | △ | ✅ |
-
-- offset은 새 글 1개 추가되면 모든 페이지가 한 칸씩 밀려서 **이전 페이지 마지막 글이 다음 페이지 첫 글로 다시 등장 (중복 버그)**
-- cursor는 책갈피 위치가 고정이라 중복/누락 없음
-
-**3. AbortSignal/AbortController ― 무한 스크롤의 race condition 방어**
-- 브라우저 표준 Web API, 백엔드와 무관한 클라이언트 측 메커니즘
-- 무한 스크롤에서 빠른 스크롤 시 요청 A가 응답 안 왔는데 요청 B 트리거 → 응답 순서가 뒤바뀌면 화면이 깨짐
-- 새 요청 시작 시 이전 요청을 abort (헌 거 버리고 새 거 우선)
-- React 훅에서 `useRef<AbortController>`로 인플라이트 가드 + unmount cleanup으로 메모리 누수 방지
-
-**4. Subagent-driven development 개념**
-- 메인 Claude는 지휘자, Task마다 새 서브에이전트 디스패치 → 서브가 작업·commit·자체검토 → 메인이 결과 받아 사용자에게 보고
-- 메인 컨텍스트가 매 Task의 상세 코드로 더러워지지 않음 → 큰 작업에서도 여유 유지
-- Task 격리로 한 Task의 실수가 다음 Task에 새지 않음
-
-**5. Deep interview의 수치적 ambiguity gating**
-- Goal/Constraints/Success Criteria/Context 4개 차원에 가중치 점수
-- 가장 약한 차원만 골라 다음 질문으로 → 효율적 수렴
-- 임계값(20%) 미만일 때만 spec 작성 진행 → "내가 원하는 게 뭔지 모르는 상태"로 코드 작업 시작 방지
-
-### 포트폴리오 어필 포인트
-- **opaque token 패턴 이해**: "cursor를 base64로 감싸는 이유는 프론트가 내부 구조에 의존하지 않게 하는 opaque token 패턴이고, 진짜 보안은 백엔드 서명 책임" — 면접 답변 가능
-- **AI 활용 능력**: brainstorming → deep-interview → plan → subagent execution이라는 4단계 파이프라인을 이해하고 실제 프로젝트에 적용
-- **백엔드 차단 상황 우회**: CORS 문제로 막힌 상황에서 MSW로 가짜 백엔드를 만들어 프론트 작업을 멈추지 않음 → 협업 환경에서 실용적 문제 해결력
-- **협업 워크플로우 자가 학습**: solo 개발의 한계(main 단독 사용)를 자각하고 feature branch + PR + `merge --no-ff` 워크플로우로 자발적 전환
+### 면접 예상 질문 & 답변 포인트
+- **Q. 왜 React Query를 처음부터 쓰지 않았나요?**
+  - A. 라이브러리에 의존하기 전에 race condition·요청 취소·StrictMode 더블마운트의 동작 원리를 직접 다뤄보고 싶었습니다. 직접 구현해본 경험이 있으니, 추후 React Query로 옮길 때도 어떤 문제를 추상화해주는지 명확히 이해한 채로 사용할 수 있습니다.
+- **Q. race condition은 어떻게 처리했나요?**
+  - A. 두 가지를 같이 썼습니다. (1) `AbortController`로 진행 중 fetch를 취소, (2) `requestIdRef`로 응답에 요청 ID를 매겨, 가장 마지막 요청 ID와 일치하지 않으면 결과를 버립니다. abort만으로는 StrictMode 더블마운트나 마이크로태스크 타이밍에서 새는 응답이 있어서 ID 가드를 추가했습니다.
+- **Q. 스크롤 복원은 어떻게 구현했나요?**
+  - A. 라우팅 시점에 Zustand 스토어에 scrollY와 목록 스냅샷을 TTL 5분으로 저장하고, 피드로 복귀할 때 1회 소비합니다. 5분이 지났거나 다른 진입이면 무시되어 항상 최신 데이터가 우선되도록 했습니다.
 
 ---
 
-# 빌더스 리그
+## 기능 2. 게시글 공개/비공개(visibility) 정책 + 블러 카드
 
-## 🤖 AI 협업
+### 한 줄 요약
+치료사 전용 게시글을 일반 회원에게 "내용은 가리되 존재는 보이는" 블러 카드로 노출하여 가입 전환 동선을 확보
 
-### Brainstorming → Deep Interview → Plan → Subagent Execution 4단계 파이프라인
+### Situation
+- 멜로미는 일반 사용자(USER)와 인증 치료사(THERAPIST) 두 권한이 공존
+- 치료사 전용(`PRIVATE`) 게시글에 대한 응답 정책이 디자이너/백엔드 사이에서 어긋나 있었음
+  - 디자이너 의도: 목록에는 노출하되 본문은 블러 + "인증 회원 전용" 안내 → 가입 유도
+  - 백엔드 초기 동작: USER 응답에서 PRIVATE 글을 아예 제외 → 콘텐츠가 존재한다는 신호 자체가 사라짐
 
-작업 시작 전에 무작정 코딩하지 않고 4단계로 분리해서 진행:
+### Task
+- 두 입장 차이를 정리해 회의 안건으로 올리고, 합의된 정책을 프론트·mock·백엔드 전반에 일관되게 반영
 
-1. **Brainstorming** — Q&A로 큰 결정 6개 확정 (커서 기반 / PostListPage만 / React Query 미도입 / 하이브리드 분기 / Skeleton+재시도 UX / 스크롤 복원)
-2. **Deep Interview** — 4개 차원 ambiguity 점수로 모호성을 38% → 11.5%까지 수치적으로 측정. MSW mock 정책(데이터 양/cursor 형태/권한/size 클램핑) 일괄 결정
-3. **Writing Plans** — 6-task로 분해, 각 task = 1 commit, 각 task 끝에 사용자 보고 step
-4. **Subagent-driven** — Task마다 새 서브에이전트 디스패치 + 메인은 리뷰만
+### Action
+- 충돌 지점을 정리해 04-14 데일리 스크럼에 안건 상정 → 디자이너 안(블러 카드) 채택
+- 프론트:
+  - `PostCard`/`PostDetailPage`의 `isBlurred` 분기 복원 및 안내 카피·접근성(aria-label) 정리
+  - USER 롤에서도 PRIVATE 카드가 목록·상세에 노출되도록 라우팅·렌더링 흐름 점검
+- MSW: `isBlurred=true` + 빈 `content`/`contentPreview`로 응답하도록 mock을 디자이너 안과 일치시켜, 백엔드 수정 전부터 프론트 회귀를 방지
+- 작성자 측 UI: `PostCreatePage`에 자물쇠 토글(`LockOpen`/`Lock`) 추가, 모바일/데스크탑 레이아웃 분기로 한 줄 정렬
+- 백엔드에는 동일 응답 정책으로 맞춰달라는 요청을 GitHub Issue로 추적
 
-**효과:** "일단 짜고 보자"보다 시간이 더 걸린 것 같지만, 실제로는 **재작업 0회**. 모든 결정이 사전에 수치적으로 검증됨. 면접에서 "AI 도구를 어떻게 활용하나?" 질문에 구체적 워크플로우로 답할 수 있게 됨.
+### Result
+- 04-14 main 머지 완료(770e7af, 9b88447 등), USER가 비공개 글의 존재를 인지하고 가입으로 이어질 수 있는 동선 확보
+- mock과 디자이너 시안이 일치하여, 백엔드 정책 반영 전후로도 프론트 회귀 위험 없음
+- 백엔드 응답 정책 반영은 추적 중 (대기 항목으로 메모리·이슈에 등록)
 
-### MSW로 백엔드 차단 우회
+### 면접 예상 질문 & 답변 포인트
+- **Q. 디자이너와 백엔드의 정책이 다를 때 어떻게 조율했나요?**
+  - A. 먼저 어떤 응답이 어느 사용자 경험으로 이어지는지를 사례로 정리했습니다. "USER에게 글을 빼면 콘텐츠 존재 자체를 모르고, 가입 유도 동선과 기존 블러 UI 자산이 무용해진다"는 점을 근거로 디자이너 안을 채택하자고 제안했고, 데일리 스크럼에서 합의했습니다.
+- **Q. 백엔드 수정이 늦어지는 동안 프론트는 어떻게 보호했나요?**
+  - A. MSW mock을 합의된 디자이너 안에 맞춰 두었습니다. mock이 백엔드 정책 우회를 허용하면 프론트 회귀가 숨겨지기 때문에, mock은 항상 "최종 합의된 백엔드 정책을 시뮬레이션"하는 위치로 운용한다는 원칙을 갖고 있습니다.
+- **Q. 권한별 UI 분기에서 신경 쓴 부분은?**
+  - A. 단순히 보이고/안 보이고가 아니라, USER에게 "가려져 있다"는 사실 자체를 명확히 전달하는 것이 가입 전환의 핵심이라고 봤습니다. 그래서 카드 자체는 노출하되, 본문 영역에 잠금 안내 + 가입/인증 액션을 함께 두는 형태로 정리했습니다.
 
-CORS 문제로 백엔드 호출 불가 상태에서 무한 스크롤 작업을 멈추지 않기 위해 MSW에 커서 기반 mock(`GET /posts/feed`)을 직접 작성. 백엔드 가이드(FEED_API_GUIDE.md)와 응답 형태를 100% 일치시켜서 CORS 풀리면 MSW만 끄면 그대로 동작하도록 설계.
+---
 
-## 🏗 설계 결정
-
-### 1. 필터 모드 하이브리드 분기
-
-**문제:** 새 커서 엔드포인트 `/posts/feed`는 `therapyArea` 필터 파라미터를 지원하지 않음. 기존 PostListPage는 필터 칩 UI가 있음.
-
-**선택지 4개를 검토:**
-- A. 필터 칩 제거 (가장 단순)
-- B. 하이브리드 (필터 없을 때 무한 스크롤, 있을 때 기존 offset)
-- C. 필터 비활성화 + 백엔드 요청
-- D. 백엔드 추가 후 진행 (작업 보류)
-
-**결정: B** ― 사용자에게서 필터 기능 빼앗지 않음 + "필터 없는 메인 피드만 무한 스크롤"은 인스타/트위터 패턴과 일치 + 훅 레벨 분기로 격리 + 백엔드 추가 후 통합 가능. 트레이드오프: 코드 두 갈래.
-
-### 2. React Query 미도입 결정
-
-**선택지:** 직접 구현 vs React Query (`useInfiniteQuery`)
-
-**결정: 직접 구현** ― 멜로미 전체가 직접 fetch 패턴이라 한 페이지 때문에 전사 도입 과함. React Query는 로드맵 "언젠가" 단계로 분류. 직접 구현으로 IntersectionObserver/커서 페이지네이션 패턴 학습 효과. 나중에 React Query로 마이그레이션해도 훅 인터페이스만 바꾸면 됨.
-
-### 3. 정렬 토글 미포함 결정
-
-**고민:** 백엔드가 LATEST/POPULAR `sort` 파라미터도 지원. +2~3시간이면 추가 가능.
-
-**결정: LATEST 고정, 별도 PR** ― 작업량보다 디자이너 시안 부재가 더 큰 부담. "전체 피드/팔로우" 탭 아래에 또 토글 추가 시 시각적 위계 복잡. 디자이너 시안 없이 임시 UI로 넣었다가 갈아엎는 패턴 회피. 본 작업 완료 후 디자이너에게 시안 요청 → 받으면 합치는 흐름이 자연스러움.
-
-### 4. main 단독 → feature branch + PR + merge --no-ff 전환
-
-**고민:** solo 개발이라 main만 써왔는데 면접에서 "협업 시 어떻게 할 건가?"에 직접 경험 기반 답이 어려움.
-
-**결정: 이번 작업을 PR 워크플로우 첫 시도로** ― feature branch에서 6 task 진행 → PR 생성 → self-review → `merge --no-ff`로 머지 포인트 보존. squash 안 함(atomic commit 6개 히스토리 유지가 면접에 더 좋음). gh CLI 이미 설치되어 있어서 도구 부담 0.
-
-## 🛠 트러블슈팅
-
-### MSW 핸들러 등록 순서 (잠재적 버그 사전 방지)
-
-서브에이전트가 Task 3 자체검토 단계에서 발견:
-- `GET /posts/feed`가 `GET /posts/:postId`보다 **앞에** 등록되어야 함
-- 그렇지 않으면 MSW가 `/posts/feed`를 `/posts/:postId`로 매칭(`postId="feed"`)해서 entirely wrong path로 빠짐
-- MSW는 핸들러 배열 순서대로 매칭하기 때문
-
-**원리 학습:** 라우팅 시스템(MSW, Express, React Router 등)에서 더 구체적인 경로(`/posts/feed`)는 더 일반적인 경로(`/posts/:id`)보다 먼저 등록해야 한다는 일반 원칙.
+## 이력서 한 줄 버전 (참고)
+- 메인 피드 커서 기반 무한 스크롤 도입 — IntersectionObserver + AbortController + requestId 가드로 race/취소 안전성 확보, Zustand 기반 스크롤 복원(TTL 5분) 구현
+- 권한별 게시글 공개/비공개 정책 정리 — 디자이너/백엔드 충돌을 회의 안건으로 올려 블러 카드 정책으로 합의, MSW를 합의된 정책에 맞춰 프론트 회귀 방지
