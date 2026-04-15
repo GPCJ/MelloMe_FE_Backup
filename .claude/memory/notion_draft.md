@@ -87,3 +87,88 @@
 ## 이력서 한 줄 버전 (참고)
 - 메인 피드 커서 기반 무한 스크롤 도입 — IntersectionObserver + AbortController + requestId 가드로 race/취소 안전성 확보, Zustand 기반 스크롤 복원(TTL 5분) 구현
 - 권한별 게시글 공개/비공개 정책 정리 — 디자이너/백엔드 충돌을 회의 안건으로 올려 블러 카드 정책으로 합의, MSW를 합의된 정책에 맞춰 프론트 회귀 방지
+
+---
+
+# 설계 결정 & 아키텍처 — 04-15 — feed 실패 시 pagination auto-fallback 설계
+
+## 1. fallback 트리거 정책 7개 결정
+
+**문제:** 백엔드 `/posts/feed`가 임시로 500을 뱉는 상황에서 메인 피드가 무력화. 무한 스크롤을 유지하면서도 feed 실패 시 안전하게 pagination으로 내려오는 경로가 필요.
+
+**검토한 선택지:**
+- (a) 무한 스크롤 비활성화 — 임시 회피지만 사용자 경험 후퇴
+- (b) 진입 시 시도 → 실패 시 1회 fallback — 정상 복구 시 자동 재활성화
+- (c) sticky per-session 플래그 — 새로고침에도 살아남지만 복구 탐지 경로 없음
+
+**결정:** (b) 채택. 다음 7가지 세부 정책 확정.
+1. 필터 칩은 기존 pagination 유지 (백엔드 `/posts/feed`가 `therapyArea` 파라미터 받기 전까지)
+2. Sticky 아님 — mount 단위로만 유지, 새로고침/재진입 시 재시도
+3. 렌더 실패하는 모든 에러 (4xx/5xx/네트워크) = fallback 트리거. 401은 인터셉터가 먼저 처리하므로 자연 통과
+4. 로딩 UX는 인라인 안내 텍스트 1줄 (완전 무음 교체 지양)
+5. 디버깅 우선 — P0 drift 버그 먼저 클로즈 후 새 설계 (재발 방지)
+6. fallback 로직은 임시 가드가 아니라 pagination 엔드포인트 제거 시점까지 영구 유지
+7. 적용 범위 `/posts`에만 한정 (SearchPage/ProfilePage 보류)
+
+---
+
+## 2. "한 mount 1회 시도" 보장 메커니즘
+
+**문제:** P0 버그(`d776f85`)에서 `isInfiniteMode` flip으로 `useInfiniteFeed`가 재활성화 → 중복 요청/race. 새 설계에서 같은 메커니즘이 살아남으면 안 됨.
+
+**검토한 선택지:**
+- (a) fallback 신호를 부모의 `useEffect(() => watch(infinite.error))`로 감지 — render→commit→effect 한 프레임 지연. 그 사이 다른 effect가 enabled 재평가 가능 (P0 재발 위험)
+- (b) `useInfiniteFeed`에 `onError` 콜백 prop — 훅 내부 catch에서 즉시 동기 호출. setError + setFeedFailed가 React batching으로 한 번의 리렌더에 처리됨
+
+**결정:** (b) 콜백 + `feedFailed` state를 단방향(false→true)으로 운용.
+- `feedFailed=true`가 되면 `isInfiniteMode=false`로 고정, 어떤 사용자 액션(필터 칩/탭/URL)으로도 false로 돌아가지 않음
+- 해제 경로는 unmount/remount만 (`useState(false)` 초기값)
+- 회귀 가드: 코드베이스 어디에도 `setFeedFailed(false)` 등장 금지 (grep 필수)
+
+---
+
+## 3. onError 콜백의 stale closure 회피
+
+**문제:** 부모가 매 렌더 새 함수 객체로 `onError`를 전달. useCallback deps에 그대로 넣으면 `fetchPage`가 매 렌더 재생성 → fetch effect가 매 렌더 abort+재시작 → 04-14 race 재현.
+
+**검토한 선택지:**
+- (a) deps에 `options.onError` 포함 — race 재발
+- (b) 부모가 useCallback으로 stable 참조 전달 — 호출부에 규율 강제, 잊으면 즉시 회귀
+- (c) 훅 내부에서 `onErrorRef = useRef(options.onError)` + 매 렌더 `onErrorRef.current = options.onError` 동기화 — latest 참조 보장 + fetchPage stability 유지
+
+**결정:** (c) Latest ref 패턴. 04-14 `requestIdRef` 패턴과 같은 부류. 호출부에 규율을 요구하지 않아 안전.
+
+---
+
+# TIL — 2026-04-15 — onErrorRef latest-ref 패턴과 React batching으로 1회 시도 보장
+
+**분류:** React 패턴 / 상태 머신 설계
+
+## 오늘 한 것
+- `/posts/feed` 500 대응 fallback 구현 (커밋 f4a50cc, 3파일 변경)
+- `useInfiniteFeed`에 `onError` 콜백 prop 추가 + `onErrorRef` 패턴 적용
+- `PostListPage`에 `feedFailed` state(단방향 sticky-per-mount)로 모드 분기 고정
+- MSW에 `FORCE_FEED_500` 검증 토글 추가 (기본 false)
+
+## 배운 것 / 인사이트
+
+### 1. Latest ref 패턴 — 콜백 prop을 useCallback deps에서 제외하는 법
+- 부모가 매 렌더 새 함수 객체로 콜백을 넘길 때, deps에 직접 넣으면 하위 useCallback/useEffect가 매 렌더 재생성/재실행 → abort+재시작 race
+- 해법: 훅 내부에서 `ref.current = options.callback`를 매 렌더 동기화. 소비 시점에는 `ref.current?.()`로 latest 참조만 읽음 → deps에서 빠지면서도 최신 값 보장
+- 04-14 `requestIdRef`(응답 순서 가드)와 구조가 같음. "mutable reference로 closure stale 문제 우회"라는 같은 가족
+
+### 2. React batching으로 "상태 머신 한 스텝 이동" 보장
+- catch 블록에서 `setError(...)` + `onErrorRef.current?.()`(내부에서 `setFeedFailed(true)`) 두 set state가 batching으로 한 번의 리렌더에 처리됨
+- 다음 렌더에서 `feedFailed=true` → `useInfinite=false` → `enabled=false` → fetch effect cleanup만 실행되고 종료. 중간에 "isInfiniteMode=true인 프레임"이 존재하지 않음
+- 반면 부모 `useEffect(() => watch(error))` 방식은 render→commit→effect 한 프레임 지연. 그 사이 다른 effect가 enabled를 재평가할 여지 생김
+- 교훈: **fallback/상태 전환 신호는 "지연 없는 동기 콜백"이 effect watch보다 안전**
+
+### 3. 단방향 state로 재진입 자체를 봉쇄
+- `feedFailed`는 false→true 단방향. reset 경로를 아예 코드에서 제거
+- 결과: 필터 칩 클릭, 탭 토글, URL 변경 등 어떤 사용자 액션도 `isInfiniteMode`를 true로 되돌릴 수 없음 → 한 mount 1회 시도 기계적으로 보장
+- 회귀 가드는 정적: "`setFeedFailed(false)`가 grep에서 나오면 안 됨" 한 줄
+
+## 포트폴리오 어필 포인트
+- **race 재발 방지 설계력:** P0 drift 버그(d776f85)를 해결한 직후 새 fallback 설계에서 같은 메커니즘이 살아남지 않도록 "단방향 state + 동기 콜백 + latest ref" 3중으로 방어
+- **라이브러리 없이 상태 머신 원리 학습:** React Query `useInfiniteQuery`로 이관 전에 batching/effect 타이밍/closure stale을 직접 다뤄봄
+- **검증 가능한 설계:** MSW `FORCE_FEED_500` 토글로 팀원 누구나 수동 검증 가능. 6개 시나리오 스펙 문서화
