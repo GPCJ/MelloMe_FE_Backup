@@ -1,29 +1,18 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, MessageCircle, Eye, Lock } from 'lucide-react';
+import { Bookmark, MessageCircle, Heart, Lock } from 'lucide-react';
 import type { PostSummary } from '../../types/post';
-import { THERAPY_AREA_LABELS } from '../../constants/post';
 import { formatRelativeTime } from '../../utils/formatDate';
 import { scrapPost, unscrapPost } from '../../api/posts';
 import VerifiedBadge from './VerifiedBadge';
-import ReactionBar from './ReactionBar';
 import { useReactionToggle } from '../../hooks/useReactionToggle';
 import UserAvatar from '../common/UserAvatar';
-
-// 목데이터 — 백엔드 태그 필드 구현 전까지 사용
-const MOCK_HASHTAGS: Record<string, string[]> = {};
 
 interface PostCardProps {
   post: PostSummary;
 }
 
 export default function PostCard({ post }: PostCardProps) {
-  const therapyLabel =
-    post.therapyArea && post.therapyArea !== 'UNSPECIFIED'
-      ? THERAPY_AREA_LABELS[post.therapyArea]
-      : null;
-
-  const hashtags = MOCK_HASHTAGS[post.id] ?? (therapyLabel ? [`#${therapyLabel}`] : []);
 
   // TODO: 자신의 게시물에 스크랩 못하도록 차단
   // - PostSummary에 authorId 추가 백엔드 요청 필요
@@ -98,21 +87,7 @@ export default function PostCard({ post }: PostCardProps) {
           </button>
         </div>
 
-        {/* 2행: 해시태그 */}
-        {hashtags.length > 0 && (
-          <div className="flex gap-2 mb-2.5">
-            {hashtags.map((tag) => (
-              <span
-                key={tag}
-                className="px-1.5 py-0.5 rounded-full border border-gray-900 text-[11px] font-medium text-gray-900"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* 3행: 본문 미리보기 또는 블러 */}
+        {/* 2행: 본문 미리보기 또는 블러 */}
         {post.isBlurred ? (
           <div className="bg-stone-50 rounded-lg py-6 px-4 mb-2.5">
             <p className="text-center text-gray-600 text-xs">
@@ -130,21 +105,34 @@ export default function PostCard({ post }: PostCardProps) {
           <p className="text-[10px] text-gray-900 mb-2.5">첨부파일 있음</p>
         )}
 
-        {/* 5행: 리액션 + 댓글 수 + 조회수 */}
-        <div className="flex items-center gap-3 text-gray-500">
-          <ReactionBar
-            reaction={reaction}
-            onToggle={handleToggle}
-            disabled={toggling}
-          />
-          <span className="flex items-center gap-1 text-xs font-medium ml-auto">
+        {/* 4행: 댓글 수 + 공감 */}
+        <div className="flex items-center gap-3 text-gray-400">
+          <span className="flex items-center gap-1 text-xs font-medium text-gray-500">
             <MessageCircle size={14} />
             {post.commentCount ?? 0}
           </span>
-          <span className="flex items-center gap-1 text-xs font-medium">
-            <Eye size={14} />
-            {post.viewCount}
-          </span>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleToggle('EMPATHY');
+            }}
+            disabled={toggling}
+            className={`flex items-center gap-1 text-sm transition-colors ${
+              reaction?.myReactionType === 'EMPATHY'
+                ? 'text-red-500'
+                : 'text-gray-400 hover:text-gray-600'
+            }`}
+          >
+            <Heart
+              size={16}
+              fill={reaction?.myReactionType === 'EMPATHY' ? 'currentColor' : 'none'}
+            />
+            <span className="text-xs">
+              {(reaction?.empathyCount ?? 0) > 0 ? reaction?.empathyCount : '공감'}
+            </span>
+          </button>
         </div>
       </div>
     </Link>

@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/shadcn-ui/dropdown-menu';
+import SideNav from './SideNav';
 
 const mockAnnouncements = [
   { id: 1, title: '멜로미 커뮤니티 오픈 안내', date: '2024.03.19' },
@@ -68,16 +69,14 @@ export default function Layout() {
 
           {/* Center Nav */}
           <nav className="hidden md:flex items-center">
-            <Link
-              to="/posts"
-              className={`flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-md transition-colors ${
-                isActive('/posts')
-                  ? 'text-gray-900'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              커뮤니티
-            </Link>
+            {!isActive('/posts') && (
+              <Link
+                to="/posts"
+                className="flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-md transition-colors text-gray-500 hover:text-gray-900"
+              >
+                커뮤니티
+              </Link>
+            )}
           </nav>
 
           {/* Right Side */}
@@ -89,7 +88,7 @@ export default function Layout() {
             >
               <Search size={20} />
             </button>
-            {/* Notification Bell */}
+            {/* Notification Bell — 디자이너가 데스크탑 네비바 형식 확정 시 네비바 또는 사이드바에 편입 예정 */}
             <DropdownMenu>
               <DropdownMenuTrigger className="relative p-2 text-gray-500 hover:text-gray-900 rounded-md transition-colors">
                 <Bell size={20} />
@@ -151,7 +150,8 @@ export default function Layout() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1">
+      <SideNav />
+      <main className="flex-1 md:mx-20">
         <Outlet />
       </main>
 
