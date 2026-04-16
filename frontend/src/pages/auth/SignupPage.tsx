@@ -6,7 +6,13 @@ import { Button } from '@/components/shadcn-ui/button';
 import { Input } from '@/components/shadcn-ui/input';
 import { Label } from '@/components/shadcn-ui/label';
 import { Checkbox } from '@/components/shadcn-ui/checkbox';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/shadcn-ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/shadcn-ui/card';
+import axios from 'axios';
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -57,17 +63,12 @@ export default function SignupPage() {
       });
       setSignupComplete(true);
     } catch (err) {
-      if (
-        err &&
-        typeof err === 'object' &&
-        'response' in err &&
-        (err as { response?: { status?: number } }).response?.status === 409
-      ) {
+      if (axios.isAxiosError(err) && err.response?.status === 409) {
         setError('이미 사용 중인 이메일입니다.');
+      } else if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || '회원가입에 실패했습니다.');
       } else {
-        setError(
-          err instanceof Error ? err.message : '회원가입에 실패했습니다.',
-        );
+        setError('회원가입에 실패했습니다.');
       }
     } finally {
       setLoading(false);
@@ -86,7 +87,8 @@ export default function SignupPage() {
           멜로미 회원가입이 완료되었어요.
         </p>
         <p className="text-sm text-gray-500 mb-8">
-          <strong>치료사 인증</strong>을 완료하면 모든 게시물을 열람하고 글을 작성할 수 있어요.
+          <strong>치료사 인증</strong>을 완료하면 모든 게시물을 열람하고 글을
+          작성할 수 있어요.
         </p>
         <div className="flex flex-col gap-3 w-full max-w-xs">
           <Button

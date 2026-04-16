@@ -13,6 +13,7 @@ import {
   CardTitle,
   CardDescription,
 } from '@/components/shadcn-ui/card';
+import axios from 'axios';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -42,7 +43,11 @@ export default function LoginPage() {
         navigate('/therapist-verifications');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || '로그인에 실패했습니다.');
+      } else {
+        setError('로그인에 실패했습니다.');
+      }
     } finally {
       setLoading(false);
     }
