@@ -6,6 +6,9 @@
 - [AI 의존 줄이기 — 직접 코딩 목표, 힌트는 OK 코드 작성은 직접](./user_self_coding_goal.md)
 - [문서화 역량 면접 Q&A — 7개 항목별 심화 질문+답변 소재](./career_documentation_qa.md)
 
+## 작업 관리
+- **[프론트엔드 작업 백로그](./backlog.md)** — 데일리 태스크 선택용 단일 참조 (할 수 있는 것 / 블로킹 / 검증 방법)
+
 ## 프로젝트
 멜로미 — 발달장애 아동 치료사 커뮤니티 플랫폼 (MVP 개발 중)
 - Frontend: React 19, TypeScript, Vite, Tailwind CSS, shadcn/ui, Zustand, React Router, MSW
@@ -22,52 +25,26 @@
 - **[MVP 치료사 인증 = 즉시 승인](./project_auth_policy_mvp_immediate_approval.md)** — UNDER_REVIEW 생략, 신청→APPROVED 바로
 - [댓글 시스템 — flat 2레벨, @멘션](./project_comment_system.md)
 
-## 백엔드 대기 항목
-- **→ [통합 우선순위 P0/P1/P2](./project_backend_priority_list.md)** ← `/check-backend` 참조
-- **→ [추가 개발 요청 20개](./project_backend_additional_requests.md)**
-- **⚠️ P0**: [탈퇴 유저 에러코드 분리](./project_soft_delete_login_workaround.md) — DELETED_ACCOUNT 요청 (이슈 #3)
-- **❌ P0 신규**: [프로필 이미지 URL localhost 버그](./project_profile_image_localhost_bug.md) — DB에 localhost 절대 URL persist + 이중 경로
-- **❌ P0 잔존**: title optional (여전히 required)
-- **❌ P1 잔존**: 팔로우 / 블러
-- **❓**: isNewUser 실제 값
-- [API 명세 Swagger 통일](./project_api_spec_platform.md)
-- [마이페이지 Swagger 확정](./project_mypage_swagger_confirmed.md) — /me/comments+/me/scraps 분리
-
 ## 공통 컴포넌트
 - [UserAvatar 공통 컴포넌트 통합](./project_user_avatar_component.md) — 6곳 아바타 통합, PostDetail/CommentResponse 타입 확장
 - [MobilePageHeader rightAction slot 패턴 + 데스크탑 회귀 주의](./project_mobile_header_slot_pattern.md) — rightAction은 md:hidden이라 데스크탑에서 사라짐, hidden md:flex 래퍼 중복 렌더 필수
 - [모바일 프로필 헤더 구현](./project_mobile_profile_header.md) — ProfilePage ← 내 프로필 ⚙️, 톱니바퀴→로그아웃 임시 구현, 설정 메뉴 확장은 팀 논의 안건
 
-## 프론트 보류/기술부채
-- [보류된 리팩토링 + 인지부채](./project_pending_refactor.md) — AbortController, refresh plain axios, 이해도 점검
-- [403→공개게시물없음 표시 한계](./project_403_public_post_tradeoff.md)
-- [게시글 공개/비공개 UI 선반영](./project_post_visibility_ui.md) — isPublic 토글 UI만, API 미연동
-- [Paginated 프로퍼티 fallback 매핑](./project_paginated_type_fix.md)
-- [스크랩 토글 + isScrapped 합의 완료](./project_scrap_toggle_feature.md) — 이슈 #7
-- 환영 페이지 버그 v2 — 백엔드 isNewUser 하드코딩 수정 대기
-- [이미지 public 접근 + 절대 경로](./project_image_public_absolute_path.md) — 프론트 검증 미완
-- [UI만 구현된 기능](./project_ui_only_features.md) — 체크박스, 비밀번호 찾기, 검색바, 배너 통계
 
 ## 게시글 첨부파일
 - [프론트 구현 완료 + 400 해결](./project_post_attachment_feature.md) — 백엔드 PDF만 허용, 이미지 허용 여부 미확인
 - [첨부파일 400 원인 확정 — MIME 불일치](./project_attachment_upload_400_bug.md) — 한컴 뷰어, Blob 강제 지정으로 해결
 
-## 협업
+## 협업 프로세스
 - [백엔드 전달 전략 + 이슈 동기화](./project_backend_communication.md) — Swagger 공식, GitHub Issues, 멜로미↔아이로
-- [디자이너 대기 항목 + 모바일 퍼스트](./project_designer_pending.md)
-- **[visibility 응답 정책 — 블러로 확정](./project_visibility_response_conflict.md)** — 04-14 디자이너 안 채택, 백엔드 수정 대기
-- [주간회의 안건 04-07~08](./project_weekly_meeting_agenda.md) — rememberMe, FNC-004, Google OAuth
 
 ## 기능명세 / 아키텍처
 - [프론트 기능명세 체계](./project_feature_spec_frontend.md) — FNC-001~007 인증 완료
-- [인증 도메인 점검 완료](./project_auth_spec_review_0403.md) — 다음: 게시글/피드
-- [프론트 아키텍처 점검 Before](./project_architecture_review_0403.md)
 - [CSV API 검토 현황](./project_csv_api_review_progress.md) — 27번부터 재개
 - [/home 엔드포인트 관심사 분리](./project_home_endpoint_redesign.md)
 - [PATCH /me 이미지 업로드 방식](./project_patch_me_image_discussion.md)
 
 ## UI 설계
-- [피그마 UI 리디자인 스펙](./project_figma_ui_redesign_spec.md) — 04-02 구현 완료
 - [UX 설계 논의 아카이브](./project_ux_design_decisions.md)
 
 ## 정책 결정 (Post-MVP)
@@ -78,6 +55,7 @@
 
 ## 개발 규칙 / 피드백
 - **[최우선]** [코드 작업 전 트레이드오프 설명 필수](./feedback_tradeoff_before_code.md) / [클린 커밋 히스토리 관리](./feedback_clean_commit_history.md)
+- **[AI 직접 작성 코드 → 인지부채 HIGH 메모리 의무](./feedback_ai_written_code_cognitive_debt.md)** — Claude 위임 코드는 메커니즘 상세 기록, 04-15 P1이 첫 사례
 - [MVP 코드 수정 기준](./feedback_mvp_fix_criteria.md) / [UI는 디자이너 확인 후](./feedback_ui_designer_confirm.md)
 - [코드 수정 프로세스 — grep 선행](./feedback_code_change_process.md) / [코드 생성 승인 요청](./feedback_code_approval.md)
 - [MSW는 백엔드 권한 정책 시뮬레이션](./feedback_msw_simulates_backend_policy.md) — mock이 정책 우회 허용하면 프론트 회귀 숨겨짐
@@ -85,7 +63,7 @@
 - [노션 항목 번호 — fetch로 실제 상태 확인 후 결정](./feedback_notion_page_number_check.md)
 - [CSV 검토 시 그때그때 수정](./feedback_api_review_approach.md) / [navigate(-1) 금지](./feedback_navigate_back.md) / [모바일/데스크탑 UX 분기](./feedback_mobile_desktop_ux.md)
 - [질문 방식 — 객관식 vs 주관식](./feedback_question_style.md) / [불확실하면 질문](./feedback_ask_when_uncertain.md)
-- [/wrap-up으로 세션 마무리](./feedback_session_bridge_removed.md) / [집중력↓ 시 간결하게](./feedback_concise_when_tired.md)
+- [/wrap-up으로 세션 마무리](./feedback_session_bridge_removed.md) / [집중력↓ 시 간결하게](./feedback_concise_when_tired.md) / [세션 중 notepad 자동 기록](./feedback_notepad_session_logging.md)
 - [피그마 공유 — 스크린샷+Export PNG 2x](./feedback_figma_sharing.md) / [figma 링크→메모리 저장](./feedback_figma_link_recognition.md)
 - [노션 업로드 워크플로우](./feedback_notion_upload_workflow.md) / [노션 날짜별 서브페이지](./feedback_notion_daily_pages.md) / [Notion 운영 방침](./project_notion_page_policy.md)
 - [노션 스킬 정리 2026-04-15](./project_notion_skill_cleanup.md) — /report-notion 신규, 6개 삭제, 2개로 정리
@@ -127,30 +105,9 @@
 ## 폴더 구조
 - [프론트 폴더 구조 리팩토링 04-07](./project_folder_restructure.md) — components/pages 도메인별 하위 폴더 재구성, import 경로 변경됨
 
-## 📅 회의 준비
-- [2026-04-15 UI 싱크 회의](./meeting_prep_2026_04_15.md) — 원본: `docs/meetings/2026-04-15-ui-sync.md`
-
-## ⭐ 진행 중
-- **[P1: feed → pagination auto-fallback 설계](./project_p1_feed_pagination_fallback_design.md)** — 7개 결정사항 확정 (사전 인터뷰)
-- **[P1 구현 완료 + 인지부채 HIGH](./project_p1_feed_pagination_fallback_implementation.md)** — 04-15 Claude 직접 작성, 5개 메커니즘 상세, 검증 미완(MSW FORCE_FEED_500 토글)
-- **[P0 클로즈: 필터 칩 feed 중복 요청 버그 해결 과정](./project_filter_chip_feed_dup_bug.md)** — d776f85, VALID_THERAPY_AREAS drift 진범, 5개 헛다리 가설 기록
-- **[무한 스크롤 main 머지 + push 완료](./project_infinite_scroll_progress.md)** — 7d2803e, 백엔드 /posts/feed 실구현 확인, 다음: React Query 마이그레이션
-- **[useInfiniteFeed 무한 스켈레톤 버그 + E 패턴 복습용](./project_infinite_feed_race_fix.md)** — StrictMode+abort race, requestIdRef 원리
-- **[E패턴 학습 다이제스트 04-14](./project_infinite_feed_learning_0414.md)** — 블록 1~3 확정 멘탈 모델, 다음 세션 React Query 적용 전 리마인드용
-- **[스펙 정렬 작업 P0~P2](./project_spec_alignment_todo.md)** — 04-10 Swagger 기준, P0부터 순서대로
-- [댓글 UI 코드 리뷰 — 04-09 전부 해결, MobileFixedBottom 도입](./project_comment_ui_review_0409.md)
-- [모바일 상단 헤더 리팩토링 — MobilePageHeader 추출, 디자이너 시안 대기](./project_mobile_header_refactor.md)
-
-## 단기 메모
-- [무한 스크롤 3단계 로드맵](./project_infinite_scroll_roadmap.md) — MVP/MVP+/장기, 팀 공유용
-- [검색 코드 리뷰 + C+A 개선 전략](./project_search_code_review.md) — Pagination 완료, FilterChips 미진행
-- [Pagination 추출 완료](./project_pagination_extraction.md) — 04-07 커밋 32ac85a
-- [댓글 UI 리디자인](./project_comment_ui_redesign.md) — 3페이지 구조, 모바일/데스크탑 분기, 04-07 완료
-
 ## 노션 초안
 - [업로드 대기 초안](./notion_draft.md) — `/pull-mello` 후 확인
 
 ## 메모리 관리
-- [최적화 다이제스트 04-06](./project_cleanup_digest_0406.md) — 31개 삭제/통합, 삭제 파일 핵심 사실 압축
 - [최적화 프로세스 — 토큰 절약형](./feedback_memory_optimization_process.md) — 에이전트 전수조사 금지, 인덱스 기반 판단
 - [2026년 3월 회고](./monthly_summary_2026_03.md)

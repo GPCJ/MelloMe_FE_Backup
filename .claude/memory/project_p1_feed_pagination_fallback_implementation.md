@@ -3,7 +3,7 @@ name: P1 feed → pagination auto-fallback 구현 (인지부채 태그)
 description: 2026-04-15 Claude가 직접 작성한 P1 fallback 구현의 모든 메커니즘 상세. 사용자 요청으로 인지부채 태그 — 코드는 동작하지만 사용자가 직접 작성하지 않았으므로 다음에 만지기 전 반드시 이 메모를 읽고 멘탈 모델 복원할 것.
 type: project
 created: 2026-04-15
-status: implemented (검증 미완)
+status: deployed + verified (배포 환경 통과 04-15)
 cognitive_debt: HIGH
 originSessionId: 3599b53a-b50a-42ce-a92e-91432d0449b0
 ---
@@ -84,16 +84,22 @@ fetchPage = useCallback(async () => {
 - **401**: axios 인터셉터가 RT로 재요청 → 성공하면 onError 발화 안 함 → fallback 안 됨. 정상.
 - **403** (공개 게시물 없음): catch 도달 → setError + setFeedFailed → 다음 렌더에서 pagination 분기로 진입 → pagination도 403 받으면 기존 분기(`error === '공개 게시물이 없습니다.'`)로 처리. **이중 처리**가 되지만 결과적으로 "공개 게시물이 없습니다" 메시지가 표시됨 + fallback 안내 메시지도 함께 표시됨. UX상 약간 시끄럽지만 잘못된 동작은 아님. 검증 시나리오에서 확인하고 거슬리면 `feedFailed && error !== '공개 게시물이 없습니다.'`로 안내 숨기기 가능.
 
-## 검증 (미완 — 사용자가 수동으로 해야 함)
-스펙 파일: `.omc/specs/deep-interview-feed-pagination-fallback.md` 8개 시나리오.
+## 검증 (완료 04-15)
+스펙: `.omc/specs/deep-interview-feed-pagination-fallback.md`
 
-1. `posts.handlers.ts`의 `FORCE_FEED_500 = true`로 변경
-2. `npm run dev` (또는 이미 켜져있으면 HMR로 반영)
-3. 시나리오 1~6 + 추가 2개 수동 확인
-4. 통과 후 `FORCE_FEED_500 = false`로 되돌리기
-5. 백엔드 실제 200 환경에서도 회귀 없는지 한 번 더 확인
+### 로컬 (MSW FORCE_FEED_500 토글)
+- ✅ 시나리오 2 (feed 500 → fallback): 통과. 단 안내 메시지 가시성이 약해 회색 배경 + 상하 border로 보강.
+- ✅ 시나리오 3 (`?therapyArea=SPEECH` 진입 → feed 호출 0회): 통과.
+- ✅ 시나리오 5 (sticky-per-mount, F5만 해제): 통과.
+- ✅ 시나리오 6 (`?therapyArea=GARBAGE` 자동 해소): fallback 자체 통과. 단 garbage pagination 호출이 2회 발생해 부수 fix 적용 (validation 가드를 fetch effect에도 추가). `/posts/feed`는 StrictMode 더블 마운트로 2회 발생 — 프로덕션 빌드는 1회, 보류.
+- ✅ 시나리오 1 (정상 feed 200): 통과.
+- ✅ 시나리오 4 (정상 feed → 필터 클릭 → pagination): 통과.
 
-**아직 안 한 검증**: 브라우저 수동 실행. 사용자가 직접 돌릴 것.
+### 배포 환경 (origin/main = MelloMe_FE_Backup → Vercel)
+- ✅ 정상 작동 확인 (`www.melonnetherapists.com/posts`).
+
+### 같은 커밋에 묶인 부수 fix
+PostListPage fetch effect 시작에 `if (therapyArea && !VALID_THERAPY_AREAS.includes(therapyArea)) return;` 가드 추가. P1 작업과 무관한 잠재 버그였으나 시나리오 6 검증 중 발견되어 같은 커밋(`f4a50cc`)에 포함.
 
 ## 회귀 위험 5가지 (코드 만질 때 체크)
 1. **setFeedFailed(false) 등장 금지**. grep으로 늘 확인.
