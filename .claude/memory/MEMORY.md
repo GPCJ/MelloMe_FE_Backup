@@ -92,7 +92,7 @@
 - [메모리 동기화](./project_memory_sync.md) — `/push-mello`, `/pull-mello`
 - [포트폴리오 프로젝트](./project_portfolio_setup.md) — `~/portfolio`
 - [Vercel 환경변수](./project_env_vars.md) / [.env.docker 이름 변경](./project_env_docker_rename.md)
-- [CORS localhost:5173 요청 검토 중](./project_cors_local_suggestion.md) / [Vercel→AWS 이전 예정](./project_aws_migration_plan.md)
+- [CORS localhost:5173 요청 검토 중](./project_cors_local_suggestion.md) / [Vercel→AWS 이전 계획 + 프론트 담당 범위](./project_aws_migration_plan.md)
 - [gh CLI 설치 완료](./reference_gh_cli.md) — 계정 GPCJ
 - [MSW 래퍼 + axios 인터셉터](./project_msw_wrapper.md)
 

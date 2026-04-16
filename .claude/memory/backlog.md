@@ -16,18 +16,13 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 
 ## 1. 바로 할 수 있는 것 (프론트 독립)
 
-### 임시 조치 / 버그 (미검증 — 04-16 코드 확인 필요)
-- [ ] **F-01** 인터셉터 로그인 401 refresh 버그
-  - 검증: `grep "auth" frontend/src/api/axiosInstance.ts` → login/signup 요청 refresh 스킵 로직 유무
-  - 상세: `project_soft_delete_login_workaround.md`
-- [ ] **F-02** LoginPage catch 에러 메시지 추출 오류
-  - 검증: `grep "err\." frontend/src/pages/auth/LoginPage.tsx` → `err.response.data.message` 사용 여부
-- [ ] **F-03** MSW `FORCE_FEED_500` 토글 false 확인
+### 임시 조치 / 버그
+- [x] **F-01** 인터셉터 로그인 401 refresh 버그 (커밋 a92320a)
+- [x] **F-02** LoginPage/SignupPage catch 에러 메시지 추출 오류 (커밋 a92320a)
+- [x] **F-03** MSW `FORCE_FEED_500` 토글 false 확인 (04-16 확인 완료)
   - 검증: `grep "FORCE_FEED_500" frontend/src/mocks/handlers/posts.handlers.ts` → `false` 여야 정상
-- [ ] **F-04** Paginated 프로퍼티 fallback 매핑 검증
-  - 현황: `/me/posts`=posts, `/me/comments`=미확인, `/me/scraps`=미확인. fallback `?? res.data.items` 사용 중
-  - 검증: 배포 환경 Network 탭 → 실제 프로퍼티명 확인
-  - 상세: `project_paginated_type_fix.md`
+- [x] **F-04** Paginated 프로퍼티 fallback 매핑 검증 (04-16 확인 완료)
+  - 결과: 세 엔드포인트 모두 `items`로 통일, 프론트 타입과 일치, 배포 환경 정상 동작 확인
 
 ### 리팩토링 / 마이그레이션 (미검증)
 - [ ] **R-01** React Query 마이그레이션 (`useInfiniteFeed` → `useInfiniteQuery`)
