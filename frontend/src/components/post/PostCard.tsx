@@ -13,11 +13,10 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post }: PostCardProps) {
-
   // TODO: 자신의 게시물에 스크랩 못하도록 차단
   // - PostSummary에 authorId 추가 백엔드 요청 필요
   // - authorId === currentUserId이면 스크랩 버튼 숨김 처리
-  const [scrapped, setScrapped] = useState(false);
+  const [scrapped, setScrapped] = useState(post.scrapped ?? false);
   const [scrapLoading, setScrapLoading] = useState(false);
 
   const handleScrapToggle = async (e: React.MouseEvent) => {
@@ -82,7 +81,9 @@ export default function PostCard({ post }: PostCardProps) {
           >
             <Bookmark
               size={16}
-              className={scrapped ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
+              className={
+                scrapped ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+              }
             />
           </button>
         </div>
@@ -127,10 +128,14 @@ export default function PostCard({ post }: PostCardProps) {
           >
             <Heart
               size={16}
-              fill={reaction?.myReactionType === 'EMPATHY' ? 'currentColor' : 'none'}
+              fill={
+                reaction?.myReactionType === 'EMPATHY' ? 'currentColor' : 'none'
+              }
             />
             <span className="text-xs">
-              {(reaction?.empathyCount ?? 0) > 0 ? reaction?.empathyCount : '공감'}
+              {(reaction?.empathyCount ?? 0) > 0
+                ? reaction?.empathyCount
+                : '공감'}
             </span>
           </button>
         </div>

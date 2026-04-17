@@ -101,6 +101,7 @@ export default function PostDetailPage() {
     Promise.all([fetchPost(id), fetchComments(id), getReaction(id)])
       .then(([postData, commentsData, reactionData]) => {
         setPost(postData);
+        setScrapped(postData.scrapped ?? false);
         setComments(commentsData);
         setReaction(reactionData);
       })
@@ -288,7 +289,9 @@ export default function PostDetailPage() {
         ) : (
           <div
             className="post-content mb-6"
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(post.content),
+            }}
           />
         )}
 
