@@ -28,6 +28,7 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 - [ ] **R-01** React Query 마이그레이션 (`useInfiniteFeed` → `useInfiniteQuery`)
   - 검증: `grep "useInfiniteQuery\|@tanstack/react-query" frontend/src` → 도입 여부
   - 상세: `project_infinite_scroll_progress.md`
+  - 계획: 1단계 ProfilePage 3탭 (간단 fetch) → 2단계 PostListPage useInfiniteQuery (복잡)
 - [ ] **R-02** AbortController 일괄 적용 (PostListPage, PostDetailPage)
   - 검증: `grep "AbortController" frontend/src/pages` → 적용 여부
 - [ ] **R-03** refresh plain axios 분리
@@ -38,11 +39,11 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 상세: `project_search_code_review.md`
 
 ### 인지부채 (코드 아닌 학습)
-- [ ] **L-01** `useInfiniteFeed` + P1 fallback 메커니즘 복습
+- [x] **L-01** `useInfiniteFeed` + P1 fallback 메커니즘 복습 (04-17 대략적 로직 + controller 이해 완료, 더 깊이 파는 것은 RQ 도입 후 불필요)
   - 상세: `project_p1_feed_pagination_fallback_implementation.md`
 - [ ] **L-02** multipart/form-data 연결 과정 이해
 - [ ] **L-03** 리액션 API 리팩토링 흐름 이해
-- [ ] **L-04** 마이페이지 3탭 데이터 흐름 이해
+- [x] **L-04** 마이페이지 3탭 데이터 흐름 이해 (04-17 완료)
 
 ---
 
@@ -96,7 +97,6 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 - **U-04** 검색바 (`/posts`) — 백엔드 검색 API 필요
 - **U-05** 배너 통계 하드코딩 (`/posts`)
 - **U-06** 공지사항 드롭다운 mock (네비게이션 바)
-- **U-07** 공개/비공개 토글 API 미연동 (글쓰기 페이지)
 
 ---
 
@@ -107,6 +107,7 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 - [x] 무한 스크롤 main 머지 (커밋 7d2803e)
 - [x] P0 필터 칩 feed 중복 요청 버그 (커밋 d776f85)
 - [x] P1 feed→pagination fallback (커밋 f4a50cc)
+- [x] U-07 공개/비공개 토글 API 연동 — PostCreatePage/PostEditPage에서 `visibility: PUBLIC|PRIVATE` 이미 전송 중 (04-17 재확인)
 
 ---
 

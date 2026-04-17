@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Camera, Pencil, Settings } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Camera,
+  Pencil,
+  Settings,
+} from 'lucide-react';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import {
   DropdownMenu,
@@ -11,9 +17,18 @@ import {
 import MobilePageHeader from '@/components/common/MobilePageHeader';
 import PostCard from '../../components/post/PostCard';
 import { fetchMyPosts, fetchMyComments, fetchMyScraps } from '../../api/mypage';
-import { deleteAccount, logout, uploadProfileImage, updateMyProfile } from '../../api/auth';
+import {
+  deleteAccount,
+  logout,
+  uploadProfileImage,
+  updateMyProfile,
+} from '../../api/auth';
 import { useAuthStore } from '../../stores/useAuthStore';
-import type { MyComment, PaginatedComments, PaginatedScraps } from '../../types/mypage';
+import type {
+  MyComment,
+  PaginatedComments,
+  PaginatedScraps,
+} from '../../types/mypage';
 import type { PaginatedPosts, PostSummary } from '../../types/post';
 import UserAvatar from '../../components/common/UserAvatar';
 
@@ -86,7 +101,10 @@ export default function ProfilePage() {
     setSavingNickname(true);
     try {
       // profileImageUrl: 스토어 값 그대로 전달 — PATCH /me 400 에러 방지 (임시 대응)
-      const updated = await updateMyProfile(trimmed, user?.profileImageUrl ?? null);
+      const updated = await updateMyProfile(
+        trimmed,
+        user?.profileImageUrl ?? null,
+      );
       setUser({ ...user!, ...updated });
       setEditingNickname(false);
     } catch {
@@ -97,7 +115,8 @@ export default function ProfilePage() {
   }
 
   async function handleDeleteAccount() {
-    if (!window.confirm('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
+    if (!window.confirm('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.'))
+      return;
     try {
       await deleteAccount();
       clearAuth();
@@ -114,7 +133,9 @@ export default function ProfilePage() {
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [errorPosts, setErrorPosts] = useState(false);
 
-  const [commentsData, setCommentsData] = useState<PaginatedComments | null>(null);
+  const [commentsData, setCommentsData] = useState<PaginatedComments | null>(
+    null,
+  );
   const [commentsPage, setCommentsPage] = useState(1);
   const [loadingComments, setLoadingComments] = useState(false);
   const [errorComments, setErrorComments] = useState(false);
@@ -163,8 +184,7 @@ export default function ProfilePage() {
     if (activeTab === 'scrapped') loadScraps(scrapsPage);
   }, [activeTab, scrapsPage]);
 
-  const isVerified =
-    user?.role === 'THERAPIST' || user?.role === 'ADMIN';
+  const isVerified = user?.role === 'THERAPIST' || user?.role === 'ADMIN';
 
   return (
     <div className="pb-20 md:pb-8">
@@ -198,14 +218,21 @@ export default function ProfilePage() {
             disabled={uploadingImage}
             className="relative shrink-0 group"
           >
-            <UserAvatar nickname={user?.nickname ?? ''} imageUrl={user?.profileImageUrl} size="lg" />
+            <UserAvatar
+              nickname={user?.nickname ?? ''}
+              imageUrl={user?.profileImageUrl}
+              size="lg"
+            />
             {editingNickname ? (
               <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-gray-900 flex items-center justify-center ring-2 ring-white">
                 <Pencil size={12} className="text-white" />
               </div>
             ) : (
               <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                <Camera size={20} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                <Camera
+                  size={20}
+                  className="text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                />
               </div>
             )}
             {uploadingImage && (
@@ -328,7 +355,9 @@ export default function ProfilePage() {
               <TabEmpty message="작성한 글이 없어요." />
             )}
             {!loadingPosts &&
-              postsData?.items.map((post) => <PostCard key={post.id} post={post} />)}
+              postsData?.items.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
             {!loadingPosts && postsData && postsData.totalPages > 1 && (
               <div className="flex items-center justify-center gap-1 py-6">
                 <button
@@ -338,21 +367,22 @@ export default function ProfilePage() {
                 >
                   <ChevronLeft size={16} />
                 </button>
-                {Array.from({ length: postsData.totalPages }, (_, i) => i + 1).map(
-                  (page) => (
-                    <button
-                      key={page}
-                      onClick={() => setPostsPage(page)}
-                      className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
-                        postsPage === page
-                          ? 'bg-gray-900 text-white'
-                          : 'text-gray-600 hover:bg-gray-100'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ),
-                )}
+                {Array.from(
+                  { length: postsData.totalPages },
+                  (_, i) => i + 1,
+                ).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setPostsPage(page)}
+                    className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
+                      postsPage === page
+                        ? 'bg-gray-900 text-white'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
                 <button
                   onClick={() => setPostsPage(postsPage + 1)}
                   disabled={postsPage === postsData.totalPages}
@@ -369,25 +399,33 @@ export default function ProfilePage() {
         {activeTab === 'commented' && (
           <>
             {loadingComments && <TabSkeleton />}
-            {errorComments && <TabError onRetry={() => loadComments(commentsPage)} />}
-            {!loadingComments && !errorComments && commentsData?.items.length === 0 && (
-              <TabEmpty message="답글 단 글이 없어요." />
+            {errorComments && (
+              <TabError onRetry={() => loadComments(commentsPage)} />
             )}
+            {!loadingComments &&
+              !errorComments &&
+              commentsData?.items.length === 0 && (
+                <TabEmpty message="답글 단 글이 없어요." />
+              )}
             {!loadingComments &&
               commentsData?.items.map((comment) => (
                 <CommentItem key={comment.commentId} comment={comment} />
               ))}
-            {!loadingComments && commentsData && commentsData.totalPages > 1 && (
-              <div className="flex items-center justify-center gap-1 py-6">
-                <button
-                  onClick={() => setCommentsPage(commentsPage - 1)}
-                  disabled={commentsPage === 1}
-                  className="p-2 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  <ChevronLeft size={16} />
-                </button>
-                {Array.from({ length: commentsData.totalPages }, (_, i) => i + 1).map(
-                  (page) => (
+            {!loadingComments &&
+              commentsData &&
+              commentsData.totalPages > 1 && (
+                <div className="flex items-center justify-center gap-1 py-6">
+                  <button
+                    onClick={() => setCommentsPage(commentsPage - 1)}
+                    disabled={commentsPage === 1}
+                    className="p-2 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  {Array.from(
+                    { length: commentsData.totalPages },
+                    (_, i) => i + 1,
+                  ).map((page) => (
                     <button
                       key={page}
                       onClick={() => setCommentsPage(page)}
@@ -399,17 +437,16 @@ export default function ProfilePage() {
                     >
                       {page}
                     </button>
-                  ),
-                )}
-                <button
-                  onClick={() => setCommentsPage(commentsPage + 1)}
-                  disabled={commentsPage === commentsData.totalPages}
-                  className="p-2 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  <ChevronRight size={16} />
-                </button>
-              </div>
-            )}
+                  ))}
+                  <button
+                    onClick={() => setCommentsPage(commentsPage + 1)}
+                    disabled={commentsPage === commentsData.totalPages}
+                    className="p-2 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              )}
           </>
         )}
 
@@ -418,9 +455,11 @@ export default function ProfilePage() {
           <>
             {loadingScraps && <TabSkeleton />}
             {errorScraps && <TabError onRetry={() => loadScraps(scrapsPage)} />}
-            {!loadingScraps && !errorScraps && scrapsData?.items.length === 0 && (
-              <TabEmpty message="스크랩한 글이 없어요." />
-            )}
+            {!loadingScraps &&
+              !errorScraps &&
+              scrapsData?.items.length === 0 && (
+                <TabEmpty message="스크랩한 글이 없어요." />
+              )}
             {!loadingScraps &&
               scrapsData?.items.map((scrap) => (
                 <PostCard
@@ -429,7 +468,8 @@ export default function ProfilePage() {
                     id: scrap.postId,
                     contentPreview: scrap.contentPreview,
                     authorNickname: scrap.authorNickname,
-                    therapyArea: scrap.therapyArea as PostSummary['therapyArea'],
+                    therapyArea:
+                      scrap.therapyArea as PostSummary['therapyArea'],
                     viewCount: scrap.viewCount,
                     createdAt: scrap.postCreatedAt,
                   }}
@@ -444,21 +484,22 @@ export default function ProfilePage() {
                 >
                   <ChevronLeft size={16} />
                 </button>
-                {Array.from({ length: scrapsData.totalPages }, (_, i) => i + 1).map(
-                  (page) => (
-                    <button
-                      key={page}
-                      onClick={() => setScrapsPage(page)}
-                      className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
-                        scrapsPage === page
-                          ? 'bg-gray-900 text-white'
-                          : 'text-gray-600 hover:bg-gray-100'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ),
-                )}
+                {Array.from(
+                  { length: scrapsData.totalPages },
+                  (_, i) => i + 1,
+                ).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setScrapsPage(page)}
+                    className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
+                      scrapsPage === page
+                        ? 'bg-gray-900 text-white'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
                 <button
                   onClick={() => setScrapsPage(scrapsPage + 1)}
                   disabled={scrapsPage === scrapsData.totalPages}
@@ -509,9 +550,7 @@ function TabError({ onRetry }: { onRetry: () => void }) {
 }
 
 function TabEmpty({ message }: { message: string }) {
-  return (
-    <p className="text-sm text-gray-400 text-center py-12">{message}</p>
-  );
+  return <p className="text-sm text-gray-400 text-center py-12">{message}</p>;
 }
 
 function CommentItem({ comment }: { comment: MyComment }) {

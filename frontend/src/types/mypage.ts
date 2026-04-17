@@ -1,4 +1,3 @@
-
 export interface MyDashboard {
   stats: {
     postCount: number;
