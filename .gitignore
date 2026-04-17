@@ -24,6 +24,9 @@ openapi-3.0.yaml
 # OMC (런타임 임시 상태 파일)
 .omc/
 
+# git object 복구 시 생성된 .git 백업 폴더 (2026-04-17 사고 재발 방지)
+.git.backup_*/
+
 # 토큰/인증 파일
 *token*
 *Token*
