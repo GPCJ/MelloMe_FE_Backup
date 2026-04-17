@@ -95,6 +95,7 @@
 - [CORS localhost:5173 요청 검토 중](./project_cors_local_suggestion.md) / [Vercel→AWS 이전 계획 + 프론트 담당 범위](./project_aws_migration_plan.md)
 - [gh CLI 설치 완료](./reference_gh_cli.md) — 계정 GPCJ
 - [MSW 래퍼 + axios 인터셉터](./project_msw_wrapper.md)
+- [.git object 손상 복구 절차](./project_git_object_corruption_recovery.md) — push 실패 + HEAD 파싱 실패 시 비파괴 복구 5단계
 
 ## 학습 / 성장
 - [프론트엔드 코드 학습 상세](./learning_frontend_code.md) / [코딩 드릴 루틴](./project_coding_drill.md)

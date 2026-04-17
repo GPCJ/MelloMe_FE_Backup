@@ -50,8 +50,11 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 ## 2. 블로킹 대기
 
 ### 백엔드 [BE]
-- [ ] **B-01** 프로필 이미지 URL localhost 버그 (P0) — 확인일: 04-16
-  - 검증: DevTools → `GET /me` → `profileImageUrl`에 `localhost` 포함 여부
+- [ ] **B-01** 프로필 이미지 URL localhost 버그 (P0) — 확인일: 04-17
+  - 현황: 원인 확정 (백엔드 `APP_BASE_URL` 환경변수 배포 누락). 프론트 임시대응 적용 (커밋 `b66aefd`, `resolveImageUrl.ts` localhost 치환) → **증상은 해소**, 근본 해결은 백엔드 대기
+  - 백엔드 해결: EC2 배포 환경에 `APP_BASE_URL=https://api.melonnetherapists.com` 주입 + Spring 재시작 (코드/DB 수정 불필요)
+  - 검증 1: DevTools → `POST /me/profile-image` 응답 `profileImageUrl`에 `localhost` 포함 여부 (포함이면 백엔드 미수정)
+  - 검증 2: `grep "localhost:8080" frontend/src/utils/resolveImageUrl.ts` → 0건이면 프론트 임시대응 제거 완료 = B-01 클로즈 가능
   - 상세: `project_profile_image_localhost_bug.md`
 - [?] **B-02** title 필드 optional 변경 (P0) — 확인일: 04-16
   - 현황: 프론트 `PostCreateRequest`에 title 없음. 백엔드가 required로 막는지 확인 필요

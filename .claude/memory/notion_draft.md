@@ -172,3 +172,111 @@
 - **race 재발 방지 설계력:** P0 drift 버그(d776f85)를 해결한 직후 새 fallback 설계에서 같은 메커니즘이 살아남지 않도록 "단방향 state + 동기 콜백 + latest ref" 3중으로 방어
 - **라이브러리 없이 상태 머신 원리 학습:** React Query `useInfiniteQuery`로 이관 전에 batching/effect 타이밍/closure stale을 직접 다뤄봄
 - **검증 가능한 설계:** MSW `FORCE_FEED_500` 토글로 팀원 누구나 수동 검증 가능. 6개 시나리오 스펙 문서화
+
+---
+
+# 📈 프로젝트 성과 & 지표 — 04-17 — 백엔드-프론트 API 이슈 전면 정리 및 블로킹 해소
+
+## 블로킹 항목 정리 성과
+- 기존 블로킹 대기 7건(B-01~B-06) → 정리 후 5건으로 감소 (P0 1건, P1 4건)
+- **해소 3건**
+  - B-02 title 필드 optional 반영
+  - B-05 `scrapped` 필드 백엔드 추가 → 프론트 연동 완료
+  - B-06 isNewUser 하드코딩: 회원가입 = 첫 로그인 전제의 의도된 처리로 확정
+- **신규 분리 2건**
+  - BE-PERM USER 롤 `canWritePrivatePost` 권한 필드 도입
+  - BE-FILE 첨부파일 이미지 MIME 허용 여부 확인
+- **UI 섹션 → 완료 아카이브 이동**
+  - U-04 검색 API (페이지네이션 버전 구현 완료)
+  - U-07 공개/비공개 토글 API 연동 (이미 `visibility: PUBLIC|PRIVATE` 전송 중 확인)
+
+## 프론트 최신화 커밋 2건
+- `0bbb77b` — B-05 scrapped 필드 초기값을 PostCard/PostDetailPage에 연동
+  - `PostCard`: prop으로 post를 즉시 받으므로 `useState(post.scrapped ?? false)` 초기값으로 해결
+  - `PostDetailPage`: post를 fetch로 받으므로 Promise.all 성공 콜백에서 `setScrapped(postData.scrapped ?? false)` 동기화
+  - 데이터 수명주기(prop-driven vs fetch-driven) 차이를 반영한 동기화 시점 분리 설계
+- `b66aefd` — B-01 프로필 이미지 localhost origin 치환 핫픽스
+  - `resolveImageUrl`에서 `http://localhost:8080` → 배포 origin 치환
+  - 백엔드 수정 배포 후 제거 예정 (한시적 핫픽스)
+
+## 전달 전략 정립
+- P0(B-01) 단독 선공유 → P1 4건 일괄 공유 우선순위 결정
+- 전달 원칙: "왜 문제인지 + 기대 결과"만 전달, 구현 방식은 백엔드에 위임 (기존 원칙 재확인 + 케이스 적용)
+- backlog.md 섹션 리모델링: B-넘버링 유지 + BE-PERM/BE-FILE 접두 분리로 넘버링 충돌 회피
+
+## 이력서 bullet 예시
+- 블로킹 중인 백엔드 API 이슈 7건을 코드·메모리·Swagger 교차검증으로 재분류, 3건 해소·2건 세분화하여 백엔드 전달용 우선순위 문서 작성
+- 백엔드 응답 필드 추가(`scrapped`)를 프론트에 즉시 반영, 데이터 수명주기(prop vs fetch)에 따라 동기화 시점을 분기 설계 — PostCard는 prop 초기값, PostDetailPage는 fetch 성공 콜백에서 setter 호출
+
+---
+
+# 🔧 트러블슈팅 — #NNN — PostCard useState 두 줄 적용 위치 오류
+
+**날짜**: 2026-04-17
+**분류**: React useState / 코드 수정 실수
+**난이도**: ★☆☆ (간단하지만 실전에서 자주 재현되는 패턴)
+
+## 문제 상황
+- B-05(백엔드 `scrapped` 필드 응답) 반영을 위해 `PostCard.tsx`에서 `useState` 초기값 수정이 필요했음
+- 원래 변경 대상: 19줄 `const [scrapped, setScrapped] = useState(false)` → `useState(post.scrapped ?? false)`
+- 실제 적용 결과: 바로 아래 20줄 `scrapLoading` 쪽에 `post.scrapped ?? false`가 잘못 들어감
+- **증상**: 이미 스크랩한 글이 목록 진입 즉시 `scrapLoading === true`로 시작 → 버튼 disabled → 사용자가 클릭해도 반응 없음. `scrapped`는 여전히 `useState(false)` 고정이라 **B-05 자체도 해결 안 됨**
+
+## 원인 분석
+- 두 줄이 인접해있고 둘 다 원래 `useState(false)` 패턴 → 수정 시 줄 식별 시각적 실수
+- 타입 체크(tsc)는 `boolean` 자리에 `boolean`이 들어간 거라 통과 → **컴파일러는 실수 감지 못 함**
+- 리뷰 단계에서 "컴파일 잘 되니까 맞겠지"로 넘어가면 런타임 증상이 드러나기 전까지 못 잡음
+
+## 해결 과정
+1. 수정 직후 파일 재읽기(Read tool)로 실제 라인 확인
+2. 19-20줄이 뒤바뀐 것 발견
+3. 두 줄 순서만 교정:
+   ```tsx
+   const [scrapped, setScrapped] = useState(post.scrapped ?? false);
+   const [scrapLoading, setScrapLoading] = useState(false);
+   ```
+
+## 핵심 개념
+- **useState 초기값은 런타임 state를 결정하지만, 타입 체크는 실수를 못 잡는다** — 둘 다 `boolean`이면 TypeScript는 무사 통과
+- **수정 후 "결과 파일 직접 재읽기"가 최소 체크리스트** — 특히 인접 줄에 같은 패턴이 있을 때
+- `tsc -b`는 "타입이 맞는 실수"를 절대 못 잡음 → 단위 테스트 / E2E / 수동 DevTools 검증이 필요
+
+## 면접 포인트
+- **Q. 간단한 수정에서 왜 실수했나요?**
+  - A. 두 줄이 인접해 있고 둘 다 동일 패턴(`useState(false)`)이라 줄 식별을 시각적으로 잘못했습니다. 이후에는 수정 후 반드시 해당 줄을 직접 다시 읽어 확인하는 절차를 습관화했습니다.
+- **Q. 이런 실수를 방지하려면 어떻게 설계를 바꿀 수 있을까요?**
+  - A. (1) 런타임 검증: E2E나 Storybook 스냅샷으로 초기 렌더 상태를 자동 검증. (2) 구조 리팩토링: 단일 컴포넌트에 `useState` 개수를 줄이기 위해 `useScrap` 같은 커스텀 훅으로 분리 → 인접 useState가 줄면 실수 여지도 준다.
+
+---
+
+# 💡 TIL — 2026-04-17 — git 클린 커밋 히스토리를 위한 섞인 스테이징 분리 실전
+
+**분류**: Git / 협업 워크플로우
+
+## 오늘 한 것
+- 한 세션에 뒤섞인 9개 파일을 3개 논리 단위 커밋으로 분리
+  1. `0bbb77b` — B-05 scrapped 필드 프론트 연동 (PostCard, PostDetailPage)
+  2. `b66aefd` — B-01 프로필 이미지 localhost origin 핫픽스 (resolveImageUrl)
+  3. `b8bffb9` — 백로그 최신화 + 메모리 정리 + Prettier 포매팅 (6개 파일)
+
+## 배운 것 / 인사이트
+
+### 1. 커밋 직전 `git status` 진단이 핵심
+- "이미 스테이징된 것 + unstaged 변경"이 주제가 다른 채 공존하면 **그대로 커밋 금지 신호**
+- 그 상태로 그냥 커밋하면 포매팅/기능/메모리가 한 덩어리 → 나중에 특정 기능 찾을 때 관련 없는 diff까지 전부 헤쳐야 함
+
+### 2. 섞인 스테이징 분리 패턴
+- `git reset HEAD` → 스테이징만 초기화 (워킹 트리 변경은 유지)
+- 주제별로 `git add <관련 파일만>` → `git commit -m "..."` 반복
+- 한국어 커밋 메시지 컨벤션: "동사 중심 + 1줄 제목 + 필요 시 body에 bullet"
+
+### 3. "미래의 읽기"를 기준으로 분리 단위 설계
+- 기준: 나중에 이 커밋을 **누가·어떤 맥락에서** 읽을 것인가
+- B-05와 B-01은 내용이 완전히 다른 작업 → 섞이면 롤백 시 부수 피해
+- 포매팅 + 주석 + 메모리는 논리적으로 "환경 정리"라서 한 커밋에 묶어도 무방
+- 분리의 비용(시간) vs 통합의 비용(히스토리 탐색 난이도)을 저울질
+
+## 포트폴리오 어필 포인트
+- **성숙한 협업 의식**: "일단 다 커밋"이 아니라 "나중의 히스토리 독자"를 상정하고 커밋 단위를 설계
+- **정적 원칙 + 동적 판단**: 메모리에 클린 커밋 룰을 저장해두되, 매 커밋마다 `git status` 진단 → 섞임 탐지 → 분리라는 실천 루프를 돌림
+- **의도 기반 메시지**: `[동사] + [대상] + [근거]` 구조로 한국어 메시지 통일 (forward-only 룰 적용, 과거 영어 커밋은 rewrite 없이 둠)
