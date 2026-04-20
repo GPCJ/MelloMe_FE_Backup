@@ -29,11 +29,42 @@ guard_memory_src_not_empty() {
   fi
 }
 
+# 대량 삭제 감지 — 로컬이 레포보다 현저히 적으면 2차 사고 방지 (2026-04-20 2차 사고 교훈)
+# 로컬 < 레포 * 0.5 이면 abort. FORCE_PUSH=1 로 우회 가능.
+guard_no_mass_deletion() {
+  local src_count repo_count threshold
+  src_count=$(find "$MEMORY_SRC" -type f 2>/dev/null | wc -l)
+  repo_count=$(find "$MEMORY_IN_REPO" -type f 2>/dev/null | wc -l)
+
+  # 레포에 메모리 자체가 없으면(초기 세팅) 체크 스킵
+  if [ "$repo_count" -lt 5 ]; then return 0; fi
+
+  # 임계치: 레포의 50%
+  threshold=$((repo_count / 2))
+  if [ "$src_count" -lt "$threshold" ]; then
+    if [ "$FORCE_PUSH" = "1" ]; then
+      echo "⚠️  대량 삭제 경고: 로컬 $src_count < 레포 $repo_count (50% 임계치 $threshold)"
+      echo "   FORCE_PUSH=1 이라 계속 진행합니다."
+      return 0
+    fi
+    echo "❌ 대량 삭제 감지: 로컬($src_count 파일) < 레포($repo_count 파일)의 50%($threshold)"
+    echo "   push 하면 레포 메모리가 대량 삭제됩니다."
+    echo "   의도한 작업이라면 FORCE_PUSH=1 ./scripts/memory-sync.sh push-mello 로 다시 실행하세요."
+    echo "   새 환경/일부 파손 상태라면 먼저 'pull-mello'로 복구하세요."
+    exit 1
+  fi
+}
+
 case "$1" in
   push-mello)
     echo "📤 메모리 → 레포 sync 후 push 중..."
-    guard_memory_src_not_empty
     cd "$PROJECT_REPO"
+    # rsync 전에 레포 상태가 필요하므로 pull 먼저 (push-mello 기존 흐름에선 commit 후 pull이었는데,
+    # 대량 삭제 가드는 rsync 실행 전 레포 파일 수를 알아야 정확하니 순서 조정)
+    # --autostash: 스크립트 자체/코드 미커밋 변경이 있어도 rebase 가능하도록 임시 stash
+    git pull --rebase --autostash origin main
+    guard_memory_src_not_empty
+    guard_no_mass_deletion
     # 로컬 메모리 → 레포 내 메모리 폴더로 복사 (sync_status.md도 일반 메모리로 취급)
     mkdir -p "$MEMORY_IN_REPO"
     rsync -a --delete --exclude='.git' "$MEMORY_SRC/" "$MEMORY_IN_REPO/"
@@ -44,7 +75,6 @@ case "$1" in
     else
       git commit -m "${COMMIT_MSG:-chore: push 변경사항 동기화 $(date '+%Y-%m-%d %H:%M')}"
     fi
-    git pull --rebase origin main
     git push origin main
     echo "✅ push 완료."
     ;;

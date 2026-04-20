@@ -98,7 +98,8 @@
 ## 환경 / 도구
 - [Claude Code aliases](./project_bash_aliases.md) / [플러그인+hook 설정](./project_superpowers_plugin.md)
 - [airo remote](./project_airo_repo.md) / [백업 레포 URL](./reference_backup_repos.md) / [push-airo 스크립트](./project_push_airo_script.md)
-- [메모리 동기화](./project_memory_sync.md) — `/push-mello`, `/pull-mello`
+- [메모리 동기화](./project_memory_sync.md) — `/push-mello`, `/pull-mello` · 2026-04-20 사고 + 대량 삭제 가드(`FORCE_PUSH=1` 우회) 추가
+- [새 환경은 pull-mello 먼저](./feedback_new_env_pull_first.md) — SSD 포맷/새 머신에서 push-mello 먼저 돌리면 레포 메모리가 `rsync --delete`로 날아감 (2026-04-20 사고 교훈)
 - [포트폴리오 프로젝트](./project_portfolio_setup.md) — `~/portfolio`
 - [Vercel 환경변수](./project_env_vars.md) / [.env.docker 이름 변경](./project_env_docker_rename.md)
 - [CORS localhost:5173 요청 검토 중](./project_cors_local_suggestion.md) / [Vercel→AWS 이전 계획 + 프론트 담당 범위](./project_aws_migration_plan.md)
