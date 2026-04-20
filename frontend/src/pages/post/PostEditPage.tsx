@@ -4,8 +4,8 @@ import { ArrowLeft, Image, Lock, LockOpen, Paperclip } from 'lucide-react';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import SimpleTextEditor from '../../components/post/SimpleTextEditor';
 import FilePreviewGrid from '../../components/post/FilePreviewGrid';
-import { fetchPost, updatePost, uploadPostAttachment, deletePostAttachment } from '../../api/posts';
-import { useFileAttachment, IMAGE_ACCEPT } from '../../hooks/useFileAttachment';
+import { fetchPost, updatePost, uploadPostPdf, uploadPostImage, deletePostAttachment } from '../../api/posts';
+import { useFileAttachment, IMAGE_ACCEPT, FILE_ACCEPT, isImageFile } from '../../hooks/useFileAttachment';
 import { useAuthStore } from '../../stores/useAuthStore';
 import type { Attachment, TherapyArea } from '../../types/post';
 import { THERAPY_CHIPS } from '../../constants/post';
@@ -125,8 +125,9 @@ export default function PostEditPage() {
         for (const pf of pendingFiles) {
           done++;
           setUploadProgress(`첨부파일 업로드 중... (${done}/${totalOps})`);
+          const upload = isImageFile(pf.file) ? uploadPostImage : uploadPostPdf;
           try {
-            await uploadPostAttachment(pid, pf.file);
+            await upload(pid, pf.file);
           } catch {
             failedCount++;
           }
@@ -220,6 +221,7 @@ export default function PostEditPage() {
         <input
           ref={fileInputRef}
           type="file"
+          accept={FILE_ACCEPT}
           multiple
           className="hidden"
           onChange={(e) => { addFiles(e.target.files); e.target.value = ''; }}

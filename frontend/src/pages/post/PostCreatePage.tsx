@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Image, Lock, LockOpen, Paperclip } from 'lucide-react';
 import SimpleTextEditor from '../../components/post/SimpleTextEditor';
 import FilePreviewGrid from '../../components/post/FilePreviewGrid';
-import { createPost, uploadPostAttachment } from '../../api/posts';
-import { useFileAttachment, IMAGE_ACCEPT } from '../../hooks/useFileAttachment';
+import { createPost, uploadPostPdf, uploadPostImage } from '../../api/posts';
+import { useFileAttachment, IMAGE_ACCEPT, FILE_ACCEPT, isImageFile } from '../../hooks/useFileAttachment';
 import { useAuthStore } from '../../stores/useAuthStore';
 import type { TherapyArea } from '../../types/post';
 import { THERAPY_CHIPS } from '../../constants/post';
@@ -58,8 +58,10 @@ export default function PostCreatePage() {
         setUploadProgress(`첨부파일 업로드 중... (0/${pendingFiles.length})`);
         for (let i = 0; i < pendingFiles.length; i++) {
           setUploadProgress(`첨부파일 업로드 중... (${i + 1}/${pendingFiles.length})`);
+          const file = pendingFiles[i].file;
+          const upload = isImageFile(file) ? uploadPostImage : uploadPostPdf;
           try {
-            await uploadPostAttachment(post.id, pendingFiles[i].file);
+            await upload(post.id, file);
           } catch {
             failedCount++;
           }
@@ -140,6 +142,7 @@ export default function PostCreatePage() {
         <input
           ref={fileInputRef}
           type="file"
+          accept={FILE_ACCEPT}
           multiple
           className="hidden"
           onChange={(e) => { addFiles(e.target.files); e.target.value = ''; }}

@@ -106,15 +106,29 @@ export async function toggleReaction(
   await axiosInstance.put(`/posts/${postId}/reaction`, { reactionType });
 }
 
-export async function uploadPostAttachment(
+// pdf
+export async function uploadPostPdf(
   postId: number,
   file: File,
 ): Promise<Attachment> {
   const formData = new FormData();
-  const blob = new Blob([file], { type: 'application/pdf' });
-  formData.append('file', blob, file.name);
+  formData.append('file', file);
   const res = await axiosInstance.post(
     `/posts/${postId}/attachments`,
+    formData,
+  );
+  return res.data;
+}
+
+// 이미지
+export async function uploadPostImage(
+  postId: number,
+  file: File,
+): Promise<Attachment> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await axiosInstance.post(
+    `/posts/${postId}/images`,
     formData,
   );
   return res.data;
