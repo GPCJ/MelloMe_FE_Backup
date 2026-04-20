@@ -63,6 +63,14 @@ export interface Attachment {
   createdAt: string;
 }
 
+export interface PostImage {
+  id: number;
+  imageUrl: string;
+  originalFilename: string;
+  displayOrder: number;
+  createdAt: string;
+}
+
 export interface PostDetail {
   id: number;
   content: string;

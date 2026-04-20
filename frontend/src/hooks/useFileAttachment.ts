@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
-export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+export const IMAGE_MAX_SIZE = 5 * 1024 * 1024; // 5MB
+export const PDF_MAX_SIZE = 10 * 1024 * 1024; // 10MB
 export const MAX_FILE_COUNT = 10;
-export const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+export const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 export const IMAGE_ACCEPT = IMAGE_TYPES.join(',');
 export const FILE_ACCEPT = '.pdf,application/pdf';
 
@@ -32,14 +33,18 @@ export function useFileAttachment(existingCount = 0) {
     }
     const newFiles: PendingFile[] = [];
     for (const file of Array.from(files)) {
-      if (file.size > MAX_FILE_SIZE) {
-        setFileError(`${file.name}: 10MB 이하 파일만 첨부할 수 있습니다.`);
-        continue;
-      }
       const isImage = IMAGE_TYPES.includes(file.type);
       const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
       if (!isImage && !isPdf) {
-        setFileError(`${file.name}: 이미지(jpg, png, gif, webp) 또는 PDF 파일만 첨부할 수 있습니다.`);
+        setFileError(`${file.name}: 이미지(jpg, png, webp) 또는 PDF 파일만 첨부할 수 있습니다.`);
+        continue;
+      }
+      if (isImage && file.size > IMAGE_MAX_SIZE) {
+        setFileError(`${file.name}: 이미지는 5MB 이하만 첨부할 수 있습니다.`);
+        continue;
+      }
+      if (isPdf && file.size > PDF_MAX_SIZE) {
+        setFileError(`${file.name}: PDF는 10MB 이하만 첨부할 수 있습니다.`);
         continue;
       }
       const previewUrl = isImage ? URL.createObjectURL(file) : null;

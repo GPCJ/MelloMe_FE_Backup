@@ -4,10 +4,10 @@ import { ArrowLeft, Image, Lock, LockOpen, Paperclip } from 'lucide-react';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import SimpleTextEditor from '../../components/post/SimpleTextEditor';
 import FilePreviewGrid from '../../components/post/FilePreviewGrid';
-import { fetchPost, updatePost, uploadPostPdf, uploadPostImage, deletePostAttachment } from '../../api/posts';
+import { fetchPost, fetchPostImages, updatePost, uploadPostPdf, uploadPostImage, deletePostAttachment } from '../../api/posts';
 import { useFileAttachment, IMAGE_ACCEPT, FILE_ACCEPT, isImageFile } from '../../hooks/useFileAttachment';
 import { useAuthStore } from '../../stores/useAuthStore';
-import type { Attachment, TherapyArea } from '../../types/post';
+import type { Attachment, PostImage, TherapyArea } from '../../types/post';
 import { THERAPY_CHIPS } from '../../constants/post';
 
 export default function PostEditPage() {
@@ -30,10 +30,13 @@ export default function PostEditPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [existingAttachments, setExistingAttachments] = useState<Attachment[]>([]);
+  const [existingImages, setExistingImages] = useState<PostImage[]>([]);
   const [removedAttachmentIds, setRemovedAttachmentIds] = useState<number[]>([]);
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
 
-  const remainingExisting = existingAttachments.length - removedAttachmentIds.length;
+  // 기존 이미지는 백엔드 DELETE 엔드포인트가 없어 삭제 불가 → 개수는 MAX 카운트에 포함
+  const remainingExisting =
+    existingAttachments.length - removedAttachmentIds.length + existingImages.length;
 
   const {
     pendingFiles,
@@ -67,8 +70,12 @@ export default function PostEditPage() {
       setLoading(false);
       return;
     }
-    fetchPost(Number(postId))
-      .then((post) => {
+    const pid = Number(postId);
+    Promise.all([
+      fetchPost(pid),
+      fetchPostImages(pid).catch(() => [] as PostImage[]),
+    ])
+      .then(([post, imagesData]) => {
         if (!post.canEdit) {
           setError('수정 권한이 없습니다.');
           return;
@@ -81,6 +88,7 @@ export default function PostEditPage() {
         setIsPublic(publicFlag);
         setInitialIsPublic(publicFlag);
         setExistingAttachments(post.attachments ?? []);
+        setExistingImages(imagesData);
       })
       .catch(() => setError('게시글을 불러오는 데 실패했습니다.'))
       .finally(() => setLoading(false));
@@ -207,6 +215,7 @@ export default function PostEditPage() {
           existingAttachments={existingAttachments}
           removedAttachmentIds={removedAttachmentIds}
           onRemoveExisting={removeExistingAttachment}
+          existingImages={existingImages}
         />
 
         {/* 숨겨진 file inputs */}

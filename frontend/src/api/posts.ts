@@ -12,6 +12,7 @@ import type {
   PostReaction,
   CommentResponse,
   Attachment,
+  PostImage,
 } from '../types/post';
 
 export async function fetchPosts(params: {
@@ -124,7 +125,7 @@ export async function uploadPostPdf(
 export async function uploadPostImage(
   postId: number,
   file: File,
-): Promise<Attachment> {
+): Promise<PostImage> {
   const formData = new FormData();
   formData.append('file', file);
   const res = await axiosInstance.post(
@@ -134,9 +135,16 @@ export async function uploadPostImage(
   return res.data;
 }
 
+export async function fetchPostImages(postId: number): Promise<PostImage[]> {
+  const res = await axiosInstance.get(`/posts/${postId}/images`);
+  return res.data;
+}
+
 export async function deletePostAttachment(
   postId: number,
   attachmentId: number,
 ): Promise<void> {
   await axiosInstance.delete(`/posts/${postId}/attachments/${attachmentId}`);
 }
+
+// TODO: 백엔드에 이미지 DELETE 엔드포인트(/posts/{postId}/images/{imageId}) 추가 요청 후 구현 예정

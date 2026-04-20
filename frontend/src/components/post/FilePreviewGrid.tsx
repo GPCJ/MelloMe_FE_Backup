@@ -1,6 +1,6 @@
 import { Paperclip, X } from 'lucide-react';
 import type { PendingFile } from '../../hooks/useFileAttachment';
-import type { Attachment } from '../../types/post';
+import type { Attachment, PostImage } from '../../types/post';
 
 interface FilePreviewGridProps {
   pendingFiles: PendingFile[];
@@ -8,6 +8,7 @@ interface FilePreviewGridProps {
   existingAttachments?: Attachment[];
   removedAttachmentIds?: number[];
   onRemoveExisting?: (attachmentId: number) => void;
+  existingImages?: PostImage[];
 }
 
 export default function FilePreviewGrid({
@@ -16,15 +17,35 @@ export default function FilePreviewGrid({
   existingAttachments = [],
   removedAttachmentIds = [],
   onRemoveExisting,
+  existingImages = [],
 }: FilePreviewGridProps) {
   const visibleExisting = existingAttachments.filter(
     (a) => !removedAttachmentIds.includes(a.id),
   );
 
-  if (visibleExisting.length === 0 && pendingFiles.length === 0) return null;
+  if (
+    visibleExisting.length === 0 &&
+    pendingFiles.length === 0 &&
+    existingImages.length === 0
+  )
+    return null;
 
   return (
     <div className="flex flex-wrap gap-2">
+      {/* 기존 이미지 — 백엔드에 DELETE 엔드포인트 없어서 X 버튼 미노출 (대기 중) */}
+      {existingImages.map((img) => (
+        <div
+          key={`img-${img.id}`}
+          className="relative border border-gray-200 rounded-lg overflow-hidden"
+          title="이미지 삭제는 아직 지원되지 않습니다"
+        >
+          <img
+            src={img.imageUrl}
+            alt={img.originalFilename}
+            className="w-24 h-24 object-cover"
+          />
+        </div>
+      ))}
       {visibleExisting.map((a) => (
         <div key={a.id} className="relative group border border-gray-200 rounded-lg overflow-hidden">
           {a.contentType.startsWith('image/') ? (

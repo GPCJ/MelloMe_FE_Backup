@@ -30,10 +30,11 @@ import {
   fetchPost,
   deletePost,
   fetchComments,
+  fetchPostImages,
   scrapPost,
   unscrapPost,
 } from '../../api/posts';
-import type { PostDetail, CommentResponse } from '../../types/post';
+import type { PostDetail, CommentResponse, PostImage } from '../../types/post';
 import { THERAPY_AREA_LABELS } from '../../constants/post';
 import { formatRelativeTime } from '../../utils/formatDate';
 import UserAvatar from '../../components/common/UserAvatar';
@@ -69,6 +70,7 @@ export default function PostDetailPage() {
 
   const [post, setPost] = useState<PostDetail | null>(null);
   const [comments, setComments] = useState<CommentResponse[]>([]);
+  const [images, setImages] = useState<PostImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [scrapped, setScrapped] = useState(false);
@@ -98,12 +100,18 @@ export default function PostDetailPage() {
       return;
     }
     const id = Number(postId);
-    Promise.all([fetchPost(id), fetchComments(id), getReaction(id)])
-      .then(([postData, commentsData, reactionData]) => {
+    Promise.all([
+      fetchPost(id),
+      fetchComments(id),
+      getReaction(id),
+      fetchPostImages(id).catch(() => [] as PostImage[]),
+    ])
+      .then(([postData, commentsData, reactionData, imagesData]) => {
         setPost(postData);
         setScrapped(postData.scrapped ?? false);
         setComments(commentsData);
         setReaction(reactionData);
+        setImages(imagesData);
       })
       .catch(() => setError('게시글을 불러오는 데 실패했습니다.'))
       .finally(() => setLoading(false));
@@ -295,14 +303,33 @@ export default function PostDetailPage() {
           />
         )}
 
-        {/* 첨부파일 */}
-        {post.attachments && post.attachments.length > 0 && (
+        {/* 첨부파일 + 이미지 */}
+        {((post.attachments && post.attachments.length > 0) || images.length > 0) && (
           <div className="mb-6 pt-4 border-t border-gray-100">
             <h3 className="text-sm font-semibold text-gray-700 mb-3">
-              첨부파일 ({post.attachments.length})
+              첨부파일 ({(post.attachments?.length ?? 0) + images.length})
             </h3>
             <div className="flex flex-col gap-2">
-              {post.attachments.map((att) => {
+              {images.map((img) => (
+                <div key={`img-${img.id}`}>
+                  <img
+                    src={img.imageUrl}
+                    alt={img.originalFilename}
+                    className="rounded-lg max-h-80 object-contain mb-2"
+                  />
+                  <a
+                    href={img.imageUrl}
+                    download={img.originalFilename}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm text-gray-700"
+                  >
+                    <Download size={16} />
+                    <span className="truncate flex-1">
+                      {img.originalFilename}
+                    </span>
+                  </a>
+                </div>
+              ))}
+              {post.attachments?.map((att) => {
                 const isImage = att.contentType.startsWith('image/');
                 return (
                   <div key={att.id}>
