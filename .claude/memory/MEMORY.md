@@ -34,6 +34,8 @@
 ## 게시글 첨부파일
 - [프론트 구현 완료 + 400 해결](./project_post_attachment_feature.md) — 백엔드 PDF만 허용, 이미지 허용 여부 미확인
 - [첨부파일 400 원인 확정 — MIME 불일치](./project_attachment_upload_400_bug.md) — 한컴 뷰어, Blob 강제 지정으로 해결
+- [이미지/PDF 엔드포인트 분리 대응](./project_post_attachment_endpoints_split.md) — 2026-04-20 프론트 대응 완료(bb7e352), 백엔드 스펙 컨펌/실서버 테스트 남음
+- [이미지 DELETE 엔드포인트 백엔드 대기](./project_post_image_delete_pending.md) — /posts/:id/images/:imageId DELETE 미구현
 
 ## 협업 프로세스
 - [백엔드 전달 전략 + 이슈 동기화](./project_backend_communication.md) — Swagger 공식, GitHub Issues, 멜로미↔아이로
@@ -43,6 +45,7 @@
 - [CSV API 검토 현황](./project_csv_api_review_progress.md) — 27번부터 재개
 - [/home 엔드포인트 관심사 분리](./project_home_endpoint_redesign.md)
 - [PATCH /me 이미지 업로드 방식](./project_patch_me_image_discussion.md)
+- [프로필 편집 코드 리뷰 TODO](./project_profile_edit_cleanup.md) — 2026-04-20 HIGH(레이스) 조치 완료, T1/T2/T3 및 로깅·토스트 등 잔여 작업 추적
 
 ## UI 설계
 - [UX 설계 논의 아카이브](./project_ux_design_decisions.md)
@@ -75,6 +78,11 @@
 - [백엔드 이슈에 LLM 프롬프트](./feedback_backend_llm_prompt.md) / [슬래시 커맨드 스크립트 금지](./feedback_no_scripts_for_commands.md)
 - [외부 push 전 승인 필수](./feedback_push_requires_approval.md) / [push-airo reset --hard](./feedback_push_airo_claude_files.md)
 - [커밋 메시지 한국어 통일 (forward-only)](./feedback_commit_message_korean.md) — 과거 영어 커밋은 rewrite 없이 둠
+- [커밋 서명 줄 금지](./feedback_no_co_authored_by.md) — Co-Authored-By/자동 서명 줄 넣지 말 것
+- [sync 전용 chore 커밋 금지](./feedback_no_sync_only_commits.md) — 메모리/자동화용 별도 chore 커밋 만들지 말고 feat/fix 커밋에 자연스럽게 포함
+- [규칙은 근본 원인 확인 후 적용](./feedback_verify_rules_root_cause.md) — 저장된 규칙 맹목 적용 금지, 실제 실패 원인 확인 후 근본 수정
+- [코드 리뷰 severity triage](./feedback_review_triage_workflow.md) — HIGH만 즉시 조치, Medium/Low는 project 메모리 + notepad priority("오늘 뭐하지")
+- [가드/임시대응 코드 주석 스타일](./feedback_guard_comment_style.md) — 레이스 가드·workaround에는 상세 한국어 WHY 주석 + 의존 관계 명시
 - [git 커밋 전 diff --stat](./feedback_git_diff_stat_check.md) / [커맨드 네이밍 — 범용 이름](./feedback_draft_notion_naming.md)
 - [에러 삼키지 말고 실패 표시](./feedback_error_handling_visible.md) / [API 에러 원인별 분기](./feedback_error_handling_by_cause.md)
 - [백엔드 필드 요청 전 기존 스펙 확인](./feedback_backend_field_request_check.md) / [Explore 결과 직접 검증](./feedback_explore_result_verification.md)
@@ -84,6 +92,7 @@
 
 ## 공유 문서 / 레퍼런스
 - [팀 요구사항 Google Sheets](./reference_requirements_doc.md) / [Swagger UI](./reference_swagger_endpoint.md) — `api.melonnetherapists.com/swagger-ui/index.html`
+- [백엔드 Swagger OpenAPI 엔드포인트](./reference_backend_swagger.md) — `api.melonnetherapists.com/v3/api-docs`, API prefix `/api/v1`, 필요 시 WebFetch로 fresh 조회
 - [Notion TIL](./reference_notion_til.md) (18:30 KST) / [빌더스 리그 + 서브페이지 ID + 컨벤션](./reference_notion_builders_league.md) / [트러블슈팅](./reference_notion_troubleshooting.md)
 
 ## 환경 / 도구
@@ -96,6 +105,7 @@
 - [gh CLI 설치 완료](./reference_gh_cli.md) — 계정 GPCJ
 - [MSW 래퍼 + axios 인터셉터](./project_msw_wrapper.md)
 - [.git object 손상 복구 절차](./project_git_object_corruption_recovery.md) — push 실패 + HEAD 파싱 실패 시 비파괴 복구 5단계
+- [Stop Hook — 터미널 벨](./hook_bell_on_stop.md) — 2026-04-20 WSL ~/.claude/settings.json에 답변 완료 시 벨 (user-global, Mac 미동기화)
 
 ## 학습 / 성장
 - [프론트엔드 코드 학습 상세](./learning_frontend_code.md) / [코딩 드릴 루틴](./project_coding_drill.md)
@@ -111,4 +121,5 @@
 
 ## 메모리 관리
 - [최적화 프로세스 — 토큰 절약형](./feedback_memory_optimization_process.md) — 에이전트 전수조사 금지, 인덱스 기반 판단
+- [최근 push 시간은 git log로](./feedback_last_push_time.md) — sync_status.md 재생성 로직 제거됨
 - [2026년 3월 회고](./monthly_summary_2026_03.md)
