@@ -7,6 +7,9 @@ set -e
 if [ -d "/Users/jin/MelloMe_FE_Backup" ]; then
   PROJECT_REPO="/Users/jin/MelloMe_FE_Backup"
   MEMORY_SRC="/Users/jin/.claude/projects/-Users-jin-MelloMe-FE-Backup/memory"
+elif [ -d "/Users/jin/my-project" ]; then
+  PROJECT_REPO="/Users/jin/my-project"
+  MEMORY_SRC="/Users/jin/.claude/projects/-Users-jin-my-project/memory"
 else
   PROJECT_REPO="/home/jin24/MelloMe_FE_Backup"
   MEMORY_SRC="/home/jin24/.claude/projects/-home-jin24-MelloMe-FE-Backup/memory"
