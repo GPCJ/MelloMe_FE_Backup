@@ -4,12 +4,12 @@
 set -e
 
 # 환경 자동 감지 (macOS vs WSL2)
-if [ -d "/Users/jin/my-project" ]; then
-  PROJECT_REPO="/Users/jin/my-project"
-  MEMORY_SRC="/Users/jin/.claude/projects/-Users-jin-my-project/memory"
+if [ -d "/Users/jin/MelloMe_FE_Backup" ]; then
+  PROJECT_REPO="/Users/jin/MelloMe_FE_Backup"
+  MEMORY_SRC="/Users/jin/.claude/projects/-Users-jin-MelloMe-FE-Backup/memory"
 else
-  PROJECT_REPO="/home/jin24/my-project"
-  MEMORY_SRC="/home/jin24/.claude/projects/-home-jin24-my-project/memory"
+  PROJECT_REPO="/home/jin24/MelloMe_FE_Backup"
+  MEMORY_SRC="/home/jin24/.claude/projects/-home-jin24-MelloMe-FE-Backup/memory"
 fi
 MEMORY_IN_REPO="$PROJECT_REPO/.claude/memory"
 
@@ -18,61 +18,23 @@ if [ ! -d "$PROJECT_REPO/.git" ]; then
   exit 1
 fi
 
-# 환경 이름 감지
-if [ -d "/Users/jin/my-project" ]; then
-  ENV_NAME="macOS (맥북)"
-else
-  ENV_NAME="WSL2 (윈도우)"
-fi
-
-# rebase 중 sync_status.md 충돌 자동 해결 (어차피 덮어쓸 파일)
-auto_resolve_sync_conflict() {
-  if git diff --name-only --diff-filter=U 2>/dev/null | grep -q "sync_status.md"; then
-    echo "🔧 sync_status.md 충돌 자동 해결 중..."
-    git checkout --ours .claude/memory/sync_status.md 2>/dev/null || \
-    git checkout --theirs .claude/memory/sync_status.md 2>/dev/null || true
-    git add .claude/memory/sync_status.md
-  fi
-}
-
-# 안전한 pull --rebase (충돌 시 sync_status.md 자동 해결)
-safe_pull_rebase() {
-  if ! git pull --rebase origin main 2>&1; then
-    auto_resolve_sync_conflict
-    # sync_status.md 외 다른 충돌이 있는지 확인
-    if git diff --name-only --diff-filter=U 2>/dev/null | grep -qv "sync_status.md"; then
-      echo "❌ sync_status.md 외 다른 파일에서 충돌 발생 — 수동 해결 필요"
-      git rebase --abort
-      exit 1
-    fi
-    git rebase --continue --no-edit 2>/dev/null || git -c core.editor=true rebase --continue
+# 빈 소스 가드 — MEMORY_SRC가 비어있으면 rsync --delete로 레포 메모리가 통째로 날아감 (2026-04-20 사고 전례)
+guard_memory_src_not_empty() {
+  local src_count
+  src_count=$(find "$MEMORY_SRC" -type f 2>/dev/null | wc -l)
+  if [ "$src_count" -lt 5 ]; then
+    echo "❌ 메모리 소스가 비어있어 보입니다 ($MEMORY_SRC: $src_count 파일)."
+    echo "   새 환경이면 먼저 'pull-mello'를 실행하세요."
+    exit 1
   fi
 }
 
 case "$1" in
   push-mello)
     echo "📤 메모리 → 레포 sync 후 push 중..."
+    guard_memory_src_not_empty
     cd "$PROJECT_REPO"
-    # sync_status.md 최신화
-    SYNC_TIME=$(date '+%Y-%m-%d %H:%M KST')
-    cat > "$MEMORY_SRC/sync_status.md" << EOF
----
-name: 동기화 상태
-description: MelloMe_FE_Backup 레포 마지막 동기화 시간 — 맥북/WSL2 메모리 일치 여부 확인용
-type: project
----
-
-## 마지막 동기화
-
-- **시간**: $SYNC_TIME
-- **환경**: $ENV_NAME
-- **레포**: https://github.com/GPCJ/MelloMe_FE_Backup
-
-**Why:** 환경 간 메모리 동기화 상태 검증용. 다른 환경에서 pull 후 이 파일의 시간을 확인하면 메모리가 최신인지 알 수 있음.
-
-**How to apply:** 새 환경에서 대화 시작 시 이 파일 시간과 레포 최근 커밋 시간이 일치하면 동기화 정상.
-EOF
-    # 로컬 메모리 → 레포 내 메모리 폴더로 복사
+    # 로컬 메모리 → 레포 내 메모리 폴더로 복사 (sync_status.md도 일반 메모리로 취급)
     mkdir -p "$MEMORY_IN_REPO"
     rsync -a --delete --exclude='.git' "$MEMORY_SRC/" "$MEMORY_IN_REPO/"
     # 모든 변경사항(코드 + 메모리)을 하나의 커밋으로
@@ -82,7 +44,7 @@ EOF
     else
       git commit -m "${COMMIT_MSG:-chore: push 변경사항 동기화 $(date '+%Y-%m-%d %H:%M')}"
     fi
-    safe_pull_rebase
+    git pull --rebase origin main
     git push origin main
     echo "✅ push 완료."
     ;;
