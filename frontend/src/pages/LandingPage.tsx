@@ -25,14 +25,14 @@ export default function LandingPage() {
   function handleLogout() {
     clearAuth();
     navigate('/login');
-    logout().catch(() => {});
+    logout().catch(() => { });
   }
 
   useEffect(() => {
     if (tokens) {
       getMe()
         .then(setUser)
-        .catch(() => {});
+        .catch(() => { });
     }
   }, []);
   const isNotVerified = !!user && user.role === 'USER';

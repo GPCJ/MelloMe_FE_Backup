@@ -1,6 +1,6 @@
 ---
 name: 프로필 편집 코드 리뷰 TODO (HIGH 외 잔여)
-description: 2026-04-21 T1/T2 + HIGH 가드 제거 완료 (백엔드 PATCH /me 스펙 변경 확인 후). T3/에러 분기/토스트/타입 정리 등 잔여
+description: 2026-04-22 T1/T2/T3 + HIGH 가드 제거 + 에러 분기/토스트 전환 + setUser 타입 단일화 완료. 이미지 캐시 버스팅만 잔여 (presigned URL 결정 대기)
 type: project
 originSessionId: b6f844ce-ccb5-4c47-a5ba-95c70db3b21d
 ---
@@ -18,31 +18,18 @@ originSessionId: b6f844ce-ccb5-4c47-a5ba-95c70db3b21d
   - 아바타 버튼/저장 버튼 disabled에서 cross-condition 제거
   - 관련 한국어 가드 주석 전부 삭제
 
+### 완료 (2026-04-21 ~ 2026-04-22)
+
+- **T3 `resolveImageUrl` `new URL` 기반 안전화** — `a1b7532` + `d604418`. `backendOrigin`은 `apiBase`에서 `.origin` 추출, `new URL(url, base)`로 절대/상대/프로토콜상대 모두 브라우저 표준으로 처리.
+- **에러 로깅 + 상태코드 분기 + 토스트 전환 (Medium 1+2)** — 커밋 `4dec45f` (+ 사전 준비 `4698830` prettier 도입, `03d946c` 일괄 포맷). `getAxiosErrorMessage(err, context)` 유틸 신설, context별(`image`/`nickname`/`delete`) status 매핑 lookup table. `alert` 전부 sonner `toast.error`로 교체. `console.error` 추가.
+- **setUser 유니온 타입 단일화 (Medium 3)** — 커밋 `083322c`. `LoginUser` 인터페이스 삭제, `LoginResponse.user`와 store `user` 타입 모두 `MeResponse`로 통합. 소비자 코드 영향 0 (해당 구분 필드 직접 읽는 곳 없음).
+
 ### 잔여 Medium
 
-1. **T3 `resolveImageUrl` 치환식 안전화**
-   - 위치: `frontend/src/utils/resolveImageUrl.ts:6-8`
-   - 현재: `http://localhost:8080` 문자열 replace. 스테이징 등 다른 origin이 박혀 내려오면 누출
-   - 교체안:
-     ```ts
-     try { const u = new URL(url); return `${backendOrigin}${u.pathname}${u.search}`; } catch { return url; }
-     ```
-   - 의존: 백엔드 `APP_BASE_URL` 환경변수 세팅(backlog B-01) 완료 시 줄 자체를 제거
-
-2. **에러 로깅 + 상태코드 분기**
-   - 위치: `ProfilePage.tsx` `handleImageChange`, `handleSaveNickname`, `handleDeleteAccount`의 `catch {}`
-   - 액션: `console.error(err)` 최소 추가, axios `err.response.status`로 413/415/401/400 분기 alert
-
-3. **알림 UX — alert → toast**
-   - shadcn 토스트 이미 사용 중. `handleImageChange` 타입/사이즈 에러 포함 전환
-
-4. **`setUser` 유니온 스프레드 위험**
-   - `LoginUser | MeResponse` 섞여 저장되면 소비자 런타임 에러 소지
-   - 액션: 스토어 user 타입을 `MeResponse` 단일로 정리하거나, setter를 updater 함수형으로 변경
-
-5. **이미지 캐시 버스팅**
+1. **이미지 캐시 버스팅**
    - 업로드 응답 URL이 경로 동일 + 덮어쓰기면 브라우저 캐시로 갱신 안 보임
    - 액션: 스토어 저장 시 `?v=${Date.now()}` 쿼리 추가, 또는 백엔드 파일명 버저닝 확인
+   - **대기 사유**: 게시글 이미지 presigned URL 결정(`project_post_image_presigned_url.md`) 후 재검토. presigned 방식이면 URL 자체가 매번 달라져 이 이슈 자동 해소 가능.
 
 ### 잔여 Low
 

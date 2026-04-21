@@ -54,7 +54,7 @@ cognitive_debt: HIGH
 - MEMORY.md 라인의 status 표기도 함께 갱신
 
 ## 사례
-- `project_p1_feed_pagination_fallback_implementation.md` (04-15) — 첫 표준 적용. 5개 메커니즘(sticky-per-mount, onErrorRef, 콜백 vs watch, 한 mount 1회 보장, 401/403 호환), 회귀 위험 5가지.
+- wiki `p1-feed-pagination-auto-fallback-high` (pattern, 04-15) — 첫 표준 적용. 5개 메커니즘(sticky-per-mount, onErrorRef, 콜백 vs watch, 한 mount 1회 보장, 401/403 호환), 회귀 위험 5가지.
 
 ## 안티패턴
 - "구현했다" 한 줄 메모로 끝내기 → 인지부채 누적, 다음에 만질 때 git blame부터 시작해야 함.
