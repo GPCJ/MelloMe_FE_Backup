@@ -16,6 +16,8 @@ import { useAuthStore } from '../../stores/useAuthStore';
 import type { MyComment, PaginatedComments, PaginatedScraps } from '../../types/mypage';
 import type { PaginatedPosts, PostSummary } from '../../types/post';
 import UserAvatar from '../../components/common/UserAvatar';
+import { toast } from 'sonner';
+import { getAxiosErrorMessage } from '@/utils/getAxiosErrorMessage';
 
 type Tab = 'posts' | 'commented' | 'scrapped';
 
@@ -49,11 +51,11 @@ export default function ProfilePage() {
     if (!file) return;
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      alert('jpg, png, webp 파일만 업로드할 수 있습니다.');
+      toast.error('jpg, png, webp 파일만 업로드할 수 있습니다.');
       return;
     }
     if (file.size > MAX_SIZE) {
-      alert('5MB 이하의 파일만 업로드할 수 있습니다.');
+      toast.error('5MB 이하의 파일만 업로드할 수 있습니다.');
       return;
     }
 
@@ -62,8 +64,9 @@ export default function ProfilePage() {
       const { profileImageUrl } = await uploadProfileImage(file);
       // 응답 URL로 스토어 직접 갱신 — getMe() 재호출 대비 API 1회 절약
       if (user) setUser({ ...user, profileImageUrl });
-    } catch {
-      alert('프로필 이미지 변경에 실패했습니다. 다시 시도해주세요.');
+    } catch (err) {
+      console.error(err);
+      toast.error(getAxiosErrorMessage(err, 'image'));
     } finally {
       setUploadingImage(false);
       // 같은 파일 재선택 가능하도록 초기화
@@ -88,8 +91,9 @@ export default function ProfilePage() {
       const updated = await updateMyProfile(trimmed);
       setUser({ ...user!, ...updated });
       setEditingNickname(false);
-    } catch {
-      alert('닉네임 변경에 실패했습니다. 다시 시도해주세요.');
+    } catch (err) {
+      console.error(err);
+      toast.error(getAxiosErrorMessage(err, 'nickname'));
     } finally {
       setSavingNickname(false);
     }
@@ -101,8 +105,9 @@ export default function ProfilePage() {
       await deleteAccount();
       clearAuth();
       navigate('/login');
-    } catch {
-      alert('회원 탈퇴에 실패했습니다. 다시 시도해주세요.(네트워크 탭 참조)');
+    } catch (err) {
+      console.error(err);
+      toast.error(getAxiosErrorMessage(err, 'delete'));
     }
   }
 
