@@ -8,10 +8,7 @@ const API = import.meta.env.VITE_API_BASE_URL;
 export const userHandlers = [
   http.get(`${API}/me`, () => {
     if (!currentUserEmail || !testAccounts[currentUserEmail]) {
-      return HttpResponse.json(
-        { code: 'AUTH_401', message: 'Unauthorized' },
-        { status: 401 },
-      );
+      return HttpResponse.json({ code: 'AUTH_401', message: 'Unauthorized' }, { status: 401 });
     }
     const account = testAccounts[currentUserEmail];
     return HttpResponse.json({

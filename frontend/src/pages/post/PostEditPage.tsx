@@ -4,8 +4,20 @@ import { ArrowLeft, Image, Lock, LockOpen, Paperclip } from 'lucide-react';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import SimpleTextEditor from '../../components/post/SimpleTextEditor';
 import FilePreviewGrid from '../../components/post/FilePreviewGrid';
-import { fetchPost, fetchPostImages, updatePost, uploadPostPdf, uploadPostImage, deletePostAttachment } from '../../api/posts';
-import { useFileAttachment, IMAGE_ACCEPT, FILE_ACCEPT, isImageFile } from '../../hooks/useFileAttachment';
+import {
+  fetchPost,
+  fetchPostImages,
+  updatePost,
+  uploadPostPdf,
+  uploadPostImage,
+  deletePostAttachment,
+} from '../../api/posts';
+import {
+  useFileAttachment,
+  IMAGE_ACCEPT,
+  FILE_ACCEPT,
+  isImageFile,
+} from '../../hooks/useFileAttachment';
 import { useAuthStore } from '../../stores/useAuthStore';
 import type { Attachment, PostImage, TherapyArea } from '../../types/post';
 import { THERAPY_CHIPS } from '../../constants/post';
@@ -71,10 +83,7 @@ export default function PostEditPage() {
       return;
     }
     const pid = Number(postId);
-    Promise.all([
-      fetchPost(pid),
-      fetchPostImages(pid).catch(() => [] as PostImage[]),
-    ])
+    Promise.all([fetchPost(pid), fetchPostImages(pid).catch(() => [] as PostImage[])])
       .then(([post, imagesData]) => {
         if (!post.canEdit) {
           setError('수정 권한이 없습니다.');
@@ -154,8 +163,7 @@ export default function PostEditPage() {
     }
   }
 
-  if (!loading && error)
-    return <p className="text-center text-destructive py-20">{error}</p>;
+  if (!loading && error) return <p className="text-center text-destructive py-20">{error}</p>;
 
   if (loading) {
     return (
@@ -225,7 +233,10 @@ export default function PostEditPage() {
           accept={IMAGE_ACCEPT}
           multiple
           className="hidden"
-          onChange={(e) => { addFiles(e.target.files); e.target.value = ''; }}
+          onChange={(e) => {
+            addFiles(e.target.files);
+            e.target.value = '';
+          }}
         />
         <input
           ref={fileInputRef}
@@ -233,7 +244,10 @@ export default function PostEditPage() {
           accept={FILE_ACCEPT}
           multiple
           className="hidden"
-          onChange={(e) => { addFiles(e.target.files); e.target.value = ''; }}
+          onChange={(e) => {
+            addFiles(e.target.files);
+            e.target.value = '';
+          }}
         />
 
         {(error || fileError) && <p className="text-sm text-red-500">{error || fileError}</p>}
@@ -248,16 +262,34 @@ export default function PostEditPage() {
           )}
           {/* 모바일: 아이콘 행 */}
           <div className="flex items-center md:hidden">
-            <button type="button" aria-label="이미지 첨부" onClick={() => imageInputRef.current?.click()} disabled={submitting} className="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+            <button
+              type="button"
+              aria-label="이미지 첨부"
+              onClick={() => imageInputRef.current?.click()}
+              disabled={submitting}
+              className="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            >
               <Image size={20} />
             </button>
-            <button type="button" aria-label="파일 첨부" onClick={() => fileInputRef.current?.click()} disabled={submitting} className="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+            <button
+              type="button"
+              aria-label="파일 첨부"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={submitting}
+              className="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            >
               <Paperclip size={20} />
             </button>
             <div className="flex-1" />
             <button
               type="button"
-              aria-label={isPublicOnly ? '치료사 인증 후 비공개 작성 가능' : isPublic ? '비공개로 전환' : '공개로 전환'}
+              aria-label={
+                isPublicOnly
+                  ? '치료사 인증 후 비공개 작성 가능'
+                  : isPublic
+                    ? '비공개로 전환'
+                    : '공개로 전환'
+              }
               aria-describedby={isPublicOnly ? 'visibility-lock-helper' : undefined}
               title={isPublicOnly ? '치료사 인증 후 비공개 작성 가능' : undefined}
               onClick={togglePublic}
@@ -281,17 +313,33 @@ export default function PostEditPage() {
           {/* 데스크탑: 한 줄 (아이콘들 | 자물쇠 + 수정하기) */}
           <div className="hidden md:flex items-center justify-between">
             <div className="flex items-center">
-              <button type="button" onClick={() => imageInputRef.current?.click()} disabled={submitting} className="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+              <button
+                type="button"
+                onClick={() => imageInputRef.current?.click()}
+                disabled={submitting}
+                className="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
                 <Image size={20} />
               </button>
-              <button type="button" onClick={() => fileInputRef.current?.click()} disabled={submitting} className="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={submitting}
+                className="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
                 <Paperclip size={20} />
               </button>
             </div>
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                aria-label={isPublicOnly ? '치료사 인증 후 비공개 작성 가능' : isPublic ? '비공개로 전환' : '공개로 전환'}
+                aria-label={
+                  isPublicOnly
+                    ? '치료사 인증 후 비공개 작성 가능'
+                    : isPublic
+                      ? '비공개로 전환'
+                      : '공개로 전환'
+                }
                 aria-describedby={isPublicOnly ? 'visibility-lock-helper' : undefined}
                 title={isPublicOnly ? '치료사 인증 후 비공개 작성 가능' : undefined}
                 onClick={togglePublic}

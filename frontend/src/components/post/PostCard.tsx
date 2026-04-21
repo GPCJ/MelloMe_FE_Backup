@@ -58,13 +58,9 @@ export default function PostCard({ post }: PostCardProps) {
             imageUrl={post.authorProfileImageUrl}
             size="xs"
           />
-          <span className="text-sm font-medium text-neutral-950">
-            {post.authorNickname}
-          </span>
+          <span className="text-sm font-medium text-neutral-950">{post.authorNickname}</span>
           <VerifiedBadge status={post.authorVerificationStatus} />
-          <span className="text-[11px] text-gray-500">
-            {formatRelativeTime(post.createdAt)}
-          </span>
+          <span className="text-[11px] text-gray-500">{formatRelativeTime(post.createdAt)}</span>
           {post.visibility === 'PRIVATE' && (
             <span
               className="inline-flex items-center text-gray-500"
@@ -82,9 +78,7 @@ export default function PostCard({ post }: PostCardProps) {
           >
             <Bookmark
               size={16}
-              className={
-                scrapped ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-              }
+              className={scrapped ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
             />
           </button>
         </div>
@@ -103,9 +97,7 @@ export default function PostCard({ post }: PostCardProps) {
         )}
 
         {/* 4행: 첨부파일 */}
-        {post.hasAttachment && (
-          <p className="text-[10px] text-gray-900 mb-2.5">첨부파일 있음</p>
-        )}
+        {post.hasAttachment && <p className="text-[10px] text-gray-900 mb-2.5">첨부파일 있음</p>}
 
         {/* 4행: 댓글 수 + 공감 */}
         <div className="flex items-center gap-3 text-gray-400">
@@ -128,12 +120,7 @@ export default function PostCard({ post }: PostCardProps) {
                 : 'text-gray-400 hover:text-gray-600'
             }`}
           >
-            <Heart
-              size={16}
-              fill={
-                reaction?.myReactionType === 'LIKE' ? 'currentColor' : 'none'
-              }
-            />
+            <Heart size={16} fill={reaction?.myReactionType === 'LIKE' ? 'currentColor' : 'none'} />
             {/* 디자이너 결정(2026-04-21): 카운트가 0이면 아이콘만 표시 */}
             {(reaction?.likeCount ?? 0) > 0 && (
               <span className="text-xs">{reaction?.likeCount}</span>

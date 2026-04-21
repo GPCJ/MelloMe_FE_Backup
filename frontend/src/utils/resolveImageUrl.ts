@@ -5,7 +5,7 @@
 // ── 모듈 로드 시 1회 계산 ────────────────────────────────────────────
 // VITE_API_BASE_URL 예: "https://api.melonnetherapists.com/api/v1"
 // 환경변수가 비어 있을 수도 있어 ?? '' 로 기본값.
-const apiBase = import.meta.env.VITE_API_BASE_URL ?? ''
+const apiBase = import.meta.env.VITE_API_BASE_URL ?? '';
 
 // backendOrigin = 프로토콜 + 호스트 (+ 포트) 까지만.
 // 예: "https://api.melonnetherapists.com/api/v1" → "https://api.melonnetherapists.com"
@@ -19,11 +19,11 @@ const apiBase = import.meta.env.VITE_API_BASE_URL ?? ''
 // (dev 환경에서 apiBase를 상대경로로 둔다거나, 환경변수 설정을 깜빡한 경우 대응)
 const backendOrigin = (() => {
   try {
-    return new URL(apiBase).origin
+    return new URL(apiBase).origin;
   } catch {
-    return ''
+    return '';
   }
-})()
+})();
 
 /**
  * 서버가 준 이미지 URL 문자열을 브라우저가 해석 가능한 최종 URL로 변환.
@@ -44,18 +44,18 @@ const backendOrigin = (() => {
  */
 export function resolveImageUrl(url: string | null | undefined): string | null {
   // 1) 입력이 비어있으면 합칠 대상이 없음 → 호출부에서 대체 UI(예: 이니셜 아바타) 띄우도록 null.
-  if (!url) return null
+  if (!url) return null;
 
   // 2) backendOrigin을 못 구한 경우(환경변수 이상):
   //    억지로 합치지 말고 원본을 그대로 반환.
   //    dev 모드에서 Vite 프록시가 상대경로를 처리해주는 시나리오를 깨지 않기 위함.
-  if (!backendOrigin) return url
+  if (!backendOrigin) return url;
 
   // 3) 브라우저 표준 규칙으로 최종 URL 조립. 실패 시 null로 안전 폴백.
   //    new URL()은 입력이 완전히 이상할 때만 throw — 정상 범위 입력은 거의 다 처리됨.
   try {
-    return new URL(url, backendOrigin).toString()
+    return new URL(url, backendOrigin).toString();
   } catch {
-    return null
+    return null;
   }
 }

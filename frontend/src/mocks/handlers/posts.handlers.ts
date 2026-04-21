@@ -8,9 +8,16 @@ const API = import.meta.env.VITE_API_BASE_URL;
 
 // 무한 스크롤 검증용 — 60개 가짜 피드 데이터 (모듈 캐싱)
 const FEED_TOTAL = 60;
-const therapyAreas = ['UNSPECIFIED', 'SPEECH', 'PLAY', 'COGNITIVE', 'OCCUPATIONAL', 'BEHAVIOR'] as const;
+const therapyAreas = [
+  'UNSPECIFIED',
+  'SPEECH',
+  'PLAY',
+  'COGNITIVE',
+  'OCCUPATIONAL',
+  'BEHAVIOR',
+] as const;
 const mockFeedItems = Array.from({ length: FEED_TOTAL }, (_, i) => {
-  const id = FEED_TOTAL - i;  // 60, 59, 58, ... 1 (최신순)
+  const id = FEED_TOTAL - i; // 60, 59, 58, ... 1 (최신순)
   return {
     id,
     postType: 'COMMUNITY' as const,
@@ -112,9 +119,8 @@ export const postsHandlers = [
 
     const slice = mockFeedItems.slice(startIdx, startIdx + size);
     const hasNext = startIdx + size < mockFeedItems.length;
-    const nextCursor = hasNext && slice.length > 0
-      ? encodeCursor(slice[slice.length - 1].id)
-      : null;
+    const nextCursor =
+      hasNext && slice.length > 0 ? encodeCursor(slice[slice.length - 1].id) : null;
 
     return HttpResponse.json({
       success: true,
@@ -161,7 +167,17 @@ export const postsHandlers = [
       attachments: blurred
         ? []
         : post.hasAttachment
-          ? [{ id: 1, originalFilename: '자료.pdf', contentType: 'application/pdf', sizeBytes: 1024000, extension: 'pdf', downloadUrl: '#', createdAt: post.createdAt }]
+          ? [
+              {
+                id: 1,
+                originalFilename: '자료.pdf',
+                contentType: 'application/pdf',
+                sizeBytes: 1024000,
+                extension: 'pdf',
+                downloadUrl: '#',
+                createdAt: post.createdAt,
+              },
+            ]
           : [],
       isBlurred: blurred,
       scrapped: false,
@@ -191,7 +207,10 @@ export const postsHandlers = [
       authorId: currentAccount?.id ?? 1,
       authorNickname: currentAccount?.nickname ?? '테스트치료사',
       authorProfileImageUrl: null,
-      authorVerificationStatus: currentAccount?.role === 'THERAPIST' || currentAccount?.role === 'ADMIN' ? 'APPROVED' : 'NOT_REQUESTED',
+      authorVerificationStatus:
+        currentAccount?.role === 'THERAPIST' || currentAccount?.role === 'ADMIN'
+          ? 'APPROVED'
+          : 'NOT_REQUESTED',
       canEdit: true,
       canDelete: true,
       createdAt: new Date().toISOString(),
@@ -218,7 +237,9 @@ export const postsHandlers = [
     if (body.content !== undefined) post.content = body.content as string;
     if (body.therapyArea !== undefined) post.therapyArea = body.therapyArea as string;
     if (body.visibility !== undefined) {
-      (post as { visibility?: 'PUBLIC' | 'PRIVATE' }).visibility = body.visibility as 'PUBLIC' | 'PRIVATE';
+      (post as { visibility?: 'PUBLIC' | 'PRIVATE' }).visibility = body.visibility as
+        | 'PUBLIC'
+        | 'PRIVATE';
     }
 
     return HttpResponse.json({
@@ -231,12 +252,9 @@ export const postsHandlers = [
     });
   }),
 
-  http.delete(
-    `${API}/posts/:postId`,
-    ({ params }) => {
-      const idx = mockPosts.findIndex((p) => p.id === Number(params.postId));
-      if (idx !== -1) mockPosts.splice(idx, 1);
-      return new HttpResponse(null, { status: 204 });
-    },
-  ),
+  http.delete(`${API}/posts/:postId`, ({ params }) => {
+    const idx = mockPosts.findIndex((p) => p.id === Number(params.postId));
+    if (idx !== -1) mockPosts.splice(idx, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
 ];

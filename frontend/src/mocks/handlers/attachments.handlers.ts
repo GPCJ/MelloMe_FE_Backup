@@ -14,7 +14,10 @@ export const attachmentsHandlers = [
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     if (!file) {
-      return HttpResponse.json({ code: 'BAD_REQUEST', message: '파일이 없습니다.' }, { status: 400 });
+      return HttpResponse.json(
+        { code: 'BAD_REQUEST', message: '파일이 없습니다.' },
+        { status: 400 },
+      );
     }
 
     const post = mockPosts.find((p) => p.id === Number(params.postId));
@@ -38,7 +41,10 @@ export const attachmentsHandlers = [
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     if (!file) {
-      return HttpResponse.json({ code: 'BAD_REQUEST', message: '파일이 없습니다.' }, { status: 400 });
+      return HttpResponse.json(
+        { code: 'BAD_REQUEST', message: '파일이 없습니다.' },
+        { status: 400 },
+      );
     }
 
     const postId = Number(params.postId);

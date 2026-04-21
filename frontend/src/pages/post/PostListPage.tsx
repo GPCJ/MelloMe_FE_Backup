@@ -85,9 +85,7 @@ export default function PostListPage() {
     });
   }, [isInfiniteMode]);
 
-  const VALID_THERAPY_AREAS: (TherapyArea | '')[] = FILTER_CHIPS.map(
-    (chip) => chip.value,
-  );
+  const VALID_THERAPY_AREAS: (TherapyArea | '')[] = FILTER_CHIPS.map((chip) => chip.value);
 
   useEffect(() => {
     if (therapyArea && !VALID_THERAPY_AREAS.includes(therapyArea)) {
@@ -245,9 +243,7 @@ export default function PostListPage() {
           {isInfiniteMode ? (
             <>
               {infinite.isLoading
-                ? Array.from({ length: 4 }).map((_, i) => (
-                    <PostCardSkeleton key={i} />
-                  ))
+                ? Array.from({ length: 4 }).map((_, i) => <PostCardSkeleton key={i} />)
                 : infinite.items.map((post) => (
                     <div key={post.id} onClickCapture={handleCardClick}>
                       <PostCard post={post} />
@@ -255,9 +251,7 @@ export default function PostListPage() {
                   ))}
 
               {infinite.isFetchingMore &&
-                Array.from({ length: 2 }).map((_, i) => (
-                  <PostCardSkeleton key={`more-${i}`} />
-                ))}
+                Array.from({ length: 2 }).map((_, i) => <PostCardSkeleton key={`more-${i}`} />)}
 
               {infinite.error && (
                 <div className="flex flex-col items-center gap-3 py-8">
@@ -271,27 +265,18 @@ export default function PostListPage() {
                 </div>
               )}
 
-              {!infinite.isLoading &&
-                !infinite.error &&
-                infinite.items.length === 0 && (
-                  <div className="text-center py-16">
-                    <p className="text-gray-400 mb-4">아직 게시글이 없어요.</p>
-                    <Link
-                      to="/posts/new"
-                      className={buttonVariants({ size: 'sm' }) + ' gap-1'}
-                    >
-                      <Plus size={15} />첫 글 작성하기
-                    </Link>
-                  </div>
-                )}
+              {!infinite.isLoading && !infinite.error && infinite.items.length === 0 && (
+                <div className="text-center py-16">
+                  <p className="text-gray-400 mb-4">아직 게시글이 없어요.</p>
+                  <Link to="/posts/new" className={buttonVariants({ size: 'sm' }) + ' gap-1'}>
+                    <Plus size={15} />첫 글 작성하기
+                  </Link>
+                </div>
+              )}
 
-              {!infinite.isLoading &&
-                !infinite.hasNext &&
-                infinite.items.length > 0 && (
-                  <p className="text-center text-sm text-gray-400 py-8">
-                    마지막 글이에요
-                  </p>
-                )}
+              {!infinite.isLoading && !infinite.hasNext && infinite.items.length > 0 && (
+                <p className="text-center text-sm text-gray-400 py-8">마지막 글이에요</p>
+              )}
 
               <div ref={sentinelRef} aria-hidden className="h-1" />
             </>
@@ -314,20 +299,13 @@ export default function PostListPage() {
               )}
 
               {loading
-                ? Array.from({ length: 4 }).map((_, i) => (
-                    <PostCardSkeleton key={i} />
-                  ))
-                : data?.items.map((post) => (
-                    <PostCard key={post.id} post={post} />
-                  ))}
+                ? Array.from({ length: 4 }).map((_, i) => <PostCardSkeleton key={i} />)
+                : data?.items.map((post) => <PostCard key={post.id} post={post} />)}
 
               {!loading && !error && data?.items.length === 0 && (
                 <div className="text-center py-16">
                   <p className="text-gray-400 mb-4">아직 게시글이 없어요.</p>
-                  <Link
-                    to="/posts/new"
-                    className={buttonVariants({ size: 'sm' }) + ' gap-1'}
-                  >
+                  <Link to="/posts/new" className={buttonVariants({ size: 'sm' }) + ' gap-1'}>
                     <Plus size={15} />첫 글 작성하기
                   </Link>
                 </div>
@@ -345,9 +323,7 @@ export default function PostListPage() {
         </div>
       ) : (
         <div className="text-center py-20">
-          <p className="text-gray-400 text-sm">
-            팔로우한 치료사의 글이 여기에 표시됩니다.
-          </p>
+          <p className="text-gray-400 text-sm">팔로우한 치료사의 글이 여기에 표시됩니다.</p>
         </div>
       )}
     </div>

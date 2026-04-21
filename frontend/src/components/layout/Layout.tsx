@@ -29,12 +29,7 @@ export default function Layout() {
     logout().catch(() => {});
   }
 
-  const roleLabel =
-    user?.role === 'THERAPIST'
-      ? '치료사'
-      : user?.role === 'ADMIN'
-        ? '관리자'
-        : '';
+  const roleLabel = user?.role === 'THERAPIST' ? '치료사' : user?.role === 'ADMIN' ? '관리자' : '';
 
   const isActive = (path: string) => location.pathname.startsWith(path);
 
@@ -46,10 +41,7 @@ export default function Layout() {
           {/* Logo */}
           <div className="flex items-center gap-2">
             {/* 데스크탑 로고 */}
-            <Link
-              to="/"
-              className="hidden md:block text-2xl font-bold text-gray-900"
-            >
+            <Link to="/" className="hidden md:block text-2xl font-bold text-gray-900">
               멜로미
             </Link>
 
@@ -99,17 +91,12 @@ export default function Layout() {
                   <span className="font-bold text-base">공지사항</span>
                 </div>
                 {mockAnnouncements.map((a) => (
-                  <div
-                    key={a.id}
-                    className="px-4 py-3 border-b hover:bg-gray-50 cursor-pointer"
-                  >
+                  <div key={a.id} className="px-4 py-3 border-b hover:bg-gray-50 cursor-pointer">
                     <p className="font-medium text-sm">{a.title}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{a.date}</p>
                   </div>
                 ))}
-                <div className="px-4 py-3 text-center text-sm text-gray-400">
-                  준비 중입니다
-                </div>
+                <div className="px-4 py-3 text-center text-sm text-gray-400">준비 중입니다</div>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -123,21 +110,13 @@ export default function Layout() {
                     size="sm"
                   />
                   <div className="hidden md:flex flex-col items-start">
-                    <span className="text-sm font-medium leading-tight">
-                      {user.nickname}
-                    </span>
-                    {roleLabel && (
-                      <span className="text-xs text-gray-400">{roleLabel}</span>
-                    )}
+                    <span className="text-sm font-medium leading-tight">{user.nickname}</span>
+                    {roleLabel && <span className="text-xs text-gray-400">{roleLabel}</span>}
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => navigate('/profile')}>
-                    프로필
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout}>
-                    로그아웃
-                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/profile')}>프로필</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>로그아웃</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
@@ -176,9 +155,7 @@ export default function Layout() {
         <Link
           to={user ? '/profile' : '/login'}
           className={`flex flex-col items-center gap-1 ${
-            isActive('/profile') || isActive('/login')
-              ? 'text-gray-900'
-              : 'text-gray-500'
+            isActive('/profile') || isActive('/login') ? 'text-gray-900' : 'text-gray-500'
           }`}
         >
           <User size={24} />

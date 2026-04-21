@@ -25,23 +25,13 @@ interface UseInfiniteFeedResult {
   retry: () => void;
 }
 
-export function useInfiniteFeed(
-  options: UseInfiniteFeedOptions = {},
-): UseInfiniteFeedResult {
+export function useInfiniteFeed(options: UseInfiniteFeedOptions = {}): UseInfiniteFeedResult {
   const { size = 20, enabled = true, initialSnapshot } = options;
 
-  const [items, setItems] = useState<PostSummary[]>(
-    initialSnapshot?.items ?? [],
-  );
-  const [nextCursor, setNextCursor] = useState<string | null>(
-    initialSnapshot?.nextCursor ?? null,
-  );
-  const [hasNext, setHasNext] = useState<boolean>(
-    initialSnapshot?.hasNext ?? true,
-  );
-  const [isLoading, setIsLoading] = useState<boolean>(
-    !initialSnapshot && enabled,
-  );
+  const [items, setItems] = useState<PostSummary[]>(initialSnapshot?.items ?? []);
+  const [nextCursor, setNextCursor] = useState<string | null>(initialSnapshot?.nextCursor ?? null);
+  const [hasNext, setHasNext] = useState<boolean>(initialSnapshot?.hasNext ?? true);
+  const [isLoading, setIsLoading] = useState<boolean>(!initialSnapshot && enabled);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

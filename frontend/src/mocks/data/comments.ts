@@ -8,7 +8,8 @@ export const mockComments = [
     authorId: 3,
     authorNickname: '언어치료사_민지',
     authorRole: 'THERAPIST',
-    content: '좋은 자료 감사합니다! 저도 비슷한 프로그램을 운영하고 있는데, 물감 놀이 시 아이들이 촉각 자극에 점점 익숙해지는 게 눈에 보여요.',
+    content:
+      '좋은 자료 감사합니다! 저도 비슷한 프로그램을 운영하고 있는데, 물감 놀이 시 아이들이 촉각 자극에 점점 익숙해지는 게 눈에 보여요.',
     deleted: false,
     canEdit: false,
     canDelete: false,
@@ -23,7 +24,8 @@ export const mockComments = [
     authorId: 2,
     authorNickname: '김작업치료사',
     authorRole: 'THERAPIST',
-    content: '맞아요! 특히 모래 상자 활동은 처음에 거부하던 아이도 3~4회 반복하면 자발적으로 손을 넣더라고요.',
+    content:
+      '맞아요! 특히 모래 상자 활동은 처음에 거부하던 아이도 3~4회 반복하면 자발적으로 손을 넣더라고요.',
     deleted: false,
     canEdit: false,
     canDelete: false,
@@ -68,7 +70,8 @@ export const mockComments = [
     authorId: 5,
     authorNickname: '놀이치료사_하은',
     authorRole: 'THERAPIST',
-    content: '혹시 촉각 방어가 심한 아이에게 밀가루 반죽을 바로 제시하시나요? 저는 먼저 마른 밀가루부터 시작하는 편인데 순서가 궁금합니다.',
+    content:
+      '혹시 촉각 방어가 심한 아이에게 밀가루 반죽을 바로 제시하시나요? 저는 먼저 마른 밀가루부터 시작하는 편인데 순서가 궁금합니다.',
     deleted: false,
     canEdit: false,
     canDelete: false,
@@ -98,7 +101,8 @@ export const mockComments = [
     authorId: 7,
     authorNickname: '작업치료사_10년차',
     authorRole: 'THERAPIST',
-    content: '저도 비슷한 케이스가 있었는데, "먼저 ~ 하고, 그 다음 ~ 하자" 식의 First-Then 보드가 효과적이었어요. 시각적 지원이 타이머보다 더 잘 먹히는 아이들이 있더라고요.',
+    content:
+      '저도 비슷한 케이스가 있었는데, "먼저 ~ 하고, 그 다음 ~ 하자" 식의 First-Then 보드가 효과적이었어요. 시각적 지원이 타이머보다 더 잘 먹히는 아이들이 있더라고요.',
     deleted: false,
     canEdit: false,
     canDelete: false,

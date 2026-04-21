@@ -19,11 +19,7 @@ function getPageNumbers(current: number, total: number): (number | '...')[] {
   return pages;
 }
 
-export default function Pagination({
-  currentPage,
-  totalPages,
-  onPageChange,
-}: PaginationProps) {
+export default function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
   return (
     <div className="flex items-center justify-center gap-2 py-6">
       <button
@@ -35,10 +31,7 @@ export default function Pagination({
       </button>
       {getPageNumbers(currentPage, totalPages).map((page, idx) =>
         page === '...' ? (
-          <span
-            key={`ellipsis-${idx}`}
-            className="w-8 text-center text-gray-400 text-sm"
-          >
+          <span key={`ellipsis-${idx}`} className="w-8 text-center text-gray-400 text-sm">
             ...
           </span>
         ) : (
@@ -46,9 +39,7 @@ export default function Pagination({
             key={page}
             onClick={() => onPageChange(page)}
             className={`w-8 h-8 rounded-full text-sm ${
-              page === currentPage
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-600 hover:bg-gray-100'
+              page === currentPage ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
             {page}

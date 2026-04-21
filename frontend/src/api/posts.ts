@@ -48,10 +48,7 @@ export async function createPost(data: PostCreateRequest): Promise<PostDetail> {
   return res.data;
 }
 
-export async function updatePost(
-  postId: number,
-  data: PostUpdateRequest,
-): Promise<PostDetail> {
+export async function updatePost(postId: number, data: PostUpdateRequest): Promise<PostDetail> {
   const res = await axiosInstance.patch(`/posts/${postId}`, data);
   return res.data;
 }
@@ -60,9 +57,7 @@ export async function deletePost(postId: number): Promise<void> {
   await axiosInstance.delete(`/posts/${postId}`);
 }
 
-export async function fetchComments(
-  postId: number,
-): Promise<CommentResponse[]> {
+export async function fetchComments(postId: number): Promise<CommentResponse[]> {
   const res = await axiosInstance.get(`/posts/${postId}/comments`);
   return res.data;
 }
@@ -100,38 +95,23 @@ export async function getReaction(postId: number): Promise<PostReaction> {
   return res.data;
 }
 
-export async function toggleReaction(
-  postId: number,
-  reactionType: ReactionType,
-): Promise<void> {
+export async function toggleReaction(postId: number, reactionType: ReactionType): Promise<void> {
   await axiosInstance.put(`/posts/${postId}/reaction`, { reactionType });
 }
 
 // pdf
-export async function uploadPostPdf(
-  postId: number,
-  file: File,
-): Promise<Attachment> {
+export async function uploadPostPdf(postId: number, file: File): Promise<Attachment> {
   const formData = new FormData();
   formData.append('file', file);
-  const res = await axiosInstance.post(
-    `/posts/${postId}/attachments`,
-    formData,
-  );
+  const res = await axiosInstance.post(`/posts/${postId}/attachments`, formData);
   return res.data;
 }
 
 // 이미지
-export async function uploadPostImage(
-  postId: number,
-  file: File,
-): Promise<PostImage> {
+export async function uploadPostImage(postId: number, file: File): Promise<PostImage> {
   const formData = new FormData();
   formData.append('file', file);
-  const res = await axiosInstance.post(
-    `/posts/${postId}/images`,
-    formData,
-  );
+  const res = await axiosInstance.post(`/posts/${postId}/images`, formData);
   return res.data;
 }
 
@@ -140,10 +120,7 @@ export async function fetchPostImages(postId: number): Promise<PostImage[]> {
   return res.data;
 }
 
-export async function deletePostAttachment(
-  postId: number,
-  attachmentId: number,
-): Promise<void> {
+export async function deletePostAttachment(postId: number, attachmentId: number): Promise<void> {
   await axiosInstance.delete(`/posts/${postId}/attachments/${attachmentId}`);
 }
 

@@ -66,7 +66,8 @@ export const profileHandlers = [
             authorVerificationStatus: 'NOT_REQUESTED',
             createdAt: '2026-03-31T22:00:00Z',
           },
-          myCommentPreview: '힘내세요! 저도 3년차 때 가장 힘들었는데, 동료 치료사들과 정기적인 케이스 컨퍼런스를 시작하면서 많이 나아졌어요.',
+          myCommentPreview:
+            '힘내세요! 저도 3년차 때 가장 힘들었는데, 동료 치료사들과 정기적인 케이스 컨퍼런스를 시작하면서 많이 나아졌어요.',
           myCommentCreatedAt: '2026-04-01T08:00:00Z',
         },
       ],

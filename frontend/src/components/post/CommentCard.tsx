@@ -27,17 +27,11 @@ export default function CommentCard({
           size="sm"
         />
         <div className="flex items-center gap-1.5 flex-1 min-w-0">
-          <span className="text-sm font-semibold text-gray-900">
-            {comment.authorNickname}
-          </span>
+          <span className="text-sm font-semibold text-gray-900">{comment.authorNickname}</span>
 
-          {comment.authorRole === 'THERAPIST' && (
-            <VerifiedBadge status="APPROVED" />
-          )}
+          {comment.authorRole === 'THERAPIST' && <VerifiedBadge status="APPROVED" />}
 
-          {replyToNickname && (
-            <span className="text-xs text-gray-400">@{replyToNickname}</span>
-          )}
+          {replyToNickname && <span className="text-xs text-gray-400">@{replyToNickname}</span>}
         </div>
         <span className="text-xs text-gray-400 shrink-0">
           {formatRelativeTime(comment.createdAt)}

@@ -20,15 +20,9 @@ export default function FilePreviewGrid({
   onRemoveExisting,
   existingImages = [],
 }: FilePreviewGridProps) {
-  const visibleExisting = existingAttachments.filter(
-    (a) => !removedAttachmentIds.includes(a.id),
-  );
+  const visibleExisting = existingAttachments.filter((a) => !removedAttachmentIds.includes(a.id));
 
-  if (
-    visibleExisting.length === 0 &&
-    pendingFiles.length === 0 &&
-    existingImages.length === 0
-  )
+  if (visibleExisting.length === 0 && pendingFiles.length === 0 && existingImages.length === 0)
     return null;
 
   return (
@@ -48,13 +42,18 @@ export default function FilePreviewGrid({
         </div>
       ))}
       {visibleExisting.map((a) => (
-        <div key={a.id} className="relative group border border-gray-200 rounded-lg overflow-hidden">
+        <div
+          key={a.id}
+          className="relative group border border-gray-200 rounded-lg overflow-hidden"
+        >
           {a.contentType.startsWith('image/') ? (
             <img src={a.downloadUrl} alt={a.originalFilename} className="w-24 h-24 object-cover" />
           ) : (
             <div className="w-24 h-24 flex flex-col items-center justify-center bg-gray-50 px-1">
               <Paperclip size={16} className="text-gray-400 mb-1" />
-              <span className="text-xs text-gray-500 text-center truncate w-full">{a.originalFilename}</span>
+              <span className="text-xs text-gray-500 text-center truncate w-full">
+                {a.originalFilename}
+              </span>
             </div>
           )}
           {onRemoveExisting && (
@@ -78,13 +77,24 @@ export default function FilePreviewGrid({
           {pf.previewUrl ? (
             <img src={pf.previewUrl} alt={pf.file.name} className="w-24 h-24 object-cover" />
           ) : (
-            <div className={`w-24 h-24 flex flex-col items-center justify-center px-1 ${
-              existingAttachments.length > 0 ? 'bg-blue-50' : 'bg-gray-50'
-            }`}>
-              <Paperclip size={16} className={existingAttachments.length > 0 ? 'text-blue-400 mb-1' : 'text-gray-400 mb-1'} />
-              <span className={`text-xs text-center truncate w-full ${
-                existingAttachments.length > 0 ? 'text-blue-500' : 'text-gray-500'
-              }`}>{pf.file.name}</span>
+            <div
+              className={`w-24 h-24 flex flex-col items-center justify-center px-1 ${
+                existingAttachments.length > 0 ? 'bg-blue-50' : 'bg-gray-50'
+              }`}
+            >
+              <Paperclip
+                size={16}
+                className={
+                  existingAttachments.length > 0 ? 'text-blue-400 mb-1' : 'text-gray-400 mb-1'
+                }
+              />
+              <span
+                className={`text-xs text-center truncate w-full ${
+                  existingAttachments.length > 0 ? 'text-blue-500' : 'text-gray-500'
+                }`}
+              >
+                {pf.file.name}
+              </span>
             </div>
           )}
           <button

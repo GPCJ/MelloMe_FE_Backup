@@ -11,10 +11,7 @@ interface MobileFixedBottomProps {
  * - 키보드가 올라오면 키보드 바로 위에 위치
  * - 페이지 콘텐츠는 밀리지 않음
  */
-export default function MobileFixedBottom({
-  children,
-  className = '',
-}: MobileFixedBottomProps) {
+export default function MobileFixedBottom({ children, className = '' }: MobileFixedBottomProps) {
   const keyboardHeight = useKeyboardHeight();
 
   return (

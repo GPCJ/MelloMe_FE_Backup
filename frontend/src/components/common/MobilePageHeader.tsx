@@ -8,11 +8,7 @@ interface MobilePageHeaderProps {
   rightAction?: ReactNode;
 }
 
-export default function MobilePageHeader({
-  title,
-  backTo,
-  rightAction,
-}: MobilePageHeaderProps) {
+export default function MobilePageHeader({ title, backTo, rightAction }: MobilePageHeaderProps) {
   const navigate = useNavigate();
   return (
     <div className="flex md:hidden items-center justify-between px-4 py-3 bg-white border-b border-gray-200">

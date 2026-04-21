@@ -24,7 +24,6 @@ function App() {
         {/* LandingPage — 자체 navbar/footer가 있어서 Layout 밖에 위치 */}
         <Route path="/" element={<LandingPage />} />
         <Route element={<Layout />}>
-
           {/* 비로그인 전용 라우트 */}
           <Route element={<GuestRoute />}>
             <Route path="/login" element={<LoginPage />} />

@@ -35,9 +35,7 @@ export default function VerificationCompletePage() {
       {verStatus === 'APPROVED' ? (
         <>
           <div className="text-5xl mb-6">✅</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            치료사 인증이 완료되었습니다!
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">치료사 인증이 완료되었습니다!</h1>
           <p className="text-sm text-gray-500 mb-8">
             이제 멜로미 커뮤니티에서 자유롭게 활동할 수 있어요.
           </p>
@@ -51,12 +49,8 @@ export default function VerificationCompletePage() {
       ) : verStatus === 'REJECTED' ? (
         <>
           <div className="text-5xl mb-6">❌</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            인증이 반려되었습니다
-          </h1>
-          <p className="text-sm text-gray-500 mb-2">
-            제출하신 서류가 승인되지 않았습니다.
-          </p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">인증이 반려되었습니다</h1>
+          <p className="text-sm text-gray-500 mb-2">제출하신 서류가 승인되지 않았습니다.</p>
           {verification?.rejectReason && (
             <p className="text-sm text-red-500 mb-8 bg-red-50 rounded-lg px-4 py-3">
               사유: {verification.rejectReason}
@@ -72,9 +66,7 @@ export default function VerificationCompletePage() {
       ) : (
         <>
           <div className="text-5xl mb-6">📋</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            인증 신청이 접수되었습니다
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">인증 신청이 접수되었습니다</h1>
           <p className="text-sm text-gray-500 mb-8">
             검토 후 승인되면 커뮤니티를 이용할 수 있어요.
           </p>

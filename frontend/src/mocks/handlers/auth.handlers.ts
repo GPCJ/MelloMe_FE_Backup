@@ -23,16 +23,19 @@ export const authHandlers = [
     signedUpEmails.add(body.email);
     setCurrentUserEmail(body.email);
     const account = testAccounts[body.email];
-    return HttpResponse.json({
-      success: true,
-      data: {
-        id: account.id,
-        email: body.email,
-        nickname: account.nickname,
-        accessToken: mockTokens.accessToken,
-        role: account.role,
+    return HttpResponse.json(
+      {
+        success: true,
+        data: {
+          id: account.id,
+          email: body.email,
+          nickname: account.nickname,
+          accessToken: mockTokens.accessToken,
+          role: account.role,
+        },
       },
-    }, { status: 201 });
+      { status: 201 },
+    );
   }),
 
   http.post(`${API}/auth/login`, async ({ request }) => {

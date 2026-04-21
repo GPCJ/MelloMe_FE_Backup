@@ -36,7 +36,12 @@ export const reactionsHandlers = [
     const body = (await request.json()) as { reactionType: string };
 
     if (!mockReactions[postId]) {
-      mockReactions[postId] = { likeCount: 0, curiousCount: 0, usefulCount: 0, myReactionType: null };
+      mockReactions[postId] = {
+        likeCount: 0,
+        curiousCount: 0,
+        usefulCount: 0,
+        myReactionType: null,
+      };
     }
     const r = mockReactions[postId];
     const type = body.reactionType;

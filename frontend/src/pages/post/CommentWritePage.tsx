@@ -4,10 +4,7 @@ import DOMPurify from 'dompurify';
 import { Eye, MoreVertical } from 'lucide-react';
 import VerifiedBadge from '../../components/post/VerifiedBadge';
 import ReactionBar from '../../components/post/ReactionBar';
-import {
-  useReactionToggle,
-  reactionFromPostDetail,
-} from '../../hooks/useReactionToggle';
+import { useReactionToggle, reactionFromPostDetail } from '../../hooks/useReactionToggle';
 import { Badge } from '@/components/shadcn-ui/badge';
 import CommentInput from '../../components/post/CommentInput';
 import MobilePageHeader from '@/components/common/MobilePageHeader';
@@ -72,9 +69,7 @@ export default function CommentWritePage() {
   if (loading) return null;
   if (error || !post)
     return (
-      <p className="text-center text-destructive py-20">
-        {error ?? '게시글을 찾을 수 없어요.'}
-      </p>
+      <p className="text-center text-destructive py-20">{error ?? '게시글을 찾을 수 없어요.'}</p>
     );
 
   const therapyLabel =
@@ -84,63 +79,57 @@ export default function CommentWritePage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
-          {/* 헤더 */}
-          <MobilePageHeader
-            title="댓글 달기"
-            backTo={`/posts/${postId}`}
-            rightAction={
-              <button className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
-                <MoreVertical size={20} />
-              </button>
-            }
+      {/* 헤더 */}
+      <MobilePageHeader
+        title="댓글 달기"
+        backTo={`/posts/${postId}`}
+        rightAction={
+          <button className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
+            <MoreVertical size={20} />
+          </button>
+        }
+      />
+
+      {/* 게시글 본문 */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
+        <div className="flex items-center gap-3 mb-5 pb-5 border-b border-gray-100">
+          <UserAvatar
+            nickname={post.authorNickname}
+            imageUrl={post.authorProfileImageUrl}
+            size="md"
           />
-
-          {/* 게시글 본문 */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
-            <div className="flex items-center gap-3 mb-5 pb-5 border-b border-gray-100">
-              <UserAvatar
-                nickname={post.authorNickname}
-                imageUrl={post.authorProfileImageUrl}
-                size="md"
-              />
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-gray-900">
-                    {post.authorNickname}
-                  </span>
-                  <VerifiedBadge status={post.authorVerificationStatus} />
-                  {therapyLabel && (
-                    <Badge variant="secondary" className="text-xs">
-                      {therapyLabel}
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-0.5">
-                  <span>{formatRelativeTime(post.createdAt)}</span>
-                  <span>·</span>
-                  <span className="flex items-center gap-0.5">
-                    <Eye size={11} />
-                    조회 {post.viewCount}
-                  </span>
-                </div>
-              </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-gray-900">{post.authorNickname}</span>
+              <VerifiedBadge status={post.authorVerificationStatus} />
+              {therapyLabel && (
+                <Badge variant="secondary" className="text-xs">
+                  {therapyLabel}
+                </Badge>
+              )}
             </div>
-
-            <div
-              className="post-content mb-6"
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(post.content),
-              }}
-            />
-
-            <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
-              <ReactionBar
-                reaction={reaction}
-                onToggle={handleToggle}
-                disabled={toggling}
-              />
+            <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-0.5">
+              <span>{formatRelativeTime(post.createdAt)}</span>
+              <span>·</span>
+              <span className="flex items-center gap-0.5">
+                <Eye size={11} />
+                조회 {post.viewCount}
+              </span>
             </div>
           </div>
+        </div>
+
+        <div
+          className="post-content mb-6"
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(post.content),
+          }}
+        />
+
+        <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
+          <ReactionBar reaction={reaction} onToggle={handleToggle} disabled={toggling} />
+        </div>
+      </div>
 
       {/* 하단 댓글 입력 */}
       <MobileFixedBottom>

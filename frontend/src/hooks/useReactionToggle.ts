@@ -2,9 +2,7 @@ import { useState } from 'react';
 import type { PostReaction, ReactionType, PostDetail } from '../types/post';
 import { toggleReaction } from '../api/posts';
 
-function getCountKey(
-  type: ReactionType,
-): 'likeCount' | 'curiousCount' | 'usefulCount' {
+function getCountKey(type: ReactionType): 'likeCount' | 'curiousCount' | 'usefulCount' {
   if (type === 'LIKE') return 'likeCount';
   if (type === 'CURIOUS') return 'curiousCount';
   // else케이스

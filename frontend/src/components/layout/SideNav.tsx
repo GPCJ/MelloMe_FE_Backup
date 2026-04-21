@@ -34,9 +34,7 @@ export default function SideNav() {
             key={to}
             to={href}
             className={`p-2 rounded-xl transition-colors ${
-              active
-                ? 'text-gray-900'
-                : 'text-gray-400 hover:text-gray-600'
+              active ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'
             }`}
             aria-label={label}
             title={label}

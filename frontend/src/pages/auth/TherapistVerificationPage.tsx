@@ -67,10 +67,7 @@ export default function TherapistVerificationPage() {
 
   const verificationStatus = verification?.status;
   const canSubmit =
-    file !== null &&
-    licenseCode.trim() !== '' &&
-    selectedAreas.length > 0 &&
-    !submitting;
+    file !== null && licenseCode.trim() !== '' && selectedAreas.length > 0 && !submitting;
 
   useEffect(() => {
     if (verificationStatus === 'APPROVED') {
@@ -88,8 +85,7 @@ export default function TherapistVerificationPage() {
       setVerification(freshVerification);
       navigate('/verification-complete');
     } catch (err: unknown) {
-      const status = (err as { response?: { status?: number } })?.response
-        ?.status;
+      const status = (err as { response?: { status?: number } })?.response?.status;
       if (status === 409) {
         setError('이미 심사 중인 신청이 있습니다.');
       } else {
@@ -115,9 +111,13 @@ export default function TherapistVerificationPage() {
 
       {/* 인증 현황 (PENDING 또는 REJECTED일 때) */}
       {verification && (verificationStatus === 'PENDING' || verificationStatus === 'REJECTED') && (
-        <div className={`rounded-xl border p-4 mb-4 ${
-          verificationStatus === 'PENDING' ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'
-        }`}>
+        <div
+          className={`rounded-xl border p-4 mb-4 ${
+            verificationStatus === 'PENDING'
+              ? 'bg-yellow-50 border-yellow-200'
+              : 'bg-red-50 border-red-200'
+          }`}
+        >
           <p className="text-sm font-semibold text-gray-900 mb-2">
             {verificationStatus === 'PENDING' ? '심사 중' : '인증 거절'}
           </p>
@@ -135,9 +135,7 @@ export default function TherapistVerificationPage() {
 
       {/* 메인 카드 */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
-        <h2 className="text-xl font-bold text-gray-900 mb-1">
-          치료사 인증 페이지
-        </h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-1">치료사 인증 페이지</h2>
         <p className="text-sm text-gray-500 mb-6">
           치료사 자격증을 인증하고 전문 치료사로 활동해보세요.
         </p>
@@ -182,22 +180,13 @@ export default function TherapistVerificationPage() {
                 className="hidden"
                 onChange={handleFileChange}
               />
-              <Upload
-                size={24}
-                className={file ? 'text-green-500' : 'text-gray-400'}
-              />
+              <Upload size={24} className={file ? 'text-green-500' : 'text-gray-400'} />
               {file ? (
-                <span className="text-sm font-medium text-green-700">
-                  {file.name}
-                </span>
+                <span className="text-sm font-medium text-green-700">{file.name}</span>
               ) : (
                 <>
-                  <span className="text-sm text-gray-500">
-                    파일을 선택하거나 드래그하세요
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    JPG, PNG, WEBP (최대 5MB)
-                  </span>
+                  <span className="text-sm text-gray-500">파일을 선택하거나 드래그하세요</span>
+                  <span className="text-xs text-gray-400">JPG, PNG, WEBP (최대 5MB)</span>
                 </>
               )}
             </label>
@@ -264,10 +253,7 @@ export default function TherapistVerificationPage() {
             '개인정보는 안전하게 보호됩니다.',
             '인증 완료 후 아래와 같은 혜택이 있습니다.',
           ].map((text) => (
-            <li
-              key={text}
-              className="flex items-start gap-2 text-sm text-gray-600"
-            >
+            <li key={text} className="flex items-start gap-2 text-sm text-gray-600">
               <span className="mt-2 w-1 h-1 rounded-full bg-gray-400 shrink-0" />
               {text}
             </li>

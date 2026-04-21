@@ -18,9 +18,7 @@ export default function CommentDetailPage() {
   const location = useLocation();
   const autoReply = (location.state as { autoReply?: boolean })?.autoReply;
 
-  const [parentComment, setParentComment] = useState<CommentResponse | null>(
-    null,
-  );
+  const [parentComment, setParentComment] = useState<CommentResponse | null>(null);
   const [replies, setReplies] = useState<CommentResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,15 +73,11 @@ export default function CommentDetailPage() {
   if (loading) return null;
   if (error || !parentComment)
     return (
-      <p className="text-center text-destructive py-20">
-        {error ?? '댓글을 찾을 수 없어요.'}
-      </p>
+      <p className="text-center text-destructive py-20">{error ?? '댓글을 찾을 수 없어요.'}</p>
     );
 
   return (
-    <div
-      className={`max-w-3xl mx-auto px-4 py-6 ${showReplyInput ? 'pb-24' : 'pb-6'}`}
-    >
+    <div className={`max-w-3xl mx-auto px-4 py-6 ${showReplyInput ? 'pb-24' : 'pb-6'}`}>
       {/* 헤더 */}
       <MobilePageHeader
         title="댓글 달기"
@@ -136,16 +130,10 @@ export default function CommentDetailPage() {
           {replyToNickname && (
             <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
               <span>
-                <span className="font-medium text-gray-600">
-                  {replyToNickname}
-                </span>
+                <span className="font-medium text-gray-600">{replyToNickname}</span>
                 에게 답글 작성 중
               </span>
-              <button
-                type="button"
-                onClick={resetReply}
-                className="underline hover:text-gray-700"
-              >
+              <button type="button" onClick={resetReply} className="underline hover:text-gray-700">
                 취소
               </button>
             </div>

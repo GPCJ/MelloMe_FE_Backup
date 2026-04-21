@@ -7,10 +7,7 @@ const REACTIONS: {
   type: ReactionType;
   icon: typeof Heart;
   label: string;
-  countKey: keyof Pick<
-    PostReaction,
-    'likeCount' | 'curiousCount' | 'usefulCount'
-  >;
+  countKey: keyof Pick<PostReaction, 'likeCount' | 'curiousCount' | 'usefulCount'>;
 }[] = [
   { type: 'LIKE', icon: Heart, label: '좋아요', countKey: 'likeCount' },
   { type: 'CURIOUS', icon: Star, label: '궁금해요', countKey: 'curiousCount' },
@@ -23,11 +20,7 @@ interface ReactionBarProps {
   disabled?: boolean;
 }
 
-export default function ReactionBar({
-  reaction,
-  onToggle,
-  disabled,
-}: ReactionBarProps) {
+export default function ReactionBar({ reaction, onToggle, disabled }: ReactionBarProps) {
   return (
     <div className="flex items-center gap-4">
       {REACTIONS.map(({ type, icon: Icon, label, countKey }) => {

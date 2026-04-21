@@ -14,10 +14,7 @@ import {
 } from 'lucide-react';
 import ReactionBar from '../../components/post/ReactionBar';
 import VerifiedBadge from '../../components/post/VerifiedBadge';
-import {
-  useReactionToggle,
-  reactionFromPostDetail,
-} from '../../hooks/useReactionToggle';
+import { useReactionToggle, reactionFromPostDetail } from '../../hooks/useReactionToggle';
 import CommentCard from '../../components/post/CommentCard';
 import CommentInput from '../../components/post/CommentInput';
 import { useCommentSubmit } from '../../hooks/useCommentSubmit';
@@ -151,9 +148,7 @@ export default function PostDetailPage() {
   if (loading) return <PostDetailSkeleton />;
   if (error || !post)
     return (
-      <p className="text-center text-destructive py-20">
-        {error ?? '게시글을 찾을 수 없어요.'}
-      </p>
+      <p className="text-center text-destructive py-20">{error ?? '게시글을 찾을 수 없어요.'}</p>
     );
 
   const therapyLabel =
@@ -161,8 +156,7 @@ export default function PostDetailPage() {
       ? THERAPY_AREA_LABELS[post.therapyArea]
       : null;
   const topComments = comments.filter((c) => !c.parentCommentId);
-  const getReplies = (parentId: number) =>
-    comments.filter((c) => c.parentCommentId === parentId);
+  const getReplies = (parentId: number) => comments.filter((c) => c.parentCommentId === parentId);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-20 md:pb-8">
@@ -179,9 +173,7 @@ export default function PostDetailPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {post.canEdit && (
-                  <DropdownMenuItem
-                    onClick={() => navigate(`/posts/${post.id}/edit`)}
-                  >
+                  <DropdownMenuItem onClick={() => navigate(`/posts/${post.id}/edit`)}>
                     <Pencil size={14} className="mr-2" />
                     수정
                   </DropdownMenuItem>
@@ -210,9 +202,7 @@ export default function PostDetailPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {post.canEdit && (
-                <DropdownMenuItem
-                  onClick={() => navigate(`/posts/${post.id}/edit`)}
-                >
+                <DropdownMenuItem onClick={() => navigate(`/posts/${post.id}/edit`)}>
                   <Pencil size={14} className="mr-2" />
                   수정
                 </DropdownMenuItem>
@@ -242,9 +232,7 @@ export default function PostDetailPage() {
           />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-gray-900">
-                {post.authorNickname}
-              </span>
+              <span className="text-sm font-semibold text-gray-900">{post.authorNickname}</span>
               <VerifiedBadge status={post.authorVerificationStatus} />
               {post.visibility === 'PRIVATE' && (
                 <span
@@ -274,9 +262,7 @@ export default function PostDetailPage() {
             <Bookmark
               size={20}
               className={
-                scrapped
-                  ? 'fill-yellow-400 text-yellow-400'
-                  : 'text-gray-300 hover:text-gray-500'
+                scrapped ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 hover:text-gray-500'
               }
             />
           </button>
@@ -331,9 +317,7 @@ export default function PostDetailPage() {
                     className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm text-gray-700"
                   >
                     <Download size={16} />
-                    <span className="truncate flex-1">
-                      {img.originalFilename}
-                    </span>
+                    <span className="truncate flex-1">{img.originalFilename}</span>
                   </a>
                 </div>
               ))}
@@ -353,14 +337,8 @@ export default function PostDetailPage() {
                       download={att.originalFilename}
                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm text-gray-700"
                     >
-                      {isImage ? (
-                        <Download size={16} />
-                      ) : (
-                        <FileText size={16} />
-                      )}
-                      <span className="truncate flex-1">
-                        {att.originalFilename}
-                      </span>
+                      {isImage ? <Download size={16} /> : <FileText size={16} />}
+                      <span className="truncate flex-1">{att.originalFilename}</span>
                       <span className="text-xs text-gray-400 shrink-0">
                         {att.sizeBytes >= 1024 * 1024
                           ? `${(att.sizeBytes / (1024 * 1024)).toFixed(1)}MB`
@@ -376,11 +354,7 @@ export default function PostDetailPage() {
 
         {/* 리액션 + 댓글 수 */}
         <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
-          <ReactionBar
-            reaction={reaction}
-            onToggle={handleToggle}
-            disabled={toggling}
-          />
+          <ReactionBar reaction={reaction} onToggle={handleToggle} disabled={toggling} />
           <button
             onClick={() => navigate(`/posts/${postId}/comments`)}
             className="flex md:hidden items-center gap-1.5 text-sm text-gray-400 ml-auto hover:text-gray-600 transition-colors"
@@ -397,9 +371,7 @@ export default function PostDetailPage() {
 
       {/* 댓글 섹션 */}
       <div>
-        <h2 className="text-base font-bold text-gray-900 mb-4">
-          댓글 {topComments.length}
-        </h2>
+        <h2 className="text-base font-bold text-gray-900 mb-4">댓글 {topComments.length}</h2>
 
         {/* 데스크탑 인라인 댓글 입력 */}
         <div className="hidden md:block mb-4">
@@ -415,9 +387,7 @@ export default function PostDetailPage() {
           {topComments.map((comment) => (
             <div
               key={comment.id}
-              onClick={() =>
-                navigate(`/posts/${postId}/comments/${comment.id}`)
-              }
+              onClick={() => navigate(`/posts/${postId}/comments/${comment.id}`)}
               className="cursor-pointer"
             >
               <CommentCard
@@ -432,9 +402,7 @@ export default function PostDetailPage() {
             </div>
           ))}
           {topComments.length === 0 && (
-            <p className="text-sm text-gray-400 text-center py-6">
-              첫 댓글을 남겨보세요!
-            </p>
+            <p className="text-sm text-gray-400 text-center py-6">첫 댓글을 남겨보세요!</p>
           )}
         </div>
       </div>

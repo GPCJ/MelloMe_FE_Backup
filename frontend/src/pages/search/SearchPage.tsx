@@ -95,10 +95,7 @@ export default function SearchPage() {
     <div className="pb-20 md:pb-8">
       {/* 검색 헤더 */}
       <div className="sticky top-0 md:top-14 z-40 bg-white border-b border-gray-200">
-        <form
-          onSubmit={handleSubmit}
-          className="flex items-center gap-2 px-4 py-3"
-        >
+        <form onSubmit={handleSubmit} className="flex items-center gap-2 px-4 py-3">
           <button
             type="button"
             onClick={() => navigate('/posts')}
@@ -144,22 +141,15 @@ export default function SearchPage() {
 
       {/* 검색 결과 */}
       <div className="bg-white">
-        {loading && (
-          <p className="text-center text-gray-400 text-sm py-12">검색 중...</p>
-        )}
+        {loading && <p className="text-center text-gray-400 text-sm py-12">검색 중...</p>}
 
-        {!loading && error && (
-          <p className="text-center text-red-500 text-sm py-12">{error}</p>
-        )}
+        {!loading && error && <p className="text-center text-red-500 text-sm py-12">{error}</p>}
 
         {!loading && !error && searched && results?.length === 0 && (
-          <p className="text-center text-gray-400 text-sm py-12">
-            검색 결과가 없습니다
-          </p>
+          <p className="text-center text-gray-400 text-sm py-12">검색 결과가 없습니다</p>
         )}
 
-        {!loading &&
-          results?.map((post) => <PostCard key={post.id} post={post} />)}
+        {!loading && results?.map((post) => <PostCard key={post.id} post={post} />)}
 
         {!searched && !loading && (
           <p className="text-center text-gray-400 text-sm py-12">

@@ -58,18 +58,14 @@ export default function LoginPage() {
       {/* 상단 타이틀 */}
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">멜로미</h1>
-        <p className="mt-2 text-sm text-gray-500">
-          치료사들의 따뜻한 성장 공간
-        </p>
+        <p className="mt-2 text-sm text-gray-500">치료사들의 따뜻한 성장 공간</p>
       </div>
 
       {/* 카드 */}
       <Card className="w-full max-w-md">
         <CardHeader className="pb-2">
           <CardTitle className="text-xl">로그인</CardTitle>
-          <CardDescription>
-            멜로미 커뮤니티에 오신 것을 환영합니다
-          </CardDescription>
+          <CardDescription>멜로미 커뮤니티에 오신 것을 환영합니다</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <form onSubmit={handleEmailLogin} className="space-y-4">
@@ -123,16 +119,10 @@ export default function LoginPage() {
             {/* 로그인 상태 유지 + 비밀번호 찾기 */}
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 rounded border-gray-300"
-                />
+                <input type="checkbox" className="w-4 h-4 rounded border-gray-300" />
                 로그인 상태 유지
               </label>
-              <button
-                type="button"
-                className="text-sm text-blue-500 hover:underline"
-              >
+              <button type="button" className="text-sm text-blue-500 hover:underline">
                 비밀번호 찾기
               </button>
             </div>
@@ -148,10 +138,7 @@ export default function LoginPage() {
           {/* 회원가입 링크 */}
           <p className="text-center text-sm text-gray-500">
             아직 계정이 없으신가요?{' '}
-            <Link
-              to="/signup"
-              className="text-blue-500 font-semibold hover:underline"
-            >
+            <Link to="/signup" className="text-blue-500 font-semibold hover:underline">
               회원가입
             </Link>
           </p>

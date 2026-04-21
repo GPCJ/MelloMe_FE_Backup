@@ -30,7 +30,9 @@ export default function LandingPage() {
 
   useEffect(() => {
     if (tokens) {
-      getMe().then(setUser).catch(() => {});
+      getMe()
+        .then(setUser)
+        .catch(() => {});
     }
   }, []);
   const isNotVerified = !!user && user.role === 'USER';
@@ -99,39 +101,31 @@ export default function LandingPage() {
                         <p className="text-xs text-gray-400 mt-0.5">{a.date}</p>
                       </div>
                     ))}
-                    <div className="px-4 py-3 text-center text-sm text-gray-400">
-                      준비 중입니다
-                    </div>
+                    <div className="px-4 py-3 text-center text-sm text-gray-400">준비 중입니다</div>
                   </DropdownMenuContent>
                 </DropdownMenu>
 
                 {/* Profile */}
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex items-center gap-2 px-1 py-1 rounded-md hover:bg-gray-100 transition-colors">
-                    <UserAvatar nickname={user.nickname} imageUrl={user.profileImageUrl} size="sm" />
+                    <UserAvatar
+                      nickname={user.nickname}
+                      imageUrl={user.profileImageUrl}
+                      size="sm"
+                    />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => navigate('/profile')}>
-                      프로필
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleLogout}>
-                      로그아웃
-                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/profile')}>프로필</DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout}>로그아웃</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
             ) : (
               <>
-                <Link
-                  to="/login"
-                  className="text-md text-gray-600 hover:text-gray-900"
-                >
+                <Link to="/login" className="text-md text-gray-600 hover:text-gray-900">
                   로그인
                 </Link>
-                <Link
-                  to="/signup"
-                  className="text-md text-gray-600 hover:text-gray-900"
-                >
+                <Link to="/signup" className="text-md text-gray-600 hover:text-gray-900">
                   회원가입
                 </Link>
               </>
@@ -143,9 +137,7 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="flex-1 flex items-center justify-center pt-14">
         <div className="max-w-xl mx-auto px-6 py-20 text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            치료사를 위한 커뮤니티
-          </h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">치료사를 위한 커뮤니티</h1>
           <p className="text-lg text-gray-500 mb-8">
             익명으로 케이스를 나누고, 동료들과 함께 성장하세요.
           </p>

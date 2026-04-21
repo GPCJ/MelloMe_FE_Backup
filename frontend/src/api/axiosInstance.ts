@@ -33,11 +33,7 @@ const processQueue = (error: unknown, token: string | null) => {
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    if (
-      response.data &&
-      response.data.success === true &&
-      'data' in response.data
-    ) {
+    if (response.data && response.data.success === true && 'data' in response.data) {
       response.data = response.data.data;
     }
     return response;
@@ -50,11 +46,7 @@ axiosInstance.interceptors.response.use(
       originalRequest.url?.startsWith('/auth/login') ||
       originalRequest.url?.startsWith('/auth/signup');
 
-    if (
-      error.response?.status !== 401 ||
-      originalRequest._retry ||
-      isAuthRequest
-    ) {
+    if (error.response?.status !== 401 || originalRequest._retry || isAuthRequest) {
       return Promise.reject(error);
     }
 

@@ -8,9 +8,7 @@ const API = import.meta.env.VITE_API_BASE_URL;
 
 export const commentsHandlers = [
   http.get(`${API}/posts/:postId/comments`, ({ params }) => {
-    const comments = mockComments.filter(
-      (c) => c.postId === Number(params.postId),
-    );
+    const comments = mockComments.filter((c) => c.postId === Number(params.postId));
     return HttpResponse.json({ success: true, data: comments });
   }),
 
@@ -32,14 +30,8 @@ export const commentsHandlers = [
       updatedAt: new Date().toISOString(),
       replies: [],
     };
-    return HttpResponse.json(
-      { success: true, data: newComment },
-      { status: 201 },
-    );
+    return HttpResponse.json({ success: true, data: newComment }, { status: 201 });
   }),
 
-  http.delete(
-    `${API}/comments/:commentId`,
-    () => new HttpResponse(null, { status: 204 }),
-  ),
+  http.delete(`${API}/comments/:commentId`, () => new HttpResponse(null, { status: 204 })),
 ];

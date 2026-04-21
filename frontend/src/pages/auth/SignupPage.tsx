@@ -6,12 +6,7 @@ import { Button } from '@/components/shadcn-ui/button';
 import { Input } from '@/components/shadcn-ui/input';
 import { Label } from '@/components/shadcn-ui/label';
 import { Checkbox } from '@/components/shadcn-ui/checkbox';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/shadcn-ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/shadcn-ui/card';
 import axios from 'axios';
 
 export default function SignupPage() {
@@ -83,12 +78,9 @@ export default function SignupPage() {
         <h1 className="text-2xl font-bold text-gray-900 mb-2">
           환영합니다{user?.nickname ? `, ${user.nickname}` : ''}님!
         </h1>
-        <p className="text-sm text-gray-500 mb-2">
-          멜로미 회원가입이 완료되었어요.
-        </p>
+        <p className="text-sm text-gray-500 mb-2">멜로미 회원가입이 완료되었어요.</p>
         <p className="text-sm text-gray-500 mb-8">
-          <strong>치료사 인증</strong>을 완료하면 모든 게시물을 열람하고 글을
-          작성할 수 있어요.
+          <strong>치료사 인증</strong>을 완료하면 모든 게시물을 열람하고 글을 작성할 수 있어요.
         </p>
         <div className="flex flex-col gap-3 w-full max-w-xs">
           <Button
@@ -112,9 +104,7 @@ export default function SignupPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">멜로미</h1>
-        <p className="mt-2 text-sm text-gray-500">
-          치료사들의 따뜻한 성장 공간
-        </p>
+        <p className="mt-2 text-sm text-gray-500">치료사들의 따뜻한 성장 공간</p>
       </div>
 
       <Card className="w-full max-w-md">
@@ -163,10 +153,7 @@ export default function SignupPage() {
                   checked={agreeTerms}
                   onCheckedChange={(v) => setAgreeTerms(v === true)}
                 />
-                <Label
-                  htmlFor="agreeTerms"
-                  className="text-sm font-normal cursor-pointer"
-                >
+                <Label htmlFor="agreeTerms" className="text-sm font-normal cursor-pointer">
                   <a href="#" className="underline text-blue-600">
                     이용약관
                   </a>
@@ -179,10 +166,7 @@ export default function SignupPage() {
                   checked={agreePrivacy}
                   onCheckedChange={(v) => setAgreePrivacy(v === true)}
                 />
-                <Label
-                  htmlFor="agreePrivacy"
-                  className="text-sm font-normal cursor-pointer"
-                >
+                <Label htmlFor="agreePrivacy" className="text-sm font-normal cursor-pointer">
                   <a href="#" className="underline text-blue-600">
                     개인정보처리방침
                   </a>
@@ -205,10 +189,7 @@ export default function SignupPage() {
           {/* 로그인 링크 */}
           <p className="mt-6 text-center text-sm text-gray-500">
             이미 계정이 있으신가요?{' '}
-            <Link
-              to="/login"
-              className="text-blue-600 font-medium hover:underline"
-            >
+            <Link to="/login" className="text-blue-600 font-medium hover:underline">
               로그인
             </Link>
           </p>
