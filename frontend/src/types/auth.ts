@@ -25,18 +25,8 @@ export interface TherapistVerificationSummary {
   rejectionReason: string | null;
 }
 
-export interface LoginUser {
-  id: number;
-  email: string;
-  nickname: string;
-  profileImageUrl: string | null;
-  role: UserRole;
-  canAccessCommunity: boolean;
-  therapistVerification: TherapistVerificationSummary;
-}
-
 export interface LoginResponse {
-  user: LoginUser;
+  user: MeResponse;
   tokens: Tokens;
 }
 
