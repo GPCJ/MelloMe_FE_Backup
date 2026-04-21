@@ -13,3 +13,5 @@ originSessionId: fa4a79a3-3bd8-4345-83ef-12424170ca09
 - 회원가입/인증 응답에 `verificationStatus` 필드가 필요한지 확인할 때도 "즉시 APPROVED 반환"만 검증하면 됨
 - 기존 `project_auth_policy_change.md`와 충돌하므로 해당 파일은 "사후 검토 정책은 Post-MVP"로 갱신 필요
 - 댓글/게시글 작성자 배지 판정은 `role === 'THERAPIST'`만 체크하면 충분 (APPROVED가 기본값이므로)
+
+**Update 2026-04-21**: 실서버 PATCH /me 응답에 `therapistVerification.status: "PENDING"` 관찰됨 (id=3, requestedAt=2026-04-13 계정). 사용자 예상(미확정): 치료사 인증 로직 구현 완료 후 일괄 심사해서 APPROVED로 변경할 계획. 즉 지금 PENDING은 의도된 과도기 상태이며 회귀/버그 아님. 프론트 배지 미노출도 이 기간엔 용인. 인증 로직 완성 시점에 다시 이 항목 들여다보기.

@@ -50,11 +50,8 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 ## 2. 블로킹 대기
 
 ### 백엔드 [BE]
-- [ ] **B-01** 프로필 이미지 URL localhost 버그 (P0) — 확인일: 04-17
-  - 현황: 원인 확정 (백엔드 `APP_BASE_URL` 환경변수 배포 누락). 프론트 임시대응 적용 (커밋 `b66aefd`, `resolveImageUrl.ts` localhost 치환) → **증상은 해소**, 근본 해결은 백엔드 대기
-  - 백엔드 해결: EC2 배포 환경에 `APP_BASE_URL=https://api.melonnetherapists.com` 주입 + Spring 재시작 (코드/DB 수정 불필요)
-  - 검증 1: DevTools → `POST /me/profile-image` 응답 `profileImageUrl`에 `localhost` 포함 여부 (포함이면 백엔드 미수정)
-  - 검증 2: `grep "localhost:8080" frontend/src/utils/resolveImageUrl.ts` → 0건이면 프론트 임시대응 제거 완료 = B-01 클로즈 가능
+- [x] **B-01** 프로필 이미지 URL localhost 버그 (P0) — 해소 2026-04-22
+  - 백엔드 EC2에 `APP_BASE_URL` 주입 완료, 응답이 `https://api.melonnetherapists.com/...`로 내려옴 → 프론트 `resolveImageUrl.ts` localhost 치환 제거
   - 상세: `project_profile_image_localhost_bug.md`
 - [?] **B-02** title 필드 optional 변경 (P0) — 확인일: 04-16
   - 현황: 프론트 `PostCreateRequest`에 title 없음. 백엔드가 required로 막는지 확인 필요
@@ -72,6 +69,10 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 - [ ] **B-06** 환영 페이지 isNewUser 하드코딩 — 확인일: 04-16
   - 현황: 백엔드 isNewUser 값 정상 여부 미확인
   - 검증: DevTools → 로그인 응답 `isNewUser` 값이 실제 상태와 일치하는지
+- [ ] **B-07** 게시글 이미지 presigned URL 대응 (P1) — 확인일: 04-22
+  - 현황: 백엔드가 presigned URL 방식으로 결정, 작업 대기
+  - 검증: Swagger `/v3/api-docs` 재조회 → `PostImageResponse.imageUrl`이 서명 쿼리 포함 절대 URL인지
+  - 상세: `project_post_image_presigned_url.md`
 
 ### 해소됨
 - [-] ~~탈퇴 유저 에러코드 분리~~ → 비번 틀림과 동일 에러 유지 확정 (04-16)

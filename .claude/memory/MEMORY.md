@@ -4,6 +4,7 @@
 - [인증/보안 개념 지식 수준 — 비유적 설명 선호](./user_knowledge_auth.md)
 - [개발 스타일 — 기능 구현 우선, 트러블슈팅 강점, 설계/아키텍처 약점 자각](./user_dev_style.md)
 - [AI 의존 줄이기 — 직접 코딩 목표, 힌트는 OK 코드 작성은 직접](./user_self_coding_goal.md)
+- [협업 스타일 — AI 행동 규약 공동 설계형](./user_collab_style_meta.md) — 반복 실수 시 즉시 "규칙화할까요?" 제안 OK
 - [문서화 역량 면접 Q&A — 7개 항목별 심화 질문+답변 소재](./career_documentation_qa.md)
 
 ## 작업 관리
@@ -34,8 +35,9 @@
 ## 게시글 첨부파일
 - [프론트 구현 완료 + 400 해결](./project_post_attachment_feature.md) — 백엔드 PDF만 허용, 이미지 허용 여부 미확인
 - [첨부파일 400 원인 확정 — MIME 불일치](./project_attachment_upload_400_bug.md) — 한컴 뷰어, Blob 강제 지정으로 해결
-- [이미지/PDF 엔드포인트 분리 대응](./project_post_attachment_endpoints_split.md) — 2026-04-20 프론트 대응 완료(bb7e352), 백엔드 스펙 컨펌/실서버 테스트 남음
-- [이미지 DELETE 엔드포인트 백엔드 대기](./project_post_image_delete_pending.md) — /posts/:id/images/:imageId DELETE 미구현
+- [이미지/PDF 엔드포인트 분리 대응](./project_post_attachment_endpoints_split.md) — 2026-04-21 Swagger 컨펌 + MSW GET/응답 수정, 실서버 테스트 남음
+- [이미지 DELETE 엔드포인트 백엔드 대기](./project_post_image_delete_pending.md) — 2026-04-21 Swagger 재확인, 여전히 DELETE 없음
+- [게시글 이미지 presigned URL 방식 대기](./project_post_image_presigned_url.md) — 2026-04-22 백엔드 결정, 프론트는 스펙 확정까지 대기
 
 ## 협업 프로세스
 - [백엔드 전달 전략 + 이슈 동기화](./project_backend_communication.md) — Swagger 공식, GitHub Issues, 멜로미↔아이로
@@ -45,7 +47,7 @@
 - [CSV API 검토 현황](./project_csv_api_review_progress.md) — 27번부터 재개
 - [/home 엔드포인트 관심사 분리](./project_home_endpoint_redesign.md)
 - [PATCH /me 이미지 업로드 방식](./project_patch_me_image_discussion.md)
-- [프로필 편집 코드 리뷰 TODO](./project_profile_edit_cleanup.md) — 2026-04-20 HIGH(레이스) 조치 완료, T1/T2/T3 및 로깅·토스트 등 잔여 작업 추적
+- [프로필 편집 코드 리뷰 TODO](./project_profile_edit_cleanup.md) — 2026-04-21 T1/T2 + HIGH 가드 제거 완료, T3/로깅·토스트/타입·캐시 잔여
 
 ## UI 설계
 - [UX 설계 논의 아카이브](./project_ux_design_decisions.md)
@@ -58,6 +60,8 @@
 
 ## 개발 규칙 / 피드백
 - **[최우선]** [코드 작업 전 트레이드오프 설명 필수](./feedback_tradeoff_before_code.md) / [클린 커밋 히스토리 관리](./feedback_clean_commit_history.md)
+- **[최우선]** [진단→이해→지시→조치 (과잉설명 금지)](./feedback_explain_before_act.md) — 레이블/경쟁가설/1분 검증/최소 정보 제시 5원칙
+- **[최우선]** [workaround 추가 전 스펙/상태 재확인](./feedback_verify_spec_before_workaround.md) — 400/감싸기 판단 전에 Swagger·네트워크·실코드 재확인
 - **[AI 직접 작성 코드 → 인지부채 HIGH 메모리 의무](./feedback_ai_written_code_cognitive_debt.md)** — Claude 위임 코드는 메커니즘 상세 기록, 04-15 P1이 첫 사례
 - [MVP 코드 수정 기준](./feedback_mvp_fix_criteria.md) / [UI는 디자이너 확인 후](./feedback_ui_designer_confirm.md)
 - [코드 수정 프로세스 — grep 선행](./feedback_code_change_process.md) / [코드 생성 승인 요청](./feedback_code_approval.md)
@@ -102,7 +106,7 @@
 - [새 환경은 pull-mello 먼저](./feedback_new_env_pull_first.md) — SSD 포맷/새 머신에서 push-mello 먼저 돌리면 레포 메모리가 `rsync --delete`로 날아감 (2026-04-20 사고 교훈)
 - [포트폴리오 프로젝트](./project_portfolio_setup.md) — `~/portfolio`
 - [Vercel 환경변수](./project_env_vars.md) / [.env.docker 이름 변경](./project_env_docker_rename.md)
-- [CORS localhost:5173 요청 검토 중](./project_cors_local_suggestion.md) / [Vercel→AWS 이전 계획 + 프론트 담당 범위](./project_aws_migration_plan.md)
+- [로컬 CORS 허용 완료 (localhost:3000/5173)](./project_cors_local_suggestion.md) / [Vercel→AWS 이전 계획 + 프론트 담당 범위](./project_aws_migration_plan.md)
 - [gh CLI 설치 완료](./reference_gh_cli.md) — 계정 GPCJ
 - [MSW 래퍼 + axios 인터셉터](./project_msw_wrapper.md)
 - [.git object 손상 복구 절차](./project_git_object_corruption_recovery.md) — push 실패 + HEAD 파싱 실패 시 비파괴 복구 5단계

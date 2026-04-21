@@ -1,9 +1,14 @@
 ---
-name: 프로필 이미지 URL localhost 버그 — 원인 확정 + 프론트 핫픽스
-description: 백엔드 APP_BASE_URL 환경변수 배포 누락이 진범. 프론트 임시대응 적용(b66aefd), 백엔드 수정 대기.
+name: 프로필 이미지 URL localhost 버그 — 해소 완료 (2026-04-22)
+description: 백엔드 APP_BASE_URL 배포 누락이 진범. 백엔드 환경변수 주입 완료 → 프론트 임시대응 제거 완료.
 type: project
 originSessionId: 04d583e8-b161-4f24-8f97-bf07ccfae50d
 ---
+## 상태: 해소 (2026-04-22)
+- 백엔드: EC2에 `APP_BASE_URL=https://api.melonnetherapists.com` 주입 완료, 응답 URL 정상화 확인
+- 프론트: `resolveImageUrl.ts`에서 localhost regex 치환 2줄 제거
+- backlog B-01 close
+
 ## 증상
 - 배포 환경에서 `POST /me/profile-image` / `GET /me` 응답의 `profileImageUrl`이 `http://localhost:8080/api/v1/me/profile-image/<uuid>.jpg`로 내려옴
 - 프론트 `resolveImageUrl`이 `startsWith('http')` 분기로 해당 URL을 그대로 통과 → `<img src>`에 localhost 절대 URL 주입 → 브라우저가 자기 localhost로 이미지 요청 → 실패

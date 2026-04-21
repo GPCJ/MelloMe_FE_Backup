@@ -1,10 +1,20 @@
 ---
 name: 첨부파일 업로드 이미지/PDF 엔드포인트 분리
-description: 프론트 분리 1차 구현 완료, 이미지 상세 조회 로직 미구현 상태 — 상세 페이지에서 이미지 렌더링 안 됨 이슈 남음
+description: 프론트 대응 + MSW 수정 완료 (2026-04-21). Swagger 스펙 컨펌됨, 실서버 테스트만 남음
 type: project
 originSessionId: fc63365f-4f62-4e60-a6f0-3b421396220f
 ---
 2026-04-20 커밋 `bb7e352`로 프론트 1차 대응 완료. 실서버 테스트에서 이미지 미반영 이슈 발견, Swagger 조사로 원인 확정.
+
+**2026-04-21 — Swagger 스펙 컨펌 + MSW 수정 완료**
+- Swagger `/v3/api-docs` 재조회로 이미지 엔드포인트 공식 확정
+  - `GET /posts/{postId}/images` → `{ success, data: PostImageResponse[] }`
+  - `POST /posts/{postId}/images` (multipart `file`) → `{ success, data: PostImageResponse }`
+  - `PostImageResponse` 필드: `{ id, imageUrl, originalFilename, displayOrder, createdAt }` (downloadUrl 아님)
+- 로컬 "이미지 업로드 미반영" 근본 원인 = MSW 핸들러 2개 결함
+  - `GET /posts/:postId/images` 핸들러 없음 → unhandled로 빈 배열 처리됨
+  - `POST /posts/:postId/images` 응답이 `Attachment` 스키마(`downloadUrl`, `contentType` 등)로 내려가 실 스펙과 불일치
+- `mocks/handlers/attachments.handlers.ts` 수정: `mockPostImages: Map<postId, PostImage[]>` 추가, GET 핸들러 신설, POST 응답을 `PostImage` 스키마로 교체
 
 **완료된 변경**
 - `api/posts.ts`: `uploadPostAttachment` 제거, `uploadPostPdf` (POST `/posts/:postId/attachments`) + `uploadPostImage` (POST `/posts/:postId/images`) 분리

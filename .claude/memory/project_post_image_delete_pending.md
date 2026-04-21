@@ -6,6 +6,10 @@ originSessionId: 08bef002-5c19-4a76-8951-5c27bc960427
 ---
 게시물 이미지 삭제 API가 현재 백엔드에 없음. `api.melonnetherapists.com/v3/api-docs` 확인 시 `POST /posts/{id}/images`, `GET /posts/{id}/images`만 있고 DELETE 미구현. 백엔드에 추가 요청해둔 상태로 응답 대기 중(2026-04-20).
 
+**2026-04-21 Swagger 재확인** — 여전히 DELETE 미존재. PostImageResponse 필드 공식 확정(`id, imageUrl, originalFilename, displayOrder, createdAt`).
+
+**2026-04-22** — 백엔드 개발 완료, PR 대기 중(아직 merge/배포 전). 머지+배포 확인 후 프론트 연결 작업 진행.
+
 프론트 현재 처리:
 - `PostEditPage`에서 기존 이미지 X 버튼 미노출(삭제 불가).
 - `FilePreviewGrid`의 `existingImages` prop은 읽기 전용으로 렌더, tooltip으로 "이미지 삭제는 아직 지원되지 않습니다" 안내.
