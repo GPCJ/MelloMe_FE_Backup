@@ -37,6 +37,7 @@ import {
 import type { PostDetail, CommentResponse, PostImage } from '../../types/post';
 import { THERAPY_AREA_LABELS } from '../../constants/post';
 import { formatRelativeTime } from '../../utils/formatDate';
+import { resolveImageUrl } from '../../utils/resolveImageUrl';
 import UserAvatar from '../../components/common/UserAvatar';
 import MobilePageHeader from '@/components/common/MobilePageHeader';
 
@@ -312,13 +313,16 @@ export default function PostDetailPage() {
             <div className="flex flex-col gap-2">
               {images.map((img) => (
                 <div key={`img-${img.id}`}>
+                  {/* 백엔드가 posts/:id/images의 imageUrl을 상대경로로 내려주는 현재 계약 대응.
+                      resolveImageUrl은 이미 절대 URL이면 no-op이라, 백엔드가 profileImageUrl처럼
+                      절대 URL로 전환해도 안전 (이중 접두사 없음). */}
                   <img
-                    src={img.imageUrl}
+                    src={resolveImageUrl(img.imageUrl) ?? ''}
                     alt={img.originalFilename}
                     className="rounded-lg max-h-80 object-contain mb-2"
                   />
                   <a
-                    href={img.imageUrl}
+                    href={resolveImageUrl(img.imageUrl) ?? '#'}
                     download={img.originalFilename}
                     className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm text-gray-700"
                   >

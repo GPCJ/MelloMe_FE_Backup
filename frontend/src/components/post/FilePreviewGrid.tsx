@@ -1,6 +1,7 @@
 import { Paperclip, X } from 'lucide-react';
 import type { PendingFile } from '../../hooks/useFileAttachment';
 import type { Attachment, PostImage } from '../../types/post';
+import { resolveImageUrl } from '../../utils/resolveImageUrl';
 
 interface FilePreviewGridProps {
   pendingFiles: PendingFile[];
@@ -40,7 +41,7 @@ export default function FilePreviewGrid({
           title="이미지 삭제는 아직 지원되지 않습니다"
         >
           <img
-            src={img.imageUrl}
+            src={resolveImageUrl(img.imageUrl) ?? ''}
             alt={img.originalFilename}
             className="w-24 h-24 object-cover"
           />
