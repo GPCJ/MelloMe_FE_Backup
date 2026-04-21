@@ -1,8 +1,18 @@
-const baseUrl = import.meta.env.VITE_API_BASE_URL ?? ''
-const backendOrigin = baseUrl.replace(/\/api\/v1$/, '')
+const apiBase = import.meta.env.VITE_API_BASE_URL ?? ''
+const backendOrigin = (() => {
+  try {
+    return new URL(apiBase).origin
+  } catch {
+    return ''
+  }
+})()
 
 export function resolveImageUrl(url: string | null | undefined): string | null {
   if (!url) return null
-  if (url.startsWith('http')) return url
-  return `${backendOrigin}${url}`
+  if (!backendOrigin) return url
+  try {
+    return new URL(url, backendOrigin).toString()
+  } catch {
+    return null
+  }
 }
