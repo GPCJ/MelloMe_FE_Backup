@@ -4,8 +4,10 @@ import DOMPurify from 'dompurify';
 import { Eye, MoreVertical } from 'lucide-react';
 import VerifiedBadge from '../../components/post/VerifiedBadge';
 import ReactionBar from '../../components/post/ReactionBar';
-import { getReaction } from '../../api/posts';
-import { useReactionToggle } from '../../hooks/useReactionToggle';
+import {
+  useReactionToggle,
+  reactionFromPostDetail,
+} from '../../hooks/useReactionToggle';
 import { Badge } from '@/components/shadcn-ui/badge';
 import CommentInput from '../../components/post/CommentInput';
 import MobilePageHeader from '@/components/common/MobilePageHeader';
@@ -29,9 +31,9 @@ export default function CommentWritePage() {
 
   const { reaction, setReaction, toggling, handleToggle } = useReactionToggle({
     postId: Number(postId) || 0,
-    empathyCount: 0,
-    appreciateCount: 0,
-    helpfulCount: 0,
+    likeCount: 0,
+    curiousCount: 0,
+    usefulCount: 0,
     myReactionType: null,
   });
 
@@ -42,10 +44,12 @@ export default function CommentWritePage() {
       return;
     }
     const id = Number(postId);
-    Promise.all([fetchPost(id), getReaction(id)])
-      .then(([postData, reactionData]) => {
+    // 백엔드 명세 변경(2026-04-21): 게시글 상세 응답에 reactionCounts/myReactionType 포함됨
+    // → 별도 GET /reaction 호출 불필요. fetchPost 응답에서 직접 변환해서 초기화.
+    fetchPost(id)
+      .then((postData) => {
         setPost(postData);
-        setReaction(reactionData);
+        setReaction(reactionFromPostDetail(postData));
       })
       .catch(() => setError('게시글을 불러오는 데 실패했습니다.'))
       .finally(() => setLoading(false));

@@ -1,14 +1,27 @@
 import { useState } from 'react';
-import type { PostReaction, ReactionType } from '../types/post';
+import type { PostReaction, ReactionType, PostDetail } from '../types/post';
 import { toggleReaction } from '../api/posts';
 
 function getCountKey(
   type: ReactionType,
-): 'empathyCount' | 'appreciateCount' | 'helpfulCount' {
-  if (type === 'EMPATHY') return 'empathyCount';
-  if (type === 'APPRECIATE') return 'appreciateCount';
+): 'likeCount' | 'curiousCount' | 'usefulCount' {
+  if (type === 'LIKE') return 'likeCount';
+  if (type === 'CURIOUS') return 'curiousCount';
   // else케이스
-  return 'helpfulCount';
+  return 'usefulCount';
+}
+
+// PostDetail의 reactionCounts/myReactionType을 PostReaction 형태로 변환.
+// 백엔드 명세 변경(2026-04-21)으로 상세 응답에 리액션이 포함되면서 별도 GET /reaction 호출 불필요.
+export function reactionFromPostDetail(post: PostDetail): PostReaction {
+  const counts = post.reactionCounts;
+  return {
+    postId: post.id,
+    likeCount: counts?.LIKE ?? 0,
+    curiousCount: counts?.CURIOUS ?? 0,
+    usefulCount: counts?.USEFUL ?? 0,
+    myReactionType: post.myReactionType ?? null,
+  };
 }
 
 export function useReactionToggle(initialReaction: PostReaction) {

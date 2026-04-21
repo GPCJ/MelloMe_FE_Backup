@@ -1,6 +1,6 @@
 // 게시글 핸들러 — 목록, 상세, 작성, 수정, 삭제
 import { http, HttpResponse } from 'msw';
-import { mockPosts } from '../data/posts';
+import { mockPosts, mockReactions } from '../data/posts';
 import { testAccounts } from '../data/users';
 import { currentUserEmail } from '../state';
 
@@ -20,6 +20,9 @@ const mockFeedItems = Array.from({ length: FEED_TOTAL }, (_, i) => {
     visibility: 'PUBLIC' as const,
     viewCount: 100 + id * 3,
     popularityScore: 20 + (id % 10) * 1.5,
+    // 백엔드 명세 변경(2026-04-21): 목록/피드는 LIKE만 카운트해서 노출
+    likeCount: id % 7,
+    commentCount: id % 5,
     createdAt: new Date(2026, 3, 13, 12, 0, 0, -id * 60_000).toISOString(),
     scrapped: false,
   };
@@ -63,6 +66,8 @@ export const postsHandlers = [
         visibility: p.visibility ?? ('PUBLIC' as const),
         viewCount: p.viewCount,
         commentCount: p.commentCount,
+        // 백엔드 명세 변경(2026-04-21): 목록은 LIKE 1종만 카운트해서 노출
+        likeCount: mockReactions[p.id]?.likeCount ?? 0,
         hasAttachment: p.hasAttachment,
         isBlurred: blurred,
         createdAt: p.createdAt,
@@ -131,6 +136,8 @@ export const postsHandlers = [
     const isPrivate = post.visibility === 'PRIVATE';
     const blurred = isPrivate && !isPrivileged;
 
+    // 백엔드 명세 변경(2026-04-21): 상세 응답에 reactionCounts(3종) + myReactionType + commentCount 포함
+    const r = mockReactions[post.id];
     return HttpResponse.json({
       id: post.id,
       content: blurred ? '' : post.content,
@@ -140,6 +147,13 @@ export const postsHandlers = [
       therapyArea: post.therapyArea,
       visibility: post.visibility ?? 'PUBLIC',
       viewCount: post.viewCount,
+      commentCount: post.commentCount ?? 0,
+      reactionCounts: {
+        LIKE: r?.likeCount ?? 0,
+        CURIOUS: r?.curiousCount ?? 0,
+        USEFUL: r?.usefulCount ?? 0,
+      },
+      myReactionType: r?.myReactionType ?? null,
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
       canEdit: currentAccount?.id === post.authorId,

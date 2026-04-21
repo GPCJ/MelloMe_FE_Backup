@@ -1,23 +1,20 @@
 import { Heart, Star, Lightbulb } from 'lucide-react';
 import type { ReactionType, PostReaction } from '../../types/post';
 
+// 라벨/아이콘은 디자이너 컨펌 전 임시 유지 (백엔드 명세 변경 2026-04-21).
+// 라벨 텍스트는 화면에 표시하지 않고 aria-label 용도로만 사용 — 디자이너 결정: 카운트 0이면 아이콘만 표시.
 const REACTIONS: {
   type: ReactionType;
   icon: typeof Heart;
   label: string;
   countKey: keyof Pick<
     PostReaction,
-    'empathyCount' | 'appreciateCount' | 'helpfulCount'
+    'likeCount' | 'curiousCount' | 'usefulCount'
   >;
 }[] = [
-  { type: 'EMPATHY', icon: Heart, label: '공감', countKey: 'empathyCount' },
-  {
-    type: 'APPRECIATE',
-    icon: Star,
-    label: '감사',
-    countKey: 'appreciateCount',
-  },
-  { type: 'HELPFUL', icon: Lightbulb, label: '도움', countKey: 'helpfulCount' },
+  { type: 'LIKE', icon: Heart, label: '좋아요', countKey: 'likeCount' },
+  { type: 'CURIOUS', icon: Star, label: '궁금해요', countKey: 'curiousCount' },
+  { type: 'USEFUL', icon: Lightbulb, label: '유용해요', countKey: 'usefulCount' },
 ];
 
 interface ReactionBarProps {
@@ -46,13 +43,14 @@ export default function ReactionBar({
               onToggle(type);
             }}
             disabled={disabled}
+            aria-label={label}
             className={`flex items-center gap-1 text-sm transition-colors ${
               isActive ? 'text-red-500' : 'text-gray-400 hover:text-gray-600'
             }`}
           >
             <Icon size={16} fill={isActive ? 'currentColor' : 'none'} />
-            {/* 리액션이 0보다 크지 않다면 리액션 종류를 표시 */}
-            <span className="text-xs">{count > 0 ? count : label}</span>
+            {/* 디자이너 결정(2026-04-21): 카운트가 0이면 아이콘만 표시 */}
+            {count > 0 && <span className="text-xs">{count}</span>}
           </button>
         );
       })}

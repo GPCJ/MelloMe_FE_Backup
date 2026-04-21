@@ -8,7 +8,7 @@ export const metaHandlers = [
     HttpResponse.json({
       boardTypes: ['therapy_board', 'document_board', 'anonymous_board'],
       therapyAreas: ['UNSPECIFIED', 'OCCUPATIONAL', 'SPEECH', 'COGNITIVE', 'PLAY'],
-      reactionTypes: ['EMPATHY', 'APPRECIATE', 'HELPFUL'],
+      reactionTypes: ['LIKE', 'CURIOUS', 'USEFUL'],
     }),
   ),
 ];

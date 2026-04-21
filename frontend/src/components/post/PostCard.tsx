@@ -38,12 +38,13 @@ export default function PostCard({ post }: PostCardProps) {
     }
   };
 
-  // TODO: PostSummary API에 리액션 카운트 포함 시 초기값 연결 필요
+  // 카드는 LIKE 1종만 노출 (백엔드 명세 2026-04-21). myReactionType은 PostSummary에
+  // 포함되지 않아 새로고침 시 active 강조가 초기화됨 — 낙관적 토글만 유지.
   const { reaction, toggling, handleToggle } = useReactionToggle({
     postId: post.id,
-    empathyCount: 0,
-    appreciateCount: 0,
-    helpfulCount: 0,
+    likeCount: post.likeCount ?? 0,
+    curiousCount: 0,
+    usefulCount: 0,
     myReactionType: null,
   });
 
@@ -117,11 +118,12 @@ export default function PostCard({ post }: PostCardProps) {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              handleToggle('EMPATHY');
+              handleToggle('LIKE');
             }}
             disabled={toggling}
+            aria-label="좋아요"
             className={`flex items-center gap-1 text-sm transition-colors ${
-              reaction?.myReactionType === 'EMPATHY'
+              reaction?.myReactionType === 'LIKE'
                 ? 'text-red-500'
                 : 'text-gray-400 hover:text-gray-600'
             }`}
@@ -129,14 +131,13 @@ export default function PostCard({ post }: PostCardProps) {
             <Heart
               size={16}
               fill={
-                reaction?.myReactionType === 'EMPATHY' ? 'currentColor' : 'none'
+                reaction?.myReactionType === 'LIKE' ? 'currentColor' : 'none'
               }
             />
-            <span className="text-xs">
-              {(reaction?.empathyCount ?? 0) > 0
-                ? reaction?.empathyCount
-                : '공감'}
-            </span>
+            {/* 디자이너 결정(2026-04-21): 카운트가 0이면 아이콘만 표시 */}
+            {(reaction?.likeCount ?? 0) > 0 && (
+              <span className="text-xs">{reaction?.likeCount}</span>
+            )}
           </button>
         </div>
       </div>

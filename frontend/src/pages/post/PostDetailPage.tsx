@@ -14,8 +14,10 @@ import {
 } from 'lucide-react';
 import ReactionBar from '../../components/post/ReactionBar';
 import VerifiedBadge from '../../components/post/VerifiedBadge';
-import { getReaction } from '../../api/posts';
-import { useReactionToggle } from '../../hooks/useReactionToggle';
+import {
+  useReactionToggle,
+  reactionFromPostDetail,
+} from '../../hooks/useReactionToggle';
 import CommentCard from '../../components/post/CommentCard';
 import CommentInput from '../../components/post/CommentInput';
 import { useCommentSubmit } from '../../hooks/useCommentSubmit';
@@ -80,9 +82,9 @@ export default function PostDetailPage() {
 
   const { reaction, setReaction, toggling, handleToggle } = useReactionToggle({
     postId: Number(postId) || 0,
-    empathyCount: 0,
-    appreciateCount: 0,
-    helpfulCount: 0,
+    likeCount: 0,
+    curiousCount: 0,
+    usefulCount: 0,
     myReactionType: null,
   });
 
@@ -101,17 +103,18 @@ export default function PostDetailPage() {
       return;
     }
     const id = Number(postId);
+    // 백엔드 명세 변경(2026-04-21): 게시글 상세 응답에 reactionCounts/myReactionType 포함됨
+    // → 별도 GET /reaction 호출 불필요. fetchPost 응답에서 직접 변환해서 초기화.
     Promise.all([
       fetchPost(id),
       fetchComments(id),
-      getReaction(id),
       fetchPostImages(id).catch(() => [] as PostImage[]),
     ])
-      .then(([postData, commentsData, reactionData, imagesData]) => {
+      .then(([postData, commentsData, imagesData]) => {
         setPost(postData);
         setScrapped(postData.scrapped ?? false);
         setComments(commentsData);
-        setReaction(reactionData);
+        setReaction(reactionFromPostDetail(postData));
         setImages(imagesData);
       })
       .catch(() => setError('게시글을 불러오는 데 실패했습니다.'))
@@ -315,7 +318,8 @@ export default function PostDetailPage() {
                 <div key={`img-${img.id}`}>
                   {/* 백엔드가 posts/:id/images의 imageUrl을 상대경로로 내려주는 현재 계약 대응.
                       resolveImageUrl은 이미 절대 URL이면 no-op이라, 백엔드가 profileImageUrl처럼
-                      절대 URL로 전환해도 안전 (이중 접두사 없음). */}
+                      절대 URL로 전환해도 안전 (이중 접두사 없음).
+                      (B-07 presigned URL 전환 완료 시 호출 제거 검토) */}
                   <img
                     src={resolveImageUrl(img.imageUrl) ?? ''}
                     alt={img.originalFilename}

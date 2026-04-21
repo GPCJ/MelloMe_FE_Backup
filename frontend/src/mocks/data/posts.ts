@@ -136,12 +136,14 @@ export const mockPosts = [
   },
 ];
 
-export const mockReactions: Record<number, { empathyCount: number; appreciateCount: number; helpfulCount: number; myReactionType: string | null }> = {
-  1: { empathyCount: 5, appreciateCount: 12, helpfulCount: 8, myReactionType: null },
-  2: { empathyCount: 45, appreciateCount: 3, helpfulCount: 2, myReactionType: 'EMPATHY' },
-  3: { empathyCount: 8, appreciateCount: 15, helpfulCount: 22, myReactionType: null },
-  4: { empathyCount: 23, appreciateCount: 5, helpfulCount: 18, myReactionType: 'HELPFUL' },
-  5: { empathyCount: 67, appreciateCount: 12, helpfulCount: 4, myReactionType: null },
-  6: { empathyCount: 3, appreciateCount: 8, helpfulCount: 31, myReactionType: null },
-  7: { empathyCount: 34, appreciateCount: 22, helpfulCount: 15, myReactionType: 'APPRECIATE' },
+// 백엔드 명세 변경(2026-04-21): EMPATHY/APPRECIATE/HELPFUL → LIKE/CURIOUS/USEFUL.
+// 카운트 필드명도 likeCount/curiousCount/usefulCount로 함께 변경됨.
+export const mockReactions: Record<number, { likeCount: number; curiousCount: number; usefulCount: number; myReactionType: string | null }> = {
+  1: { likeCount: 5, curiousCount: 12, usefulCount: 8, myReactionType: null },
+  2: { likeCount: 45, curiousCount: 3, usefulCount: 2, myReactionType: 'LIKE' },
+  3: { likeCount: 8, curiousCount: 15, usefulCount: 22, myReactionType: null },
+  4: { likeCount: 23, curiousCount: 5, usefulCount: 18, myReactionType: 'USEFUL' },
+  5: { likeCount: 67, curiousCount: 12, usefulCount: 4, myReactionType: null },
+  6: { likeCount: 3, curiousCount: 8, usefulCount: 31, myReactionType: null },
+  7: { likeCount: 34, curiousCount: 22, usefulCount: 15, myReactionType: 'CURIOUS' },
 };
