@@ -63,16 +63,6 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // [레이스 가드] 닉네임 저장이 진행 중이면 이미지 업로드 차단.
-    // 이유: 닉네임 PATCH(/me)가 임시 대응(T1)으로 profileImageUrl을 함께 실어 보내기 때문에,
-    // 업로드 직후 아직 스토어가 갱신되기 전/후 타이밍에 닉네임 PATCH가 끝나면
-    // 구 이미지 URL이 서버에 덮어써져 방금 업로드한 이미지가 롤백된다.
-    if (savingNickname) {
-      alert('닉네임 저장이 끝난 뒤 이미지를 변경해주세요.');
-      e.target.value = '';
-      return;
-    }
-
     if (!ALLOWED_TYPES.includes(file.type)) {
       alert('jpg, png, webp 파일만 업로드할 수 있습니다.');
       return;
@@ -97,22 +87,11 @@ export default function ProfilePage() {
   }
 
   function startEditNickname() {
-    // [레이스 가드] 이미지 업로드 중이면 편집 진입 자체를 막음.
-    // 편집 진입을 허용하면 저장 버튼에서만 막아도 사용자가 Enter로 저장할 수 있어,
-    // 저장 핸들러 진입 자체를 원천 차단하는 것이 가장 안전하다.
-    if (uploadingImage) return;
     setNicknameInput(user?.nickname ?? '');
     setEditingNickname(true);
   }
 
   async function handleSaveNickname() {
-    // [레이스 가드] 이미지 업로드 진행 중이면 저장을 막는다.
-    // PATCH /me 가 T1(임시 대응)으로 profileImageUrl 을 함께 전송하기 때문에,
-    // 업로드 완료 전 스토어에 남아 있는 '옛 profileImageUrl' 이 그대로 덮어써지면
-    // 서버에 저장된 새 이미지가 롤백되는 문제가 발생할 수 있다.
-    // 업로드가 끝나 스토어가 최신 URL 로 갱신된 뒤에만 닉네임 PATCH 를 수행한다.
-    if (uploadingImage) return;
-
     const trimmed = nicknameInput.trim();
     if (!trimmed || trimmed === user?.nickname) {
       setEditingNickname(false);
@@ -121,11 +100,7 @@ export default function ProfilePage() {
 
     setSavingNickname(true);
     try {
-      // profileImageUrl: 스토어 값 그대로 전달 — PATCH /me 400 에러 방지 (임시 대응)
-      const updated = await updateMyProfile(
-        trimmed,
-        user?.profileImageUrl ?? null,
-      );
+      const updated = await updateMyProfile(trimmed);
       setUser({ ...user!, ...updated });
       setEditingNickname(false);
     } catch {
@@ -236,9 +211,7 @@ export default function ProfilePage() {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            // [레이스 가드 UI] 업로드 중이거나 닉네임 저장 중이면 아바타 클릭 불가
-            // (핸들러 내부에서도 차단하지만, 버튼을 비활성화해 사용자 피드백을 시각적으로 먼저 준다)
-            disabled={uploadingImage || savingNickname}
+            disabled={uploadingImage}
             className="relative shrink-0 group"
           >
             <UserAvatar
@@ -289,10 +262,7 @@ export default function ProfilePage() {
                   />
                   <button
                     onClick={handleSaveNickname}
-                    // [레이스 가드 UI] 이미지 업로드 중에는 저장 불가
-                    // (업로드가 끝나기 전에 PATCH 를 보내면 옛 profileImageUrl 이 함께 전송돼
-                    //  방금 업로드한 이미지가 덮어써지는 문제가 발생할 수 있다)
-                    disabled={savingNickname || uploadingImage}
+                    disabled={savingNickname}
                     className="text-xs text-white bg-gray-900 px-2.5 py-1 rounded-md hover:bg-gray-800 disabled:opacity-50"
                   >
                     {savingNickname ? '저장 중...' : '저장'}

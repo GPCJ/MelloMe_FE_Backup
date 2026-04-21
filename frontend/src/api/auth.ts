@@ -41,12 +41,8 @@ export async function getMyVerification(): Promise<TherapistVerificationDetail> 
   return data
 }
 
-// PATCH /me — 닉네임 수정용. profileImageUrl은 400 방지를 위해 스토어 값 그대로 전달 (임시 대응, #이슈 참고)
-export async function updateMyProfile(
-  nickname: string,
-  profileImageUrl: string | null,
-): Promise<MeResponse> {
-  const { data } = await axiosInstance.patch('/me', { nickname, profileImageUrl })
+export async function updateMyProfile(nickname: string): Promise<MeResponse> {
+  const { data } = await axiosInstance.patch('/me', { nickname })
   return data
 }
 
