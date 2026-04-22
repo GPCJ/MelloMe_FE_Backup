@@ -6,10 +6,12 @@
 - [AI 의존 줄이기 — 직접 코딩 목표, 힌트는 OK 코드 작성은 직접](./user_self_coding_goal.md)
 - [협업 스타일 — AI 행동 규약 공동 설계형](./user_collab_style_meta.md) — 반복 실수 시 즉시 "규칙화할까요?" 제안 OK
 - [지식 흡수 기준 — 이미지/구조가 떠올라야 흡수](./user_comprehension_criterion.md) — 텍스트로 읽힌 느낌 ≠ 흡수, 비유/다이어그램/추적 트리거 필요
+- [작업 집중 패턴 — 싱글태스크 선호 + 스쳐가는 생각 캡처](./user_work_focus_pattern.md) — 한 작업 몰입 스타일, 떠오르는 생각은 즉시 notepad, 25분 타이머
 - 문서화 역량 면접 Q&A 7항목 → wiki `q-a-7` (reference)
 
 ## 작업 관리
 - **[프론트엔드 작업 백로그](./backlog.md)** — 데일리 태스크 선택용 단일 참조 (할 수 있는 것 / 블로킹 / 검증 방법)
+- [R-01 ProfilePage RQ 마이그레이션 진행](./project_rq_migration_profile_progress.md) — 1단계 posts 완료(2026-04-22), 2단계 commented 재개 대기
 
 ## 프로젝트
 멜로미 — 발달장애 아동 치료사 커뮤니티 플랫폼 (MVP 개발 중)
@@ -45,6 +47,7 @@
 
 ## 협업 프로세스
 - [백엔드 전달 전략 + 이슈 동기화](./project_backend_communication.md) — Swagger 공식, GitHub Issues, 멜로미↔아이로
+- **[백엔드 배포 불가 2026-04-22~04-28](./project_backend_deploy_freeze_0422.md)** — CI/CD 권한 이슈, 이 주는 프론트 단독 완결 작업 우선 · 04-28 이후 재확인 후 삭제
 
 ## 기능명세 / 아키텍처
 - [프론트 기능명세 체계](./project_feature_spec_frontend.md) — FNC-001~007 인증 완료
@@ -66,12 +69,14 @@
 - **[최우선]** [코드 작업 전 트레이드오프 설명 필수](./feedback_tradeoff_before_code.md) / [클린 커밋 히스토리 관리](./feedback_clean_commit_history.md)
 - **[최우선]** [진단→이해→지시→조치 (과잉설명 금지)](./feedback_explain_before_act.md) — 레이블/경쟁가설/1분 검증/최소 정보 제시 5원칙
 - **[최우선]** [workaround 추가 전 스펙/상태 재확인](./feedback_verify_spec_before_workaround.md) — 400/감싸기 판단 전에 Swagger·네트워크·실코드 재확인
+- **[최우선]** [단일 작업 집중 존중 — 곁가지 제안 덤핑 금지](./feedback_single_task_focus.md) — 작업 중 답변은 현재 맥락만, 새 아이디어는 notepad로 라우팅
 - **[AI 직접 작성 코드 → 인지부채 HIGH 메모리 의무](./feedback_ai_written_code_cognitive_debt.md)** — Claude 위임 코드는 메커니즘 상세 기록, 04-15 P1이 첫 사례
 - [AI 작성 코드 학습용 주석 리뷰 워크플로우](./feedback_ai_code_learning_comments.md) — push 전 교육용 밀도 높은 주석 요청 → 리뷰 후 승인
 - [MVP 코드 수정 기준](./feedback_mvp_fix_criteria.md) / [UI는 디자이너 확인 후 + 백엔드 변경의 디자인 영향도 개발 용어 빼고 디자이너 먼저 문의](./feedback_ui_designer_confirm.md)
 - [코드 수정 프로세스 — grep 선행](./feedback_code_change_process.md) / [코드 생성 승인 요청](./feedback_code_approval.md)
 - [MSW는 백엔드 권한 정책 시뮬레이션](./feedback_msw_simulates_backend_policy.md) — mock이 정책 우회 허용하면 프론트 회귀 숨겨짐
 - [섞인 커밋 분리 워크플로우](./feedback_mixed_commit_split_workflow.md) — reset --mixed + stash -u로 브랜치별 분리 재커밋
+- [단계별 체크포인트 마이그레이션 가이드](./feedback_phased_migration_checkpoints.md) — 큰 파일 변경은 단위별 쪼개 각 단계마다 앱 동작 유지
 - [노션 항목 번호 — fetch로 실제 상태 확인 후 결정](./feedback_notion_page_number_check.md)
 - [CSV 검토 시 그때그때 수정](./feedback_api_review_approach.md) / [navigate(-1) 금지](./feedback_navigate_back.md) / [모바일/데스크탑 UX 분기](./feedback_mobile_desktop_ux.md)
 - [질문 방식 — 객관식 vs 주관식](./feedback_question_style.md) / [불확실하면 질문](./feedback_ask_when_uncertain.md)
@@ -99,6 +104,8 @@
 - [GitHub Issues 기술부채 관리](./feedback_github_issues.md) / [이슈는 airo 레포에만](./feedback_airo_issues_only.md)
 - [토큰 사용량 최소화](./feedback_token_usage_awareness.md) / [취업 경험 Notion 정리](./feedback_career_documentation.md)
 - [Vercel SPA 라우팅](./feedback_vercel_spa_routing.md)
+- **[블로그 작성 전략 — Velog 주 최소 1회 + Notion 재가공](./feedback_blog_writing_strategy.md)** — 자랑/보람 감정이 최우선 승격 트리거, 실패 안전장치로 꾸준함 유지 · 취업용일수록 더 주관적으로
+- [블로그 쓰기/편집 모드 분리](./feedback_blog_editing_mode.md) — 썼다 지웠다 루프 차단, 초안은 쭉 / 편집은 완성 후 한 번만 / 막히면 섹션 스킵
 
 ## 공유 문서 / 레퍼런스
 - [팀 요구사항 Google Sheets](./reference_requirements_doc.md) / [Swagger UI](./reference_swagger_endpoint.md) — `api.melonnetherapists.com/swagger-ui/index.html`
@@ -120,6 +127,7 @@
 
 ## 학습 / 성장
 - 프론트엔드 코드 학습 19항목 → wiki `19` (reference) / [코딩 드릴 루틴](./project_coding_drill.md)
+- **[블로그 초기 글 4편 로드맵](./project_blog_first_series.md)** — 1번째: 바이브 코더 규칙 5가지(미니멀 확정, 순서 B) / 2번째: useInfiniteFeed requestIdRef / 3번째: RQ 마이그레이션 후기 / 4번째: AI 메모리 활용 (1번 글에서 분리)
 - [유저 행동 데이터 GA4+Clarity](./project_future_analytics.md) — MVP 이후
 - [회원가입 토큰 반환 요청](./project_signup_token.md) — MVP 이후
 - [README 작성 계획](./project_readme_plan.md) — MVP 완성 후
