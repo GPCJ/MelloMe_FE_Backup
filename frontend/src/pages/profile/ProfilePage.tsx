@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Camera, Pencil, Settings } from 'lucide-react';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
@@ -14,10 +14,11 @@ import { fetchMyPosts, fetchMyComments, fetchMyScraps } from '../../api/mypage';
 import { deleteAccount, logout, uploadProfileImage, updateMyProfile } from '../../api/auth';
 import { useAuthStore } from '../../stores/useAuthStore';
 import type { MyComment, PaginatedComments, PaginatedScraps } from '../../types/mypage';
-import type { PaginatedPosts, PostSummary } from '../../types/post';
+import type { PostSummary } from '../../types/post';
 import UserAvatar from '../../components/common/UserAvatar';
 import { toast } from 'sonner';
 import { getAxiosErrorMessage } from '@/utils/getAxiosErrorMessage';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 
 type Tab = 'posts' | 'commented' | 'scrapped';
 
@@ -113,10 +114,18 @@ export default function ProfilePage() {
 
   const [activeTab, setActiveTab] = useState<Tab>('posts');
 
-  const [postsData, setPostsData] = useState<PaginatedPosts | null>(null);
   const [postsPage, setPostsPage] = useState(1);
-  const [loadingPosts, setLoadingPosts] = useState(false);
-  const [errorPosts, setErrorPosts] = useState(false);
+  const postsQuery = useQuery({
+    queryKey: ['myPosts', postsPage - 1],
+    queryFn: () => fetchMyPosts(postsPage - 1),
+    enabled: activeTab === 'posts',
+    staleTime: 30_000,
+    placeholderData: keepPreviousData,
+  });
+
+  const postsData = postsQuery.data;
+  const loadingPosts = postsQuery.isLoading;
+  const errorPosts = postsQuery.isError;
 
   const [commentsData, setCommentsData] = useState<PaginatedComments | null>(null);
   const [commentsPage, setCommentsPage] = useState(1);
@@ -127,15 +136,6 @@ export default function ProfilePage() {
   const [scrapsPage, setScrapsPage] = useState(1);
   const [loadingScraps, setLoadingScraps] = useState(false);
   const [errorScraps, setErrorScraps] = useState(false);
-
-  function loadPosts(page = postsPage) {
-    setErrorPosts(false);
-    setLoadingPosts(true);
-    fetchMyPosts(page - 1)
-      .then(setPostsData)
-      .catch(() => setErrorPosts(true))
-      .finally(() => setLoadingPosts(false));
-  }
 
   function loadComments(page = commentsPage) {
     setErrorComments(false);
@@ -154,18 +154,6 @@ export default function ProfilePage() {
       .catch(() => setErrorScraps(true))
       .finally(() => setLoadingScraps(false));
   }
-
-  useEffect(() => {
-    if (activeTab === 'posts') loadPosts(postsPage);
-  }, [activeTab, postsPage]);
-
-  useEffect(() => {
-    if (activeTab === 'commented') loadComments(commentsPage);
-  }, [activeTab, commentsPage]);
-
-  useEffect(() => {
-    if (activeTab === 'scrapped') loadScraps(scrapsPage);
-  }, [activeTab, scrapsPage]);
 
   const isVerified = user?.role === 'THERAPIST' || user?.role === 'ADMIN';
 
@@ -327,7 +315,7 @@ export default function ProfilePage() {
         {activeTab === 'posts' && (
           <>
             {loadingPosts && <TabSkeleton />}
-            {errorPosts && <TabError onRetry={() => loadPosts(postsPage)} />}
+            {errorPosts && <TabError onRetry={() => postsQuery.refetch()} />}
             {!loadingPosts && !errorPosts && postsData?.items.length === 0 && (
               <TabEmpty message="작성한 글이 없어요." />
             )}
