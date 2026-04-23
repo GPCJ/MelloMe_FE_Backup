@@ -25,10 +25,10 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 결과: 세 엔드포인트 모두 `items`로 통일, 프론트 타입과 일치, 배포 환경 정상 동작 확인
 
 ### 리팩토링 / 마이그레이션 (미검증)
-- [ ] **R-01** React Query 마이그레이션 (`useInfiniteFeed` → `useInfiniteQuery`)
-  - 검증: `grep "useInfiniteQuery\|@tanstack/react-query" frontend/src` → 도입 여부
+- [x] **R-01a** ProfilePage 3탭 RQ 마이그레이션 완료 (2026-04-23, 커밋 924d55e + 0ba0523)
+- [ ] **R-01b** PostListPage `useInfiniteFeed` → `useInfiniteQuery` (남은 단계)
+  - 검증: `grep "useInfiniteQuery" frontend/src/hooks` → 도입 여부
   - 상세: `project_infinite_scroll_progress.md`
-  - 계획: 1단계 ProfilePage 3탭 (간단 fetch) → 2단계 PostListPage useInfiniteQuery (복잡)
 - [ ] **R-02** AbortController 일괄 적용 (PostListPage, PostDetailPage)
   - 검증: `grep "AbortController" frontend/src/pages` → 적용 여부
 - [ ] **R-03** refresh plain axios 분리
@@ -37,6 +37,9 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 - [ ] **R-04** FilterChips 컴포넌트 추출 (Pagination 추출 완료, 다음 순서)
   - 검증: `grep "FilterChips" frontend/src/components` → 공통 컴포넌트 존재 여부
   - 상세: `project_search_code_review.md`
+- [ ] **R-05** ProfilePage 관심사 분리 (RQ 마이그레이션 후 후속 정리)
+  - 현황: 3탭 RQ 전환 후 파일 400줄+, 탭/편집/인증 로직 혼재
+  - 검증: `wc -l frontend/src/pages/profile/ProfilePage.tsx` → 분리 전후 비교
 
 ### 인지부채 (코드 아닌 학습)
 - [x] **L-01** `useInfiniteFeed` + P1 fallback 메커니즘 복습 (04-17 대략적 로직 + controller 이해 완료, 더 깊이 파는 것은 RQ 도입 후 불필요)

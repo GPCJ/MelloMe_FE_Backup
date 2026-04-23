@@ -10,8 +10,8 @@
 - 문서화 역량 면접 Q&A 7항목 → wiki `q-a-7` (reference)
 
 ## 작업 관리
+- **[2주 우선순위 2026-04-23~05-07](./project_2weeks_priority_0423.md)** — SEO/Analytics/UI 3개만 최우선, 다른 R-xx 리팩토링은 후순위 (05-07까지 유효)
 - **[프론트엔드 작업 백로그](./backlog.md)** — 데일리 태스크 선택용 단일 참조 (할 수 있는 것 / 블로킹 / 검증 방법)
-- [R-01 ProfilePage RQ 마이그레이션 진행](./project_rq_migration_profile_progress.md) — 1단계 posts 완료(2026-04-22), 2단계 commented 재개 대기
 
 ## 프로젝트
 멜로미 — 발달장애 아동 치료사 커뮤니티 플랫폼 (MVP 개발 중)
@@ -72,6 +72,7 @@
 - **[최우선]** [단일 작업 집중 존중 — 곁가지 제안 덤핑 금지](./feedback_single_task_focus.md) — 작업 중 답변은 현재 맥락만, 새 아이디어는 notepad로 라우팅
 - **[AI 직접 작성 코드 → 인지부채 HIGH 메모리 의무](./feedback_ai_written_code_cognitive_debt.md)** — Claude 위임 코드는 메커니즘 상세 기록, 04-15 P1이 첫 사례
 - [AI 작성 코드 학습용 주석 리뷰 워크플로우](./feedback_ai_code_learning_comments.md) — push 전 교육용 밀도 높은 주석 요청 → 리뷰 후 승인
+- **[AI 개입도 50%+ 작업 후 소크라테스식 Q&A](./feedback_learning_gap_socratic_checkin.md)** — 시작 시 모드 선언(A) + 종료 시 라인 비율 공유(C), 50% 넘으면 /wrap-up 전 6~8문항 Q&A 제안
 - [MVP 코드 수정 기준](./feedback_mvp_fix_criteria.md) / [UI는 디자이너 확인 후 + 백엔드 변경의 디자인 영향도 개발 용어 빼고 디자이너 먼저 문의](./feedback_ui_designer_confirm.md)
 - [코드 수정 프로세스 — grep 선행](./feedback_code_change_process.md) / [코드 생성 승인 요청](./feedback_code_approval.md)
 - [MSW는 백엔드 권한 정책 시뮬레이션](./feedback_msw_simulates_backend_policy.md) — mock이 정책 우회 허용하면 프론트 회귀 숨겨짐
@@ -108,6 +109,7 @@
 - [블로그 쓰기/편집 모드 분리](./feedback_blog_editing_mode.md) — 썼다 지웠다 루프 차단, 초안은 쭉 / 편집은 완성 후 한 번만 / 막히면 섹션 스킵
 
 ## 공유 문서 / 레퍼런스
+- **[분석/검색 대시보드 (Search Console/GA4/Clarity)](./reference_analytics_dashboards.md)** — 대시보드 URL + 식별자 (GA4 `G-7VPMPFL76M`, Clarity `wg3vefhmgy`)
 - [팀 요구사항 Google Sheets](./reference_requirements_doc.md) / [Swagger UI](./reference_swagger_endpoint.md) — `api.melonnetherapists.com/swagger-ui/index.html`
 - [백엔드 Swagger OpenAPI 엔드포인트](./reference_backend_swagger.md) — `api.melonnetherapists.com/v3/api-docs`, API prefix `/api/v1`, 필요 시 WebFetch로 fresh 조회
 - [Notion TIL](./reference_notion_til.md) (18:30 KST) / [빌더스 리그 + 서브페이지 ID + 컨벤션](./reference_notion_builders_league.md) / [트러블슈팅](./reference_notion_troubleshooting.md)
@@ -128,7 +130,7 @@
 ## 학습 / 성장
 - 프론트엔드 코드 학습 19항목 → wiki `19` (reference) / [코딩 드릴 루틴](./project_coding_drill.md)
 - **[블로그 초기 글 4편 로드맵](./project_blog_first_series.md)** — 1번째: 바이브 코더 규칙 5가지(미니멀 확정, 순서 B) / 2번째: useInfiniteFeed requestIdRef / 3번째: RQ 마이그레이션 후기 / 4번째: AI 메모리 활용 (1번 글에서 분리)
-- [유저 행동 데이터 GA4+Clarity](./project_future_analytics.md) — MVP 이후
+- **[GA4 + Clarity 설치 — 인지부채 HIGH](./project_analytics_ga4_clarity_install.md)** — 2026-04-23 2단계 설치, useGA4PageView 훅은 AI 전체 작성 / 원 계획은 [여기](./project_future_analytics.md)
 - [회원가입 토큰 반환 요청](./project_signup_token.md) — MVP 이후
 - [README 작성 계획](./project_readme_plan.md) — MVP 완성 후
 
