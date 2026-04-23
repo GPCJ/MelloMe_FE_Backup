@@ -7,6 +7,37 @@
     <!-- Google Search Console 소유권 확인용 (삭제하면 Search Console 연결 해제됨) -->
     <meta name="google-site-verification" content="cZuyZEZ9eWZ_1HbxFXHDQfVDp7wWJMQlSxkcwbE10ug" />
 
+    <!-- Google Analytics 4: 트래픽·유입·체류시간 측정 -->
+    <!-- async: 메인 스레드 블로킹 없이 스크립트 다운로드, 다운로드 완료되면 실행 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7VPMPFL76M"></script>
+    <script>
+      // window.dataLayer: gtag가 스크립트 로드 전에 호출돼도 큐잉해두는 배열
+      window.dataLayer = window.dataLayer || [];
+      // gtag 함수 본체 — 모든 호출을 dataLayer에 밀어 넣음 (실제 전송은 googletagmanager 스크립트가 처리)
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      // 'config'로 측정 ID 등록 → 이 시점에 자동으로 page_view 1회 발송됨
+      gtag('config', 'G-7VPMPFL76M');
+    </script>
+
+    <!-- Microsoft Clarity: 히트맵 + 세션 녹화 (SPA 라우트 자동 감지) -->
+    <script type="text/javascript">
+      (function (c, l, a, r, i, t, y) {
+        c[a] =
+          c[a] ||
+          function () {
+            (c[a].q = c[a].q || []).push(arguments);
+          };
+        t = l.createElement(r);
+        t.async = 1;
+        t.src = 'https://www.clarity.ms/tag/' + i;
+        y = l.getElementsByTagName(r)[0];
+        y.parentNode.insertBefore(t, y);
+      })(window, document, 'clarity', 'script', 'wg3vefhmgy');
+    </script>
+
     <!-- 검색엔진(구글) 노출용 기본 메타 -->
     <title>멜로미 - 발달장애 아동 치료사 커뮤니티</title>
     <meta

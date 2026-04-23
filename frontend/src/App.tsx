@@ -16,10 +16,24 @@ import SearchPage from './pages/search/SearchPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import TherapistVerificationPage from './pages/auth/TherapistVerificationPage';
 import VerificationCompletePage from './pages/auth/VerificationCompletePage';
+import { useGA4PageView } from './hooks/useGA4PageView';
+
+/**
+ * SPA 라우트 변경 시마다 GA4에 page_view 이벤트를 발송하는 트래커.
+ *
+ * 이 컴포넌트는 UI를 렌더하지 않고 사이드이펙트(이벤트 발송)만 수행.
+ * BrowserRouter 내부에 두는 이유: useLocation은 Router context 필요 →
+ * App 루트에서 직접 useGA4PageView()를 호출하면 context 없어서 런타임 에러.
+ */
+function AnalyticsTracker() {
+  useGA4PageView();
+  return null;
+}
 
 function App() {
   return (
     <BrowserRouter>
+      <AnalyticsTracker />
       <Routes>
         {/* LandingPage — 자체 navbar/footer가 있어서 Layout 밖에 위치 */}
         <Route path="/" element={<LandingPage />} />
