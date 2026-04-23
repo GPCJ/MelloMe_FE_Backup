@@ -13,7 +13,7 @@ import PostCard from '../../components/post/PostCard';
 import { fetchMyPosts, fetchMyComments, fetchMyScraps } from '../../api/mypage';
 import { deleteAccount, logout, uploadProfileImage, updateMyProfile } from '../../api/auth';
 import { useAuthStore } from '../../stores/useAuthStore';
-import type { MyComment, PaginatedComments, PaginatedScraps } from '../../types/mypage';
+import type { MyComment } from '../../types/mypage';
 import type { PostSummary } from '../../types/post';
 import UserAvatar from '../../components/common/UserAvatar';
 import { toast } from 'sonner';
@@ -127,33 +127,31 @@ export default function ProfilePage() {
   const loadingPosts = postsQuery.isLoading;
   const errorPosts = postsQuery.isError;
 
-  const [commentsData, setCommentsData] = useState<PaginatedComments | null>(null);
   const [commentsPage, setCommentsPage] = useState(1);
-  const [loadingComments, setLoadingComments] = useState(false);
-  const [errorComments, setErrorComments] = useState(false);
+  const commentsQuery = useQuery({
+    queryKey: ['myComments', commentsPage - 1],
+    queryFn: () => fetchMyComments(commentsPage - 1),
+    enabled: activeTab === 'commented',
+    staleTime: 30_000,
+    placeholderData: keepPreviousData,
+  });
 
-  const [scrapsData, setScrapsData] = useState<PaginatedScraps | null>(null);
+  const commentsData = commentsQuery.data;
+  const loadingComments = commentsQuery.isLoading;
+  const errorComments = commentsQuery.isError;
+
   const [scrapsPage, setScrapsPage] = useState(1);
-  const [loadingScraps, setLoadingScraps] = useState(false);
-  const [errorScraps, setErrorScraps] = useState(false);
+  const scrapsQuery = useQuery({
+    queryKey: ['myScraps', scrapsPage - 1],
+    queryFn: () => fetchMyScraps(scrapsPage - 1),
+    enabled: activeTab === 'scrapped',
+    staleTime: 30_000,
+    placeholderData: keepPreviousData,
+  });
 
-  function loadComments(page = commentsPage) {
-    setErrorComments(false);
-    setLoadingComments(true);
-    fetchMyComments(page - 1)
-      .then(setCommentsData)
-      .catch(() => setErrorComments(true))
-      .finally(() => setLoadingComments(false));
-  }
-
-  function loadScraps(page = scrapsPage) {
-    setErrorScraps(false);
-    setLoadingScraps(true);
-    fetchMyScraps(page - 1)
-      .then(setScrapsData)
-      .catch(() => setErrorScraps(true))
-      .finally(() => setLoadingScraps(false));
-  }
+  const scrapsData = scrapsQuery.data;
+  const loadingScraps = scrapsQuery.isLoading;
+  const errorScraps = scrapsQuery.isError;
 
   const isVerified = user?.role === 'THERAPIST' || user?.role === 'ADMIN';
 
@@ -359,7 +357,7 @@ export default function ProfilePage() {
         {activeTab === 'commented' && (
           <>
             {loadingComments && <TabSkeleton />}
-            {errorComments && <TabError onRetry={() => loadComments(commentsPage)} />}
+            {errorComments && <TabError onRetry={() => commentsQuery.refetch()} />}
             {!loadingComments && !errorComments && commentsData?.items.length === 0 && (
               <TabEmpty message="답글 단 글이 없어요." />
             )}
@@ -405,7 +403,7 @@ export default function ProfilePage() {
         {activeTab === 'scrapped' && (
           <>
             {loadingScraps && <TabSkeleton />}
-            {errorScraps && <TabError onRetry={() => loadScraps(scrapsPage)} />}
+            {errorScraps && <TabError onRetry={() => scrapsQuery.refetch()} />}
             {!loadingScraps && !errorScraps && scrapsData?.items.length === 0 && (
               <TabEmpty message="스크랩한 글이 없어요." />
             )}

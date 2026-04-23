@@ -1,27 +1,85 @@
 // 프로필 핸들러 — 내가 쓴 게시글, 활동 내역 (댓글단 글 + 스크랩)
 import { http, HttpResponse } from 'msw';
 import { mockPosts } from '../data/posts';
-import { testAccounts } from '../data/users';
-import { currentUserEmail } from '../state';
 
 const API = import.meta.env.VITE_API_BASE_URL;
 
 export const profileHandlers = [
   http.get(`${API}/me/posts`, () => {
-    const currentAccount = currentUserEmail ? testAccounts[currentUserEmail] : null;
-    const items = mockPosts
-      .filter((p) => p.authorId === currentAccount?.id)
-      .map((p) => ({
-        id: p.id,
-        postType: 'COMMUNITY' as const,
-        contentPreview: p.contentPreview,
-        authorNickname: p.authorNickname,
-        therapyArea: p.therapyArea,
-        visibility: 'PUBLIC' as const,
-        viewCount: p.viewCount,
-        createdAt: p.createdAt,
-        scrapped: false,
-      }));
+    // mock 환경에서는 currentUserEmail이 mockPosts 작성자와 매칭되지 않는 경우가 잦아
+    // 화면 검증용으로 mockPosts 전체를 반환 (필터 생략)
+    const items = mockPosts.map((p) => ({
+      id: p.id,
+      postType: 'COMMUNITY' as const,
+      contentPreview: p.contentPreview,
+      authorNickname: p.authorNickname,
+      therapyArea: p.therapyArea,
+      visibility: 'PUBLIC' as const,
+      viewCount: p.viewCount,
+      createdAt: p.createdAt,
+      scrapped: false,
+    }));
+    return HttpResponse.json({
+      items,
+      page: 0,
+      size: 10,
+      totalElements: items.length,
+      totalPages: 1,
+      hasNext: false,
+    });
+  }),
+
+  http.get(`${API}/me/comments`, () => {
+    const items = [
+      {
+        commentId: 101,
+        content: '저도 비슷한 경험이 있어요. First-Then 보드가 효과적이었습니다.',
+        postId: 4,
+        createdAt: '2026-04-01T11:30:00Z',
+        isDeleted: false,
+      },
+      {
+        commentId: 102,
+        content:
+          '힘내세요! 저도 3년차 때 가장 힘들었는데, 동료 치료사들과 정기적인 케이스 컨퍼런스를 시작하면서 많이 나아졌어요.',
+        postId: 5,
+        createdAt: '2026-04-01T08:00:00Z',
+        isDeleted: false,
+      },
+    ];
+    return HttpResponse.json({
+      items,
+      page: 0,
+      size: 10,
+      totalElements: items.length,
+      totalPages: 1,
+      hasNext: false,
+    });
+  }),
+
+  http.get(`${API}/me/scraps`, () => {
+    const items = [
+      {
+        postId: 1,
+        contentPreview: '감각통합 활동에 유용한 자료를 공유합니다...',
+        authorNickname: '김작업치료사',
+        therapyArea: 'OCCUPATIONAL',
+        ageGroup: null,
+        viewCount: 42,
+        postCreatedAt: '2026-04-02T08:00:00Z',
+        scrappedAt: '2026-04-02T09:00:00Z',
+      },
+      {
+        postId: 2,
+        contentPreview: '오늘 치료 세션에서 아이가 처음으로 두 단어 조합 문장을 말했어요!...',
+        authorNickname: '언어치료사_민지',
+        therapyArea: 'SPEECH',
+        ageGroup: null,
+        viewCount: 234,
+        postCreatedAt: '2026-04-02T06:30:00Z',
+        scrappedAt: '2026-04-02T07:30:00Z',
+      },
+    ];
     return HttpResponse.json({
       items,
       page: 0,
