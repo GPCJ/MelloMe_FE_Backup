@@ -48,6 +48,7 @@
 ## 협업 프로세스
 - [백엔드 전달 전략 + 이슈 동기화](./project_backend_communication.md) — Swagger 공식, GitHub Issues, 멜로미↔아이로
 - **[백엔드 배포 불가 2026-04-22~04-28](./project_backend_deploy_freeze_0422.md)** — CI/CD 권한 이슈, 이 주는 프론트 단독 완결 작업 우선 · 04-28 이후 재확인 후 삭제
+- **[분석 이벤트 설계 오너는 PM](./project_analytics_event_ownership.md)** — GA4/Clarity 이벤트 설계는 PM 담당, 프론트는 삽입만. 2026-04-24 기준 이벤트 4개 확정 (익명)
 
 ## 기능명세 / 아키텍처
 - [프론트 기능명세 체계](./project_feature_spec_frontend.md) — FNC-001~007 인증 완료
@@ -73,6 +74,9 @@
 - **[AI 직접 작성 코드 → 인지부채 HIGH 메모리 의무](./feedback_ai_written_code_cognitive_debt.md)** — Claude 위임 코드는 메커니즘 상세 기록, 04-15 P1이 첫 사례
 - [AI 작성 코드 학습용 주석 리뷰 워크플로우](./feedback_ai_code_learning_comments.md) — push 전 교육용 밀도 높은 주석 요청 → 리뷰 후 승인
 - **[AI 개입도 50%+ 작업 후 소크라테스식 Q&A](./feedback_learning_gap_socratic_checkin.md)** — 시작 시 모드 선언(A) + 종료 시 라인 비율 공유(C), 50% 넘으면 /wrap-up 전 6~8문항 Q&A 제안
+- **[AI 산문 패턴 체크리스트 — Claude 작성 장문 문서](./feedback_ai_prose_patterns.md)** — em-dash·3의법칙·불릿동일리듬·볼드콜론·h3과밀·자기격언화 등, wiki 작성 시 self-critique
+- **[이원 독자 문서는 파일 분리](./feedback_audience_split_docs.md)** — PM용/개발자용 하이브리드 X, `<topic>-pm.md`/`<topic>-dev.md` 분리 + 각 원칙
+- **[한국어 문서는 ~합니다 존댓말 통일](./feedback_korean_formal_tone_docs.md)** — 본인용도 포함, 인용부·의문형 예외
 - [MVP 코드 수정 기준](./feedback_mvp_fix_criteria.md) / [UI는 디자이너 확인 후 + 백엔드 변경의 디자인 영향도 개발 용어 빼고 디자이너 먼저 문의](./feedback_ui_designer_confirm.md)
 - [코드 수정 프로세스 — grep 선행](./feedback_code_change_process.md) / [코드 생성 승인 요청](./feedback_code_approval.md)
 - [MSW는 백엔드 권한 정책 시뮬레이션](./feedback_msw_simulates_backend_policy.md) — mock이 정책 우회 허용하면 프론트 회귀 숨겨짐
@@ -131,6 +135,7 @@
 - 프론트엔드 코드 학습 19항목 → wiki `19` (reference) / [코딩 드릴 루틴](./project_coding_drill.md)
 - **[블로그 초기 글 4편 로드맵](./project_blog_first_series.md)** — 1번째: 바이브 코더 규칙 5가지(미니멀 확정, 순서 B) / 2번째: useInfiniteFeed requestIdRef / 3번째: RQ 마이그레이션 후기 / 4번째: AI 메모리 활용 (1번 글에서 분리)
 - **[GA4 + Clarity 설치 — 인지부채 HIGH](./project_analytics_ga4_clarity_install.md)** — 2026-04-23 2단계 설치, useGA4PageView 훅은 AI 전체 작성 / 원 계획은 [여기](./project_future_analytics.md)
+- 유저 행동 데이터 수집 구현 맥락 — 개발자용 `ga4-clarity-dev` / PM용 `ga4-clarity-pm` (decision, 2026-04-24) · 원본 `ga4-clarity-4` 보존
 - [회원가입 토큰 반환 요청](./project_signup_token.md) — MVP 이후
 - [README 작성 계획](./project_readme_plan.md) — MVP 완성 후
 
