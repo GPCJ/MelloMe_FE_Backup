@@ -109,6 +109,8 @@
 - [GitHub Issues 기술부채 관리](./feedback_github_issues.md) / [이슈는 airo 레포에만](./feedback_airo_issues_only.md)
 - [토큰 사용량 최소화](./feedback_token_usage_awareness.md) / [취업 경험 Notion 정리](./feedback_career_documentation.md)
 - [Vercel SPA 라우팅](./feedback_vercel_spa_routing.md)
+- **[다른 직군 영향 작업 먼저](./feedback_cross_role_impact_priority.md)** — PM/디자이너/백엔드 검토·컨펌 필요한 것을 자기완결 작업보다 먼저, 상대 대기시간 병렬화
+- **[진행 상황은 backlog, memory엔 결정/Why만](./feedback_memory_vs_backlog_split.md)** — /wrap-up 저장 시 체크박스/남은 작업은 backlog로, memory엔 시간 불변 결정만 (stale 방지)
 - **[블로그 작성 전략 — Velog 주 최소 1회 + Notion 재가공](./feedback_blog_writing_strategy.md)** — 자랑/보람 감정이 최우선 승격 트리거, 실패 안전장치로 꾸준함 유지 · 취업용일수록 더 주관적으로
 - [블로그 쓰기/편집 모드 분리](./feedback_blog_editing_mode.md) — 썼다 지웠다 루프 차단, 초안은 쭉 / 편집은 완성 후 한 번만 / 막히면 섹션 스킵
 - **[Jira 이슈 생성 전 프로젝트 목록 조회 필수](./feedback_jira_project_query_first.md)** — 프로젝트 키 미확인 시 `getVisibleJiraProjects` 먼저, 잘못된 프로젝트에 생성하는 실수 방지
@@ -138,6 +140,7 @@
 - **[블로그 초기 글 4편 로드맵](./project_blog_first_series.md)** — 1번째: 바이브 코더 규칙 5가지(미니멀 확정, 순서 B) / 2번째: useInfiniteFeed requestIdRef / 3번째: RQ 마이그레이션 후기 / 4번째: AI 메모리 활용 (1번 글에서 분리)
 - **[GA4 + Clarity 설치 — 인지부채 HIGH](./project_analytics_ga4_clarity_install.md)** — 2026-04-23 2단계 설치, useGA4PageView 훅은 AI 전체 작성 / 원 계획은 [여기](./project_future_analytics.md)
 - 유저 행동 데이터 수집 구현 맥락 — 개발자용 `ga4-clarity-dev` / PM용 `ga4-clarity-pm` (decision, 2026-04-24) · 원본 `ga4-clarity-4` 보존
+- **[/privacy 라우트 설계 결정](./project_privacy_policy_page.md)** — Layout 밖 독립, 링크 동작(Signup 새탭/Login same-tab), 초안 배너 PM 검토 전 유지 · 진행 상황은 backlog P/PM 섹션
 - [회원가입 토큰 반환 요청](./project_signup_token.md) — MVP 이후
 - [README 작성 계획](./project_readme_plan.md) — MVP 완성 후
 

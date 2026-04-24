@@ -152,8 +152,11 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-gray-200 py-6">
-        <div className="max-w-5xl mx-auto px-6 text-center text-sm text-gray-400">
-          © 2026 멜로미
+        <div className="max-w-5xl mx-auto px-6 flex flex-col items-center gap-2 text-sm text-gray-400 sm:flex-row sm:justify-between">
+          <span>© 2026 멜로미</span>
+          <Link to="/privacy" className="hover:text-gray-600 hover:underline">
+            개인정보처리방침
+          </Link>
         </div>
       </footer>
     </div>

@@ -167,7 +167,12 @@ export default function SignupPage() {
                   onCheckedChange={(v) => setAgreePrivacy(v === true)}
                 />
                 <Label htmlFor="agreePrivacy" className="text-sm font-normal cursor-pointer">
-                  <a href="#" className="underline text-blue-600">
+                  <a
+                    href="/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline text-blue-600"
+                  >
                     개인정보처리방침
                   </a>
                   에 동의합니다 (필수)

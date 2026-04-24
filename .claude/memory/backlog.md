@@ -48,6 +48,12 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 - [ ] **L-03** 리액션 API 리팩토링 흐름 이해
 - [x] **L-04** 마이페이지 3탭 데이터 흐름 이해 (04-17 완료)
 
+### 정책 페이지
+- [x] **P-01** 개인정보처리방침 페이지 `/privacy` + Signup/LandingFooter/LoginPage 링크 (2026-04-24 완료)
+  - 상세: `project_privacy_policy_page.md`
+- [ ] **P-02** 이용약관 페이지 `/terms` + SignupPage/LoginPage 이용약관 링크 연결
+  - 검증: `grep "\"/terms\"" frontend/src/pages` → 연결 여부
+
 ---
 
 ## 2. 블로킹 대기
@@ -80,6 +86,11 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 ### 해소됨
 - [-] ~~탈퇴 유저 에러코드 분리~~ → 비번 틀림과 동일 에러 유지 확정 (04-16)
 - [x] ~~이미지 public + 절대 경로~~ → 해결됨 (04-16)
+
+### PM / 운영
+- [ ] **PM-01** 개인정보처리방침 법적 검토 → 통과 시 `PrivacyPage.tsx` 상단 초안 배너 제거 + 시행일 갱신
+  - 검증: `grep "검토 중인 초안" frontend/src/pages/PrivacyPage.tsx` → 제거 여부
+- [ ] **PM-02** 개인정보 보호책임자 연락처 확정 → `melonnebuilders@gmail.com` 플레이스홀더 교체
 
 ### 디자이너 [디자인]
 - [ ] **D-01** 정렬 토글 UI (LATEST/POPULAR) 시안

@@ -152,7 +152,11 @@ export default function LoginPage() {
           이용약관
         </button>{' '}
         및{' '}
-        <button type="button" className="text-blue-400 hover:underline">
+        <button
+          onClick={() => navigate('/privacy')}
+          type="button"
+          className="text-blue-400 hover:underline"
+        >
           개인정보처리방침
         </button>
         에 동의하게 됩니다.

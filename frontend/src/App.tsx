@@ -6,6 +6,7 @@ import LoginPage from './pages/auth/LoginPage';
 import SignupPage from './pages/auth/SignupPage';
 import NotFoundPage from './pages/NotFoundPage';
 import LandingPage from './pages/LandingPage';
+import PrivacyPage from './pages/PrivacyPage';
 import PostListPage from './pages/post/PostListPage';
 import PostDetailPage from './pages/post/PostDetailPage';
 import PostCreatePage from './pages/post/PostCreatePage';
@@ -37,6 +38,8 @@ function App() {
       <Routes>
         {/* LandingPage — 자체 navbar/footer가 있어서 Layout 밖에 위치 */}
         <Route path="/" element={<LandingPage />} />
+        {/* 정책 페이지 — 비로그인/로그인 모두 접근, Layout 밖 독립 렌더 */}
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route element={<Layout />}>
           {/* 비로그인 전용 라우트 */}
           <Route element={<GuestRoute />}>
