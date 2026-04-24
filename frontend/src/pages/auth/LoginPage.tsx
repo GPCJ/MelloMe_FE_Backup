@@ -31,6 +31,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const { user, tokens } = await login(email, password);
+      window.gtag?.('event', 'login_completed');
       setTokens(tokens);
       setUser(user);
 

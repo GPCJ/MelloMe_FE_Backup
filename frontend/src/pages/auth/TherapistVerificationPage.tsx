@@ -81,6 +81,7 @@ export default function TherapistVerificationPage() {
     setError('');
     try {
       await applyTherapistVerification(licenseCode, file!);
+      window.gtag?.('event', 'verification_requested');
       const freshVerification = await getMyVerification();
       setVerification(freshVerification);
       navigate('/verification-complete');

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Image, Lock, LockOpen, Paperclip } from 'lucide-react';
 import SimpleTextEditor from '../../components/post/SimpleTextEditor';
@@ -13,6 +13,7 @@ import {
 import { useAuthStore } from '../../stores/useAuthStore';
 import type { TherapyArea } from '../../types/post';
 import { THERAPY_CHIPS } from '../../constants/post';
+import { fetchMyPosts } from '../../api/mypage';
 
 export default function PostCreatePage() {
   const navigate = useNavigate();
@@ -41,6 +42,14 @@ export default function PostCreatePage() {
   } = useFileAttachment();
 
   const canSubmit = content.trim().length > 0 && !submitting;
+
+  const [wasFirstPost, setWasFirstPost] = useState(false);
+
+  useEffect(() => {
+    fetchMyPosts(0, 1)
+      .then((res) => setWasFirstPost(res.totalElements === 0))
+      .catch(() => {}); // 실패 시 이벤트 발송 생략
+  }, []);
 
   async function handleSubmit() {
     if (!canSubmit) return;
@@ -76,6 +85,7 @@ export default function PostCreatePage() {
       if (failedCount > 0) {
         alert(`게시글은 등록되었지만 ${failedCount}개 첨부파일 업로드에 실패했습니다.`);
       }
+      if (wasFirstPost) window.gtag?.('event', 'first_post_created');
       navigate(`/posts/${post.id}`);
     } catch {
       if (createdPostId) {

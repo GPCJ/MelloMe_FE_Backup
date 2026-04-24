@@ -48,6 +48,7 @@ export default function SignupPage() {
     setLoading(true);
     try {
       const data = await signup(email, password, agreeTerms, agreePrivacy);
+      window.gtag?.('event', 'signup_completed');
       setTokens({ accessToken: data.accessToken });
       setUser({
         id: data.id,
