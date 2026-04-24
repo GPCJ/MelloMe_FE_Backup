@@ -82,6 +82,11 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 현황: 백엔드가 presigned URL 방식으로 결정, 작업 대기
   - 검증: Swagger `/v3/api-docs` 재조회 → `PostImageResponse.imageUrl`이 서명 쿼리 포함 절대 URL인지
   - 상세: `project_post_image_presigned_url.md`
+- [ ] **B-08** 유저 행동 분석용 `analyticsId` 필드 추가 (P1) — 확인일: 04-24
+  - 현황: 프론트 해시 불가(rainbow table 역산), 평문 `user.id` 전송 금지. 백엔드 HMAC-SHA256 + 서버 salt 필수. 04-28 배포 freeze 해제 후 Jira 에픽으로 착수 예정.
+  - 검증: `/me`·`/auth/login`·`/auth/signup` 응답에 `analyticsId` 32자 hex 포함 여부
+  - 블로킹: GA4 커스텀 이벤트 4종(`signup_completed`, `login_completed`, `verification_requested`, `first_post_created`) 삽입 작업 전면 대기
+  - 상세: `jira_draft.md`
 
 ### 해소됨
 - [-] ~~탈퇴 유저 에러코드 분리~~ → 비번 틀림과 동일 에러 유지 확정 (04-16)

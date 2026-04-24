@@ -20,8 +20,9 @@ originSessionId: 66a71c38-a303-4648-9da9-5f6eff5595a0
 
 ### 2. 유저 행동 데이터 수집
 - **GA4/Clarity 설치 (완료 2026-04-23)** — 상세 `./project_analytics_ga4_clarity_install.md`
-- **이벤트 설계 (미진행)** — 핵심 이벤트 5~10개 정의 → 컴포넌트에 gtag 호출 삽입
-- **개인정보 처리방침 문구 업데이트** — 분석 쿠키 수집 고지
+- **이벤트 설계 (PM 4종 확정 2026-04-24)** — `signup_completed`, `login_completed`, `verification_requested`, `first_post_created`
+- **이벤트 삽입 — 보류 (2026-04-24 결정)** — 백엔드 `analyticsId` 필드(HMAC-SHA256) 대기. 프론트 단독 해결 불가 사유: 프론트 해시는 rainbow table로 역산, 평문 `user.id` 전송은 GA4 비식별 원칙 위반. Jira 에픽 초안은 `./jira_draft.md`. 착수 트리거: 04-28 백엔드 freeze 해제
+- **개인정보 처리방침 문구 업데이트** — 분석 쿠키 + 분석 식별자(해시값) 전송 고지. 이벤트 삽입과 함께 진행
 
 ### 3. 디자이너 피그마 보고 UI 안정화
 - 피그마 최신 버전 diff 확인 (미진행)

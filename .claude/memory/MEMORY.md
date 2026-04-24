@@ -140,6 +140,7 @@
 - **[블로그 초기 글 4편 로드맵](./project_blog_first_series.md)** — 1번째: 바이브 코더 규칙 5가지(미니멀 확정, 순서 B) / 2번째: useInfiniteFeed requestIdRef / 3번째: RQ 마이그레이션 후기 / 4번째: AI 메모리 활용 (1번 글에서 분리)
 - **[GA4 + Clarity 설치 — 인지부채 HIGH](./project_analytics_ga4_clarity_install.md)** — 2026-04-23 2단계 설치, useGA4PageView 훅은 AI 전체 작성 / 원 계획은 [여기](./project_future_analytics.md)
 - 유저 행동 데이터 수집 구현 맥락 — 개발자용 `ga4-clarity-dev` / PM용 `ga4-clarity-pm` (decision, 2026-04-24) · 원본 `ga4-clarity-4` 보존
+- **[GA4 user_id 부착 정책 — analyticsId 대기](./project_analytics_user_id_decision.md)** — 2026-04-24 결정. 백엔드 HMAC 해시 필수, 프론트 단독 해시/평문 user.id 금지. 이벤트 4종 삽입은 04-28 freeze 해제 후 착수
 - **[/privacy 라우트 설계 결정](./project_privacy_policy_page.md)** — Layout 밖 독립, 링크 동작(Signup 새탭/Login same-tab), 초안 배너 PM 검토 전 유지 · 진행 상황은 backlog P/PM 섹션
 - [회원가입 토큰 반환 요청](./project_signup_token.md) — MVP 이후
 - [README 작성 계획](./project_readme_plan.md) — MVP 완성 후
@@ -149,6 +150,9 @@
 
 ## 노션 초안
 - [업로드 대기 초안](./notion_draft.md) — `/pull-mello` 후 확인
+
+## Jira 초안
+- [업로드 대기 에픽/스토리 초안](./jira_draft.md) — 다른 계정 Jira MCP로 생성 예정, 프로젝트 키 `MEL` 재확인 필수
 
 ## 메모리 관리
 - [최적화 프로세스 — 토큰 절약형](./feedback_memory_optimization_process.md) — 에이전트 전수조사 금지, 인덱스 기반 판단
