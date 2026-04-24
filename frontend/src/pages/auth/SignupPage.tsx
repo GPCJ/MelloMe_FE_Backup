@@ -155,7 +155,12 @@ export default function SignupPage() {
                   onCheckedChange={(v) => setAgreeTerms(v === true)}
                 />
                 <Label htmlFor="agreeTerms" className="text-sm font-normal cursor-pointer">
-                  <a href="#" className="underline text-blue-600">
+                  <a
+                    href="/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline text-blue-600"
+                  >
                     이용약관
                   </a>
                   에 동의합니다 (필수)

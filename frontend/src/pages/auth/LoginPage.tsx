@@ -149,7 +149,11 @@ export default function LoginPage() {
       {/* 하단 이용약관 */}
       <p className="mt-6 text-xs text-gray-400 text-center">
         로그인 시{' '}
-        <button type="button" className="text-blue-400 hover:underline">
+        <button
+          onClick={() => navigate('/terms')}
+          type="button"
+          className="text-blue-400 hover:underline"
+        >
           이용약관
         </button>{' '}
         및{' '}
