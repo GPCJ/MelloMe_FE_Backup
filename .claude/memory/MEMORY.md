@@ -111,9 +111,11 @@
 - [Vercel SPA 라우팅](./feedback_vercel_spa_routing.md)
 - **[블로그 작성 전략 — Velog 주 최소 1회 + Notion 재가공](./feedback_blog_writing_strategy.md)** — 자랑/보람 감정이 최우선 승격 트리거, 실패 안전장치로 꾸준함 유지 · 취업용일수록 더 주관적으로
 - [블로그 쓰기/편집 모드 분리](./feedback_blog_editing_mode.md) — 썼다 지웠다 루프 차단, 초안은 쭉 / 편집은 완성 후 한 번만 / 막히면 섹션 스킵
+- **[Jira 이슈 생성 전 프로젝트 목록 조회 필수](./feedback_jira_project_query_first.md)** — 프로젝트 키 미확인 시 `getVisibleJiraProjects` 먼저, 잘못된 프로젝트에 생성하는 실수 방지
 
 ## 공유 문서 / 레퍼런스
 - **[분석/검색 대시보드 (Search Console/GA4/Clarity)](./reference_analytics_dashboards.md)** — 대시보드 URL + 식별자 (GA4 `G-7VPMPFL76M`, Clarity `wg3vefhmgy`)
+- **[Jira 프로젝트 구조 및 MEL 컨벤션](./reference_jira_project_structure.md)** — MEL=멜로미, BUR=burst!(별개), 이슈 생성 전 프로젝트 조회 필수
 - [팀 요구사항 Google Sheets](./reference_requirements_doc.md) / [Swagger UI](./reference_swagger_endpoint.md) — `api.melonnetherapists.com/swagger-ui/index.html`
 - [백엔드 Swagger OpenAPI 엔드포인트](./reference_backend_swagger.md) — `api.melonnetherapists.com/v3/api-docs`, API prefix `/api/v1`, 필요 시 WebFetch로 fresh 조회
 - [Notion TIL](./reference_notion_til.md) (18:30 KST) / [빌더스 리그 + 서브페이지 ID + 컨벤션](./reference_notion_builders_league.md) / [트러블슈팅](./reference_notion_troubleshooting.md)
