@@ -48,6 +48,13 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 - [ ] **L-03** 리액션 API 리팩토링 흐름 이해
 - [x] **L-04** 마이페이지 3탭 데이터 흐름 이해 (04-17 완료)
 
+### GA4 이벤트
+- [ ] **G-01** GA4 커스텀 이벤트 4종 삽입 — 확인일: 04-24
+  - `SignupPage` → `signup_completed` / `LoginPage` → `login_completed` (navigate 전) / `TherapistVerificationPage` → `verification_requested` / `PostCreatePage` → `first_post_created` (`/me.postCount === 0` 프론트 단독 판별)
+  - 백엔드 의존성 없음, 즉시 착수 가능
+  - 검증: GA4 실시간 리포트에서 4종 이벤트 집계 확인
+  - 상세: `jira_draft.md` [업로드 대기] 스토리
+
 ### 정책 페이지
 - [x] **P-01** 개인정보처리방침 페이지 `/privacy` + Signup/LandingFooter/LoginPage 링크 (2026-04-24 완료)
   - 상세: `project_privacy_policy_page.md`
@@ -82,11 +89,7 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 현황: 백엔드가 presigned URL 방식으로 결정, 작업 대기
   - 검증: Swagger `/v3/api-docs` 재조회 → `PostImageResponse.imageUrl`이 서명 쿼리 포함 절대 URL인지
   - 상세: `project_post_image_presigned_url.md`
-- [ ] **B-08** 유저 행동 분석용 `analyticsId` 필드 추가 (P1) — 확인일: 04-24
-  - 현황: 프론트 해시 불가(rainbow table 역산), 평문 `user.id` 전송 금지. 백엔드 HMAC-SHA256 + 서버 salt 필수. 04-28 배포 freeze 해제 후 Jira 에픽으로 착수 예정.
-  - 검증: `/me`·`/auth/login`·`/auth/signup` 응답에 `analyticsId` 32자 hex 포함 여부
-  - 블로킹: GA4 커스텀 이벤트 4종(`signup_completed`, `login_completed`, `verification_requested`, `first_post_created`) 삽입 작업 전면 대기
-  - 상세: `jira_draft.md`
+- [-] ~~**B-08** 유저 행동 분석용 `analyticsId` 필드 추가~~ → **드롭 (2026-04-24)** PM 결정: GA4 유저 단위 추적 안 함, Looker Studio/Firebase 로우데이터로 대체. 이벤트 4종은 프론트 독립 착수로 이동.
 
 ### 해소됨
 - [-] ~~탈퇴 유저 에러코드 분리~~ → 비번 틀림과 동일 에러 유지 확정 (04-16)

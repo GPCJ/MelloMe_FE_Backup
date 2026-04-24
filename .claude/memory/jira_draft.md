@@ -12,7 +12,28 @@ originSessionId: f611174e-26dc-4189-9e23-de39c771cab9
 
 ---
 
-## [EPIC] 유저 행동 분석용 Pseudonymous 식별자(`analyticsId`) 도입
+## [업로드 대기] 이벤트 4종 삽입 (Story)
+
+- **타입:** Story
+- **담당:** 프론트
+- **Summary:** PM 확정 이벤트 4종 코드 삽입
+- **Description:**
+  - `SignupPage.tsx` — `signup()` 직후 → `signup_completed`
+  - `LoginPage.tsx` — `login()` 직후, navigate 전 → `login_completed`
+  - `TherapistVerificationPage.tsx` — 신청 직후 → `verification_requested`
+  - `PostCreatePage.tsx` — 성공 후 → `first_post_created` (`/me.postCount === 0` 프론트 단독 판별)
+- **Acceptance:** GA4 실시간 리포트에서 4종 이벤트 집계 확인
+- **비고:** 백엔드 의존성 없음, 즉시 착수 가능
+
+---
+
+## [ARCHIVED] 유저 행동 분석용 Pseudonymous 식별자(`analyticsId`) 도입
+
+> **드롭 사유 (2026-04-24):** PM 결정 — GA4에서 유저 단위 추적 안 함. Looker Studio/Firebase Console 로우데이터로 대체. Clarity `identify()`도 미사용. `analyticsId` 백엔드 작업 불필요. 이벤트 4종은 익명(client_id only)으로 발송.
+
+---
+
+### [EPIC] 원본 초안 (참고용 보존)
 
 **프로젝트:** MEL
 **이슈 타입:** Epic
