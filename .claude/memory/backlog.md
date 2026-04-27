@@ -49,17 +49,16 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 - [x] **L-04** 마이페이지 3탭 데이터 흐름 이해 (04-17 완료)
 
 ### GA4 이벤트
-- [ ] **G-01** GA4 커스텀 이벤트 4종 삽입 — 확인일: 04-24
-  - `SignupPage` → `signup_completed` / `LoginPage` → `login_completed` (navigate 전) / `TherapistVerificationPage` → `verification_requested` / `PostCreatePage` → `first_post_created` (`/me.postCount === 0` 프론트 단독 판별)
-  - 백엔드 의존성 없음, 즉시 착수 가능
-  - 검증: GA4 실시간 리포트에서 4종 이벤트 집계 확인
-  - 상세: `jira_draft.md` [업로드 대기] 스토리
+- [x] **G-01** GA4 커스텀 이벤트 4종 삽입 (2026-04-24 완료, 커밋 cf7750e)
+  - `SignupPage` → `signup_completed` / `LoginPage` → `login_completed` (navigate 전) / `TherapistVerificationPage` → `verification_requested` / `PostCreatePage` → `first_post_created` (`fetchMyPosts(0,1).totalElements === 0` 프론트 단독 판별, `/me.postCount` 스펙 부재로 대체)
+  - 검증: GA4 실시간 리포트에서 4종 이벤트 집계 확인 완료
 
 ### 정책 페이지
 - [x] **P-01** 개인정보처리방침 페이지 `/privacy` + Signup/LandingFooter/LoginPage 링크 (2026-04-24 완료)
   - 상세: `project_privacy_policy_page.md`
-- [ ] **P-02** 이용약관 페이지 `/terms` + SignupPage/LoginPage 이용약관 링크 연결
-  - 검증: `grep "\"/terms\"" frontend/src/pages` → 연결 여부
+- [x] **P-02** 이용약관 페이지 `/terms` + SignupPage/LoginPage 이용약관 링크 연결 (2026-04-24 완료, 준비중 스텁)
+  - TermsPage는 본문 없이 "준비 중" 안내만. 본문 채우는 건 후속 작업(법적 검토 이후)
+  - SignupPage는 새탭, LoginPage는 same-tab 유지 (PrivacyPage 패턴 동일)
 
 ---
 

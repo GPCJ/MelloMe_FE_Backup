@@ -14,9 +14,9 @@ originSessionId: 66a71c38-a303-4648-9da9-5f6eff5595a0
 
 ## 2주 창 최우선 3가지
 
-### 1. SEO 해결
+### 1. SEO 해결 — 완료
 - **1단계 (완료 2026-04-23)**: 메타태그 + robots.txt + sitemap.xml + Search Console 등록
-- **3단계 (선택/후속)**: SPA 크롤링 대응 (react-helmet-async / prerender / Next.js 재검토). 공개 페이지 정책 확정 후 결정.
+- **3단계 (완료 2026-04-27)**: SPA 크롤링 대응 — `vite-prerender-plugin` 채택, `/`·`/privacy`·`/terms` 3개 정적 HTML 생성, 페이지별 메타 단일 소스. 상세 `./project_seo_option2_decision.md`
 
 ### 2. 유저 행동 데이터 수집
 - **GA4/Clarity 설치 (완료 2026-04-23)** — 상세 `./project_analytics_ga4_clarity_install.md`

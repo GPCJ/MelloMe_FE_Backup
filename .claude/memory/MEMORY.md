@@ -62,7 +62,8 @@
 
 ## 정책 결정 (Post-MVP)
 - [모바일 앱 확장 ADR](./project_mobile_expansion_adr.md) — PWA/Capacitor 유저테스트 후 결정
-- [Next.js 도입 보류](./project_nextjs_decision.md) — 콘텐츠 비로그인 공개 시점에 재검토
+- [Next.js 도입 보류](./project_nextjs_decision.md) — 콘텐츠 비로그인 공개 시점에 재검토 · 04-27 정량(53h, 14항목) + 5근거 추가
+- **[SEO 옵션 2 — vite-prerender-plugin 구현 완료](./project_seo_option2_decision.md)** — 04-27 prerender 3개(/, /privacy, /terms) 정적 HTML + 페이지별 메타 단일 소스 주입. index.html SEO는 prerender로 이관, GA4/Clarity/site-verification 보존. 실측 ~1.5h
 - SSE 아키텍처(옵션B, fetch-event-source) → wiki `sse-b-zustand-fetch-event-source` (decision)
 - Google OAuth 삭제 내역(2026-03-25) → wiki `google-oauth-2026-03-25` (session-log)
 
@@ -101,6 +102,8 @@
 - [커밋 서명 줄 금지](./feedback_no_co_authored_by.md) — Co-Authored-By/자동 서명 줄 넣지 말 것
 - [sync 전용 chore 커밋 금지](./feedback_no_sync_only_commits.md) — 메모리/자동화용 별도 chore 커밋 만들지 말고 feat/fix 커밋에 자연스럽게 포함
 - [규칙은 근본 원인 확인 후 적용](./feedback_verify_rules_root_cause.md) — 저장된 규칙 맹목 적용 금지, 실제 실패 원인 확인 후 근본 수정
+- **[권장/판단 전 사용자 컨디션부터 평가](./feedback_assess_user_state_before_rule.md)** — 메뉴얼 맹목 적용 금지, 피로도·집중력·우선순위 추정 후 권장. 같은 작업 체인은 곁가지 아님
+- **[보조 기능이 핵심 의존성 메이저 업을 끌고 오면 회피](./feedback_dependency_blast_radius.md)** — SEO/분석/UI 보조 도입을 위해 Vite·React·RR 등 핵심 의존성 메이저 업 강요하는 옵션 회피, blast radius 좁은 옵션 우선
 - [코드 리뷰 severity triage](./feedback_review_triage_workflow.md) — HIGH만 즉시 조치, Medium/Low는 project 메모리 + notepad priority("오늘 뭐하지")
 - [가드/임시대응 코드 주석 스타일](./feedback_guard_comment_style.md) — 레이스 가드·workaround에는 상세 한국어 WHY 주석 + 의존 관계 명시
 - [git 커밋 전 diff --stat](./feedback_git_diff_stat_check.md) / [커맨드 네이밍 — 범용 이름](./feedback_draft_notion_naming.md)
