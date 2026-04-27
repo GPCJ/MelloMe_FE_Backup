@@ -93,6 +93,11 @@ export function useInfiniteFeed(options: UseInfiniteFeedOptions = {}): UseInfini
       lastPage.hasNext ? lastPage.nextCursor : undefined,
     enabled,
     initialData,
+    // RQ 기본 retry: 3(지수 backoff 1s/2s/4s)을 끕니다.
+    // 이유: 재시도 사이클 동안 isError=false가 유지되어 P1 fallback이 ~7초 지연됩니다.
+    //       v1은 단발 실패였으므로 동작 보존을 위해 false.
+    // 사용자 정책: 500 에러는 즉시 fallback, 재시도는 브라우저 새로고침으로만.
+    retry: false,
     // 자동 refetch를 모두 끕니다 — v1 동작과 일치시키기 위함입니다.
     // - staleTime: Infinity — 캐시를 절대 stale로 표시하지 않음 → 마운트/포커스/리커넥트 시 재요청 안 함
     //   (특히 initialData가 있는 경우, default staleTime=0이면 RQ가 마운트 직후 백그라운드 refetch를 시도해
