@@ -48,7 +48,9 @@
 ## 협업 프로세스
 - [백엔드 전달 전략 + 이슈 동기화](./project_backend_communication.md) — Swagger 공식, GitHub Issues, 멜로미↔아이로
 - **[백엔드 배포 불가 2026-04-22~04-28](./project_backend_deploy_freeze_0422.md)** — CI/CD 권한 이슈, 이 주는 프론트 단독 완결 작업 우선 · 04-28 이후 재확인 후 삭제
-- **[분석 이벤트 설계 오너는 PM](./project_analytics_event_ownership.md)** — GA4/Clarity 이벤트 설계는 PM 담당, 프론트는 삽입만. 2026-04-24 기준 이벤트 4개 확정 (익명)
+- **[분석 이벤트 설계 오너는 PM](./project_analytics_event_ownership.md)** — 설계 PM 담당, 프론트는 삽입만. 2026-04-27 PM 정식 스펙 24종(주요 7) 도착
+- **[GA4 이벤트 PM 정식 스펙 v1](./project_analytics_event_spec_pm_v1.md)** — 24종(자동4+인증5+콘텐츠11+탐색6+체류1), 주요 7개 ★, 북극성=post_created&comment_created 달성률
+- **[GA4 주요 7개 삽입 매핑 표 (B1 결과)](./project_analytics_b1_mapping.md)** — 트리거 위치/파라미터/기존 4종 리네임 매트릭스 + B2 의문점 4개 + 헬퍼 시그니처 초안. 다음 세션 B2 진입점
 
 ## 기능명세 / 아키텍처
 - [프론트 기능명세 체계](./project_feature_spec_frontend.md) — FNC-001~007 인증 완료
@@ -61,9 +63,11 @@
 - [UX 설계 논의 아카이브](./project_ux_design_decisions.md)
 
 ## 정책 결정 (Post-MVP)
-- [모바일 앱 확장 ADR](./project_mobile_expansion_adr.md) — PWA/Capacitor 유저테스트 후 결정
-- [Next.js 도입 보류](./project_nextjs_decision.md) — 콘텐츠 비로그인 공개 시점에 재검토 · 04-27 정량(53h, 14항목) + 5근거 추가
-- **[SEO 옵션 2 — vite-prerender-plugin 구현 완료](./project_seo_option2_decision.md)** — 04-27 prerender 3개(/, /privacy, /terms) 정적 HTML + 페이지별 메타 단일 소스 주입. index.html SEO는 prerender로 이관, GA4/Clarity/site-verification 보존. 실측 ~1.5h
+- 모바일 앱 확장 ADR (PWA/Capacitor 유저테스트 후 결정) → wiki `adr-pwa-vs-capacitor-2026-03-26` (decision)
+- Next.js 도입 보류 (53h 정량 + 5근거, 04-27 재평가) → wiki `next-js-2026-03-27-2026-04-27` (decision)
+- **SEO 옵션 2 — vite-prerender-plugin 구현 완료(04-27)** → wiki `seo-2-vite-prerender-plugin-2026-04-27` (decision) — `/`, `/privacy`, `/terms` 정적 HTML + 메타 단일 소스, 실측 1.5h
+- prerender 빌드 hang 해소(closeBundle + process.exit, 6d234cc) → wiki `vite-prerender-plugin-react-19-hang` (debugging)
+- 프로필 이미지 localhost 버그(백엔드 APP_BASE_URL 누락, 04-22 해소) → wiki `url-localhost-app-base-url-2026-04-22` (debugging)
 - SSE 아키텍처(옵션B, fetch-event-source) → wiki `sse-b-zustand-fetch-event-source` (decision)
 - Google OAuth 삭제 내역(2026-03-25) → wiki `google-oauth-2026-03-25` (session-log)
 
@@ -106,6 +110,7 @@
 - **[보조 기능이 핵심 의존성 메이저 업을 끌고 오면 회피](./feedback_dependency_blast_radius.md)** — SEO/분석/UI 보조 도입을 위해 Vite·React·RR 등 핵심 의존성 메이저 업 강요하는 옵션 회피, blast radius 좁은 옵션 우선
 - [코드 리뷰 severity triage](./feedback_review_triage_workflow.md) — HIGH만 즉시 조치, Medium/Low는 project 메모리 + notepad priority("오늘 뭐하지")
 - [가드/임시대응 코드 주석 스타일](./feedback_guard_comment_style.md) — 레이스 가드·workaround에는 상세 한국어 WHY 주석 + 의존 관계 명시
+- **[vite plugin closeBundle 작업 전 wiki 우선 검토](./feedback_vite_plugin_closeBundle_check.md)** — Sentry 등 closeBundle 사용 plugin 추가 시 forceExit과의 순서 충돌 점검 필수, wiki 회복 트리거
 - [git 커밋 전 diff --stat](./feedback_git_diff_stat_check.md) / [커맨드 네이밍 — 범용 이름](./feedback_draft_notion_naming.md)
 - [에러 삼키지 말고 실패 표시](./feedback_error_handling_visible.md) / [API 에러 원인별 분기](./feedback_error_handling_by_cause.md)
 - [백엔드 필드 요청 전 기존 스펙 확인](./feedback_backend_field_request_check.md) / [Explore 결과 직접 검증](./feedback_explore_result_verification.md)
@@ -114,6 +119,7 @@
 - [Vercel SPA 라우팅](./feedback_vercel_spa_routing.md)
 - **[다른 직군 영향 작업 먼저](./feedback_cross_role_impact_priority.md)** — PM/디자이너/백엔드 검토·컨펌 필요한 것을 자기완결 작업보다 먼저, 상대 대기시간 병렬화
 - **[진행 상황은 backlog, memory엔 결정/Why만](./feedback_memory_vs_backlog_split.md)** — /wrap-up 저장 시 체크박스/남은 작업은 backlog로, memory엔 시간 불변 결정만 (stale 방지)
+- **[결정/구현 문서엔 한계점도 강점과 함께 박제](./feedback_document_limitations_with_benefits.md)** — 노션 결정문/회고에 "현재 조치의 한계점" 섹션 별도, 합리화로 가린 부수 효과까지 박제, 기능 동작 ≠ 도메인 효용 검증
 - **[블로그 작성 전략 — Velog 주 최소 1회 + Notion 재가공](./feedback_blog_writing_strategy.md)** — 자랑/보람 감정이 최우선 승격 트리거, 실패 안전장치로 꾸준함 유지 · 취업용일수록 더 주관적으로
 - [블로그 쓰기/편집 모드 분리](./feedback_blog_editing_mode.md) — 썼다 지웠다 루프 차단, 초안은 쭉 / 편집은 완성 후 한 번만 / 막히면 섹션 스킵
 - **[Jira 이슈 생성 전 프로젝트 목록 조회 필수](./feedback_jira_project_query_first.md)** — 프로젝트 키 미확인 시 `getVisibleJiraProjects` 먼저, 잘못된 프로젝트에 생성하는 실수 방지
@@ -141,9 +147,10 @@
 ## 학습 / 성장
 - 프론트엔드 코드 학습 19항목 → wiki `19` (reference) / [코딩 드릴 루틴](./project_coding_drill.md)
 - **[블로그 초기 글 4편 로드맵](./project_blog_first_series.md)** — 1번째: 바이브 코더 규칙 5가지(미니멀 확정, 순서 B) / 2번째: useInfiniteFeed requestIdRef / 3번째: RQ 마이그레이션 후기 / 4번째: AI 메모리 활용 (1번 글에서 분리)
-- **[GA4 + Clarity 설치 — 인지부채 HIGH](./project_analytics_ga4_clarity_install.md)** — 2026-04-23 2단계 설치, useGA4PageView 훅은 AI 전체 작성 / 원 계획은 [여기](./project_future_analytics.md)
+- GA4 + Clarity 설치 학습 노트(인지부채 HIGH, AI 전체 작성) → wiki `ga4-clarity-high-ai` (decision) — useGA4PageView 훅 메커니즘 + 재학습 체크리스트 / 원 계획 [여기](./project_future_analytics.md)
+- **[RQ 마이그레이션 구현 로그 — 인지부채 HIGH](./project_rq_migration_implementation.md)** — R-01a(완료, 직접) / R-01b(2026-04-27 AI 작성, 회귀 대기) / R-05(미착수). 단계별 누적 적층, 작업 종료 후 일괄 복기 Q&A용
 - 유저 행동 데이터 수집 구현 맥락 — 개발자용 `ga4-clarity-dev` / PM용 `ga4-clarity-pm` (decision, 2026-04-24) · 원본 `ga4-clarity-4` 보존
-- **[GA4 user_id 부착 정책 — analyticsId 대기](./project_analytics_user_id_decision.md)** — 2026-04-24 결정. 백엔드 HMAC 해시 필수, 프론트 단독 해시/평문 user.id 금지. 이벤트 4종 삽입은 04-28 freeze 해제 후 착수
+- **[GA4 user_id 부착 정책 — analyticsId 드롭](./project_analytics_user_id_decision.md)** — 2026-04-24 PM 결정. 익명 유지(client_id only), Looker Studio/Firebase 로우데이터로 유저 단위 분석. 1차 4종 cf7750e 완료, 2026-04-27 PM 정식 24종 스펙 도착 → 주요 7개 추가 삽입은 프론트 독립 즉시 가능(백엔드 의존성 0)
 - **[/privacy 라우트 설계 결정](./project_privacy_policy_page.md)** — Layout 밖 독립, 링크 동작(Signup 새탭/Login same-tab), 초안 배너 PM 검토 전 유지 · 진행 상황은 backlog P/PM 섹션
 - [회원가입 토큰 반환 요청](./project_signup_token.md) — MVP 이후
 - [README 작성 계획](./project_readme_plan.md) — MVP 완성 후

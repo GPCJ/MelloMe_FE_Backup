@@ -26,9 +26,14 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 
 ### 리팩토링 / 마이그레이션 (미검증)
 - [x] **R-01a** ProfilePage 3탭 RQ 마이그레이션 완료 (2026-04-23, 커밋 924d55e + 0ba0523)
-- [ ] **R-01b** PostListPage `useInfiniteFeed` → `useInfiniteQuery` (남은 단계)
-  - 검증: `grep "useInfiniteQuery" frontend/src/hooks` → 도입 여부
-  - 상세: `project_infinite_scroll_progress.md`
+- [?] **R-01b** PostListPage `useInfiniteFeed` → `useInfiniteQuery` (코드 production 반영, 런타임 회귀 검증 대기)
+  - 커밋: 8f0b595, cd126d6 (prerender 비활성 우회 0dcf346은 6d234cc로 해소)
+  - 런타임 검증 항목 (production 사이트 직접):
+    - [ ] 무한 스크롤 다음 페이지 페치
+    - [ ] 게시글 클릭 → 뒤로가기 시 스크롤/필터 복원
+    - [ ] 필터 칩 변경 시 깜빡임 없음
+    - [ ] 에러 시 P1 fallback 전환
+  - 상세: `project_rq_migration_implementation.md`
 - [ ] **R-02** AbortController 일괄 적용 (PostListPage, PostDetailPage)
   - 검증: `grep "AbortController" frontend/src/pages` → 적용 여부
 - [ ] **R-03** refresh plain axios 분리
@@ -49,9 +54,22 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 - [x] **L-04** 마이페이지 3탭 데이터 흐름 이해 (04-17 완료)
 
 ### GA4 이벤트
-- [x] **G-01** GA4 커스텀 이벤트 4종 삽입 (2026-04-24 완료, 커밋 cf7750e)
+- [x] **G-01** GA4 커스텀 이벤트 1차 4종 삽입 (2026-04-24 완료, 커밋 cf7750e)
   - `SignupPage` → `signup_completed` / `LoginPage` → `login_completed` (navigate 전) / `TherapistVerificationPage` → `verification_requested` / `PostCreatePage` → `first_post_created` (`fetchMyPosts(0,1).totalElements === 0` 프론트 단독 판별, `/me.postCount` 스펙 부재로 대체)
   - 검증: GA4 실시간 리포트에서 4종 이벤트 집계 확인 완료
+- [ ] **G-02** PM 정식 스펙 주요 7개 추가 삽입 (2026-04-27 PM 스펙 도착, 즉시 착수 가능 — 프론트 독립, 백엔드 의존성 0)
+  - 주요 7개: `sign_up` / `profile_edited` / `certification_started` / `certification_completed` / `post_created` / `reaction`(type param 6분기) / `screen_exit`(screen_name + duration)
+  - G-01 4종과 매핑 결정 필요(리네임/유지). 상세: `project_analytics_event_spec_pm_v1.md`
+  - 검증: GA4 실시간 리포트에서 7개 이벤트 + reaction type별 집계 확인
+- [ ] **G-03** PM 정식 스펙 비주요 17개 점진 삽입 (G-02 안정화 후)
+  - 콘텐츠/탐색/세부 인증 이벤트들. 우선순위 낮음
+
+### SEO
+- [x] **S-01** vite-prerender-plugin 빌드 hang 진단 + prerender 재도입 (2026-04-27 완료, 커밋 6d234cc)
+  - 원인: React 19 + `react-dom/server` `renderToString`이 Node 이벤트 루프 잔류 핸들 남김 (preactjs/vite-prerender-plugin Issue #3, 1년+ 미해결)
+  - 해결: 자체 vite 플러그인 `closeBundle` 훅에서 `process.exit(0)` 호출 + `apply: 'build'` + `enforce: 'post'`
+  - 검증: 로컬 9초 종료 / Vercel 14초 배포 완료 / prerender 3개 산출물 정상
+  - 상세: wiki `vite-prerender-plugin-react-19-hang` (debugging)
 
 ### 정책 페이지
 - [x] **P-01** 개인정보처리방침 페이지 `/privacy` + Signup/LandingFooter/LoginPage 링크 (2026-04-24 완료)
