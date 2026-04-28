@@ -28,6 +28,7 @@ import {
 import {
   fetchPost,
   deletePost,
+  deleteComment,
   fetchComments,
   fetchPostImages,
   scrapPost,
@@ -130,6 +131,24 @@ export default function PostDetailPage() {
     }
   }
 
+  // 댓글 soft delete — 응답 본문이 없으므로 로컬 state에서 deleted:true로 패치.
+  // refetch보다 깜빡임 없고, "삭제된 댓글입니다." 문구는 CommentCard가 deleted 플래그로 자동 표시.
+  async function handleDeleteComment(commentId: number) {
+    if (!confirm('댓글을 삭제할까요?')) return;
+    try {
+      await deleteComment(commentId);
+      setComments((prev) =>
+        prev.map((c) =>
+          c.id === commentId
+            ? { ...c, deleted: true, content: '', canEdit: false, canDelete: false }
+            : c,
+        ),
+      );
+    } catch {
+      alert('댓글 삭제에 실패했습니다. 다시 시도해주세요.');
+    }
+  }
+
   // 이미지 다운로드 우회 — `<a download>`는 cross-origin URL에선 브라우저가 무시하고
   // 그 URL로 navigate해버린다(이미지는 inline 렌더링이라 "리다이렉트"처럼 보임).
   // PDF는 백엔드가 Content-Disposition:attachment를 붙여 강제 다운로드되어 native `<a>`가 동작.
@@ -183,8 +202,15 @@ export default function PostDetailPage() {
     post.therapyArea && post.therapyArea !== 'UNSPECIFIED'
       ? THERAPY_AREA_LABELS[post.therapyArea]
       : null;
-  const topComments = comments.filter((c) => !c.parentCommentId);
-  const getReplies = (parentId: number) => comments.filter((c) => c.parentCommentId === parentId);
+  // 옵션 C: 삭제된 댓글은 숨기되, 대댓글이 살아있는 부모만 "삭제된 댓글입니다." 형태로 보존.
+  // 대댓글 카운트도 살아있는 것만 집계해 UI 일관성 유지.
+  const getReplies = (parentId: number) =>
+    comments.filter((c) => c.parentCommentId === parentId && !c.deleted);
+  const topComments = comments.filter(
+    (c) => !c.parentCommentId && (!c.deleted || getReplies(c.id).length > 0),
+  );
+  // 카운트는 살아있는 댓글만 — 삭제된 부모 카드는 컨텍스트용으로만 표시되지 카운트엔 미포함.
+  const visibleCommentCount = comments.filter((c) => !c.deleted).length;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-20 md:pb-8">
@@ -405,18 +431,18 @@ export default function PostDetailPage() {
             className="flex md:hidden items-center gap-1.5 text-sm text-gray-400 ml-auto hover:text-gray-600 transition-colors"
           >
             <MessageSquare size={16} />
-            댓글 {comments.length}
+            댓글 {visibleCommentCount}
           </button>
           <span className="hidden md:flex items-center gap-1.5 text-sm text-gray-400 ml-auto">
             <MessageSquare size={16} />
-            댓글 {comments.length}
+            댓글 {visibleCommentCount}
           </span>
         </div>
       </div>
 
       {/* 댓글 섹션 */}
       <div>
-        <h2 className="text-base font-bold text-gray-900 mb-4">댓글 {topComments.length}</h2>
+        <h2 className="text-base font-bold text-gray-900 mb-4">댓글 {visibleCommentCount}</h2>
 
         {/* 데스크탑 인라인 댓글 입력 */}
         <div className="hidden md:block mb-4">
@@ -443,6 +469,7 @@ export default function PostDetailPage() {
                     state: { autoReply: true },
                   })
                 }
+                onDelete={() => handleDeleteComment(comment.id)}
               />
             </div>
           ))}

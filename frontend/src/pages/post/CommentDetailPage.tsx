@@ -7,7 +7,7 @@ import MobilePageHeader from '@/components/common/MobilePageHeader';
 import MobileFixedBottom from '@/components/common/MobileFixedBottom';
 import { useReplyInput } from '../../hooks/useReplyInput';
 import { useCommentSubmit } from '../../hooks/useCommentSubmit';
-import { fetchComments } from '../../api/posts';
+import { fetchComments, deleteComment } from '../../api/posts';
 import type { CommentResponse } from '../../types/post';
 
 export default function CommentDetailPage() {
@@ -70,11 +70,38 @@ export default function CommentDetailPage() {
     }
   }, [autoReply, parentComment]);
 
+  // 댓글 soft delete — 부모/대댓글 모두 동일 처리.
+  // 부모 삭제 후에도 페이지 머물러서 "삭제된 댓글입니다." 표시 + 대댓글 유지.
+  async function handleDelete(commentId: number, isParent: boolean) {
+    if (!confirm('댓글을 삭제할까요?')) return;
+    try {
+      await deleteComment(commentId);
+      if (isParent) {
+        setParentComment((prev) =>
+          prev ? { ...prev, deleted: true, content: '', canEdit: false, canDelete: false } : prev,
+        );
+      } else {
+        setReplies((prev) =>
+          prev.map((r) =>
+            r.id === commentId
+              ? { ...r, deleted: true, content: '', canEdit: false, canDelete: false }
+              : r,
+          ),
+        );
+      }
+    } catch {
+      alert('댓글 삭제에 실패했습니다. 다시 시도해주세요.');
+    }
+  }
+
   if (loading) return null;
   if (error || !parentComment)
     return (
       <p className="text-center text-destructive py-20">{error ?? '댓글을 찾을 수 없어요.'}</p>
     );
+
+  // 옵션 C: 삭제된 대댓글은 숨김(leaf라 컨텍스트 보존 불필요).
+  const visibleReplies = replies.filter((r) => !r.deleted);
 
   return (
     <div className={`max-w-3xl mx-auto px-4 py-6 ${showReplyInput ? 'pb-24' : 'pb-6'}`}>
@@ -89,12 +116,13 @@ export default function CommentDetailPage() {
         }
       />
 
-      {/* 부모 댓글 */}
+      {/* 부모 댓글 — 직링크 컨텍스트 보존 위해 deleted여도 표시 유지 */}
       <div className="mb-2">
         <CommentCard
           comment={parentComment}
-          replyCount={replies.length}
+          replyCount={visibleReplies.length}
           onMessageClick={() => handleReplyClick(parentComment.authorNickname)}
+          onDelete={() => handleDelete(parentComment.id, true)}
         />
       </div>
 
@@ -111,14 +139,15 @@ export default function CommentDetailPage() {
       </div>
 
       {/* 대댓글 목록 */}
-      {replies.length > 0 && (
+      {visibleReplies.length > 0 && (
         <div className="flex flex-col gap-3">
-          {replies.map((reply) => (
+          {visibleReplies.map((reply) => (
             <CommentCard
               key={reply.id}
               comment={reply}
               replyToNickname={parentComment.authorNickname}
               onMessageClick={() => handleReplyClick(reply.authorNickname)}
+              onDelete={() => handleDelete(reply.id, false)}
             />
           ))}
         </div>
