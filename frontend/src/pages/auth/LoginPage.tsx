@@ -31,7 +31,10 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const { user, tokens } = await login(email, password);
-      window.gtag?.('event', 'login_completed');
+      // PM 정식 스펙(2026-04-27)에서 `login_completed` 누락 — GA4 자동
+      // `session_start`로 갈음 가능하다는 PM 판단으로 제거. 익명 환경 한계상
+      // 로그인↔비로그인 구분은 못 하지만 KPI 5종에 미포함이라 영향 없음.
+      // (PM 컨펌 완료 전이라면 한 번 더 확인 필요)
       setTokens(tokens);
       setUser(user);
 

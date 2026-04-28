@@ -7,6 +7,7 @@ import { scrapPost, unscrapPost } from '../../api/posts';
 import VerifiedBadge from './VerifiedBadge';
 import { useReactionToggle } from '../../hooks/useReactionToggle';
 import UserAvatar from '../common/UserAvatar';
+import { trackReaction } from '../../lib/analytics';
 
 interface PostCardProps {
   post: PostSummary;
@@ -29,6 +30,8 @@ export default function PostCard({ post }: PostCardProps) {
         await unscrapPost(post.id);
       } else {
         await scrapPost(post.id);
+        // KPI "반응 수"는 신규 스크랩만 카운트 — 해제 시는 발송 안 함.
+        trackReaction('scrap', { postId: post.id });
       }
       setScrapped(!scrapped);
     } catch {

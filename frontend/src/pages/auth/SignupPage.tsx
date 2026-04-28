@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { signup } from '../../api/auth';
 import { useAuthStore } from '../../stores/useAuthStore';
+import { trackEvent } from '../../lib/analytics';
 import { Button } from '@/components/shadcn-ui/button';
 import { Input } from '@/components/shadcn-ui/input';
 import { Label } from '@/components/shadcn-ui/label';
@@ -48,7 +49,9 @@ export default function SignupPage() {
     setLoading(true);
     try {
       const data = await signup(email, password, agreeTerms, agreePrivacy);
-      window.gtag?.('event', 'signup_completed');
+      // PM 정식 스펙(2026-04-27): `signup_completed` → `sign_up`으로 리네임.
+      // 가입 mutation 성공 직후, navigate/setUser 전에 발송해 유저 액션과 동기화.
+      trackEvent('sign_up');
       setTokens({ accessToken: data.accessToken });
       setUser({
         id: data.id,

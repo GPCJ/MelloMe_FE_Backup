@@ -14,6 +14,7 @@ import type { PostDetail } from '../../types/post';
 import { THERAPY_AREA_LABELS } from '../../constants/post';
 import { formatRelativeTime } from '../../utils/formatDate';
 import UserAvatar from '../../components/common/UserAvatar';
+import { trackReaction } from '../../lib/analytics';
 
 export default function CommentWritePage() {
   const { postId } = useParams<{ postId: string }>();
@@ -58,6 +59,9 @@ export default function CommentWritePage() {
     setSubmitting(true);
     try {
       await createComment(Number(postId), { content: commentInput });
+      // useCommentSubmit를 통하지 않는 단독 댓글 작성 진입점이라 동일 이벤트 별도 발송.
+      // (R-06 리팩토링으로 useCommentSubmit 통합 시 제거 예정)
+      trackReaction('comment', { postId: Number(postId) });
       navigate(`/posts/${postId}`);
     } catch {
       alert('댓글 작성에 실패했습니다. 다시 시도해주세요.');

@@ -39,6 +39,7 @@ import { formatRelativeTime } from '../../utils/formatDate';
 import { resolveImageUrl } from '../../utils/resolveImageUrl';
 import UserAvatar from '../../components/common/UserAvatar';
 import MobilePageHeader from '@/components/common/MobilePageHeader';
+import { trackReaction } from '../../lib/analytics';
 
 function PostDetailSkeleton() {
   return (
@@ -136,6 +137,8 @@ export default function PostDetailPage() {
         await unscrapPost(post.id);
       } else {
         await scrapPost(post.id);
+        // KPI "반응 수"는 신규 스크랩만 카운트.
+        trackReaction('scrap', { postId: post.id });
       }
       setScrapped(!scrapped);
     } catch {
@@ -314,6 +317,7 @@ export default function PostDetailPage() {
                   <a
                     href={resolveImageUrl(img.imageUrl) ?? '#'}
                     download={img.originalFilename}
+                    onClick={() => trackReaction('download', { postId: post.id })}
                     className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm text-gray-700"
                   >
                     <Download size={16} />
@@ -335,6 +339,7 @@ export default function PostDetailPage() {
                     <a
                       href={att.downloadUrl}
                       download={att.originalFilename}
+                      onClick={() => trackReaction('download', { postId: post.id })}
                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm text-gray-700"
                     >
                       {isImage ? <Download size={16} /> : <FileText size={16} />}

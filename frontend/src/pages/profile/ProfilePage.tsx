@@ -19,6 +19,8 @@ import UserAvatar from '../../components/common/UserAvatar';
 import { toast } from 'sonner';
 import { getAxiosErrorMessage } from '@/utils/getAxiosErrorMessage';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { trackEvent } from '../../lib/analytics';
+import { useScreenExit } from '../../hooks/useScreenExit';
 
 type Tab = 'posts' | 'commented' | 'scrapped';
 
@@ -29,6 +31,9 @@ const TABS: { key: Tab; label: string }[] = [
 ];
 
 export default function ProfilePage() {
+  // 체류 시간 측정 — 마이페이지 이탈 시 duration 발송.
+  useScreenExit('my_page');
+
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
@@ -65,6 +70,9 @@ export default function ProfilePage() {
       const { profileImageUrl } = await uploadProfileImage(file);
       // 응답 URL로 스토어 직접 갱신 — getMe() 재호출 대비 API 1회 절약
       if (user) setUser({ ...user, profileImageUrl });
+      // PM 정식 스펙(2026-04-27): 프사 수정 성공 시 profile_edited 발송.
+      // 자기소개 필드는 PATCH /me에 미존재 — 백엔드 API 추가 시 후속 삽입.
+      trackEvent('profile_edited');
     } catch (err) {
       console.error(err);
       toast.error(getAxiosErrorMessage(err, 'image'));
@@ -92,6 +100,8 @@ export default function ProfilePage() {
       const updated = await updateMyProfile(trimmed);
       setUser({ ...user!, ...updated });
       setEditingNickname(false);
+      // PM 정식 스펙(2026-04-27): 닉네임 수정 성공 시 profile_edited 발송.
+      trackEvent('profile_edited');
     } catch (err) {
       console.error(err);
       toast.error(getAxiosErrorMessage(err, 'nickname'));

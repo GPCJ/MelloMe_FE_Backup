@@ -13,6 +13,7 @@ import MobilePageHeader from '@/components/common/MobilePageHeader';
 import Pagination from '../../components/common/Pagination';
 import { useInfiniteFeed } from '@/hooks/useInfiniteFeed';
 import { useFeedScrollStore } from '@/stores/feedScrollStore';
+import { useScreenExit } from '@/hooks/useScreenExit';
 
 type FeedTab = 'all' | 'following';
 
@@ -39,6 +40,9 @@ function PostCardSkeleton() {
 }
 
 export default function PostListPage() {
+  // 체류 시간 측정 — PM 정식 스펙 부가 KPI(피드 체류).
+  useScreenExit('feed');
+
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Upload } from 'lucide-react';
 import { Button } from '@/components/shadcn-ui/button';
@@ -6,6 +6,7 @@ import { Input } from '@/components/shadcn-ui/input';
 import { Label } from '@/components/shadcn-ui/label';
 import { applyTherapistVerification, getMyVerification } from '../../api/auth';
 import type { TherapistVerificationDetail } from '../../types/auth';
+import { trackEvent } from '../../lib/analytics';
 
 // TODO: 백엔드 논의 필요 — 인증용 치료영역 enum 확정 전 와이어프레임 기준 임시 정의
 // 게시글 필터용 TherapyArea(5개)와 별개로 인증 전용 목록(9개)
@@ -34,8 +35,26 @@ export default function TherapistVerificationPage() {
 
   useEffect(() => {
     getMyVerification()
-      .then(setVerification)
+      .then((v) => {
+        // 진입 시점에 이미 APPROVED면 곧장 /posts로 redirect (잘못 들어온 케이스).
+        // 신청 직후 setVerification(APPROVED) 흐름에서는 이 라인이 트리거되지 않도록
+        // 효과 의존 redirect 대신 fetch 콜백 안에 직접 둔다.
+        if (v?.status === 'APPROVED') {
+          navigate('/posts', { replace: true });
+          return;
+        }
+        setVerification(v);
+      })
       .catch(() => {});
+  }, [navigate]);
+
+  // PM 정식 스펙(2026-04-27): 인증 페이지 진입 시 1회 발송.
+  // ref 가드 — React StrictMode dev 더블 마운트로 useEffect가 2회 실행돼도 1번만 발송.
+  const certStartedFiredRef = useRef(false);
+  useEffect(() => {
+    if (certStartedFiredRef.current) return;
+    certStartedFiredRef.current = true;
+    trackEvent('certification_started');
   }, []);
 
   function toggleArea(area: string) {
@@ -69,11 +88,6 @@ export default function TherapistVerificationPage() {
   const canSubmit =
     file !== null && licenseCode.trim() !== '' && selectedAreas.length > 0 && !submitting;
 
-  useEffect(() => {
-    if (verificationStatus === 'APPROVED') {
-      navigate('/posts', { replace: true });
-    }
-  }, [verificationStatus, navigate]);
 
   async function handleSubmit() {
     if (!canSubmit) return;
@@ -81,7 +95,8 @@ export default function TherapistVerificationPage() {
     setError('');
     try {
       await applyTherapistVerification(licenseCode, file!);
-      window.gtag?.('event', 'verification_requested');
+      // PM 정식 스펙(2026-04-27): `verification_requested` → `certification_submitted` 리네임.
+      trackEvent('certification_submitted');
       const freshVerification = await getMyVerification();
       setVerification(freshVerification);
       navigate('/verification-complete');

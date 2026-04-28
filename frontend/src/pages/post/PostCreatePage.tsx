@@ -14,8 +14,13 @@ import { useAuthStore } from '../../stores/useAuthStore';
 import type { TherapyArea } from '../../types/post';
 import { THERAPY_CHIPS } from '../../constants/post';
 import { fetchMyPosts } from '../../api/mypage';
+import { trackEvent } from '../../lib/analytics';
+import { useScreenExit } from '../../hooks/useScreenExit';
 
 export default function PostCreatePage() {
+  // 체류 시간 측정 — 글쓰기 화면 이탈 시 duration 발송.
+  useScreenExit('post_write');
+
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const isPublicOnly = user?.role === 'USER';
@@ -85,7 +90,10 @@ export default function PostCreatePage() {
       if (failedCount > 0) {
         alert(`게시글은 등록되었지만 ${failedCount}개 첨부파일 업로드에 실패했습니다.`);
       }
-      if (wasFirstPost) window.gtag?.('event', 'first_post_created');
+      // PM 정식 스펙(2026-04-27): `post_created`는 매 등록마다 발송 (활성도 지표).
+      // 기존 `first_post_created`는 1회 전환 지표로 의미가 달라 병행 유지 (가입→첫글 퍼널).
+      trackEvent('post_created');
+      if (wasFirstPost) trackEvent('first_post_created');
       navigate(`/posts/${post.id}`);
     } catch {
       if (createdPostId) {

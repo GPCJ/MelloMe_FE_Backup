@@ -1,15 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/shadcn-ui/button';
 import { getMe, getMyVerification } from '../../api/auth';
 import { useAuthStore } from '../../stores/useAuthStore';
 import type { TherapistVerificationDetail } from '../../types/auth';
+import { trackEvent } from '../../lib/analytics';
 
 export default function VerificationCompletePage() {
   const navigate = useNavigate();
   const setUser = useAuthStore((s) => s.setUser);
   const [verification, setVerification] = useState<TherapistVerificationDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  // certification_completed는 APPROVED가 처음 확인된 시점에 1회만 발송. ref로 중복 차단.
+  const completedFiredRef = useRef(false);
 
   useEffect(() => {
     Promise.all([getMe(), getMyVerification()])
@@ -19,6 +22,17 @@ export default function VerificationCompletePage() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  // PM 정식 스펙(2026-04-27): `certification_completed`는 APPROVED 화면이 표시되는
+  // 시점에 1회 발송. MVP 정책상 즉시 승인이라 사실상 모든 인증 신청자가 도달.
+  // PENDING/REJECTED는 발송하지 않음 (PM 합의).
+  useEffect(() => {
+    if (completedFiredRef.current) return;
+    if (verification?.status === 'APPROVED') {
+      trackEvent('certification_completed');
+      completedFiredRef.current = true;
+    }
+  }, [verification?.status]);
 
   if (loading) {
     return (
