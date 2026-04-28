@@ -7,6 +7,7 @@ import { Label } from '@/components/shadcn-ui/label';
 import { applyTherapistVerification, getMyVerification } from '../../api/auth';
 import type { TherapistVerificationDetail } from '../../types/auth';
 import { trackEvent } from '../../lib/analytics';
+import { parseServerDate } from '../../utils/formatDate';
 
 // TODO: 백엔드 논의 필요 — 인증용 치료영역 enum 확정 전 와이어프레임 기준 임시 정의
 // 게시글 필터용 TherapyArea(5개)와 별개로 인증 전용 목록(9개)
@@ -138,12 +139,12 @@ export default function TherapistVerificationPage() {
             {verificationStatus === 'PENDING' ? '심사 중' : '인증 거절'}
           </p>
           <div className="text-sm text-gray-600 flex flex-col gap-1">
-            <span>신청일: {new Date(verification.createdAt).toLocaleDateString('ko-KR')}</span>
+            <span>신청일: {parseServerDate(verification.createdAt).toLocaleDateString('ko-KR')}</span>
             {verificationStatus === 'REJECTED' && verification.rejectReason && (
               <span>거절 사유: {verification.rejectReason}</span>
             )}
             {verification.reviewedAt && (
-              <span>심사일: {new Date(verification.reviewedAt).toLocaleDateString('ko-KR')}</span>
+              <span>심사일: {parseServerDate(verification.reviewedAt).toLocaleDateString('ko-KR')}</span>
             )}
           </div>
         </div>

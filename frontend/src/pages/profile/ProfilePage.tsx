@@ -18,6 +18,7 @@ import type { PostSummary } from '../../types/post';
 import UserAvatar from '../../components/common/UserAvatar';
 import { toast } from 'sonner';
 import { getAxiosErrorMessage } from '@/utils/getAxiosErrorMessage';
+import { parseServerDate } from '../../utils/formatDate';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { trackEvent } from '../../lib/analytics';
 import { useScreenExit } from '../../hooks/useScreenExit';
@@ -512,7 +513,7 @@ function CommentItem({ comment }: { comment: MyComment }) {
     >
       <p className="text-sm text-gray-900 line-clamp-2">{comment.content}</p>
       <p className="text-xs text-gray-400 mt-1">
-        {new Date(comment.createdAt).toLocaleDateString('ko-KR')}
+        {parseServerDate(comment.createdAt).toLocaleDateString('ko-KR')}
       </p>
     </button>
   );
