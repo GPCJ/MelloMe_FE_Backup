@@ -129,6 +129,29 @@ export default function PostDetailPage() {
     }
   }
 
+  // 이미지 다운로드 우회 — `<a download>`는 cross-origin URL에선 브라우저가 무시하고
+  // 그 URL로 navigate해버린다(이미지는 inline 렌더링이라 "리다이렉트"처럼 보임).
+  // PDF는 백엔드가 Content-Disposition:attachment를 붙여 강제 다운로드되어 native `<a>`가 동작.
+  // 백엔드가 이미지에도 Content-Disposition을 붙여주면 이 헬퍼는 제거 가능.
+  async function downloadAsBlob(url: string, filename: string) {
+    try {
+      const res = await fetch(url, { credentials: 'include' });
+      if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+    } catch (err) {
+      console.error('이미지 다운로드 실패 — 새 탭으로 fallback', err);
+      window.open(url, '_blank', 'noopener');
+    }
+  }
+
   async function handleScrapToggle() {
     if (!post || scrapLoading) return;
     setScrapLoading(true);
@@ -317,7 +340,14 @@ export default function PostDetailPage() {
                   <a
                     href={resolveImageUrl(img.imageUrl) ?? '#'}
                     download={img.originalFilename}
-                    onClick={() => trackReaction('download', { postId: post.id })}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      trackReaction('download', { postId: post.id });
+                      void downloadAsBlob(
+                        resolveImageUrl(img.imageUrl) ?? '',
+                        img.originalFilename,
+                      );
+                    }}
                     className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm text-gray-700"
                   >
                     <Download size={16} />
@@ -339,7 +369,15 @@ export default function PostDetailPage() {
                     <a
                       href={att.downloadUrl}
                       download={att.originalFilename}
-                      onClick={() => trackReaction('download', { postId: post.id })}
+                      onClick={(e) => {
+                        trackReaction('download', { postId: post.id });
+                        // 이미지 첨부는 cross-origin `<a download>` 무시 회피로 blob 다운로드.
+                        // PDF/기타는 백엔드가 Content-Disposition:attachment를 붙여줘 native 동작.
+                        if (isImage) {
+                          e.preventDefault();
+                          void downloadAsBlob(att.downloadUrl, att.originalFilename);
+                        }
+                      }}
                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm text-gray-700"
                     >
                       {isImage ? <Download size={16} /> : <FileText size={16} />}
