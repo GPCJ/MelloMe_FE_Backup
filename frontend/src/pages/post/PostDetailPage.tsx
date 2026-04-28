@@ -29,6 +29,7 @@ import {
   fetchPost,
   deletePost,
   deleteComment,
+  updateComment,
   fetchComments,
   fetchPostImages,
   scrapPost,
@@ -79,6 +80,11 @@ export default function PostDetailPage() {
   const [scrapped, setScrapped] = useState(false);
   const [scrapLoading, setScrapLoading] = useState(false);
   const [commentInput, setCommentInput] = useState('');
+  // 한 번에 한 댓글만 편집 모드로 강제. CommentCard 내부 state로 두지 않는 이유는
+  // 여러 카드가 동시에 textarea로 펼쳐져 모바일 키보드/포커스가 산만해지기 때문.
+  // editSubmitting은 PATCH 진행 중 저장 버튼 disable + 카드 잠금에 사용.
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+  const [editSubmitting, setEditSubmitting] = useState(false);
 
   const { reaction, setReaction, toggling, handleToggle } = useReactionToggle({
     postId: Number(postId) || 0,
@@ -146,6 +152,35 @@ export default function PostDetailPage() {
       );
     } catch {
       alert('댓글 삭제에 실패했습니다. 다시 시도해주세요.');
+    }
+  }
+
+  // 편집 흐름은 3단계로 분리: 시작/제출/취소.
+  // 시작은 단순 setState — editingCommentId 하나로 "현재 편집 중" 카드를 추적.
+  // 제출은 PATCH 응답을 그대로 state에 머지(content/updatedAt 등 백엔드 갱신값을 신뢰).
+  // 응답이 비어있는 케이스를 대비해 fallback으로 content만 patch — 삭제와 다르게 PATCH는
+  // 일반적으로 갱신된 리소스를 돌려주지만, 401 refresh 후 재시도 등으로 응답 형태가 달라질
+  // 가능성을 가드.
+  function handleEditStart(commentId: number) {
+    setEditingCommentId(commentId);
+  }
+  function handleEditCancel() {
+    setEditingCommentId(null);
+  }
+  async function handleEditSubmit(commentId: number, newContent: string) {
+    setEditSubmitting(true);
+    try {
+      const updated = await updateComment(commentId, { content: newContent });
+      setComments((prev) =>
+        prev.map((c) =>
+          c.id === commentId ? { ...c, ...(updated ?? {}), content: updated?.content ?? newContent } : c,
+        ),
+      );
+      setEditingCommentId(null);
+    } catch {
+      alert('댓글 수정에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setEditSubmitting(false);
     }
   }
 
@@ -455,24 +490,37 @@ export default function PostDetailPage() {
         </div>
 
         <div className="flex flex-col gap-3">
-          {topComments.map((comment) => (
-            <div
-              key={comment.id}
-              onClick={() => navigate(`/posts/${postId}/comments/${comment.id}`)}
-              className="cursor-pointer"
-            >
-              <CommentCard
-                comment={comment}
-                replyCount={getReplies(comment.id).length}
-                onMessageClick={() =>
-                  navigate(`/posts/${postId}/comments/${comment.id}`, {
-                    state: { autoReply: true },
-                  })
+          {topComments.map((comment) => {
+            const isEditing = editingCommentId === comment.id;
+            return (
+              <div
+                key={comment.id}
+                // 편집 중엔 카드 클릭으로 인한 댓글 상세 이동 차단.
+                // form 내부 클릭은 CommentCard가 stopPropagation으로 보호하지만, 카드 여백
+                // (작성자 영역 등)을 누르면 navigate가 발동해 작업 중인 입력이 사라지는 사고가 남.
+                onClick={
+                  isEditing ? undefined : () => navigate(`/posts/${postId}/comments/${comment.id}`)
                 }
-                onDelete={() => handleDeleteComment(comment.id)}
-              />
-            </div>
-          ))}
+                className={isEditing ? '' : 'cursor-pointer'}
+              >
+                <CommentCard
+                  comment={comment}
+                  replyCount={getReplies(comment.id).length}
+                  onMessageClick={() =>
+                    navigate(`/posts/${postId}/comments/${comment.id}`, {
+                      state: { autoReply: true },
+                    })
+                  }
+                  onDelete={() => handleDeleteComment(comment.id)}
+                  isEditing={isEditing}
+                  editSubmitting={editSubmitting}
+                  onEditStart={() => handleEditStart(comment.id)}
+                  onEditSubmit={(newContent) => handleEditSubmit(comment.id, newContent)}
+                  onEditCancel={handleEditCancel}
+                />
+              </div>
+            );
+          })}
           {topComments.length === 0 && (
             <p className="text-sm text-gray-400 text-center py-6">첫 댓글을 남겨보세요!</p>
           )}

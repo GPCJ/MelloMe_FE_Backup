@@ -7,7 +7,7 @@ import MobilePageHeader from '@/components/common/MobilePageHeader';
 import MobileFixedBottom from '@/components/common/MobileFixedBottom';
 import { useReplyInput } from '../../hooks/useReplyInput';
 import { useCommentSubmit } from '../../hooks/useCommentSubmit';
-import { fetchComments, deleteComment } from '../../api/posts';
+import { fetchComments, deleteComment, updateComment } from '../../api/posts';
 import type { CommentResponse } from '../../types/post';
 
 export default function CommentDetailPage() {
@@ -22,6 +22,10 @@ export default function CommentDetailPage() {
   const [replies, setReplies] = useState<CommentResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // 편집 모드 — 부모/대댓글 ID는 전역적으로 유니크하므로 같은 state로 추적 가능.
+  // 한 번에 한 카드만 편집 모드(B 옵션) — 여러 textarea 동시 노출로 인한 모바일 키보드 충돌 방지.
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+  const [editSubmitting, setEditSubmitting] = useState(false);
 
   const {
     showReplyInput,
@@ -94,6 +98,39 @@ export default function CommentDetailPage() {
     }
   }
 
+  // 편집 흐름 — PostDetailPage와 동일 시그니처.
+  // 차이는 parentComment(단일)와 replies(배열)가 분리 state라 isParent로 분기하는 것뿐.
+  function handleEditStart(commentId: number) {
+    setEditingCommentId(commentId);
+  }
+  function handleEditCancel() {
+    setEditingCommentId(null);
+  }
+  async function handleEditSubmit(commentId: number, isParent: boolean, newContent: string) {
+    setEditSubmitting(true);
+    try {
+      const updated = await updateComment(commentId, { content: newContent });
+      if (isParent) {
+        setParentComment((prev) =>
+          prev ? { ...prev, ...(updated ?? {}), content: updated?.content ?? newContent } : prev,
+        );
+      } else {
+        setReplies((prev) =>
+          prev.map((r) =>
+            r.id === commentId
+              ? { ...r, ...(updated ?? {}), content: updated?.content ?? newContent }
+              : r,
+          ),
+        );
+      }
+      setEditingCommentId(null);
+    } catch {
+      alert('댓글 수정에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setEditSubmitting(false);
+    }
+  }
+
   if (loading) return null;
   if (error || !parentComment)
     return (
@@ -123,6 +160,11 @@ export default function CommentDetailPage() {
           replyCount={visibleReplies.length}
           onMessageClick={() => handleReplyClick(parentComment.authorNickname)}
           onDelete={() => handleDelete(parentComment.id, true)}
+          isEditing={editingCommentId === parentComment.id}
+          editSubmitting={editSubmitting}
+          onEditStart={() => handleEditStart(parentComment.id)}
+          onEditSubmit={(newContent) => handleEditSubmit(parentComment.id, true, newContent)}
+          onEditCancel={handleEditCancel}
         />
       </div>
 
@@ -148,6 +190,11 @@ export default function CommentDetailPage() {
               replyToNickname={parentComment.authorNickname}
               onMessageClick={() => handleReplyClick(reply.authorNickname)}
               onDelete={() => handleDelete(reply.id, false)}
+              isEditing={editingCommentId === reply.id}
+              editSubmitting={editSubmitting}
+              onEditStart={() => handleEditStart(reply.id)}
+              onEditSubmit={(newContent) => handleEditSubmit(reply.id, false, newContent)}
+              onEditCancel={handleEditCancel}
             />
           ))}
         </div>
