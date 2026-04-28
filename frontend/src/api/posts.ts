@@ -59,7 +59,12 @@ export async function deletePost(postId: number): Promise<void> {
 
 export async function fetchComments(postId: number): Promise<CommentResponse[]> {
   const res = await axiosInstance.get(`/posts/${postId}/comments`);
-  return res.data;
+  // 백엔드는 부모 댓글의 replies[]에 대댓글을 nested(트리)로 내려줌(2단계).
+  // 프론트(PostDetailPage/CommentDetailPage)는 한 배열에 flat + parentCommentId 필터로 트리를 재구성하는 구조라
+  // 진입점에서 한 번 평탄화해서 호출부 가정과 맞춰준다.
+  // 이 어댑터를 거친 뒤로는 작성/삭제/수정 모두 flat 위에서 닫혀 다시 트리로 되돌릴 일은 없음.
+  const tree: CommentResponse[] = res.data ?? [];
+  return tree.flatMap((parent) => [parent, ...(parent.replies ?? [])]);
 }
 
 export async function createComment(
