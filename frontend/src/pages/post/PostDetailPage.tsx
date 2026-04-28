@@ -40,6 +40,7 @@ import { resolveImageUrl } from '../../utils/resolveImageUrl';
 import UserAvatar from '../../components/common/UserAvatar';
 import MobilePageHeader from '@/components/common/MobilePageHeader';
 import { trackReaction } from '../../lib/analytics';
+import axiosInstance from '../../api/axiosInstance';
 
 function PostDetailSkeleton() {
   return (
@@ -132,13 +133,14 @@ export default function PostDetailPage() {
   // 이미지 다운로드 우회 — `<a download>`는 cross-origin URL에선 브라우저가 무시하고
   // 그 URL로 navigate해버린다(이미지는 inline 렌더링이라 "리다이렉트"처럼 보임).
   // PDF는 백엔드가 Content-Disposition:attachment를 붙여 강제 다운로드되어 native `<a>`가 동작.
+  //
+  // axiosInstance를 거치는 이유: 보호된 이미지 URL은 Authorization Bearer가 필요하다.
+  // raw fetch는 헤더 미부착으로 401. 인터셉터가 토큰 부착 + 401 refresh까지 처리.
   // 백엔드가 이미지에도 Content-Disposition을 붙여주면 이 헬퍼는 제거 가능.
   async function downloadAsBlob(url: string, filename: string) {
     try {
-      const res = await fetch(url, { credentials: 'include' });
-      if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
-      const blob = await res.blob();
-      const objectUrl = URL.createObjectURL(blob);
+      const res = await axiosInstance.get<Blob>(url, { responseType: 'blob' });
+      const objectUrl = URL.createObjectURL(res.data);
       const a = document.createElement('a');
       a.href = objectUrl;
       a.download = filename;
