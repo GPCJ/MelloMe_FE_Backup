@@ -38,6 +38,11 @@ export default defineConfig({
     },
   },
   server: {
+    // staging 백엔드 CORS 허용 origin이 localhost:3000 / www.melonnetherapists.com 둘뿐.
+    // Vite 기본 5173은 staging에서 403 "Invalid CORS request"로 차단되므로 3000 고정.
+    // strictPort: 3000 점유 시 조용히 다른 포트로 fallback 하지 않고 즉시 실패.
+    port: 3000,
+    strictPort: true,
     proxy: {
       '/api': {
         target: 'http://localhost:8080',
