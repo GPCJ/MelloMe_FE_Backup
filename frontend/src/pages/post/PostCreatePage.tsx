@@ -78,6 +78,7 @@ export default function PostCreatePage() {
         for (let i = 0; i < pendingFiles.length; i++) {
           setUploadProgress(`첨부파일 업로드 중... (${i + 1}/${pendingFiles.length})`);
           const file = pendingFiles[i].file;
+          // 이미지인지 판별해서 API 업로드
           const upload = isImageFile(file) ? uploadPostImage : uploadPostPdf;
           try {
             await upload(post.id, file);
