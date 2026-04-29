@@ -31,3 +31,23 @@ originSessionId: b6f844ce-ccb5-4c47-a5ba-95c70db3b21d
   - `FORCE_PUSH=1` 환경변수로 명시적 우회 가능 (의도한 대량 정리일 때)
   - push-mello 실행 순서 조정: `git pull` → 가드 → rsync → commit → push (rsync 전에 레포 상태를 읽어야 가드가 정확하게 동작)
 - **durable 백업 위치**: `~/claude-memory-backups/` (사고 복구 시 `/tmp`에 백업했다가 이관). 복구 전 수동 백업은 이 경로 권장.
+
+## 2026-04-29 develop 브랜치 sync 전환 + 자동 브랜치 전환 헬퍼
+
+### 변경 요약
+- push-mello / pull-mello 둘 다 **develop 브랜치 대상**으로 변경 (이전 main 대상에서 전환)
+- 신규 헬퍼 함수 2개:
+  - `ensure_on_develop`: 현재 브랜치 != develop이면 미커밋/untracked 변경분 stash 후 checkout develop
+  - `restore_orig_branch`: 원래 브랜치 복귀 + stash pop
+- main은 코드 PR merge 흐름으로만 갱신 (memory sync로 main 직접 커밋 안 함)
+
+### Why
+2브랜치 정책(`feedback_branch_preference.md` 2026-04-29 갱신) 도입 후 develop이 일상 작업 브랜치가 됨. 메모리 sync도 develop으로 통일하면 "main 직접 push 금지" 정책 자동 충족.
+
+### 사고 회피 (2026-04-29 동일 세션)
+- 패치된 스크립트가 develop에만 있는데 main으로 checkout 후 실행 → working tree가 OLD 스크립트로 회귀 → main 직접 push 발생 → force-push로 회복
+- 교훈은 `feedback_branch_aware_script_test.md` 참조
+
+### 다른 기기 첫 셋업
+- `git clone` 후 `git checkout develop` 한 번 필요 (default branch는 여전히 main)
+- pull-mello 첫 실행 시 `ensure_on_develop`이 자동 처리하지만, 명시적 checkout이 더 안전

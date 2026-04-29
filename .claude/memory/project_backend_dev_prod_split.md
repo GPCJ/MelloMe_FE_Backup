@@ -48,3 +48,15 @@ dev/prod 분기는 Vercel 환경변수 + 2브랜치로 해결됨. AWS 이전은 
 - 모든 비-main 브랜치(feature 등)도 자동 Preview 환경에 배포되어 staging API 호출. 프로젝트 운영 규약으로만 통제 (Vercel Custom Environments는 Pro 기능).
 - preview URL은 인증 없는 공개 URL — 민감 데이터 노출 우려 시 Vercel password protection 검토.
 - AWS 이전 시 동일 매핑을 GitHub Actions로 직접 구축 필요 (Vercel 락인은 아님).
+
+## CORS 등록 완료 (2026-04-29)
+
+develop preview URL을 staging 백엔드 CORS allowlist에 추가 완료:
+
+```
+https://mellomefe-git-develop-ringo-waffles-projects.vercel.app
+```
+
+이제 develop preview URL에서 staging API 직접 호출 가능. 팀원이 preview URL 접속해서 API 검증 가능한 상태 진입.
+
+별건: localhost:5173은 staging CORS에 미등록 상태 유지. 프론트는 dev 포트를 3000으로 강제 고정해 우회 (vite.config strictPort, 커밋 `262b565`). 자세히는 `project_cors_local_suggestion.md`.
