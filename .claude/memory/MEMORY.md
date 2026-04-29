@@ -7,6 +7,7 @@
 - [협업 스타일 — AI 행동 규약 공동 설계형](./user_collab_style_meta.md) — 반복 실수 시 즉시 "규칙화할까요?" 제안 OK
 - [지식 흡수 기준 — 이미지/구조가 떠올라야 흡수](./user_comprehension_criterion.md) — 텍스트로 읽힌 느낌 ≠ 흡수, 비유/다이어그램/추적 트리거 필요
 - [작업 집중 패턴 — 싱글태스크 선호 + 스쳐가는 생각 캡처](./user_work_focus_pattern.md) — 한 작업 몰입 스타일, 떠오르는 생각은 즉시 notepad, 25분 타이머
+- [AI 의존 불안 패턴 — "AI 없던 시절이라면" 사고](./user_ai_dependency_anxiety.md) — 주기적 재출현, 4프레임 응답 + 테스트 가능 실험으로 redirect
 - 문서화 역량 면접 Q&A 7항목 → wiki `q-a-7` (reference)
 
 ## 작업 관리
@@ -41,6 +42,7 @@
 - [이미지/PDF 엔드포인트 분리 대응](./project_post_attachment_endpoints_split.md) — 2026-04-21 Swagger 컨펌 + MSW GET/응답 수정, 실서버 테스트 남음
 - [이미지 DELETE 엔드포인트 백엔드 대기](./project_post_image_delete_pending.md) — 2026-04-21 Swagger 재확인, 여전히 DELETE 없음
 - [게시글 이미지 presigned URL 방식 대기](./project_post_image_presigned_url.md) — 2026-04-22 백엔드 결정, 프론트는 스펙 확정까지 대기
+- **[이미지 업로드 500 — FILE_STORAGE_ERROR](./project_image_upload_500_file_storage_error.md)** — 2026-04-29 발견, 백엔드 구조화 에러, multipart 500 3건 단일 root cause 추정, staging 재현으로 검증 예정
 
 ## 게시글 리액션
 - [리액션 API 리네임 + 응답 확장 대응 완료](./project_post_reaction_api_rename.md) — 2026-04-21 커밋 3a84a04, 동시 배포/디자이너 추가 컨펌/실서버 테스트 잔여, PostSummary myReactionType 미포함 한계
@@ -48,6 +50,7 @@
 ## 협업 프로세스
 - [백엔드 전달 전략 + 이슈 동기화](./project_backend_communication.md) — Swagger 공식, GitHub Issues, 멜로미↔아이로
 - **[백엔드 배포 불가 2026-04-22~04-28](./project_backend_deploy_freeze_0422.md)** — CI/CD 권한 이슈, 이 주는 프론트 단독 완결 작업 우선 · 04-28 이후 재확인 후 삭제
+- **[백엔드 dev/prod 서버 분리 + Vercel 2브랜치 매핑](./project_backend_dev_prod_split.md)** — 2026-04-29, prod/staging 모두 HTTPS. main→prod / develop→staging 환경변수 분리, AWS 이전 없이 Vercel 기본으로 해결
 - **[분석 이벤트 설계 오너는 PM](./project_analytics_event_ownership.md)** — 설계 PM 담당, 프론트는 삽입만. 2026-04-27 PM 정식 스펙 24종(주요 7) 도착
 - **[GA4 이벤트 PM 정식 스펙 v1](./project_analytics_event_spec_pm_v1.md)** — 24종(자동4+인증5+콘텐츠11+탐색6+체류1), 주요 7개 ★, 북극성=post_created&comment_created 달성률
 - **[GA4 주요 7개 삽입 매핑 표 (B1 결과)](./project_analytics_b1_mapping.md)** — 트리거 위치/파라미터/기존 4종 리네임 매트릭스 + B2 의문점 4개 + 헬퍼 시그니처 초안. 다음 세션 B2 진입점
@@ -72,6 +75,7 @@
 - Google OAuth 삭제 내역(2026-03-25) → wiki `google-oauth-2026-03-25` (session-log)
 
 ## 개발 규칙 / 피드백
+- **[최우선]** [직접 작성 모드 — AI 코드 생성은 데드라인 임박 시에만 unlock](./feedback_direct_coding_default.md) — `.claude/deadline-unlock` 4h TTL hook + 힌트/수도코드 기본 응답
 - **[최우선]** [코드 작업 전 트레이드오프 설명 필수](./feedback_tradeoff_before_code.md) / [클린 커밋 히스토리 관리](./feedback_clean_commit_history.md)
 - **[최우선]** [진단→이해→지시→조치 (과잉설명 금지)](./feedback_explain_before_act.md) — 레이블/경쟁가설/1분 검증/최소 정보 제시 5원칙
 - **[최우선]** [workaround 추가 전 스펙/상태 재확인](./feedback_verify_spec_before_workaround.md) — 400/감싸기 판단 전에 Swagger·네트워크·실코드 재확인
@@ -99,7 +103,7 @@
 - [와이어프레임 색상 보수적](./feedback_wireframe_color.md) / [서버 에러 시 프론트 먼저](./feedback_backend_blame.md)
 - [compact/clear 타이밍](./feedback_compact_timing.md) / [TS 타입 체크 tsc -b](./feedback_ts_type_check.md)
 - [shadcn asChild 미지원](./feedback_shadcn_button_aschild.md) / [shadcn/ui 기본 사용 원칙](./feedback_shadcn_default.md)
-- [GitHub 토큰 채팅 금지](./feedback_github_token.md) / [브랜치 main만](./feedback_branch_preference.md) / [credentials 갱신 방법](./feedback_github_credentials_renewal.md)
+- [GitHub 토큰 채팅 금지](./feedback_github_token.md) / [브랜치 정책 — main(prod) + develop(staging)](./feedback_branch_preference.md) / [credentials 갱신 방법](./feedback_github_credentials_renewal.md)
 - [백엔드 이슈에 LLM 프롬프트](./feedback_backend_llm_prompt.md) / [슬래시 커맨드 스크립트 금지](./feedback_no_scripts_for_commands.md)
 - [외부 push 전 승인 필수](./feedback_push_requires_approval.md) / [push-airo reset --hard](./feedback_push_airo_claude_files.md)
 - [커밋 메시지 한국어 통일 (forward-only)](./feedback_commit_message_korean.md) — 과거 영어 커밋은 rewrite 없이 둠
@@ -148,7 +152,7 @@
 - 프론트엔드 코드 학습 19항목 → wiki `19` (reference) / [코딩 드릴 루틴](./project_coding_drill.md)
 - **[블로그 초기 글 4편 로드맵](./project_blog_first_series.md)** — 1번째: 바이브 코더 규칙 5가지(미니멀 확정, 순서 B) / 2번째: useInfiniteFeed requestIdRef / 3번째: RQ 마이그레이션 후기 / 4번째: AI 메모리 활용 (1번 글에서 분리)
 - GA4 + Clarity 설치 학습 노트(인지부채 HIGH, AI 전체 작성) → wiki `ga4-clarity-high-ai` (decision) — useGA4PageView 훅 메커니즘 + 재학습 체크리스트 / 원 계획 [여기](./project_future_analytics.md)
-- **[RQ 마이그레이션 구현 로그 — 인지부채 HIGH](./project_rq_migration_implementation.md)** — R-01a(완료, 직접) / R-01b(2026-04-27 AI 작성, 회귀 대기) / R-05(미착수). 단계별 누적 적층, 작업 종료 후 일괄 복기 Q&A용
+- **[RQ 마이그레이션 구현 로그 — 인지부채 HIGH](./project_rq_migration_implementation.md)** — R-01a(완료, 직접) / R-01b(완료, 2026-04-29 회귀 통과) / R-05(미착수). 단계별 누적 적층, 작업 종료 후 일괄 복기 Q&A용
 - 유저 행동 데이터 수집 구현 맥락 — 개발자용 `ga4-clarity-dev` / PM용 `ga4-clarity-pm` (decision, 2026-04-24) · 원본 `ga4-clarity-4` 보존
 - **[GA4 user_id 부착 정책 — analyticsId 드롭](./project_analytics_user_id_decision.md)** — 2026-04-24 PM 결정. 익명 유지(client_id only), Looker Studio/Firebase 로우데이터로 유저 단위 분석. 1차 4종 cf7750e 완료, 2026-04-27 PM 정식 24종 스펙 도착 → 주요 7개 추가 삽입은 프론트 독립 즉시 가능(백엔드 의존성 0)
 - **[/privacy 라우트 설계 결정](./project_privacy_policy_page.md)** — Layout 밖 독립, 링크 동작(Signup 새탭/Login same-tab), 초안 배너 PM 검토 전 유지 · 진행 상황은 backlog P/PM 섹션

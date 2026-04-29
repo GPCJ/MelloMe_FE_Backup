@@ -26,13 +26,13 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 
 ### 리팩토링 / 마이그레이션 (미검증)
 - [x] **R-01a** ProfilePage 3탭 RQ 마이그레이션 완료 (2026-04-23, 커밋 924d55e + 0ba0523)
-- [?] **R-01b** PostListPage `useInfiniteFeed` → `useInfiniteQuery` (코드 production 반영, 런타임 회귀 검증 대기)
+- [x] **R-01b** PostListPage `useInfiniteFeed` → `useInfiniteQuery` (2026-04-29 런타임 회귀 검증 통과)
   - 커밋: 8f0b595, cd126d6 (prerender 비활성 우회 0dcf346은 6d234cc로 해소)
-  - 런타임 검증 항목 (production 사이트 직접):
-    - [ ] 무한 스크롤 다음 페이지 페치
-    - [ ] 게시글 클릭 → 뒤로가기 시 스크롤/필터 복원
-    - [ ] 필터 칩 변경 시 깜빡임 없음
-    - [ ] 에러 시 P1 fallback 전환
+  - 런타임 검증 항목 (production 사이트 직접, 모두 통과):
+    - [x] 무한 스크롤 다음 페이지 페치
+    - [x] 게시글 클릭 → 뒤로가기 시 스크롤/필터 복원
+    - [x] 필터 칩 변경 시 깜빡임 없음
+    - [x] 에러 시 P1 fallback 전환
   - 상세: `project_rq_migration_implementation.md`
 - [ ] **R-02** AbortController 일괄 적용 (PostListPage, PostDetailPage)
   - 검증: `grep "AbortController" frontend/src/pages` → 적용 여부
