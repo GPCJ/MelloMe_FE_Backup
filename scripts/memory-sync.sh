@@ -58,14 +58,42 @@ guard_no_mass_deletion() {
   fi
 }
 
+# 메모리 sync는 항상 develop 대상으로 작동 (2026-04-29 정책 갱신).
+# 2브랜치 정책(main=prod, develop=staging)에서 일상 작업=develop 원칙에 맞춰 메모리 sync도 develop으로 통일.
+# main은 코드 PR merge 흐름으로만 갱신 (memory sync로 main에 직접 커밋 안 함).
+# 현재 브랜치가 develop이 아니면 임시 전환 + 미커밋 변경분 stash → 종료 시 복귀 + pop.
+ensure_on_develop() {
+  ORIG_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+  STASHED=0
+  if [ "$ORIG_BRANCH" != "develop" ]; then
+    if ! git diff --quiet HEAD || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+      git stash push -u -m "memory-sync-auto-$(date +%s)" >/dev/null
+      STASHED=1
+    fi
+    git checkout develop
+    echo "ℹ️  $ORIG_BRANCH → develop 임시 전환 (메모리 sync는 항상 develop 대상)"
+  fi
+}
+
+restore_orig_branch() {
+  if [ "$ORIG_BRANCH" != "develop" ]; then
+    git checkout "$ORIG_BRANCH"
+    if [ "$STASHED" = "1" ]; then
+      git stash pop || echo "⚠️  stash pop 충돌. 'git stash list'로 확인 후 수동 처리하세요."
+    fi
+    echo "ℹ️  원래 브랜치($ORIG_BRANCH)로 복귀"
+  fi
+}
+
 case "$1" in
   push-mello)
     echo "📤 메모리 → 레포 sync 후 push 중..."
     cd "$PROJECT_REPO"
+    ensure_on_develop
     # rsync 전에 레포 상태가 필요하므로 pull 먼저 (push-mello 기존 흐름에선 commit 후 pull이었는데,
     # 대량 삭제 가드는 rsync 실행 전 레포 파일 수를 알아야 정확하니 순서 조정)
     # --autostash: 스크립트 자체/코드 미커밋 변경이 있어도 rebase 가능하도록 임시 stash
-    git pull --rebase --autostash origin main
+    git pull --rebase --autostash origin develop
     guard_memory_src_not_empty
     guard_no_mass_deletion
     # 로컬 메모리 → 레포 내 메모리 폴더로 복사 (sync_status.md도 일반 메모리로 취급)
@@ -78,13 +106,15 @@ case "$1" in
     else
       git commit -m "${COMMIT_MSG:-chore: push 변경사항 동기화 $(date '+%Y-%m-%d %H:%M')}"
     fi
-    git push origin main
+    git push origin develop
+    restore_orig_branch
     echo "✅ push 완료."
     ;;
   pull-mello)
     echo "📥 레포 → 메모리 pull 중..."
     cd "$PROJECT_REPO"
-    git pull --rebase origin main
+    ensure_on_develop
+    git pull --rebase origin develop
     if [ -d "$MEMORY_IN_REPO" ]; then
       mkdir -p "$MEMORY_SRC"
       rsync -a --delete "$MEMORY_IN_REPO/" "$MEMORY_SRC/"
@@ -92,6 +122,7 @@ case "$1" in
     else
       echo "⚠️  레포에 메모리 디렉토리가 없습니다: $MEMORY_IN_REPO"
     fi
+    restore_orig_branch
     ;;
   *)
     echo "사용법: $0 {push-mello|pull-mello}"
