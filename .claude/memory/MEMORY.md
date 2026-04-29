@@ -55,6 +55,9 @@
 - **[GA4 이벤트 PM 정식 스펙 v1](./project_analytics_event_spec_pm_v1.md)** — 24종(자동4+인증5+콘텐츠11+탐색6+체류1), 주요 7개 ★, 북극성=post_created&comment_created 달성률
 - **[GA4 주요 7개 삽입 매핑 표 (B1 결과)](./project_analytics_b1_mapping.md)** — 트리거 위치/파라미터/기존 4종 리네임 매트릭스 + B2 의문점 4개 + 헬퍼 시그니처 초안. 다음 세션 B2 진입점
 
+## 진행 중 이슈
+- **[PostListPage ref 렌더 중 접근 이슈](./project_postlistpage_ref_render_issue.md)** — React 19 에러, useEffect 이전 방향 잡음, initialSnapshot 타이밍 문제 미해결 (내일 아침 이어서)
+
 ## 기능명세 / 아키텍처
 - [프론트 기능명세 체계](./project_feature_spec_frontend.md) — FNC-001~007 인증 완료
 - [CSV API 검토 현황](./project_csv_api_review_progress.md) — 27번부터 재개
