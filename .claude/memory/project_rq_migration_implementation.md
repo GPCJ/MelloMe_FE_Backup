@@ -3,7 +3,8 @@ name: React Query 마이그레이션 구현 로그 (인지부채 HIGH)
 description: useInfiniteFeed 등 RQ 마이그레이션 작업의 메커니즘 상세를 단계별로 적층. Claude 직접 작성 코드 → 작업 종료 후 일괄 복기 Q&A용.
 type: project
 created: 2026-04-27
-status: in_progress
+updated: 2026-04-29
+status: done
 cognitive_debt: HIGH
 originSessionId: 795e24ed-d2c2-4561-9722-2a738013005f
 ---
@@ -20,7 +21,7 @@ originSessionId: 795e24ed-d2c2-4561-9722-2a738013005f
 | 단계 | 작업 | 상태 | 커밋 |
 |---|---|---|---|
 | R-01a | ProfilePage 3탭 `useQuery` + `keepPreviousData` | 완료 (2026-04-23, 사용자 직접 작성) | 924d55e, 0ba0523 |
-| R-01b | PostListPage `useInfiniteFeed` → `useInfiniteQuery` | production 코드 반영, 런타임 회귀 검증 대기 (2026-04-27). prerender 비활성 우회(0dcf346)는 6d234cc에서 해소 | 8f0b595, cd126d6 |
+| R-01b | PostListPage `useInfiniteFeed` → `useInfiniteQuery` | 완료 (2026-04-29 런타임 회귀 검증 통과). prerender 비활성 우회(0dcf346)는 6d234cc에서 해소 | 8f0b595, cd126d6 |
 | R-05 | ProfilePage 관심사 분리 (RQ 마이그레이션 후속 정리) | 미착수 | — |
 
 ---
@@ -115,17 +116,17 @@ RQ 기본값 `retry: 3` + 지수 backoff(1s/2s/4s)이라 첫 실패 후 약 7초
 
 ---
 
-### Production 코드 반영 + 런타임 검증 대기 (2026-04-27)
+### Production 코드 반영 + 런타임 검증 완료 (2026-04-27 → 2026-04-29)
 
-cd126d6 push 직후 Vercel 빌드 hang이 났는데, **R-01b 코드와 무관한 prerender 빌드 결함**으로 판명됐습니다(원인: React 19 + `react-dom/server` 잔류 핸들, `preactjs/vite-prerender-plugin` Issue #3). 1차로 prerender 임시 비활성화(0dcf346)로 우회 → R-01b 코드 production 반영. 이후 6d234cc에서 `closeBundle` 훅 + `process.exit(0)` 패턴으로 prerender 재활성 + 우회 해소. 상세는 wiki `vite-prerender-plugin-react-19-hang` (debugging). 즉 빌드/배포 측 검증은 모두 통과 — `tsc -b && vite build` + Vercel deployment + prerender 산출물 3개 정상.
+cd126d6 push 직후 Vercel 빌드 hang이 났는데, **R-01b 코드와 무관한 prerender 빌드 결함**으로 판명됐습니다(원인: React 19 + `react-dom/server` 잔류 핸들, `preactjs/vite-prerender-plugin` Issue #3). 1차로 prerender 임시 비활성화(0dcf346)로 우회 → R-01b 코드 production 반영. 이후 6d234cc에서 `closeBundle` 훅 + `process.exit(0)` 패턴으로 prerender 재활성 + 우회 해소. 상세는 wiki `vite-prerender-plugin-react-19-hang` (debugging). 빌드/배포 측 검증은 모두 통과 — `tsc -b && vite build` + Vercel deployment + prerender 산출물 3개 정상.
 
-**남은 검증**: 런타임 회귀(production 사이트에서 직접 확인 필요)
-- 무한 스크롤 다음 페이지 페치
-- 게시글 클릭 → 뒤로가기 시 스크롤/필터 복원
-- 필터 칩 변경 시 깜빡임 없는지
-- 에러 시 P1 fallback 전환
+**런타임 검증** (2026-04-29 production 사이트 직접 확인, 모두 통과):
+- [x] 무한 스크롤 다음 페이지 페치
+- [x] 게시글 클릭 → 뒤로가기 시 스크롤/필터 복원
+- [x] 필터 칩 변경 시 깜빡임 없음
+- [x] 에러 시 P1 fallback 전환
 
-런타임 검증 통과 시 본 파일 `status: in_progress` → `done`으로 이동.
+본 파일 `status: done` 확정. 후속 R-05(ProfilePage 관심사 분리)는 별건으로 진행.
 
 ---
 

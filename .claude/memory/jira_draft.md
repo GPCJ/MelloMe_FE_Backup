@@ -1,14 +1,75 @@
 ---
 name: Jira 업로드 대기 초안
-description: 다른 계정에서 Jira MCP로 생성할 에픽/스토리 초안 모음. 최상단이 가장 최근.
+description: 다른 계정에서 Jira MCP로 생성할 에픽/스토리/태스크 초안 모음. 최상단이 가장 최근.
 type: project
-updated: 2026-04-24
+updated: 2026-04-29
 originSessionId: f611174e-26dc-4189-9e23-de39c771cab9
 ---
 # Jira 업로드 대기 초안
 
 > 다른 계정에서 Jira MCP 접근 후 생성 예정
 > 프로젝트 키: **MEL** (멜로미) — 생성 전 `getVisibleJiraProjects`로 재확인 필수
+
+---
+
+## [업로드 대기] staging CORS allowlist에 Vercel develop preview URL 추가 (Task)
+
+- **타입:** Task
+- **담당:** 백엔드
+- **우선순위:** Medium (프론트 develop preview 검증 블록)
+- **라벨:** `cors`, `staging`, `frontend-blocker`
+- **Summary:** staging 백엔드 CORS allowlist에 Vercel develop preview URL 1줄 추가 요청
+
+### 배경
+
+2026-04-29 staging 서버(`https://api-staging.melonnetherapists.com/`) 운영 시작에 맞춰 프론트는 다음 작업을 완료했습니다.
+
+1. 2브랜치 정책 채택 — `main`(prod) + `develop`(staging) 운영
+2. Vercel Production/Preview 환경별 `VITE_API_BASE_URL` 분리 등록
+   - Production → `https://api.melonnetherapists.com/api/v1`
+   - Preview → `https://api-staging.melonnetherapists.com/api/v1`
+3. develop 브랜치 push → Vercel Preview 빌드 정상 생성 확인 (커밋 `22fdef5`)
+
+검증 단계에서 develop preview URL이 staging API 호출 시 403 CORS 차단을 받았습니다. staging 백엔드 CORS allowlist에 Vercel preview 도메인이 등록되지 않은 것이 원인입니다.
+
+### 동일 세션에서 발견된 별도 drift (참고)
+
+- `localhost:5173` 미허용: 프론트가 dev 포트를 3000으로 강제 고정해 우회 (커밋 `262b565`).
+- 본 건은 프론트 측 우회 불가 — 백엔드 추가 필수.
+
+### 요청 사항
+
+staging 백엔드 CORS allowlist에 다음 origin 1개 추가:
+
+```
+https://mellomefe-git-develop-ringo-waffles-projects.vercel.app
+```
+
+이 URL은 Vercel이 develop 브랜치에 부여하는 **브랜치 stable URL**입니다. develop에 새 커밋이 push되어도 동일 URL이 최신 빌드를 가리키므로 1줄 추가로 영구 유효합니다.
+
+### Acceptance Criteria
+
+- [ ] staging 백엔드 CORS allowlist에 위 URL 추가 + 재배포 완료
+- [ ] curl preflight 검증
+  ```
+  curl -i -X OPTIONS https://api-staging.melonnetherapists.com/api/v1/auth/login \
+    -H "Origin: https://mellomefe-git-develop-ringo-waffles-projects.vercel.app" \
+    -H "Access-Control-Request-Method: POST"
+  ```
+  → 응답 헤더 `Access-Control-Allow-Origin`에 동일 origin echo 확인
+- [ ] preview URL 브라우저 접속 → 임의 API 호출 시 403 미발생
+
+### 본 티켓 범위 밖 (별건 안건)
+
+- 깔끔한 커스텀 도메인 운영 검토 — `staging.melonnetherapists.com`을 develop branch에 바인딩 + CORS 단일 항목 전환. 현재는 Vercel 자동 발급 URL 사용으로 진행.
+- staging CORS allowlist 정책 재확인 — `localhost:5173`도 추가할지, prod와 staging 간 일관성 회복 여부.
+
+### 참고 — 프론트 측 작업 이력
+
+- 커밋 `262b565` (main): vite dev 서버 포트 3000 고정 (5173 차단 우회)
+- 커밋 `22fdef5` (develop): preview 빌드 트리거 검증 (빈 커밋)
+- 메모리: `project_backend_dev_prod_split.md` (2브랜치 매핑 결정), `feedback_branch_preference.md` (정책 갱신)
+- 발견 세션: 2026-04-29
 
 ---
 
