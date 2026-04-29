@@ -115,6 +115,7 @@
 - [코드 리뷰 severity triage](./feedback_review_triage_workflow.md) — HIGH만 즉시 조치, Medium/Low는 project 메모리 + notepad priority("오늘 뭐하지")
 - [가드/임시대응 코드 주석 스타일](./feedback_guard_comment_style.md) — 레이스 가드·workaround에는 상세 한국어 WHY 주석 + 의존 관계 명시
 - **[vite plugin closeBundle 작업 전 wiki 우선 검토](./feedback_vite_plugin_closeBundle_check.md)** — Sentry 등 closeBundle 사용 plugin 추가 시 forceExit과의 순서 충돌 점검 필수, wiki 회복 트리거
+- **[브랜치별 스크립트 테스트 함정](./feedback_branch_aware_script_test.md)** — 2026-04-29 사고: 패치된 스크립트가 한 브랜치에만 있을 때 다른 브랜치 checkout 시 OLD로 회귀, force-push 회복 필요
 - [git 커밋 전 diff --stat](./feedback_git_diff_stat_check.md) / [커맨드 네이밍 — 범용 이름](./feedback_draft_notion_naming.md)
 - [에러 삼키지 말고 실패 표시](./feedback_error_handling_visible.md) / [API 에러 원인별 분기](./feedback_error_handling_by_cause.md)
 - [백엔드 필드 요청 전 기존 스펙 확인](./feedback_backend_field_request_check.md) / [Explore 결과 직접 검증](./feedback_explore_result_verification.md)
@@ -138,7 +139,7 @@
 ## 환경 / 도구
 - [Claude Code aliases](./project_bash_aliases.md) / [플러그인+hook 설정](./project_superpowers_plugin.md)
 - [airo remote](./project_airo_repo.md) / [백업 레포 URL](./reference_backup_repos.md) / [push-airo 스크립트](./project_push_airo_script.md)
-- [메모리 동기화](./project_memory_sync.md) — `/push-mello`, `/pull-mello` · 2026-04-20 사고 + 대량 삭제 가드(`FORCE_PUSH=1` 우회) 추가
+- [메모리 동기화](./project_memory_sync.md) — `/push-mello`, `/pull-mello` · 2026-04-20 사고 + 대량 삭제 가드(`FORCE_PUSH=1` 우회) 추가 · 2026-04-29 develop 브랜치 sync 전환 + 자동 브랜치 전환 헬퍼
 - [새 환경은 pull-mello 먼저](./feedback_new_env_pull_first.md) — SSD 포맷/새 머신에서 push-mello 먼저 돌리면 레포 메모리가 `rsync --delete`로 날아감 (2026-04-20 사고 교훈)
 - [포트폴리오 프로젝트](./project_portfolio_setup.md) — `~/portfolio`
 - [Vercel 환경변수](./project_env_vars.md) / [.env.docker 이름 변경](./project_env_docker_rename.md)
