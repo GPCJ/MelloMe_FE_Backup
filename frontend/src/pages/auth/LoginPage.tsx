@@ -87,7 +87,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="example@email.com"
-                  className="pl-9"
+                  className="pl-9 bg-gray-100"
                   required
                 />
               </div>
@@ -106,8 +106,9 @@ export default function LoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="비밀번호를 입력하세요"
-                  className="pl-9 pr-9"
+                  placeholder="8자 이상 입력해주세요"
+                  autoComplete="current-password"
+                  className="pl-9 pr-9 bg-gray-100"
                   required
                 />
                 <button

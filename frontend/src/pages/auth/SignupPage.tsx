@@ -7,7 +7,14 @@ import { Button } from '@/components/shadcn-ui/button';
 import { Input } from '@/components/shadcn-ui/input';
 import { Label } from '@/components/shadcn-ui/label';
 import { Checkbox } from '@/components/shadcn-ui/checkbox';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/shadcn-ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/shadcn-ui/card';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
 
 export default function SignupPage() {
@@ -19,6 +26,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [agreePrivacy, setAgreePrivacy] = useState(false);
   const [error, setError] = useState('');
@@ -105,50 +113,92 @@ export default function SignupPage() {
   }
 
   return (
+    /*
+    배경색: MVP 와이어프레임은 일단 그라데이션 없이 색 빠진 버전이 맞는 것 같음 그리고 디자이너의 확정 디자인도 그라데이션 없음.
+    */
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">멜로미</h1>
+        <h1 className="text-3xl font-bold text-gray-900">mellty</h1>
         <p className="mt-2 text-sm text-gray-500">치료사들의 따뜻한 성장 공간</p>
       </div>
 
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>회원가입</CardTitle>
+          <CardTitle className="text-center text-2xl text-base">회원가입</CardTitle>
+          <CardDescription className="text-center text-base">
+            멜로미와 함께 성장해요 💜
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1">
               <Label htmlFor="email">이메일</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="example@email.com"
-                required
-              />
+              <div className="relative">
+                {/* 왜 placeholder하고 아이콘이 겹치지? -> input에 왼쪽 padding을 안줘서*/}
+                <Mail
+                  size={16}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="example@email.com"
+                  className="pl-9 bg-gray-100"
+                  required
+                />
+              </div>
             </div>
             <div className="space-y-1">
               <Label htmlFor="password">비밀번호</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="비밀번호를 입력하세요"
-                required
-              />
+              <div className="relative">
+                <Lock
+                  size={16}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="8자 이상 입력해주세요"
+                  className="pl-9 pr-9 bg-gray-100"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
             <div className="space-y-1">
               <Label htmlFor="passwordConfirm">비밀번호 확인</Label>
-              <Input
-                id="passwordConfirm"
-                type="password"
-                value={passwordConfirm}
-                onChange={(e) => setPasswordConfirm(e.target.value)}
-                placeholder="비밀번호를 다시 입력하세요"
-                required
-              />
+              <div className="relative">
+                <Lock
+                  size={16}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+                <Input
+                  id="passwordConfirm"
+                  type={showPassword ? 'text' : 'password'}
+                  value={passwordConfirm}
+                  onChange={(e) => setPasswordConfirm(e.target.value)}
+                  placeholder="비밀번호를 다시 입력하세요"
+                  className="pl-9 pr-9 bg-gray-100"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
             <div className="space-y-3 pt-2">
               <div className="flex items-center gap-2">
@@ -193,7 +243,7 @@ export default function SignupPage() {
 
             <Button
               type="submit"
-              className="w-full"
+              className="w-full rounded-full"
               disabled={loading || !agreeTerms || !agreePrivacy}
             >
               {loading ? '가입 중...' : '회원가입'}
@@ -209,6 +259,7 @@ export default function SignupPage() {
           </p>
         </CardContent>
       </Card>
+      <p className="mt-6 text-sm text-gray-500">멜로미는 치료사 전용 커뮤니티입니다</p>
     </div>
   );
 }
