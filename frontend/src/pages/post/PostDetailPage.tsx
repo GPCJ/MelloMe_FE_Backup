@@ -173,7 +173,9 @@ export default function PostDetailPage() {
       const updated = await updateComment(commentId, { content: newContent });
       setComments((prev) =>
         prev.map((c) =>
-          c.id === commentId ? { ...c, ...(updated ?? {}), content: updated?.content ?? newContent } : c,
+          c.id === commentId
+            ? { ...c, ...(updated ?? {}), content: updated?.content ?? newContent }
+            : c,
         ),
       );
       setEditingCommentId(null);

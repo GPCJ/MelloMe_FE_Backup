@@ -43,6 +43,7 @@
 - [이미지 DELETE 엔드포인트 백엔드 대기](./project_post_image_delete_pending.md) — 2026-04-21 Swagger 재확인, 여전히 DELETE 없음
 - [게시글 이미지 presigned URL 방식 대기](./project_post_image_presigned_url.md) — 2026-04-22 백엔드 결정, 프론트는 스펙 확정까지 대기
 - **[이미지 업로드 500 — FILE_STORAGE_ERROR](./project_image_upload_500_file_storage_error.md)** — 2026-04-29 발견, 백엔드 구조화 에러, multipart 500 3건 단일 root cause 추정, staging 재현으로 검증 예정
+- 게시글 이미지 미리보기 8층 학습 노트 + unwrap 버그(2026-04-30) → wiki `unwrap` (debugging) — fetchPostImages가 `{success, data}` 래퍼 미unwrap → `images.length` undefined → 첨부 영역 미렌더, 1줄 수정 후 status code로 인증/스토리지 가설 분기
 
 ## 게시글 리액션
 - [리액션 API 리네임 + 응답 확장 대응 완료](./project_post_reaction_api_rename.md) — 2026-04-21 커밋 3a84a04, 동시 배포/디자이너 추가 컨펌/실서버 테스트 잔여, PostSummary myReactionType 미포함 한계
@@ -57,6 +58,7 @@
 
 ## 진행 중 이슈
 - **[PostListPage ref 렌더 중 접근 이슈](./project_postlistpage_ref_render_issue.md)** — React 19 에러, useEffect 이전 방향 잡음, initialSnapshot 타이밍 문제 미해결 (내일 아침 이어서)
+- **[APP_BASE_URL staging 회귀 (2026-04-30)](./project_app_base_url_staging_regression.md)** — staging 백엔드에서 04-22 localhost 버그가 EC2 IP 형태로 재발, 백엔드 환경변수 누락. 사용자가 삭제 요청할 때까지 보존
 
 ## 기능명세 / 아키텍처
 - [프론트 기능명세 체계](./project_feature_spec_frontend.md) — FNC-001~007 인증 완료

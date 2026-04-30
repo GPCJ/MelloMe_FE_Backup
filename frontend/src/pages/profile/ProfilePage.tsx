@@ -79,6 +79,7 @@ export default function ProfilePage() {
       toast.error(getAxiosErrorMessage(err, 'image'));
     } finally {
       setUploadingImage(false);
+
       // 같은 파일 재선택 가능하도록 초기화
       e.target.value = '';
     }

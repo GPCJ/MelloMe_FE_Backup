@@ -122,7 +122,7 @@ export async function uploadPostImage(postId: number, file: File): Promise<PostI
 
 export async function fetchPostImages(postId: number): Promise<PostImage[]> {
   const res = await axiosInstance.get(`/posts/${postId}/images`);
-  return res.data;
+  return res.data?.data ?? res.data;
 }
 
 export async function deletePostAttachment(postId: number, attachmentId: number): Promise<void> {
