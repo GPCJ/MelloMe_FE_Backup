@@ -1,9 +1,21 @@
 ---
-name: 게시글 이미지 presigned URL 방식 — 백엔드 작업 대기
-description: 게시글 이미지 미리보기 깨짐(401 추정) 대응으로 백엔드가 presigned URL 방식 채택. 프론트 대기 상태.
+name: 게시글 이미지 presigned URL 방식 — 도입 완료 (히스토리)
+description: 2026-04-22 백엔드 결정 후 도입 완료. 프론트 미리보기/다운로드 대응 완료. 후속 다운로드 fix는 project_post_attachment_download_s3_cors_pending.md 참조.
 type: project
 originSessionId: a737f971-f825-4c03-86e3-26906345f82a
 ---
+
+## 상태 (2026-05-01 갱신)
+
+백엔드 presigned URL 도입 완료. 프론트 대응:
+- 미리보기: `<img src>` 정상 동작 (CORS 면제)
+- 다운로드: `axiosInstance` AT 충돌 + cross-origin `<a download>` 무시 이슈 발견 → `60a4e09`로 fix
+- 후속 블로커: S3 버킷 CORS 미설정 → `project_post_attachment_download_s3_cors_pending.md` 참조
+
+아래는 도입 당시 히스토리.
+
+---
+
 ## 배경 (2026-04-22)
 
 게시글 이미지 미리보기가 실서버에서 깨지던 이슈 — 프론트 `<img>` 태그가 Authorization 헤더를 못 보내는데 백엔드 이미지 엔드포인트가 AT를 요구해 401로 추정. 백엔드에서 presigned URL 방식으로 가기로 결정.
