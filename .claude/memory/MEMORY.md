@@ -50,6 +50,9 @@
 ## 게시글 리액션
 - [리액션 API 리네임 + 응답 확장 대응 완료](./project_post_reaction_api_rename.md) — 2026-04-21 커밋 3a84a04, 동시 배포/디자이너 추가 컨펌/실서버 테스트 잔여, PostSummary myReactionType 미포함 한계
 
+## 댓글 리액션
+- **[댓글 리액션 3종 통일 방향 결정 (2026-05-01)](./project_comment_reaction_3type_decision.md)** — 백엔드 LIKE/DISLIKE 2종 vs 프론트 UI 3종 placeholder 불일치, 게시글 동일 LIKE/CURIOUS/USEFUL 3종 통일 요청 방향. PM/디자이너 컨펌 + 백엔드 요청 대기. 프론트 선작업 가능 범위(size prop·타입·API 골격) 정리
+
 ## 협업 프로세스
 - [백엔드 전달 전략 + 이슈 동기화](./project_backend_communication.md) — Swagger 공식, GitHub Issues, 멜로미↔아이로
 - **[백엔드 dev/prod 서버 분리 + Vercel 2브랜치 매핑](./project_backend_dev_prod_split.md)** — 2026-04-29, prod/staging 모두 HTTPS. main→prod / develop→staging 환경변수 분리, AWS 이전 없이 Vercel 기본으로 해결
@@ -139,6 +142,7 @@
 - **[분석/검색 대시보드 (Search Console/GA4/Clarity)](./reference_analytics_dashboards.md)** — 대시보드 URL + 식별자 (GA4 `G-7VPMPFL76M`, Clarity `wg3vefhmgy`)
 - **[Jira 프로젝트 구조 및 MEL 컨벤션](./reference_jira_project_structure.md)** — MEL=멜로미, BUR=burst!(별개), 이슈 생성 전 프로젝트 조회 필수
 - [팀 요구사항 Google Sheets](./reference_requirements_doc.md) / [Swagger UI](./reference_swagger_endpoint.md) — `api.melonnetherapists.com/swagger-ui/index.html`
+- [Swagger enum 전체 값 확인 정확한 방법](./reference_swagger_enum_verification.md) — Example Value 탭은 한 값만 표시, Schema 탭 또는 raw JSON `/v3/api-docs` 직접 확인 권장
 - [백엔드 Swagger OpenAPI 엔드포인트](./reference_backend_swagger.md) — `api.melonnetherapists.com/v3/api-docs`, API prefix `/api/v1`, 필요 시 WebFetch로 fresh 조회
 - [Notion TIL](./reference_notion_til.md) (18:30 KST) / [빌더스 리그 + 서브페이지 ID + 컨벤션](./reference_notion_builders_league.md) / [트러블슈팅](./reference_notion_troubleshooting.md)
 
