@@ -41,16 +41,17 @@
 - [첨부파일 400 원인 확정 — MIME 불일치](./project_attachment_upload_400_bug.md) — 한컴 뷰어, Blob 강제 지정으로 해결
 - [이미지/PDF 엔드포인트 분리 대응](./project_post_attachment_endpoints_split.md) — 2026-04-21 Swagger 컨펌 + MSW GET/응답 수정, 실서버 테스트 남음
 - [이미지 DELETE 엔드포인트 백엔드 대기](./project_post_image_delete_pending.md) — 2026-04-21 Swagger 재확인, 여전히 DELETE 없음
-- [게시글 이미지 presigned URL 방식 대기](./project_post_image_presigned_url.md) — 2026-04-22 백엔드 결정, 프론트는 스펙 확정까지 대기
+- [게시글 이미지 presigned URL 도입 완료 (히스토리)](./project_post_image_presigned_url.md) — 2026-04-22 백엔드 결정 → 도입 완료, 후속 다운로드 fix는 별도 메모리
+- **[첨부 다운로드 fix 완료 + S3 CORS 대기 (2026-05-01)](./project_post_attachment_download_s3_cors_pending.md)** — 60a4e09 develop 배포, axiosInstance→raw axios + 분기 통일. staging 검증은 S3 버킷 CORS 미설정으로 차단, 백엔드 인프라 의존 (prod 머지 의미 없음 — 같은 S3)
 - **[이미지 업로드 500 — FILE_STORAGE_ERROR](./project_image_upload_500_file_storage_error.md)** — 2026-04-29 발견, 백엔드 구조화 에러, multipart 500 3건 단일 root cause 추정, staging 재현으로 검증 예정
 - 게시글 이미지 미리보기 8층 학습 노트 + unwrap 버그(2026-04-30) → wiki `unwrap` (debugging) — fetchPostImages가 `{success, data}` 래퍼 미unwrap → `images.length` undefined → 첨부 영역 미렌더, 1줄 수정 후 status code로 인증/스토리지 가설 분기
+- 첨부 다운로드 "리다이렉트" 증상 3-layer 진단(2026-05-01) → wiki `presigned-url-axiosinstance-s3-cors-3-layer` (debugging) — `<a download>` cross-origin 무시 + axiosInstance AT 충돌 + S3 CORS 미설정, blob 다운로드 관용구 학습 노트 포함
 
 ## 게시글 리액션
 - [리액션 API 리네임 + 응답 확장 대응 완료](./project_post_reaction_api_rename.md) — 2026-04-21 커밋 3a84a04, 동시 배포/디자이너 추가 컨펌/실서버 테스트 잔여, PostSummary myReactionType 미포함 한계
 
 ## 협업 프로세스
 - [백엔드 전달 전략 + 이슈 동기화](./project_backend_communication.md) — Swagger 공식, GitHub Issues, 멜로미↔아이로
-- **[백엔드 배포 불가 2026-04-22~04-28](./project_backend_deploy_freeze_0422.md)** — CI/CD 권한 이슈, 이 주는 프론트 단독 완결 작업 우선 · 04-28 이후 재확인 후 삭제
 - **[백엔드 dev/prod 서버 분리 + Vercel 2브랜치 매핑](./project_backend_dev_prod_split.md)** — 2026-04-29, prod/staging 모두 HTTPS. main→prod / develop→staging 환경변수 분리, AWS 이전 없이 Vercel 기본으로 해결
 - **[분석 이벤트 설계 오너는 PM](./project_analytics_event_ownership.md)** — 설계 PM 담당, 프론트는 삽입만. 2026-04-27 PM 정식 스펙 24종(주요 7) 도착
 - **[GA4 이벤트 PM 정식 스펙 v1](./project_analytics_event_spec_pm_v1.md)** — 24종(자동4+인증5+콘텐츠11+탐색6+체류1), 주요 7개 ★, 북극성=post_created&comment_created 달성률

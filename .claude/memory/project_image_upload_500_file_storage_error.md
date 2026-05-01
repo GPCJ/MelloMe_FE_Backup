@@ -40,7 +40,7 @@ POST https://api.melonnetherapists.com/api/v1/posts/28/images → 500
   - **결과: staging도 동일 500 → 백엔드 코드 회귀로 확정**
   - prod 환경변수 누락 가설은 폐기 (단, APP_BASE_URL 누락과는 별건일 수 있음)
 - 2차: airo 이슈 등록 (단일 vs 분리는 #2/#3 `code` 확인 후 결정) — **다음 액션**
-- 3차: 백엔드 freeze 풀린 첫날(2026-04-29~) 협의
+- 3차: 백엔드 협의 (freeze 해제 확인 2026-05-01)
 
 **Why:** staging 재현 = 환경 의존이 아니라 코드 경로 자체 깨짐. 백엔드 git log/diff 추적이 가장 빠른 fix 경로
 **How to apply:** airo 이슈에 staging 재현 사실 명시, 백엔드한테 최근 multipart/저장 로직 변경 커밋 우선 검토 요청
