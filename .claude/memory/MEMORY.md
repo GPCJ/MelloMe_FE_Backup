@@ -29,6 +29,7 @@
 - [치료사 인증 정책 + 닉네임/title 변경](./project_auth_policy_change.md) — 즉시 THERAPIST + UNDER_REVIEW
 - **[MVP 치료사 인증 = 즉시 승인](./project_auth_policy_mvp_immediate_approval.md)** — UNDER_REVIEW 생략, 신청→APPROVED 바로
 - [댓글 시스템 — flat 2레벨, @멘션](./project_comment_system.md)
+- **[댓글 줄바꿈 허용 정책 전환 (2026-05-02)](./project_comment_linebreak_policy.md)** — input→textarea + `whitespace-pre-wrap`, 한계 7개 박제(작성/편집 비대칭 #1 최우선) → 후속은 backlog R-07
 
 ## 공통 컴포넌트
 - [UserAvatar 공통 컴포넌트 통합](./project_user_avatar_component.md) — 6곳 아바타 통합, PostDetail/CommentResponse 타입 확장
@@ -42,7 +43,7 @@
 - [이미지/PDF 엔드포인트 분리 대응](./project_post_attachment_endpoints_split.md) — 2026-04-21 Swagger 컨펌 + MSW GET/응답 수정, 실서버 테스트 남음
 - [이미지 DELETE 엔드포인트 백엔드 대기](./project_post_image_delete_pending.md) — 2026-04-21 Swagger 재확인, 여전히 DELETE 없음
 - [게시글 이미지 presigned URL 도입 완료 (히스토리)](./project_post_image_presigned_url.md) — 2026-04-22 백엔드 결정 → 도입 완료, 후속 다운로드 fix는 별도 메모리
-- **[첨부 다운로드 fix 완료 + S3 CORS 대기 (2026-05-01)](./project_post_attachment_download_s3_cors_pending.md)** — 60a4e09 develop 배포, axiosInstance→raw axios + 분기 통일. staging 검증은 S3 버킷 CORS 미설정으로 차단, 백엔드 인프라 의존 (prod 머지 의미 없음 — 같은 S3)
+- **[첨부 다운로드 fix prod 머지 완료 + S3 CORS 인프라 재조치 대기 (2026-05-02)](./project_post_attachment_download_s3_cors_pending.md)** — PR#8 rebase merge(b6deca5/a0d3c78), airo 동기화. dev/prod 양쪽 CORS 에러 잔존. dev 버킷=`melonne-therapists-bucket-dev`(ap-northeast-2), prod 버킷명 미확인. 이전 "prod 머지 의미 없음" 결론 정정됨
 - **[이미지 업로드 500 — FILE_STORAGE_ERROR](./project_image_upload_500_file_storage_error.md)** — 2026-04-29 발견, 백엔드 구조화 에러, multipart 500 3건 단일 root cause 추정, staging 재현으로 검증 예정
 - 게시글 이미지 미리보기 8층 학습 노트 + unwrap 버그(2026-04-30) → wiki `unwrap` (debugging) — fetchPostImages가 `{success, data}` 래퍼 미unwrap → `images.length` undefined → 첨부 영역 미렌더, 1줄 수정 후 status code로 인증/스토리지 가설 분기
 - 첨부 다운로드 "리다이렉트" 증상 3-layer 진단(2026-05-01) → wiki `presigned-url-axiosinstance-s3-cors-3-layer` (debugging) — `<a download>` cross-origin 무시 + axiosInstance AT 충돌 + S3 CORS 미설정, blob 다운로드 관용구 학습 노트 포함
