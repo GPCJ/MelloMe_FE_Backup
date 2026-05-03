@@ -94,7 +94,7 @@ export default function PostCard({ post }: PostCardProps) {
             </p>
           </div>
         ) : (
-          <p className="text-sm text-gray-600 leading-5 line-clamp-3 mb-2.5">
+          <p className="text-sm text-gray-600 leading-5 line-clamp-3 mb-2.5 whitespace-pre-wrap">
             {post.contentPreview}
           </p>
         )}
