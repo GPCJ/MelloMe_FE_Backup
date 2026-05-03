@@ -144,6 +144,7 @@
   font-size: 0.875rem;
   line-height: 1.7;
   color: #374151;
+  white-space: pre-wrap;
 }
 .post-content p {
   margin-bottom: 0.5rem;
