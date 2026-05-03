@@ -59,6 +59,14 @@ export default function CommentCard({
   const canShowDelete = !comment.deleted && comment.canDelete && !!onDelete;
   const showMenu = !isEditing && (canShowEdit || canShowDelete);
 
+  const isMobile = navigator.maxTouchPoints > 0;
+  function handleKeyDown(e:React.KeyboardEvent<HTMLTextAreaElement>){
+    if(e.key === 'Enter' && !e.shiftKey && !isMobile){
+      e.preventDefault();
+      (e.currentTarget.form as HTMLFormElement)?.requestSubmit(); 
+    }
+  }
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4">
       {/* 작성자 정보 */}
@@ -133,10 +141,11 @@ export default function CommentCard({
           className="mb-3"
           onClick={(e) => e.stopPropagation()}
         >
-          <input
-            type="text"
+          <textarea
+            rows={3}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => handleKeyDown(e)}
             autoFocus
             disabled={editSubmitting}
             className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50"
