@@ -1,45 +1,53 @@
 ---
-name: 댓글 리액션 3종 통일 방향 결정 (2026-05-01)
-description: 백엔드 LIKE/DISLIKE 2종 vs 프론트 UI 3종 placeholder 불일치 발견, 게시글 동일 3종으로 통일 요청 방향 결정
+name: 댓글 리액션 3종 통일 확정 (2026-05-03 백엔드 반영 확인)
+description: 백엔드 댓글 리액션이 LIKE/CURIOUS/USEFUL 3종으로 변경 완료됨 — 게시글과 동일 스펙, 프론트 API 연동 즉시 가능
 type: project
 originSessionId: e07eb9e6-05bf-4a5d-8f2b-439b1deb33fe
 ---
-## 발견된 사실 (2026-05-01)
+## 현재 확정 스펙 (2026-05-03 Swagger `/v3/api-docs` 재확인)
 
-**백엔드 현 스펙** (Swagger `/v3/api-docs` 확인):
-- `GET /api/v1/comments/{commentId}/reaction` → `CommentReactionStatusResponse`
-  - `commentId`, `likeCount`, `dislikeCount`, `myReactionType: enum[LIKE, DISLIKE]`
-- `PUT /api/v1/comments/{commentId}/reaction` → `ToggleCommentReactionRequest`
-  - `reactionType: enum[LIKE, DISLIKE]` (required)
+**GET /api/v1/comments/{commentId}/reaction**
+```json
+{
+  "success": boolean,
+  "data": {
+    "commentId": int64,
+    "likeCount": int64,
+    "curiousCount": int64,
+    "usefulCount": int64,
+    "myReactionType": "LIKE | CURIOUS | USEFUL"  // null 가능
+  }
+}
+```
 
-**프론트 현 상태**:
-- `frontend/src/components/post/CommentCard.tsx:172-189` — Heart/Star/Lightbulb 3개 아이콘이 그려지지만 `onClick={(e) => e.stopPropagation()}`만 호출, API/MSW/카운트 표시 모두 없음 (순수 UI placeholder)
+**PUT /api/v1/comments/{commentId}/reaction**
+```json
+// Request body
+{ "reactionType": "LIKE | CURIOUS | USEFUL" }
+// Response: GET과 동일 구조
+// 같은 타입 재요청 시 취소, 다른 타입이면 전환
+```
+
+## 히스토리
+
+- 2026-05-01: 백엔드 `LIKE/DISLIKE` 2종 vs 프론트 UI 3종 placeholder 불일치 발견 → 3종 통일 요청 방향 결정
+- 2026-05-03: 백엔드 반영 완료 확인. `dislikeCount` → `curiousCount`+`usefulCount` 교체, enum 3종으로 변경
+
+## 프론트 현 상태 (2026-05-01 기준, 아직 미연동)
+
+- `frontend/src/components/post/CommentCard.tsx` — Heart/Star/Lightbulb 3개 아이콘 UI만 존재, `onClick` stopPropagation만 호출
 - `api/posts.ts`에 댓글 리액션 함수 부재
 - `mocks/handlers/comments.handlers.ts`에 reaction 핸들러 부재
 
-**즉, UI는 게시글 리액션 모양(LIKE/CURIOUS/USEFUL 3종)을 시각적으로 베껴놓았는데 백엔드는 LIKE/DISLIKE 2종.**
-
-## 결정 (사용자, 2026-05-01)
-
-게시글과 동일한 3종(`LIKE / CURIOUS / USEFUL`)으로 통일 요청 방향. "거의 기정사실"로 판단 → 프론트 선작업 병렬 진행.
-
-**Why:** 프론트 UI가 이미 3종 가정으로 그려져 있고, 게시글 리액션과의 일관성, `PostReaction` 타입 재사용 가능성이 높음. DISLIKE 도입의 모더레이션 영향(치료사 커뮤니티 심리적 안전)이 확인되지 않은 상태에서 일관성 우선.
-
-**How to apply:**
-- PM/디자이너 메시지 먼저: "댓글 리액션은 게시글과 동일하게 LIKE/CURIOUS/USEFUL 3종으로 통일할까요? 현재 백엔드는 LIKE/DISLIKE 2종, 프론트 UI는 3종 placeholder입니다." → 컨펌 받은 뒤 백엔드 요청
-- 백엔드 요청 시 변경 범위 명시: 요청 enum / 응답 (`dislikeCount` 제거 → `curiousCount`+`usefulCount` 추가) / DB 마이그레이션(기존 DISLIKE 처리) / `topReactionType`·`reactionCounts` 등 게시글 추가 필드 적용 여부
-- 백엔드 freeze 해제됨(2026-05-01) → 요청 즉시 가능
-
-## 응답 필드 비교 (참고용)
+## 응답 필드 비교
 
 | 필드 | 게시글 (`PostReactionStatusResponse`) | 댓글 (`CommentReactionStatusResponse`) |
 |------|------|------|
-| ID | `postId` | `commentId` |
-| 카운트 | `likeCount`/`curiousCount`/`usefulCount` | `likeCount`/`dislikeCount` |
-| 본인 리액션 | `myReactionType: [LIKE,CURIOUS,USEFUL]` | `myReactionType: [LIKE,DISLIKE]` |
-| 부가 | `reactionCounts` Map / `topReactionType` / `topReactionCount` / `topReactionColorToken` | (없음) |
+| 카운트 | `likeCount`/`curiousCount`/`usefulCount` | `likeCount`/`curiousCount`/`usefulCount` ✅ |
+| 본인 리액션 | `myReactionType: [LIKE,CURIOUS,USEFUL]` | `myReactionType: [LIKE,CURIOUS,USEFUL]` ✅ |
+| 부가 | `reactionCounts` Map / `topReactionType` 등 | (없음) — 댓글은 부가 필드 미포함 |
 
-게시글 응답이 훨씬 풍부 → 댓글에 동일 적용 요청 시 백엔드 작업량 큼. 댓글에 부가 필드 필요 여부도 백엔드 요청 전 결정 필요.
+→ 타입/API 함수/MSW 핸들러 작성 후 `CommentCard`에서 `ReactionBar` 재사용 가능 (size prop만 분기)
 
 ## 프론트 선작업 가능 범위 (백엔드 결정 무관)
 

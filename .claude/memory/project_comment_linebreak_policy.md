@@ -40,10 +40,25 @@ originSessionId: 086dbdbe-ddae-47e4-a1cf-fad6914d55aa
 
 7. **시각적 무게 증가** — 댓글 카드 높이 가변, 한 댓글이 모바일 화면 절반 차지 가능. 댓글 많으면 본문→첫 댓글 도달 시간↑. "더보기/접기" UI 부채 발생 여지.
 
-## 가장 시급한 미해결
+## 2차 처리 (2026-05-03, 커밋 5927bf4 — develop 배포)
 
-**#1 작성/편집 비대칭** — 1차 처리 후 현재 상태:
-- 작성 (`CommentInput.tsx`): `<input type="text">` 그대로 → 줄바꿈 입력 불가
-- 편집 (`CommentCard.tsx`): textarea → 줄바꿈 입력 가능
+7가지 한계 결정사항 확정:
 
-→ "작성 시 줄바꿈 못 치는데 편집 시엔 칠 수 있는" 우스운 상태. 데일리 "오늘 뭐하지?"에서 R-07 #1부터 처리.
+| # | 처리 결과 |
+|---|---|
+| #1 Enter 분기 | 구현 완료 — 데스크탑 Enter=submit/Shift+Enter=줄바꿈, 모바일 버튼 강제 |
+| #2 normalize | 구현 완료 — `useCommentSubmit` 훅 내부 C안 채택 |
+| #3 백엔드 \n 검증 | staging 테스트 대기 (round-trip \n 보존 여부) |
+| #4 ProfilePage clamp | R-07 후속 |
+| #5 Enter submit 깨짐 | #1과 함께 해결됨 |
+| #6 dirty 감지 | R-07 후속 |
+| #7 시각적 무게 | R-07 후속 (CommentCard line-clamp-2는 이미 적용) |
+
+**결정 근거**:
+- **onSubmit 타입 B안** (`() => void`): 캐스팅(A안) 대신 타입 정합성 유지. `CommentInput` form이 `e.preventDefault()` 직접 처리, 호출부는 content만 전달.
+- **normalize 위치 C안** (훅 내부): 호출부 3곳 누락 위험 없음, API 전송 직전 단일 지점에서 보장.
+
+## 잔여 과제
+
+- #3 staging 검증 → backlog R-07 체크리스트
+- #4/#6/#7 → backlog R-07 후속 항목

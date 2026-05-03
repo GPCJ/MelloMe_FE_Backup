@@ -50,18 +50,17 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 후보: `@tailwindcss/typography`의 `prose` 클래스로 교체 (의존성 1개 추가) / `@apply`로 토큰만 재사용
   - 트리거: 리치 에디터 도입 시 같이 처리하면 효율적
   - 검증: `grep "post-content" frontend/src/index.css` → 룰 제거 여부, 게시글 상세에서 시각 회귀 없음
-- [ ] **R-07** 댓글 줄바꿈 허용 후속 작업 (2026-05-02 1차분 완료, 7개 한계 후속 처리)
-  - 1차 완료: `CommentCard.tsx` 편집 input→textarea 교체 + 표시 `<p>` `whitespace-pre-wrap`, `index.css` `.post-content`에 `white-space: pre-wrap`
-  - [ ] **#1 [최우선]** 작성/편집 비대칭 해소 — `CommentInput.tsx` input→textarea (현재 작성에선 줄바꿈 불가, 편집에선 가능)
-    - Enter 정책 결정: 모바일 Shift 부재 → "Enter=줄바꿈, 버튼=submit" 강제 가능성. 데스크탑/모바일 분기 검토
-  - [ ] **#2** 줄바꿈 도배 방어 — 연속 newline 압축(`replace(/\n{3,}/g, '\n\n')`) 또는 max line 제한, maxLength 검토
-  - [ ] **#3** 백엔드 `\n` round-trip 검증 — 작성 → GET 응답 `\n` 보존 여부 실서버 1회 확인 (sanitize에서 stripping될 위험)
-  - [ ] **#4** ProfilePage 댓글 미리보기 line-clamp-2 왜곡 — `ProfilePage.tsx:514` 줄바꿈만 있어도 truncate 차오름. `\n`→공백 치환 또는 `whitespace-normal` 처리
-  - [ ] **#5** `CommentCard.tsx:118` 주석 갱신 — *"input은 single-line이라 줄바꿈 충돌 없음"* 거짓이 됨. textarea 전제로 form Enter=줄바꿈, 저장 버튼만 유효 명시
-  - [ ] **#6** 편집 모드 변경 손실 가드 — textarea라 작성량 늘면 손실 임팩트 큼. dirty 감지 + 이탈 confirm
-  - [ ] **#7** 시각적 무게 — 댓글 카드 가변 높이 → "더보기/접기" UI 검토 (당장은 부채 후보)
-  - 검증: `grep "type=\"text\"" frontend/src/components/post/CommentInput.tsx` → input 잔존 여부 / 작성·편집 양쪽에서 ↵으로 줄바꿈 동작
-  - 트리거: 데일리 "오늘 뭐하지?"에서 #1 우선 착수
+- [?] **R-07** 댓글 줄바꿈 허용 후속 작업 — 2차분 develop 배포(5927bf4), 모바일 테스트 검증 중
+  - 1차 완료(05-02): `CommentCard.tsx` 편집 input→textarea + 표시 `whitespace-pre-wrap`, `index.css` `.post-content white-space: pre-wrap`
+  - 2차 완료(05-03): `CommentInput.tsx` textarea + Enter 분기 + `CommentCard.tsx` line-clamp-2 + `useCommentSubmit` normalize
+  - [x] **#1** 작성/편집 비대칭 해소 — Enter 분기(데스크탑 Enter=submit, 모바일 버튼 강제)
+  - [x] **#2** 줄바꿈 도배 방어 — `useCommentSubmit`에서 `replace(/\n{3,}/g, '\n\n').trim()` 적용
+  - [?] **#3** 백엔드 `\n` round-trip 검증 — staging 테스트 대기 (작성 → GET 응답 `\n` 보존 여부)
+  - [ ] **#4** ProfilePage 댓글 미리보기 line-clamp-2 왜곡 — `ProfilePage.tsx:514` 줄바꿈만으로 truncate
+  - [x] **#5** Enter=submit 깨짐 — #1과 함께 해결됨
+  - [ ] **#6** 편집 모드 변경 손실 가드 — dirty 감지 + 이탈 confirm
+  - [ ] **#7** 시각적 무게 — 댓글 카드 가변 높이, "더보기/접기" UI 부채
+  - 검증: 모바일 staging에서 댓글 작성 줄바꿈 + #3 round-trip 확인
   - 결정/Why: `project_comment_linebreak_policy.md`
 
 ### 인지부채 (코드 아닌 학습)
