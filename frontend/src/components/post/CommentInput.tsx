@@ -29,13 +29,17 @@ export default function CommentInput({
   return (
     <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="flex items-end gap-2">
       <textarea
-        rows={2}
+        rows={1}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          onChange(e.target.value);
+          e.target.style.height = 'auto';
+          e.target.style.height = `${e.target.scrollHeight}px`;
+        }}
         onKeyDown={(e) => handleKeyDown(e)}
         placeholder={placeholder}
         autoFocus={autoFocus}
-        className="flex-1 px-4 py-2 text-base border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300 resize-none"
+        className="flex-1 px-4 py-2 text-base border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300 resize-none overflow-hidden"
       />
       <button
         type="submit"
