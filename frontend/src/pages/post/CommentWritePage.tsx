@@ -53,8 +53,7 @@ export default function CommentWritePage() {
       .finally(() => setLoading(false));
   }, [postId]);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit() {
     if (!postId || !commentInput.trim()) return;
     setSubmitting(true);
     try {
