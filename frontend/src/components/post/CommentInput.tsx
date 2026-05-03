@@ -27,9 +27,9 @@ export default function CommentInput({
   }
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="flex items-start gap-2">
+    <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="flex items-end gap-2">
       <textarea
-        rows={3}
+        rows={2}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => handleKeyDown(e)}
