@@ -36,11 +36,11 @@ POST https://api.melonnetherapists.com/api/v1/posts/28/images → 500
 
 ## 액션
 
-- ~~1차: staging에서 동일 요청 재현 → 500 재현 여부 확인~~ **(완료, 2026-04-29)**
-  - **결과: staging도 동일 500 → 백엔드 코드 회귀로 확정**
-  - prod 환경변수 누락 가설은 폐기 (단, APP_BASE_URL 누락과는 별건일 수 있음)
-- 2차: airo 이슈 등록 (단일 vs 분리는 #2/#3 `code` 확인 후 결정) — **다음 액션**
-- 3차: 백엔드 협의 (freeze 해제 확인 2026-05-01)
+- 1차: staging에서 동일 요청 재현 → 500 재현 여부 확인
+  - staging 정상 → prod 환경변수/인프라 누락 (백엔드 협의)
+  - staging 동일 500 → 백엔드 코드 회귀 (백엔드 fix)
+- 2차: airo 이슈 등록 (단일 vs 분리는 #2/#3 `code` 확인 후 결정)
+- 3차: 백엔드 freeze 풀린 첫날(2026-04-29~) 협의
 
-**Why:** staging 재현 = 환경 의존이 아니라 코드 경로 자체 깨짐. 백엔드 git log/diff 추적이 가장 빠른 fix 경로
-**How to apply:** airo 이슈에 staging 재현 사실 명시, 백엔드한테 최근 multipart/저장 로직 변경 커밋 우선 검토 요청
+**Why:** 노트패드 4건 중 3건이 한 번에 풀릴 가능성 → 백엔드 협의 시간 절약
+**How to apply:** staging 환경 분기 작업 끝낸 직후 staging에서 재현 시도가 첫 액션

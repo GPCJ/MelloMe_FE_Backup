@@ -160,7 +160,7 @@ export default function CommentCard({
           </div>
         </form>
       ) : (
-        <p className="text-sm text-gray-700 leading-relaxed mb-3">
+        <p className="text-sm text-gray-700 leading-relaxed mb-3 whitespace-pre-wrap line-clamp-2">
           {comment.deleted ? '삭제된 댓글입니다.' : comment.content}
         </p>
       )}

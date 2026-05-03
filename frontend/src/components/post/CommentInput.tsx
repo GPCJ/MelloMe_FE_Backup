@@ -1,7 +1,7 @@
 interface CommentInputProps {
   value: string;
   onChange: (value: string) => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: () => void;
   submitting: boolean;
   placeholder?: string;
   buttonText?: string;
@@ -15,17 +15,27 @@ export default function CommentInput({
   submitting,
   placeholder = '댓글을 입력하세요...',
   buttonText = '댓글 작성',
-  autoFocus,
+  autoFocus,  
 }: CommentInputProps) {
+  const isMobile = navigator.maxTouchPoints > 0;
+
+  function handleKeyDown(e:React.KeyboardEvent<HTMLTextAreaElement>){
+    if(e.key === 'Enter' && !e.shiftKey && !isMobile){
+      e.preventDefault()
+      onSubmit()
+    }
+  }
+
   return (
-    <form onSubmit={onSubmit} className="flex items-center gap-2">
-      <input
-        type="text"
+    <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="flex items-start gap-2">
+      <textarea
+        rows={3}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => handleKeyDown(e)}
         placeholder={placeholder}
         autoFocus={autoFocus}
-        className="flex-1 px-4 py-2 text-base border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300"
+        className="flex-1 px-4 py-2 text-base border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300 resize-none"
       />
       <button
         type="submit"

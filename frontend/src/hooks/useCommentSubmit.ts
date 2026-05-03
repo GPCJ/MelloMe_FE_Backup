@@ -18,13 +18,13 @@ export function useCommentSubmit({
 }: UseCommentSubmitOptions) {
   const [submitting, setSubmitting] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent, content: string) {
-    e.preventDefault();
-    if (!content.trim()) return;
+  async function handleSubmit(content: string) {
+    const normalized = content.replace(/\n{3,}/g, '\n\n').trim();
+    if (!normalized.trim()) return;  
     setSubmitting(true);
     try {
       const newComment = await createComment(postId, {
-        content,
+        content: normalized,
         ...(parentCommentId && { parentCommentId }),
       });
       // PM 정식 스펙(2026-04-27): 댓글 작성도 reaction 단일 이벤트의 type=comment로 통합.

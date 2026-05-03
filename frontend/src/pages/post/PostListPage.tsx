@@ -59,10 +59,9 @@ export default function PostListPage() {
 
   const consumeSnapshot = useFeedScrollStore((s) => s.consume);
   const saveSnapshot = useFeedScrollStore((s) => s.save);
-  const initialSnapshotRef = useRef<ReturnType<typeof consumeSnapshot>>(null);
-  if (initialSnapshotRef.current === null && isInfiniteMode) {
-    initialSnapshotRef.current = consumeSnapshot();
-  }
+  const initialSnapshotRef = useRef<ReturnType<typeof consumeSnapshot>>(
+    isInfiniteMode ? consumeSnapshot() : null                                                                                                       
+  ); 
 
   const infinite = useInfiniteFeed({
     size: 20,

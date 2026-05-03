@@ -29,7 +29,6 @@
 - [치료사 인증 정책 + 닉네임/title 변경](./project_auth_policy_change.md) — 즉시 THERAPIST + UNDER_REVIEW
 - **[MVP 치료사 인증 = 즉시 승인](./project_auth_policy_mvp_immediate_approval.md)** — UNDER_REVIEW 생략, 신청→APPROVED 바로
 - [댓글 시스템 — flat 2레벨, @멘션](./project_comment_system.md)
-- **[댓글 줄바꿈 허용 정책 전환 (2026-05-02)](./project_comment_linebreak_policy.md)** — input→textarea + `whitespace-pre-wrap`, 한계 7개 박제(작성/편집 비대칭 #1 최우선) → 후속은 backlog R-07
 
 ## 공통 컴포넌트
 - [UserAvatar 공통 컴포넌트 통합](./project_user_avatar_component.md) — 6곳 아바타 통합, PostDetail/CommentResponse 타입 확장
@@ -42,28 +41,19 @@
 - [첨부파일 400 원인 확정 — MIME 불일치](./project_attachment_upload_400_bug.md) — 한컴 뷰어, Blob 강제 지정으로 해결
 - [이미지/PDF 엔드포인트 분리 대응](./project_post_attachment_endpoints_split.md) — 2026-04-21 Swagger 컨펌 + MSW GET/응답 수정, 실서버 테스트 남음
 - [이미지 DELETE 엔드포인트 백엔드 대기](./project_post_image_delete_pending.md) — 2026-04-21 Swagger 재확인, 여전히 DELETE 없음
-- [게시글 이미지 presigned URL 도입 완료 (히스토리)](./project_post_image_presigned_url.md) — 2026-04-22 백엔드 결정 → 도입 완료, 후속 다운로드 fix는 별도 메모리
-- **[첨부 다운로드 fix prod 머지 완료 + S3 CORS 인프라 재조치 대기 (2026-05-02)](./project_post_attachment_download_s3_cors_pending.md)** — PR#8 rebase merge(b6deca5/a0d3c78), airo 동기화. dev/prod 양쪽 CORS 에러 잔존. dev 버킷=`melonne-therapists-bucket-dev`(ap-northeast-2), prod 버킷명 미확인. 이전 "prod 머지 의미 없음" 결론 정정됨
+- [게시글 이미지 presigned URL 방식 대기](./project_post_image_presigned_url.md) — 2026-04-22 백엔드 결정, 프론트는 스펙 확정까지 대기
 - **[이미지 업로드 500 — FILE_STORAGE_ERROR](./project_image_upload_500_file_storage_error.md)** — 2026-04-29 발견, 백엔드 구조화 에러, multipart 500 3건 단일 root cause 추정, staging 재현으로 검증 예정
-- 게시글 이미지 미리보기 8층 학습 노트 + unwrap 버그(2026-04-30) → wiki `unwrap` (debugging) — fetchPostImages가 `{success, data}` 래퍼 미unwrap → `images.length` undefined → 첨부 영역 미렌더, 1줄 수정 후 status code로 인증/스토리지 가설 분기
-- 첨부 다운로드 "리다이렉트" 증상 3-layer 진단(2026-05-01) → wiki `presigned-url-axiosinstance-s3-cors-3-layer` (debugging) — `<a download>` cross-origin 무시 + axiosInstance AT 충돌 + S3 CORS 미설정, blob 다운로드 관용구 학습 노트 포함
 
 ## 게시글 리액션
 - [리액션 API 리네임 + 응답 확장 대응 완료](./project_post_reaction_api_rename.md) — 2026-04-21 커밋 3a84a04, 동시 배포/디자이너 추가 컨펌/실서버 테스트 잔여, PostSummary myReactionType 미포함 한계
 
-## 댓글 리액션
-- **[댓글 리액션 3종 통일 방향 결정 (2026-05-01)](./project_comment_reaction_3type_decision.md)** — 백엔드 LIKE/DISLIKE 2종 vs 프론트 UI 3종 placeholder 불일치, 게시글 동일 LIKE/CURIOUS/USEFUL 3종 통일 요청 방향. PM/디자이너 컨펌 + 백엔드 요청 대기. 프론트 선작업 가능 범위(size prop·타입·API 골격) 정리
-
 ## 협업 프로세스
 - [백엔드 전달 전략 + 이슈 동기화](./project_backend_communication.md) — Swagger 공식, GitHub Issues, 멜로미↔아이로
+- **[백엔드 배포 불가 2026-04-22~04-28](./project_backend_deploy_freeze_0422.md)** — CI/CD 권한 이슈, 이 주는 프론트 단독 완결 작업 우선 · 04-28 이후 재확인 후 삭제
 - **[백엔드 dev/prod 서버 분리 + Vercel 2브랜치 매핑](./project_backend_dev_prod_split.md)** — 2026-04-29, prod/staging 모두 HTTPS. main→prod / develop→staging 환경변수 분리, AWS 이전 없이 Vercel 기본으로 해결
 - **[분석 이벤트 설계 오너는 PM](./project_analytics_event_ownership.md)** — 설계 PM 담당, 프론트는 삽입만. 2026-04-27 PM 정식 스펙 24종(주요 7) 도착
 - **[GA4 이벤트 PM 정식 스펙 v1](./project_analytics_event_spec_pm_v1.md)** — 24종(자동4+인증5+콘텐츠11+탐색6+체류1), 주요 7개 ★, 북극성=post_created&comment_created 달성률
 - **[GA4 주요 7개 삽입 매핑 표 (B1 결과)](./project_analytics_b1_mapping.md)** — 트리거 위치/파라미터/기존 4종 리네임 매트릭스 + B2 의문점 4개 + 헬퍼 시그니처 초안. 다음 세션 B2 진입점
-
-## 진행 중 이슈
-- **[PostListPage ref 렌더 중 접근 이슈](./project_postlistpage_ref_render_issue.md)** — React 19 에러, useEffect 이전 방향 잡음, initialSnapshot 타이밍 문제 미해결 (내일 아침 이어서)
-- **[APP_BASE_URL staging 회귀 (2026-04-30)](./project_app_base_url_staging_regression.md)** — staging 백엔드에서 04-22 localhost 버그가 EC2 IP 형태로 재발, 백엔드 환경변수 누락. 사용자가 삭제 요청할 때까지 보존
 
 ## 기능명세 / 아키텍처
 - [프론트 기능명세 체계](./project_feature_spec_frontend.md) — FNC-001~007 인증 완료
@@ -143,7 +133,6 @@
 - **[분석/검색 대시보드 (Search Console/GA4/Clarity)](./reference_analytics_dashboards.md)** — 대시보드 URL + 식별자 (GA4 `G-7VPMPFL76M`, Clarity `wg3vefhmgy`)
 - **[Jira 프로젝트 구조 및 MEL 컨벤션](./reference_jira_project_structure.md)** — MEL=멜로미, BUR=burst!(별개), 이슈 생성 전 프로젝트 조회 필수
 - [팀 요구사항 Google Sheets](./reference_requirements_doc.md) / [Swagger UI](./reference_swagger_endpoint.md) — `api.melonnetherapists.com/swagger-ui/index.html`
-- [Swagger enum 전체 값 확인 정확한 방법](./reference_swagger_enum_verification.md) — Example Value 탭은 한 값만 표시, Schema 탭 또는 raw JSON `/v3/api-docs` 직접 확인 권장
 - [백엔드 Swagger OpenAPI 엔드포인트](./reference_backend_swagger.md) — `api.melonnetherapists.com/v3/api-docs`, API prefix `/api/v1`, 필요 시 WebFetch로 fresh 조회
 - [Notion TIL](./reference_notion_til.md) (18:30 KST) / [빌더스 리그 + 서브페이지 ID + 컨벤션](./reference_notion_builders_league.md) / [트러블슈팅](./reference_notion_troubleshooting.md)
 
