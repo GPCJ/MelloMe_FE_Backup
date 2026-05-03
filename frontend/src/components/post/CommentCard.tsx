@@ -25,6 +25,7 @@ interface CommentCardProps {
   onEditStart?: () => void;
   onEditSubmit?: (newContent: string) => void;
   onEditCancel?: () => void;
+  clamp?: boolean;
 }
 
 export default function CommentCard({
@@ -38,6 +39,7 @@ export default function CommentCard({
   onEditStart,
   onEditSubmit,
   onEditCancel,
+  clamp = true,
 }: CommentCardProps) {
   // 편집 모드 진입 시 textarea 초기값을 원본으로 채워두는 로컬 state.
   // 부모에 끌어올리지 않는 이유: 입력 중 리렌더 시 keystroke이 부모까지 올라가면 다른 카드의
@@ -169,7 +171,7 @@ export default function CommentCard({
           </div>
         </form>
       ) : (
-        <p className="text-sm text-gray-700 leading-relaxed mb-3 whitespace-pre-wrap line-clamp-2">
+        <p className={`text-sm text-gray-700 leading-relaxed mb-3 whitespace-pre-wrap ${clamp ? 'line-clamp-2' : ''}`}>
           {comment.deleted ? '삭제된 댓글입니다.' : comment.content}
         </p>
       )}

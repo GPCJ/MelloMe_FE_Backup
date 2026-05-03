@@ -165,6 +165,7 @@ export default function CommentDetailPage() {
           onEditStart={() => handleEditStart(parentComment.id)}
           onEditSubmit={(newContent) => handleEditSubmit(parentComment.id, true, newContent)}
           onEditCancel={handleEditCancel}
+          clamp={false}
         />
       </div>
 
@@ -195,6 +196,7 @@ export default function CommentDetailPage() {
               onEditStart={() => handleEditStart(reply.id)}
               onEditSubmit={(newContent) => handleEditSubmit(reply.id, false, newContent)}
               onEditCancel={handleEditCancel}
+              clamp={false}
             />
           ))}
         </div>
