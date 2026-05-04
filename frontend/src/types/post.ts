@@ -142,5 +142,17 @@ export interface CommentResponse {
   canDelete: boolean;
   createdAt: string;
   updatedAt: string;
+  likeCount?: number;
+  curiousCount?: number;
+  usefulCount?: number;
+  myReactionType?: ReactionType | null;
   replies?: CommentResponse[];
+}
+
+export interface CommentReaction {
+  commentId: number;
+  likeCount: number;
+  curiousCount: number;
+  usefulCount: number;
+  myReactionType: ReactionType | null;
 }

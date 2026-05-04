@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { PostReaction, ReactionType, PostDetail } from '../types/post';
-import { toggleReaction } from '../api/posts';
+import { togglePostReaction } from '../api/posts';
 import { trackReaction, type ReactionEventType } from '../lib/analytics';
 
 // 백엔드 도메인 enum(LIKE/CURIOUS/USEFUL)을 GA4 이벤트 type 파라미터로 변환.
@@ -60,10 +60,8 @@ export function useReactionToggle(initialReaction: PostReaction) {
     setReaction(updated);
 
     try {
-      await toggleReaction(reaction.postId, type);
-      // PM 정식 스펙(2026-04-27): `reaction` 단일 이벤트 + type 파라미터.
-      // KPI "반응 수"는 신규 반응만 카운트하므로 toggle ON일 때만 발송 (wasActive=false).
-      // 다른 타입으로 전환(LIKE→CURIOUS)도 신규 CURIOUS로 1회 카운트.
+      // 5월 4일 11시 기준 togglePostReaction함수는 return없이 낙천 업데이트중
+      await togglePostReaction(reaction.postId, type);
       if (!wasActive) {
         trackReaction(reactionTypeToGAEvent(type), { postId: reaction.postId });
       }

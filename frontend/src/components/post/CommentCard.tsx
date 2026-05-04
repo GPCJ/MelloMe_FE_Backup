@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Heart, Star, Lightbulb, MessageSquare, MoreHorizontal } from 'lucide-react';
-import type { CommentResponse } from '../../types/post';
+import { MessageSquare, MoreHorizontal } from 'lucide-react';
+import type { CommentResponse, ReactionType } from '../../types/post';
 import { formatRelativeTime } from '../../utils/formatDate';
 import UserAvatar from '../common/UserAvatar';
 import VerifiedBadge from './VerifiedBadge';
@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/shadcn-ui/dropdown-menu';
+import ReactionBar from './ReactionBar';
 
 interface CommentCardProps {
   comment: CommentResponse;
@@ -25,7 +26,8 @@ interface CommentCardProps {
   onEditStart?: () => void;
   onEditSubmit?: (newContent: string) => void;
   onEditCancel?: () => void;
-  clamp?: boolean;
+  onToggleReaction: (type: ReactionType) => void;
+  toggling: boolean;
 }
 
 export default function CommentCard({
@@ -39,7 +41,8 @@ export default function CommentCard({
   onEditStart,
   onEditSubmit,
   onEditCancel,
-  clamp = true,
+  onToggleReaction,
+  toggling,
 }: CommentCardProps) {
   // 편집 모드 진입 시 textarea 초기값을 원본으로 채워두는 로컬 state.
   // 부모에 끌어올리지 않는 이유: 입력 중 리렌더 시 keystroke이 부모까지 올라가면 다른 카드의
@@ -60,14 +63,6 @@ export default function CommentCard({
   const canShowEdit = !comment.deleted && comment.canEdit && !!onEditStart;
   const canShowDelete = !comment.deleted && comment.canDelete && !!onDelete;
   const showMenu = !isEditing && (canShowEdit || canShowDelete);
-
-  const isMobile = navigator.maxTouchPoints > 0;
-  function handleKeyDown(e:React.KeyboardEvent<HTMLTextAreaElement>){
-    if(e.key === 'Enter' && !e.shiftKey && !isMobile){
-      e.preventDefault();
-      (e.currentTarget.form as HTMLFormElement)?.requestSubmit(); 
-    }
-  }
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4">
@@ -147,7 +142,6 @@ export default function CommentCard({
             rows={3}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => handleKeyDown(e)}
             autoFocus
             disabled={editSubmitting}
             className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50"
@@ -171,7 +165,7 @@ export default function CommentCard({
           </div>
         </form>
       ) : (
-        <p className={`text-sm text-gray-700 leading-relaxed mb-3 whitespace-pre-wrap ${clamp ? 'line-clamp-2' : ''}`}>
+        <p className="text-sm text-gray-700 leading-relaxed mb-3 whitespace-pre-wrap">
           {comment.deleted ? '삭제된 댓글입니다.' : comment.content}
         </p>
       )}
@@ -179,26 +173,17 @@ export default function CommentCard({
       {/* 리액션 아이콘 — 편집 중엔 숨겨서 작업 흐름 방해 방지. */}
       {!comment.deleted && !isEditing && (
         <div className="flex items-center text-gray-400">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1 text-xs hover:text-red-400 transition-colors"
-            >
-              <Heart size={14} />
-            </button>
-            <button
-              onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1 text-xs hover:text-yellow-500 transition-colors"
-            >
-              <Star size={14} />
-            </button>
-            <button
-              onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1 text-xs hover:text-amber-500 transition-colors"
-            >
-              <Lightbulb size={14} />
-            </button>
-          </div>
+          <ReactionBar
+            counts={{
+              LIKE: comment.likeCount ?? 0,
+              CURIOUS: comment.curiousCount ?? 0,
+              USEFUL: comment.usefulCount ?? 0,
+            }}
+            myReactionType={comment.myReactionType ?? null}
+            onToggle={onToggleReaction}
+            disabled={toggling}
+            size={14}
+          />
           <button
             onClick={(e) => {
               e.stopPropagation();

@@ -43,6 +43,7 @@ import UserAvatar from '../../components/common/UserAvatar';
 import MobilePageHeader from '@/components/common/MobilePageHeader';
 import { trackReaction } from '../../lib/analytics';
 import axios from 'axios';
+import { useCommentReactionToggle } from '../../hooks/useCommentReactionToggle';
 
 function PostDetailSkeleton() {
   return (
@@ -85,6 +86,12 @@ export default function PostDetailPage() {
   // editSubmitting은 PATCH 진행 중 저장 버튼 disable + 카드 잠금에 사용.
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editSubmitting, setEditSubmitting] = useState(false);
+
+  // handleCommentToggle은 별칭, handleToggle함수가 이미 이 파일 내부에 있기 때문에 별칭을 사용했음
+  const { togglingId, handleToggle: handleCommentToggle } = useCommentReactionToggle(
+    comments,
+    setComments,
+  );
 
   const { reaction, setReaction, toggling, handleToggle } = useReactionToggle({
     postId: Number(postId) || 0,
@@ -446,7 +453,17 @@ export default function PostDetailPage() {
 
         {/* 리액션 + 댓글 수 */}
         <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
-          <ReactionBar reaction={reaction} onToggle={handleToggle} disabled={toggling} />
+          <ReactionBar
+            // reaction이 null일 경우 문제 발생함 혹시나 리액션 관련 버그 발생 시 이 코드 참조
+            counts={{
+              LIKE: reaction.likeCount,
+              CURIOUS: reaction.curiousCount,
+              USEFUL: reaction.usefulCount,
+            }}
+            myReactionType={reaction.myReactionType}
+            onToggle={handleToggle}
+            disabled={toggling}
+          />
           <button
             onClick={() => navigate(`/posts/${postId}/comments`)}
             className="flex md:hidden items-center gap-1.5 text-sm text-gray-400 ml-auto hover:text-gray-600 transition-colors"
@@ -470,7 +487,7 @@ export default function PostDetailPage() {
           <CommentInput
             value={commentInput}
             onChange={setCommentInput}
-            onSubmit={() => handleSubmitComment(commentInput)}
+            onSubmit={(e) => handleSubmitComment(e, commentInput)}
             submitting={submitting}
           />
         </div>
@@ -503,6 +520,8 @@ export default function PostDetailPage() {
                   onEditStart={() => handleEditStart(comment.id)}
                   onEditSubmit={(newContent) => handleEditSubmit(comment.id, newContent)}
                   onEditCancel={handleEditCancel}
+                  onToggleReaction={(type) => handleCommentToggle(comment.id, type)}
+                  toggling={togglingId === comment.id}
                 />
               </div>
             );
