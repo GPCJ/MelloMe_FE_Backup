@@ -69,3 +69,15 @@ originSessionId: e07eb9e6-05bf-4a5d-8f2b-439b1deb33fe
 기존 `frontend/src/components/post/ReactionBar.tsx`는 `PostReaction | null` 타입을 받음.
 - 응답 모양 통일되면 → size prop 추가만으로 재사용 가능 (가장 깔끔)
 - 응답 모양 갈리면 → 별도 `CommentReactionBar` 또는 prop을 정규화된 형태로 받게 하고 부모에서 어댑팅
+
+## 2026-05-04 갱신 — 응답 4필드 동봉 확인 + 프론트 hook B 패턴 작업 진행 중
+
+Swagger `/v3/api-docs` 재확인 결과, `CommentResponse`/`ReplyCommentResponse` 본 스키마에 `likeCount`/`curiousCount`/`usefulCount`/`myReactionType` 4필드가 동봉되어 내려옴. 별도 `GET /reaction` 호출 불필요(N+1 회피) — 게시글 `PostDetail`에 reaction 필드 동봉되는 패턴과 동일.
+
+`fetchComments` 응답에서 바로 reaction 필드 추출 → hook 단계에서 `comments[]` 단일 진실로 다룸.
+
+ReactionBar는 `counts/myReactionType/size` props로 일반화(정규화) — `PostReaction` 의존 제거, 게시글/댓글 호출부 모두 어댑터 객체로 넘김.
+
+프론트 hook 설계: B 패턴 채택(페이지 레벨 단일 hook + `comments[]` 단일 진실) + PUT 응답 reconcile. 결정/Why → `project_comment_reaction_hook_b_pattern.md`.
+
+기존 "프론트 현 상태 (2026-05-01 기준)" 섹션은 stale (이번 작업으로 거의 해소). 잔여 작업(PostDetailPage/CommentDetailPage 통합, MSW, 동작 확인)은 backlog R-10 참조.

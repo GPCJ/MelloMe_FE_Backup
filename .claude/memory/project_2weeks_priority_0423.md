@@ -18,11 +18,12 @@ originSessionId: 66a71c38-a303-4648-9da9-5f6eff5595a0
 - **1단계 (완료 2026-04-23)**: 메타태그 + robots.txt + sitemap.xml + Search Console 등록
 - **3단계 (완료 2026-04-27)**: SPA 크롤링 대응 — `vite-prerender-plugin` 채택, `/`·`/privacy`·`/terms` 3개 정적 HTML 생성, 페이지별 메타 단일 소스. 상세 `./project_seo_option2_decision.md`
 
-### 2. 유저 행동 데이터 수집
+### 2. 유저 행동 데이터 수집 — 완료
 - **GA4/Clarity 설치 (완료 2026-04-23)** — 상세 `./project_analytics_ga4_clarity_install.md`
 - **1차 4종 삽입 (완료 2026-04-24, cf7750e)** — `signup_completed`/`login_completed`/`verification_requested`/`first_post_created` (사용자 임시 선택)
 - **PM 정식 스펙 24종 도착 (2026-04-27)** — 주요 7개(`sign_up`/`profile_edited`/`certification_started`/`certification_completed`/`post_created`/`reaction`/`screen_exit`) + 부가 17개. 상세 `./project_analytics_event_spec_pm_v1.md`
-- **추가 삽입 — 주요 7개부터 1차 ship** (B 단계, 프론트 독립 즉시 가능 — `analyticsId` 드롭으로 백엔드 의존성 0)
+- **주요 7개 삽입 완료 (커밋 e15a065)** — 호출 사이트는 backlog G-02 참조. `certification_submitted` 1종 보강
+- **잔여**: GA4 실시간 리포트 집계 검증 (reaction type별·screen_exit duration), 부가 17개(G-03)
 - **개인정보 처리방침 문구 — 1차 P-01에서 분석 쿠키 고지 완료**. 추가 이벤트 삽입 시 별도 갱신 불필요(익명 유지)
 
 ### 3. 디자이너 피그마 보고 UI 안정화

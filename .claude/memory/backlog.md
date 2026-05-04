@@ -50,6 +50,32 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 후보: `@tailwindcss/typography`의 `prose` 클래스로 교체 (의존성 1개 추가) / `@apply`로 토큰만 재사용
   - 트리거: 리치 에디터 도입 시 같이 처리하면 효율적
   - 검증: `grep "post-content" frontend/src/index.css` → 룰 제거 여부, 게시글 상세에서 시각 회귀 없음
+- [?] **R-10** 댓글 리액션 API 연동 — 진행 중 (2026-05-04~)
+  - 완료:
+    - 타입: `types/post.ts` `CommentResponse`에 reaction 4필드(옵셔널) + `CommentReaction` 인터페이스
+    - API: `getCommentReaction`/`toggleCommentReaction` 추가(unwrap 패턴) + `getReaction`→`getPostReaction` 리네임+unwrap 적용 (호출부 0건 dead code)
+    - `ReactionBar` 시그니처 일반화: `PostReaction` 의존 제거, `counts/myReactionType/size` props로 변경. `PostDetailPage`/`CommentWritePage` 호출부 어댑터 적용
+    - `useCommentReactionToggle` hook 신설 (B 패턴 = 페이지 레벨 단일 hook + `comments[]` 단일 진실. PUT 응답 reconcile)
+    - `CommentCard` 임시 placeholder 제거, `ReactionBar` 연동 (size=14, props에 `onToggleReaction`/`toggling` 추가)
+  - 남음:
+    - [ ] `PostDetailPage` 통합 — L76 `comments` state 다음에 `useCommentReactionToggle(comments, setComments)` 호출, L502 `<CommentCard>`에 `onToggleReaction={(type) => handleToggle(comment.id, type)}` `toggling={togglingId === comment.id}` 2줄 추가
+    - [ ] `CommentDetailPage` 통합 — `parentComment`(단일)/`replies`(배열) 분리 state라 어댑터 필요. `[parentComment, ...replies]` 가상 배열 + 분배 setter `(next) => { setParentComment(next.find(...)); setReplies(next.filter(...)); }`로 hook에 넘김. parent + replies 두 곳 `<CommentCard>`에 동일 prop 추가
+    - [ ] MSW `comments.handlers.ts`에 GET/PUT `/comments/{id}/reaction` 핸들러 추가, `mockComments`에 4필드 추가하거나 `mockCommentReactions: Record<id, ...>` 신설 (`reactions.handlers.ts` 토글 로직 그대로 이식 가능)
+    - [ ] `npx tsc -b` + 로컬 동작 확인 (낙관 업데이트 즉시 반영, PUT 응답 reconcile, 실패 롤백)
+  - 결정/Why: B 패턴 채택(진실 단일화) + PUT 응답 reconcile(동시성/규칙 변경 견고). CommentResponse에 reaction 4필드 동봉으로 N+1 없음(Swagger 2026-05-04 재확인). 별도 메모리 박제는 /wrap-up 시점
+- [ ] **R-09** `CommentCard` `React.memo` 적용 — 댓글 리액션 토글 시 불필요 리렌더 차단
+  - 현황: 댓글 리액션 hook을 페이지 레벨 단일(B 옵션)로 채택 → 토글 시 부모 `comments` 배열 갱신 → 모든 CommentCard 기본 리렌더
+  - 목표: `React.memo(CommentCard)` + immutable update 패턴(이미 hook에서 적용)으로 변경된 카드만 실제 리렌더
+  - 작업: `CommentCard` export를 `memo()`로 감싸기, props 비교 함수 필요 여부 검토(기본 shallow 비교로 충분할 가능성 큼)
+  - 함정: `CommentCard` 안에서 `ReactionBar`에 `counts={{LIKE:..., CURIOUS:..., USEFUL:...}}` 객체 리터럴로 넘김 → 매 리렌더마다 reference 새 객체. ReactionBar에 memo 씌워도 props 비교 통과 X. `useMemo` 또는 어댑터 헬퍼로 정리
+  - 검증: React DevTools Profiler에서 한 카드 토글 시 다른 카드 렌더 횟수 0 확인
+  - 연관: 댓글 리액션 작업 완료 후 측정 → 실측 부하가 미미하면 보류 가능
+- [ ] **R-08** `togglePostReaction` PUT 응답 reconcile 통일 — 댓글 리액션과 동일 패턴
+  - 현황: `togglePostReaction`은 `Promise<void>`로 응답을 무시하고 클라가 카운트를 흉내내는 낙관 업데이트만 사용 (`useReactionToggle.ts`)
+  - 목표: PUT 응답(`PostReaction`)을 받아 서버 상태로 reconcile → 동시성/규칙 변경 견고
+  - 작업: `togglePostReaction` 반환 타입 `Promise<PostReaction>`으로, `useReactionToggle.handleToggle`에서 응답 본문으로 `setReaction` 갱신, MSW 핸들러는 이미 응답 반환 중
+  - 검증: 토글 후 카운트가 응답값과 일치, 실패 롤백 그대로 작동
+  - 연관: 댓글 리액션 작업(`toggleCommentReaction`) 패턴을 게시글까지 확장
 - [?] **R-07** 댓글 줄바꿈 허용 후속 작업 — 2차분 develop 배포(5927bf4), 모바일 테스트 검증 중
   - 1차 완료(05-02): `CommentCard.tsx` 편집 input→textarea + 표시 `whitespace-pre-wrap`, `index.css` `.post-content white-space: pre-wrap`
   - 2차 완료(05-03): `CommentInput.tsx` textarea + Enter 분기 + `CommentCard.tsx` line-clamp-2 + `useCommentSubmit` normalize
@@ -74,10 +100,17 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 - [x] **G-01** GA4 커스텀 이벤트 1차 4종 삽입 (2026-04-24 완료, 커밋 cf7750e)
   - `SignupPage` → `signup_completed` / `LoginPage` → `login_completed` (navigate 전) / `TherapistVerificationPage` → `verification_requested` / `PostCreatePage` → `first_post_created` (`fetchMyPosts(0,1).totalElements === 0` 프론트 단독 판별, `/me.postCount` 스펙 부재로 대체)
   - 검증: GA4 실시간 리포트에서 4종 이벤트 집계 확인 완료
-- [ ] **G-02** PM 정식 스펙 주요 7개 추가 삽입 (2026-04-27 PM 스펙 도착, 즉시 착수 가능 — 프론트 독립, 백엔드 의존성 0)
-  - 주요 7개: `sign_up` / `profile_edited` / `certification_started` / `certification_completed` / `post_created` / `reaction`(type param 6분기) / `screen_exit`(screen_name + duration)
-  - G-01 4종과 매핑 결정 필요(리네임/유지). 상세: `project_analytics_event_spec_pm_v1.md`
-  - 검증: GA4 실시간 리포트에서 7개 이벤트 + reaction type별 집계 확인
+- [x] **G-02** PM 정식 스펙 주요 7개 추가 삽입 완료 (커밋 e15a065)
+  - 삽입 위치 확인:
+    - `sign_up` → `SignupPage.tsx:62`
+    - `profile_edited` → `ProfilePage.tsx:76,106` (편집 저장 2경로)
+    - `certification_started` → `TherapistVerificationPage.tsx:58`
+    - `certification_submitted` → `TherapistVerificationPage.tsx:100` (스펙 외 보강)
+    - `certification_completed` → `VerificationCompletePage.tsx:32`
+    - `post_created` / `first_post_created` → `PostCreatePage.tsx:96-97`
+    - `reaction` 헬퍼 → `lib/analytics.ts:79` (type 분기)
+    - `screen_exit` → `hooks/useScreenExit.ts:63` (beacon transport)
+  - [?] GA4 실시간 리포트 집계 검증 잔여 (특히 reaction type별, screen_exit duration)
 - [ ] **G-03** PM 정식 스펙 비주요 17개 점진 삽입 (G-02 안정화 후)
   - 콘텐츠/탐색/세부 인증 이벤트들. 우선순위 낮음
 

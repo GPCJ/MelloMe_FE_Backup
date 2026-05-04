@@ -52,7 +52,8 @@
 - [리액션 API 리네임 + 응답 확장 대응 완료](./project_post_reaction_api_rename.md) — 2026-04-21 커밋 3a84a04, 동시 배포/디자이너 추가 컨펌/실서버 테스트 잔여, PostSummary myReactionType 미포함 한계
 
 ## 댓글 리액션
-- **[댓글 리액션 3종 확정 — 백엔드 반영 완료 (2026-05-03)](./project_comment_reaction_3type_decision.md)** — LIKE/CURIOUS/USEFUL 3종으로 게시글과 통일 완료. 프론트 API 연동 미착수 (타입/API함수/MSW핸들러/CommentCard 연동 필요, ReactionBar 재사용 가능)
+- **[댓글 리액션 3종 확정 — 백엔드 반영 완료 (2026-05-03)](./project_comment_reaction_3type_decision.md)** — LIKE/CURIOUS/USEFUL 3종 통일. 2026-05-04 갱신: 응답에 reaction 4필드 동봉 확인(N+1 회피), 프론트 hook B 패턴 채택. 잔여 작업은 backlog R-10
+- **[댓글 리액션 hook 설계 — B 패턴(페이지 레벨 단일 hook) + PUT 응답 reconcile](./project_comment_reaction_hook_b_pattern.md)** — 게시글 A 패턴과 갈린 이유(진실 단일화) + reconcile 도입 이유. 흐름 5단계 박제. 게시글 통일은 R-08
 
 ## 협업 프로세스
 - [백엔드 전달 전략 + 이슈 동기화](./project_backend_communication.md) — Swagger 공식, GitHub Issues, 멜로미↔아이로
@@ -88,6 +89,7 @@
 - **[최우선]** [직접 작성 모드 — AI 코드 생성은 데드라인 임박 시에만 unlock](./feedback_direct_coding_default.md) — `.claude/deadline-unlock` 4h TTL hook + 힌트/수도코드 기본 응답
 - **[최우선]** [코드 작업 전 트레이드오프 설명 필수](./feedback_tradeoff_before_code.md) / [클린 커밋 히스토리 관리](./feedback_clean_commit_history.md)
 - **[최우선]** [진단→이해→지시→조치 (과잉설명 금지)](./feedback_explain_before_act.md) — 레이블/경쟁가설/1분 검증/최소 정보 제시 5원칙
+- **[최우선]** [작업 가이드는 단계 단위로 잘게 끊어 제시](./feedback_step_by_step_guidance.md) — 큰 작업 전체 절차 한꺼번에 덤프 X, 한 단계 가이드 → 사용자 작성 → 검증 → 다음 단계 형태
 - **[최우선]** [workaround 추가 전 스펙/상태 재확인](./feedback_verify_spec_before_workaround.md) — 400/감싸기 판단 전에 Swagger·네트워크·실코드 재확인
 - **[최우선]** [단일 작업 집중 존중 — 곁가지 제안 덤핑 금지](./feedback_single_task_focus.md) — 작업 중 답변은 현재 맥락만, 새 아이디어는 notepad로 라우팅
 - **[AI 직접 작성 코드 → 인지부채 HIGH 메모리 의무](./feedback_ai_written_code_cognitive_debt.md)** — Claude 위임 코드는 메커니즘 상세 기록, 04-15 P1이 첫 사례
