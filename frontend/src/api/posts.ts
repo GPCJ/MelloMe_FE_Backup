@@ -10,6 +10,7 @@ import type {
   TherapyArea,
   ReactionType,
   PostReaction,
+  CommentReaction,
   CommentResponse,
   Attachment,
   PostImage,
@@ -95,9 +96,10 @@ export async function unscrapPost(postId: number): Promise<void> {
   await axiosInstance.delete(`/posts/${postId}/scrap`);
 }
 
-export async function getReaction(postId: number): Promise<PostReaction> {
+// 게시글 리액션
+export async function getPostReaction(postId: number): Promise<PostReaction> {
   const res = await axiosInstance.get(`/posts/${postId}/reaction`);
-  return res.data;
+  return res.data?.data ?? res.data;
 }
 
 export async function togglePostReaction(
@@ -105,6 +107,20 @@ export async function togglePostReaction(
   reactionType: ReactionType,
 ): Promise<PostReaction> {
   const res = await axiosInstance.put(`/posts/${postId}/reaction`, { reactionType });
+  return res.data?.data ?? res.data;
+}
+
+// 댓글 리액션
+export async function getCommentReaction(commentId: number): Promise<CommentReaction> {
+  const res = await axiosInstance.get(`/comments/${commentId}/reaction`);
+  return res.data?.data ?? res.data;
+}
+
+export async function toggleCommentReaction(
+  commentId: number,
+  reactionType: ReactionType,
+): Promise<CommentReaction> {
+  const res = await axiosInstance.put(`/comments/${commentId}/reaction`, { reactionType });
   return res.data?.data ?? res.data;
 }
 

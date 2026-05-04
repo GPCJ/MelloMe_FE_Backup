@@ -9,6 +9,7 @@ import { useReplyInput } from '../../hooks/useReplyInput';
 import { useCommentSubmit } from '../../hooks/useCommentSubmit';
 import { fetchComments, deleteComment, updateComment } from '../../api/posts';
 import type { CommentResponse } from '../../types/post';
+import { useCommentReactionToggle } from '../../hooks/useCommentReactionToggle';
 
 export default function CommentDetailPage() {
   const { postId, commentId } = useParams<{
@@ -131,6 +132,17 @@ export default function CommentDetailPage() {
     }
   }
 
+  // useCommentReactionToggle 훅과 어뎁터 코드
+  const allComments = parentComment ? [parentComment, ...replies] : replies;
+  const { togglingId, handleToggle: handleCommentToggle } = useCommentReactionToggle(
+    allComments,
+    (next) => {
+      const parentId = parentComment?.id;
+      setParentComment(parentId != null ? (next.find((c) => c.id === parentId) ?? null) : null);
+      setReplies(next.filter((c) => c.id !== parentId));
+    },
+  );
+
   if (loading) return null;
   if (error || !parentComment)
     return (
@@ -165,7 +177,8 @@ export default function CommentDetailPage() {
           onEditStart={() => handleEditStart(parentComment.id)}
           onEditSubmit={(newContent) => handleEditSubmit(parentComment.id, true, newContent)}
           onEditCancel={handleEditCancel}
-          clamp={false}
+          onToggleReaction={(type) => handleCommentToggle(parentComment.id, type)}
+          toggling={togglingId === parentComment.id}
         />
       </div>
 
@@ -174,7 +187,7 @@ export default function CommentDetailPage() {
         <CommentInput
           value={replyInput}
           onChange={setReplyInput}
-          onSubmit={() => handleSubmitReply(replyInput)}
+          onSubmit={(e) => handleSubmitReply(e, replyInput)}
           submitting={submitting}
           placeholder="답글을 입력하세요..."
           buttonText="답글 작성"
@@ -185,6 +198,7 @@ export default function CommentDetailPage() {
       {visibleReplies.length > 0 && (
         <div className="flex flex-col gap-3">
           {visibleReplies.map((reply) => (
+            // 대댓글에는 리액션이 필요 없다고 판단되서 포함 안하려고 했는데 관성적으로 일단 대댓글도 CommentCard로 통일해서 사용하는게 일단은 코드 수정이 적어보여서 이렇게함
             <CommentCard
               key={reply.id}
               comment={reply}
@@ -196,7 +210,8 @@ export default function CommentDetailPage() {
               onEditStart={() => handleEditStart(reply.id)}
               onEditSubmit={(newContent) => handleEditSubmit(reply.id, false, newContent)}
               onEditCancel={handleEditCancel}
-              clamp={false}
+              onToggleReaction={(type) => handleCommentToggle(reply.id, type)}
+              toggling={togglingId === reply.id}
             />
           ))}
         </div>
@@ -219,7 +234,7 @@ export default function CommentDetailPage() {
           <CommentInput
             value={replyInput}
             onChange={setReplyInput}
-            onSubmit={() => handleSubmitReply(replyInput)}
+            onSubmit={(e) => handleSubmitReply(e, replyInput)}
             submitting={submitting}
             placeholder="답글을 입력하세요..."
             buttonText="답글 작성"

@@ -130,7 +130,16 @@ export default function CommentWritePage() {
         />
 
         <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
-          <ReactionBar reaction={reaction} onToggle={handleToggle} disabled={toggling} />
+          <ReactionBar
+            counts={{
+              LIKE: reaction.likeCount,
+              CURIOUS: reaction.curiousCount,
+              USEFUL: reaction.usefulCount,
+            }}
+            myReactionType={reaction.myReactionType}
+            onToggle={handleToggle}
+            disabled={toggling}
+          />
         </div>
       </div>
 

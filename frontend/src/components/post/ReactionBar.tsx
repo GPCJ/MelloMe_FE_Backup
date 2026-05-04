@@ -1,5 +1,5 @@
 import { Heart, Star, Lightbulb } from 'lucide-react';
-import type { ReactionType, PostReaction } from '../../types/post';
+import type { ReactionType } from '../../types/post';
 
 // 라벨/아이콘은 디자이너 컨펌 전 임시 유지 (백엔드 명세 변경 2026-04-21).
 // 라벨 텍스트는 화면에 표시하지 않고 aria-label 용도로만 사용 — 디자이너 결정: 카운트 0이면 아이콘만 표시.
@@ -7,25 +7,32 @@ const REACTIONS: {
   type: ReactionType;
   icon: typeof Heart;
   label: string;
-  countKey: keyof Pick<PostReaction, 'likeCount' | 'curiousCount' | 'usefulCount'>;
 }[] = [
-  { type: 'LIKE', icon: Heart, label: '좋아요', countKey: 'likeCount' },
-  { type: 'CURIOUS', icon: Star, label: '궁금해요', countKey: 'curiousCount' },
-  { type: 'USEFUL', icon: Lightbulb, label: '유용해요', countKey: 'usefulCount' },
+  { type: 'LIKE', icon: Heart, label: '좋아요' },
+  { type: 'CURIOUS', icon: Star, label: '궁금해요' },
+  { type: 'USEFUL', icon: Lightbulb, label: '유용해요' },
 ];
 
 interface ReactionBarProps {
-  reaction: PostReaction | null;
+  counts: Record<ReactionType, number>;
+  myReactionType: ReactionType | null;
   onToggle: (type: ReactionType) => void;
   disabled?: boolean;
+  size?: number;
 }
 
-export default function ReactionBar({ reaction, onToggle, disabled }: ReactionBarProps) {
+export default function ReactionBar({
+  counts,
+  myReactionType,
+  onToggle,
+  disabled,
+  size,
+}: ReactionBarProps) {
   return (
     <div className="flex items-center gap-4">
-      {REACTIONS.map(({ type, icon: Icon, label, countKey }) => {
-        const isActive = reaction?.myReactionType === type;
-        const count = reaction?.[countKey] ?? 0;
+      {REACTIONS.map(({ type, icon: Icon, label }) => {
+        const isActive = myReactionType === type;
+        const count = counts[type] ?? 0;
 
         return (
           <button
@@ -41,8 +48,7 @@ export default function ReactionBar({ reaction, onToggle, disabled }: ReactionBa
               isActive ? 'text-red-500' : 'text-gray-400 hover:text-gray-600'
             }`}
           >
-            <Icon size={16} fill={isActive ? 'currentColor' : 'none'} />
-            {/* 디자이너 결정(2026-04-21): 카운트가 0이면 아이콘만 표시 */}
+            <Icon size={size ?? 16} fill={isActive ? 'currentColor' : 'none'} />
             {count > 0 && <span className="text-xs">{count}</span>}
           </button>
         );
