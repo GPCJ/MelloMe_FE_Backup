@@ -100,8 +100,12 @@ export async function getReaction(postId: number): Promise<PostReaction> {
   return res.data;
 }
 
-export async function toggleReaction(postId: number, reactionType: ReactionType): Promise<void> {
-  await axiosInstance.put(`/posts/${postId}/reaction`, { reactionType });
+export async function togglePostReaction(
+  postId: number,
+  reactionType: ReactionType,
+): Promise<PostReaction> {
+  const res = await axiosInstance.put(`/posts/${postId}/reaction`, { reactionType });
+  return res.data?.data ?? res.data;
 }
 
 // pdf
