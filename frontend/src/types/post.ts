@@ -46,8 +46,8 @@ export interface PostSummary {
   viewCount: number;
   popularityScore?: number;
   commentCount?: number;
-  // 신규: 백엔드 명세 변경 (2026-04-21) — 목록/피드는 LIKE 1종만 카운트
   likeCount?: number;
+  myReactionType: ReactionType | null;
   hasAttachment?: boolean;
   // 백엔드가 인증 전용 글을 USER에게 전달할 때 true로 내려오며 content/contentPreview는 빈값으로 마스킹됨
   isBlurred?: boolean;
