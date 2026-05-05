@@ -60,8 +60,9 @@ export function useReactionToggle(initialReaction: PostReaction) {
     setReaction(updated);
 
     try {
-      // 5월 4일 11시 기준 togglePostReaction함수는 return없이 낙천 업데이트중
-      await togglePostReaction(reaction.postId, type);
+      // 5월 4일 11시 기준 togglePostReaction함수는 return없이 낙관 업데이트중
+      const fresh = await togglePostReaction(reaction.postId, type);
+      setReaction(fresh);
       if (!wasActive) {
         trackReaction(reactionTypeToGAEvent(type), { postId: reaction.postId });
       }

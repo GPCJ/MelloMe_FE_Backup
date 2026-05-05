@@ -106,8 +106,9 @@ export async function getPostReaction(postId: number): Promise<PostReaction> {
 export async function togglePostReaction(
   postId: number,
   reactionType: ReactionType,
-): Promise<void> {
-  await axiosInstance.put(`/posts/${postId}/reaction`, { reactionType });
+): Promise<PostReaction> {
+  const res = await axiosInstance.put(`/posts/${postId}/reaction`, { reactionType });
+  return res.data?.data ?? res.data;
 }
 
 // 댓글 리액션
