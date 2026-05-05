@@ -489,7 +489,7 @@ export default function PostDetailPage() {
           <CommentInput
             value={commentInput}
             onChange={setCommentInput}
-            onSubmit={(e) => handleSubmitComment(e, commentInput)}
+            onSubmit={() => handleSubmitComment(commentInput)}
             submitting={submitting}
           />
         </div>
