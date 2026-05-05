@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Bookmark, MessageCircle, Heart, Lock } from 'lucide-react';
-import type { PostSummary } from '../../types/post';
+import type { PostSummary, PostReaction } from '../../types/post';
 import { formatRelativeTime } from '../../utils/formatDate';
 import { scrapPost, unscrapPost } from '../../api/posts';
 import VerifiedBadge from './VerifiedBadge';
@@ -11,9 +11,10 @@ import { trackReaction } from '../../lib/analytics';
 
 interface PostCardProps {
   post: PostSummary;
+  onReactionUpdated?: (fresh: PostReaction) => void;
 }
 
-export default function PostCard({ post }: PostCardProps) {
+export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
   // TODO: 자신의 게시물에 스크랩 못하도록 차단
   // - PostSummary에 authorId 추가 백엔드 요청 필요
   // - authorId === currentUserId이면 스크랩 버튼 숨김 처리
@@ -41,13 +42,18 @@ export default function PostCard({ post }: PostCardProps) {
     }
   };
 
-  const { reaction, toggling, handleToggle } = useReactionToggle({
-    postId: post.id,
-    likeCount: post.likeCount ?? 0,
-    curiousCount: 0,
-    usefulCount: 0,
-    myReactionType: post.myReactionType,
-  });
+  const { reaction, toggling, handleToggle } = useReactionToggle(
+    // initialReaction
+    {
+      postId: post.id,
+      likeCount: post.likeCount ?? 0,
+      curiousCount: 0,
+      usefulCount: 0,
+      myReactionType: post.myReactionType,
+    },
+    // onUpdated
+    onReactionUpdated,
+  );
 
   return (
     <Link to={`/posts/${post.id}`} className="block">

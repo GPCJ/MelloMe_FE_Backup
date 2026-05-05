@@ -36,7 +36,10 @@ export function reactionFromPostDetail(post: PostDetail): PostReaction {
   };
 }
 
-export function useReactionToggle(initialReaction: PostReaction) {
+export function useReactionToggle(
+  initialReaction: PostReaction,
+  onUpdated?: (fresh: PostReaction) => void,
+) {
   const [reaction, setReaction] = useState<PostReaction>(initialReaction);
   const [toggling, setToggling] = useState(false);
 
@@ -60,9 +63,9 @@ export function useReactionToggle(initialReaction: PostReaction) {
     setReaction(updated);
 
     try {
-      // 5월 4일 11시 기준 togglePostReaction함수는 return없이 낙관 업데이트중
       const fresh = await togglePostReaction(reaction.postId, type);
       setReaction(fresh);
+      onUpdated?.(fresh);
       if (!wasActive) {
         trackReaction(reactionTypeToGAEvent(type), { postId: reaction.postId });
       }
