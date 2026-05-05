@@ -430,6 +430,7 @@ export default function ProfilePage() {
                     therapyArea: scrap.therapyArea as PostSummary['therapyArea'],
                     viewCount: scrap.viewCount,
                     createdAt: scrap.postCreatedAt,
+                    myReactionType: null,
                   }}
                 />
               ))}

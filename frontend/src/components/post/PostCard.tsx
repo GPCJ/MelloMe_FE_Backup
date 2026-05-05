@@ -41,14 +41,12 @@ export default function PostCard({ post }: PostCardProps) {
     }
   };
 
-  // 카드는 LIKE 1종만 노출 (백엔드 명세 2026-04-21). myReactionType은 PostSummary에
-  // 포함되지 않아 새로고침 시 active 강조가 초기화됨 — 낙관적 토글만 유지.
   const { reaction, toggling, handleToggle } = useReactionToggle({
     postId: post.id,
     likeCount: post.likeCount ?? 0,
     curiousCount: 0,
     usefulCount: 0,
-    myReactionType: null,
+    myReactionType: post.myReactionType,
   });
 
   return (
