@@ -5,7 +5,7 @@ import { Plus, PenSquare, Search } from 'lucide-react';
 import { buttonVariants } from '@/components/shadcn-ui/button';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import { fetchPosts } from '../../api/posts';
-import type { TherapyArea, PaginatedPosts } from '../../types/post';
+import type { TherapyArea, PaginatedPosts, PostReaction } from '../../types/post';
 import { FILTER_CHIPS } from '../../constants/post';
 import PostCard from '../../components/post/PostCard';
 import FilterChips from '../../components/common/FilterChips';
@@ -14,6 +14,7 @@ import Pagination from '../../components/common/Pagination';
 import { useInfiniteFeed } from '@/hooks/useInfiniteFeed';
 import { useFeedScrollStore } from '@/stores/feedScrollStore';
 import { useScreenExit } from '@/hooks/useScreenExit';
+import { useQueryClient } from '@tanstack/react-query';
 
 type FeedTab = 'all' | 'following';
 
@@ -60,8 +61,10 @@ export default function PostListPage() {
   const consumeSnapshot = useFeedScrollStore((s) => s.consume);
   const saveSnapshot = useFeedScrollStore((s) => s.save);
   const initialSnapshotRef = useRef<ReturnType<typeof consumeSnapshot>>(
-    isInfiniteMode ? consumeSnapshot() : null                                                                                                       
-  ); 
+    isInfiniteMode ? consumeSnapshot() : null,
+  );
+
+  const qc = useQueryClient();
 
   const infinite = useInfiniteFeed({
     size: 20,
@@ -167,6 +170,30 @@ export default function PostListPage() {
 
   const totalPages = data?.totalPages ?? 1;
 
+  function handleReactionUpdated(fresh: PostReaction) {
+    // any타입 임시. 나중에 바꿔야함
+    qc.setQueriesData({ queryKey: ['feed'] }, (old: any) => {
+      if (!old) return old;
+      return {
+        ...old,
+        pages: old.pages.map((page: any) => ({
+          ...page,
+          items: page.items.map((item: any) =>
+            item.id === fresh.postId
+              ? {
+                  ...item,
+                  likeCount: fresh.likeCount,
+                  curiousCount: fresh.curiousCount,
+                  usefulCount: fresh.usefulCount,
+                  myReactionType: fresh.myReactionType,
+                }
+              : item,
+          ),
+        })),
+      };
+    });
+  }
+
   return (
     <div className="pb-20 md:pb-8">
       {/* 모바일 상단 헤더 */}
@@ -249,7 +276,7 @@ export default function PostListPage() {
                 ? Array.from({ length: 4 }).map((_, i) => <PostCardSkeleton key={i} />)
                 : infinite.items.map((post) => (
                     <div key={post.id} onClickCapture={handleCardClick}>
-                      <PostCard post={post} />
+                      <PostCard post={post} onReactionUpdated={handleReactionUpdated} />
                     </div>
                   ))}
 
@@ -303,7 +330,9 @@ export default function PostListPage() {
 
               {loading
                 ? Array.from({ length: 4 }).map((_, i) => <PostCardSkeleton key={i} />)
-                : data?.items.map((post) => <PostCard key={post.id} post={post} />)}
+                : data?.items.map((post) => (
+                    <PostCard key={post.id} post={post} onReactionUpdated={handleReactionUpdated} />
+                  ))}
 
               {!loading && !error && data?.items.length === 0 && (
                 <div className="text-center py-16">
