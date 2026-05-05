@@ -50,19 +50,13 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 후보: `@tailwindcss/typography`의 `prose` 클래스로 교체 (의존성 1개 추가) / `@apply`로 토큰만 재사용
   - 트리거: 리치 에디터 도입 시 같이 처리하면 효율적
   - 검증: `grep "post-content" frontend/src/index.css` → 룰 제거 여부, 게시글 상세에서 시각 회귀 없음
-- [?] **R-10** 댓글 리액션 API 연동 — 진행 중 (2026-05-04~)
-  - 완료:
-    - 타입: `types/post.ts` `CommentResponse`에 reaction 4필드(옵셔널) + `CommentReaction` 인터페이스
-    - API: `getCommentReaction`/`toggleCommentReaction` 추가(unwrap 패턴) + `getReaction`→`getPostReaction` 리네임+unwrap 적용 (호출부 0건 dead code)
-    - `ReactionBar` 시그니처 일반화: `PostReaction` 의존 제거, `counts/myReactionType/size` props로 변경. `PostDetailPage`/`CommentWritePage` 호출부 어댑터 적용
-    - `useCommentReactionToggle` hook 신설 (B 패턴 = 페이지 레벨 단일 hook + `comments[]` 단일 진실. PUT 응답 reconcile)
-    - `CommentCard` 임시 placeholder 제거, `ReactionBar` 연동 (size=14, props에 `onToggleReaction`/`toggling` 추가)
-  - 남음:
-    - [ ] `PostDetailPage` 통합 — L76 `comments` state 다음에 `useCommentReactionToggle(comments, setComments)` 호출, L502 `<CommentCard>`에 `onToggleReaction={(type) => handleToggle(comment.id, type)}` `toggling={togglingId === comment.id}` 2줄 추가
-    - [ ] `CommentDetailPage` 통합 — `parentComment`(단일)/`replies`(배열) 분리 state라 어댑터 필요. `[parentComment, ...replies]` 가상 배열 + 분배 setter `(next) => { setParentComment(next.find(...)); setReplies(next.filter(...)); }`로 hook에 넘김. parent + replies 두 곳 `<CommentCard>`에 동일 prop 추가
-    - [ ] MSW `comments.handlers.ts`에 GET/PUT `/comments/{id}/reaction` 핸들러 추가, `mockComments`에 4필드 추가하거나 `mockCommentReactions: Record<id, ...>` 신설 (`reactions.handlers.ts` 토글 로직 그대로 이식 가능)
-    - [ ] `npx tsc -b` + 로컬 동작 확인 (낙관 업데이트 즉시 반영, PUT 응답 reconcile, 실패 롤백)
-  - 결정/Why: B 패턴 채택(진실 단일화) + PUT 응답 reconcile(동시성/규칙 변경 견고). CommentResponse에 reaction 4필드 동봉으로 N+1 없음(Swagger 2026-05-04 재확인). 별도 메모리 박제는 /wrap-up 시점
+- [?] **R-10** 댓글 리액션 API 연동 — staging 검증 잔여 (2026-05-04~05)
+  - 완료 (origin/develop c0db39a): 타입 4필드+`CommentReaction` / API 추가+리네임+unwrap / `ReactionBar` 시그니처 일반화 / `useCommentReactionToggle` 신설(B 패턴) / `CommentCard` placeholder 제거+ReactionBar 연동 / `PostDetailPage`+`CommentDetailPage` 통합
+  - tsc ✅ (R-07 시그니처 mismatch fix 동반 — 커밋 ccb21d6, 2026-05-05)
+  - MSW 스킵 결정 — 백엔드 dev/staging 이미 배포 → 직접 테스트로 대체
+  - 잔여:
+    - [ ] staging 검증 (현재 develop unpushed 3 커밋 push 필요) — 시나리오: 토글 즉시 active+카운트, PUT 응답 reconcile, 동일 타입 해제, 다른 타입 전환, 실패 롤백
+  - 결정/Why: B 패턴(진실 단일화) + PUT 응답 reconcile(동시성/규칙 변경 견고) + CommentResponse 4필드 동봉으로 N+1 없음(Swagger 2026-05-04 재확인). 별도 메모리 박제는 /wrap-up 시점
 - [ ] **R-09** `CommentCard` `React.memo` 적용 — 댓글 리액션 토글 시 불필요 리렌더 차단
   - 현황: 댓글 리액션 hook을 페이지 레벨 단일(B 옵션)로 채택 → 토글 시 부모 `comments` 배열 갱신 → 모든 CommentCard 기본 리렌더
   - 목표: `React.memo(CommentCard)` + immutable update 패턴(이미 hook에서 적용)으로 변경된 카드만 실제 리렌더
@@ -70,12 +64,17 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 함정: `CommentCard` 안에서 `ReactionBar`에 `counts={{LIKE:..., CURIOUS:..., USEFUL:...}}` 객체 리터럴로 넘김 → 매 리렌더마다 reference 새 객체. ReactionBar에 memo 씌워도 props 비교 통과 X. `useMemo` 또는 어댑터 헬퍼로 정리
   - 검증: React DevTools Profiler에서 한 카드 토글 시 다른 카드 렌더 횟수 0 확인
   - 연관: 댓글 리액션 작업 완료 후 측정 → 실측 부하가 미미하면 보류 가능
-- [ ] **R-08** `togglePostReaction` PUT 응답 reconcile 통일 — 댓글 리액션과 동일 패턴
-  - 현황: `togglePostReaction`은 `Promise<void>`로 응답을 무시하고 클라가 카운트를 흉내내는 낙관 업데이트만 사용 (`useReactionToggle.ts`)
-  - 목표: PUT 응답(`PostReaction`)을 받아 서버 상태로 reconcile → 동시성/규칙 변경 견고
-  - 작업: `togglePostReaction` 반환 타입 `Promise<PostReaction>`으로, `useReactionToggle.handleToggle`에서 응답 본문으로 `setReaction` 갱신, MSW 핸들러는 이미 응답 반환 중
-  - 검증: 토글 후 카운트가 응답값과 일치, 실패 롤백 그대로 작동
-  - 연관: 댓글 리액션 작업(`toggleCommentReaction`) 패턴을 게시글까지 확장
+- [?] **R-08** `togglePostReaction` reconcile + RQ 캐시 패치 통일 — 1~4단계 완료, 5단계 push만 남음 (2026-05-05)
+  - 완료:
+    - 1단계 ✅ 백엔드 PUT 응답 형태 확인 — `{success, data: PostReaction}` 래퍼, PostReaction 인터페이스와 정합 (topReaction* 3필드는 미사용)
+    - 2단계 ✅ `togglePostReaction` 반환 `Promise<void>` → `Promise<PostReaction>` + unwrap (커밋 8e1c30c)
+    - 3단계 ✅ `useReactionToggle`이 응답으로 `setReaction(fresh)` reconcile (커밋 8e1c30c)
+    - 4단계 ✅ B 패턴 채택 — `useReactionToggle`에 `onUpdated?` 콜백 옵션 추가 / `PostCard`가 prop drilling으로 패스 / `PostListPage`가 `qc.setQueriesData({queryKey:['feed']}, ...)`로 캐시 4필드 갱신 (커밋 bdb4586). 로컬 시나리오 재현 → fix 확인 완료
+  - 남음:
+    - [ ] **5단계**: develop push → staging 검증 (토글/뒤로가기/새로고침/실패 롤백 4시나리오)
+  - 한계점 박제: 다른 PostCard 호출부(PostListPage pagination mode 333행 / ProfilePage 333,424행 / SearchPage 152행)는 콜백 미등록 — 각 데이터 소스 캐시 다르므로 별도 처리 필요. `onReactionUpdated`를 옵셔널(`?`) prop으로 두어 컴파일 통과
+  - 옵션 검토 메모리: `project_post_reaction_cache_patch_options.md` (A/B/C 트레이드오프 + B 채택 Why)
+  - 연관: 댓글 리액션(`useCommentReactionToggle`)은 RQ 미사용·페이지 state 직접 관리(B 패턴) → 캐시 갱신 불필요, 게시글만 추가 필요
 - [?] **R-07** 댓글 줄바꿈 허용 후속 작업 — 2차분 develop 배포(5927bf4), 모바일 테스트 검증 중
   - 1차 완료(05-02): `CommentCard.tsx` 편집 input→textarea + 표시 `whitespace-pre-wrap`, `index.css` `.post-content white-space: pre-wrap`
   - 2차 완료(05-03): `CommentInput.tsx` textarea + Enter 분기 + `CommentCard.tsx` line-clamp-2 + `useCommentSubmit` normalize

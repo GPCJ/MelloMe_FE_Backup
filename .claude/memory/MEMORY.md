@@ -7,6 +7,7 @@
 - [협업 스타일 — AI 행동 규약 공동 설계형](./user_collab_style_meta.md) — 반복 실수 시 즉시 "규칙화할까요?" 제안 OK
 - [지식 흡수 기준 — 이미지/구조가 떠올라야 흡수](./user_comprehension_criterion.md) — 텍스트로 읽힌 느낌 ≠ 흡수, 비유/다이어그램/추적 트리거 필요
 - [작업 집중 패턴 — 싱글태스크 선호 + 스쳐가는 생각 캡처](./user_work_focus_pattern.md) — 한 작업 몰입 스타일, 떠오르는 생각은 즉시 notepad, 25분 타이머
+- [코드 추적/학습 흐름 — outside-in (호출부 → 선언부)](./user_code_navigation_style.md) — 새 기능 가이드도 outside-in 순서로
 - [AI 의존 불안 패턴 — "AI 없던 시절이라면" 사고](./user_ai_dependency_anxiety.md) — 주기적 재출현, 4프레임 응답 + 테스트 가능 실험으로 redirect
 - 문서화 역량 면접 Q&A 7항목 → wiki `q-a-7` (reference)
 
@@ -50,6 +51,7 @@
 
 ## 게시글 리액션
 - [리액션 API 리네임 + 응답 확장 대응 완료](./project_post_reaction_api_rename.md) — 2026-04-21 커밋 3a84a04, 동시 배포/디자이너 추가 컨펌/실서버 테스트 잔여, PostSummary myReactionType 미포함 한계
+- [R-08 4단계 캐시 패치 옵션 검토 — A/B/C 비교 후 B 채택](./project_post_reaction_cache_patch_options.md) — 댓글 hook B 패턴과 일관성, A(hook 직접)·C(invalidate) 트레이드오프 박제
 
 ## 댓글 리액션
 - **[댓글 리액션 3종 확정 — 백엔드 반영 완료 (2026-05-03)](./project_comment_reaction_3type_decision.md)** — LIKE/CURIOUS/USEFUL 3종 통일. 2026-05-04 갱신: 응답에 reaction 4필드 동봉 확인(N+1 회피), 프론트 hook B 패턴 채택. 잔여 작업은 backlog R-10
