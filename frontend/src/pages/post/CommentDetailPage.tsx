@@ -187,7 +187,7 @@ export default function CommentDetailPage() {
         <CommentInput
           value={replyInput}
           onChange={setReplyInput}
-          onSubmit={(e) => handleSubmitReply(e, replyInput)}
+          onSubmit={() => handleSubmitReply(replyInput)}
           submitting={submitting}
           placeholder="답글을 입력하세요..."
           buttonText="답글 작성"
@@ -234,7 +234,7 @@ export default function CommentDetailPage() {
           <CommentInput
             value={replyInput}
             onChange={setReplyInput}
-            onSubmit={(e) => handleSubmitReply(e, replyInput)}
+            onSubmit={() => handleSubmitReply(replyInput)}
             submitting={submitting}
             placeholder="답글을 입력하세요..."
             buttonText="답글 작성"
