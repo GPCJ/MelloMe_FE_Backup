@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import { fetchPosts } from '../../api/posts';
 import type { TherapyArea, PaginatedPosts, PostReaction } from '../../types/post';
 import { FILTER_CHIPS } from '../../constants/post';
+import WelcomeModal from '@/components/auth/WelcomeModal';
 import PostCard from '../../components/post/PostCard';
 import FilterChips from '../../components/common/FilterChips';
 import MobilePageHeader from '@/components/common/MobilePageHeader';
@@ -44,7 +45,26 @@ export default function PostListPage() {
   // 체류 시간 측정 — PM 정식 스펙 부가 KPI(피드 체류).
   useScreenExit('feed');
 
+  const [welcomeOpen, setWelcomeOpen] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const pending = localStorage.getItem('mello:welcome-pending');
+    if (pending) {
+      setWelcomeOpen(true);
+      localStorage.removeItem('mello:welcome-pending');
+    }
+  }, []);
+
+  const handleVerify = () => {
+    setWelcomeOpen(false);
+    navigate('/therapist-verifications');
+  };
+
+  const handleClose = () => {
+    setWelcomeOpen(false);
+  };
+
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const therapyArea = (searchParams.get('therapyArea') as TherapyArea) ?? '';
@@ -196,6 +216,8 @@ export default function PostListPage() {
 
   return (
     <div className="pb-20 md:pb-8">
+      {/* 회원가입 환영 모달 */}
+      <WelcomeModal open={welcomeOpen} onClose={handleClose} onVerify={handleVerify} />
       {/* 모바일 상단 헤더 */}
       <MobilePageHeader
         title="치료사 커뮤니티"
