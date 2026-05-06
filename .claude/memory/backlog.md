@@ -56,16 +56,19 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - MSW 스킵 결정 — 백엔드 dev/staging 이미 배포 → 직접 테스트로 대체
   - staging 검증 통과: 토글 즉시 active+카운트 / PUT 응답 reconcile / 동일 타입 해제 / 다른 타입 전환 / 실패 롤백
   - 결정/Why: B 패턴(진실 단일화) + PUT 응답 reconcile(동시성/규칙 변경 견고) + CommentResponse 4필드 동봉으로 N+1 없음(Swagger 2026-05-04 재확인). 별도 메모리 박제는 /wrap-up 시점
-- [ ] **R-11 ★ 내일 1순위 (2026-05-07)** PostListPage custom hook 분리 — logic만 추출, JSX 0 변경
+- [ ] **R-11 ★ 내일 1순위 (2026-05-07)** PostListPage 리팩토링 — 옵션 미결정, 채택 다음 세션에서 결정
   - 현황: PostListPage.tsx 385줄 / state 8개 / useEffect 4개 / 핸들러 5개. 환영 모달까지 추가되며 책임 영역이 7개로 늘어남(검색바·탭·무한스크롤·페이지 fallback·필터·리액션 캐시·환영 모달)
-  - 옵션 A 채택 (Why): blast radius 작음(컴포넌트 외부 인터페이스 0 변경) + 단일 책임 hook + 테스트 용이. JSX 분리(옵션 B/C)는 회귀 위험 ↑로 post-MVP 보류
-  - 분리 대상 hook 5개:
+  - 옵션 비교 (채택 미결정):
+    - **A. custom hook 분리만** (권장 후보) — logic만 추출, JSX 0 변경. blast radius 작음, 테스트 용이 / hook 4-5개 신설
+    - B. JSX도 sub-component 분리 — `<InfiniteFeedSection />` 등으로 마크업도 추출. 더 깔끔 / Hot Path 큰 변경, 회귀 위험 ↑
+    - C. 라우트/RQ 추상화 — `useFeedQuery` 추상화로 RQ에 fully 위임. 가장 정리됨 / post-MVP 규모
+  - 옵션 A 가정 시 분리 대상 hook 5개 (참고):
     - `useWelcomeModal` — welcomeOpen + localStorage useEffect + handleVerify/handleClose (2026-05-06 추가분)
     - `useFeedTab` — activeTab state (전체/팔로우)
     - `useTherapyAreaFilter` — therapyArea + VALID_THERAPY_AREAS 검증 effect + handleFilterClick
     - `usePageModeFeed` — data/loading/error/feedFailed + fetch effect + handlePageChange
     - `useFeedReactionCache` — handleReactionUpdated (qc.setQueriesData 캐시 갱신)
-  - 잔존 (PostListPage 본체): useInfiniteFeed + IntersectionObserver + initialSnapshotRef(스크롤 복원). 무한스크롤 코어는 그대로 두는 게 안전
+  - 잔존 (PostListPage 본체, 옵션 A 가정): useInfiniteFeed + IntersectionObserver + initialSnapshotRef(스크롤 복원). 무한스크롤 코어는 그대로 두는 게 안전
   - ⚠️ MVP D-8 blast radius 경고 — 회귀 시나리오 5종 동반 검증 필수:
     1. 무한 스크롤 다음 페이지 페치 / 2. 게시글 클릭 → 뒤로가기 시 스크롤·필터 복원
     3. 필터 칩 변경 시 깜빡임 없음 / 4. 페이지 모드 fallback 전환 / 5. 리액션 토글 캐시 갱신

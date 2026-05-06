@@ -41,7 +41,7 @@ originSessionId: d7966e96-641e-4634-8a56-ba846785409b
 
 1. **isNewUser 미연동**: 다른 디바이스/세션에서 첫 로그인 시 모달이 안 뜸. B-06 백엔드 검증 후 LoginPage 트리거 추가로 보완 가능
 2. **localStorage 가드의 한계**: 시크릿 모드/캐시 클리어 시 한 번 더 노출될 수 있음. MVP 허용 범위
-3. **PostListPage Hot Path 적층**: useEffect 1개 + state 1개 + 핸들러 2개 추가. 무한스크롤/필터/RQ와는 격리됐지만 페이지 책임 영역이 7개로 늘어남 → R-11 (custom hook 분리) 박제
+3. **PostListPage Hot Path 적층**: useEffect 1개 + state 1개 + 핸들러 2개 추가. 무한스크롤/필터/RQ와는 격리됐지만 페이지 책임 영역이 7개로 늘어남 → R-11 (리팩토링 옵션 A/B/C 비교, 채택 미결정) 박제
 4. **본문 1줄 카피 자체 교정**: 시안 "치료사들**를** 위한"을 한국어 조사 자연스럽게 "치료사들**을** 위한"으로 변경. 사용자 판단으로 디자이너 통보 생략 결정(2026-05-06)
 
 ## 변경 파일
@@ -54,5 +54,5 @@ originSessionId: d7966e96-641e-4634-8a56-ba846785409b
 
 ## 후속 작업
 
-- backlog R-11 (PostListPage hook 분리) — 내일 1순위 박제
+- backlog R-11 (PostListPage 리팩토링, 옵션 A/B/C 비교 채택 미결정) — 내일 1순위 박제
 - backlog B-06 (isNewUser 검증 후 LoginPage 트리거 추가)
