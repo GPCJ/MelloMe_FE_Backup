@@ -1,7 +1,6 @@
 import type { ComponentType } from 'react';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 
@@ -9,9 +8,8 @@ type PageMeta = { title: string; description: string };
 
 const META_BY_URL: Record<string, PageMeta> = {
   '/': {
-    title: '멜로미 - 발달장애 아동 치료사 커뮤니티',
-    description:
-      '발달장애 아동 치료사를 위한 커뮤니티. 치료사 간 정보 공유, 고민 나눔, 학습 자료까지 한 곳에서.',
+    title: '멜로미 - 치료사 커뮤니티',
+    description: '발달장애 아동 치료사를 위한 커뮤니티 멜로미.',
   },
   '/privacy': {
     title: '개인정보처리방침 - 멜로미',
@@ -24,7 +22,7 @@ const META_BY_URL: Record<string, PageMeta> = {
 };
 
 const ROUTES: Record<string, ComponentType> = {
-  '/': LandingPage,
+  '/': () => null,
   '/privacy': PrivacyPage,
   '/terms': TermsPage,
 };

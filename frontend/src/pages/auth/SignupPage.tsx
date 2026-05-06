@@ -117,22 +117,20 @@ export default function SignupPage() {
     배경색: MVP 와이어프레임은 일단 그라데이션 없이 색 빠진 버전이 맞는 것 같음 그리고 디자이너의 확정 디자인도 그라데이션 없음.
     */
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
-      <div className="text-center mb-8">
+      <div className="w-full max-w-[640px] text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">mellty</h1>
-        <p className="mt-2 text-sm text-gray-500">치료사들의 따뜻한 성장 공간</p>
+        <p className="mt-2 text-sm text-gray-500">치료사들의 따뜻한 성장 공간 멜티</p>
       </div>
 
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-[640px] rounded-[14px]">
         <CardHeader>
-          <CardTitle className="text-center text-2xl text-base">회원가입</CardTitle>
-          <CardDescription className="text-center text-base">
-            멜로미와 함께 성장해요 💜
-          </CardDescription>
+          <CardTitle className="text-2xl">회원가입</CardTitle>
+          <CardDescription className="text-base">멜티와 함께 성장해요 :D</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1">
-              <Label htmlFor="email">이메일</Label>
+              <Label htmlFor="email">이메일 *</Label>
               <div className="relative">
                 {/* 왜 placeholder하고 아이콘이 겹치지? -> input에 왼쪽 padding을 안줘서*/}
                 <Mail
@@ -151,7 +149,7 @@ export default function SignupPage() {
               </div>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="password">비밀번호</Label>
+              <Label htmlFor="password">비밀번호 *</Label>
               <div className="relative">
                 <Lock
                   size={16}
@@ -176,7 +174,7 @@ export default function SignupPage() {
               </div>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="passwordConfirm">비밀번호 확인</Label>
+              <Label htmlFor="passwordConfirm">비밀번호 확인 *</Label>
               <div className="relative">
                 <Lock
                   size={16}
@@ -187,7 +185,7 @@ export default function SignupPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={passwordConfirm}
                   onChange={(e) => setPasswordConfirm(e.target.value)}
-                  placeholder="비밀번호를 다시 입력하세요"
+                  placeholder="비밀번호를 다시 입력해주세요"
                   className="pl-9 pr-9 bg-gray-100"
                   required
                 />
@@ -212,7 +210,7 @@ export default function SignupPage() {
                     href="/terms"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="underline text-blue-600"
+                    className="underline text-[#ff7f4c] font-bold"
                   >
                     이용약관
                   </a>
@@ -230,7 +228,7 @@ export default function SignupPage() {
                     href="/privacy"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="underline text-blue-600"
+                    className="underline text-[#ff7f4c] font-bold"
                   >
                     개인정보처리방침
                   </a>
@@ -243,6 +241,7 @@ export default function SignupPage() {
 
             <Button
               type="submit"
+              size="lg"
               className="w-full rounded-full"
               disabled={loading || !agreeTerms || !agreePrivacy}
             >
@@ -251,15 +250,14 @@ export default function SignupPage() {
           </form>
 
           {/* 로그인 링크 */}
-          <p className="mt-6 text-center text-sm text-gray-500">
-            이미 계정이 있으신가요?{' '}
-            <Link to="/login" className="text-blue-600 font-medium hover:underline">
-              로그인
-            </Link>
-          </p>
+          <Link
+            to="/login"
+            className="flex h-10 w-full items-center justify-center px-4 rounded-full border border-black bg-white text-sm text-[#0a0a0a] mt-4"
+          >
+            아직 계정이 없으신가요? <span className="ml-1 font-bold text-[#6d00da]">로그인</span>
+          </Link>
         </CardContent>
       </Card>
-      <p className="mt-6 text-sm text-gray-500">멜로미는 치료사 전용 커뮤니티입니다</p>
     </div>
   );
 }

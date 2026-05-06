@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/layout/Layout';
+import RootRedirect from './components/auth/RootRedirect';
 import GuestRoute from './components/auth/GuestRoute';
 import AuthRoute from './components/auth/AuthRoute';
 import LoginPage from './pages/auth/LoginPage';
 import SignupPage from './pages/auth/SignupPage';
 import NotFoundPage from './pages/NotFoundPage';
-import LandingPage from './pages/LandingPage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 import PostListPage from './pages/post/PostListPage';
@@ -37,22 +37,22 @@ function App() {
     <BrowserRouter>
       <AnalyticsTracker />
       <Routes>
-        {/* LandingPage — 자체 navbar/footer가 있어서 Layout 밖에 위치 */}
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<RootRedirect />} />
         {/* 정책 페이지 — 비로그인/로그인 모두 접근, Layout 밖 독립 렌더 */}
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />
+
+        {/* SignupPage는 standalone(Layout 밖, GuestRoute 밖).
+        - Layout 밖: 디자이너 시안이 네비바 없는 standalone 폼으로 확정 (2026-05-06)
+        - GuestRoute 밖: setUser() 호출 시 GuestRoute가 먼저 리렌더되어 환영 UI 전에
+        튕기는 race condition 회피. 로그인 유저 차단은 SignupPage 내부에서. */}
+        <Route path="/signup" element={<SignupPage />} />
+
         <Route element={<Layout />}>
           {/* 비로그인 전용 라우트 */}
           <Route element={<GuestRoute />}>
             <Route path="/login" element={<LoginPage />} />
           </Route>
-
-          {/* SignupPage는 GuestRoute 밖에 배치.
-              GuestRoute 안에 있으면 setUser() 호출 시 GuestRoute가 먼저 리렌더되어
-              환영 UI를 보여주기 전에 랜딩페이지로 튕기는 race condition 발생.
-              로그인 유저 접근 차단은 SignupPage 내부에서 직접 처리. */}
-          <Route path="/signup" element={<SignupPage />} />
 
           <Route element={<AuthRoute />}>
             <Route path="/verification-complete" element={<VerificationCompletePage />} />
