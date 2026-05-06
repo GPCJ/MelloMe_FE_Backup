@@ -21,8 +21,21 @@ const META_BY_URL: Record<string, PageMeta> = {
   },
 };
 
+/**
+ * 랜딩페이지 폐기 결정(2026-05-06)으로 `/`에 prerender할 콘텐츠가 없음.
+ * 다만 vitePrerenderPlugin이 default entry `/`를 자동 prerender 시도하기 때문에
+ * ROUTES 매핑이 비어 있으면 아래 prerender 함수가 throw로 빌드 실패함.
+ *
+ * 빈 컴포넌트로 매핑해서 prerender 산출물은 빈 div + 메타(title/description)만 유지함.
+ * 브랜드 검색 SEO는 메타로 충족되고, 실제 진입은 클라이언트 hydrate
+ * 후 RootRedirect가 비로그인→/signup, 로그인→/posts로 즉시 navigate함.
+ */
+function EmptyRoot() {
+  return null;
+}
+
 const ROUTES: Record<string, ComponentType> = {
-  '/': () => null,
+  '/': EmptyRoot,
   '/privacy': PrivacyPage,
   '/terms': TermsPage,
 };
