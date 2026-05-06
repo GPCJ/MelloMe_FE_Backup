@@ -50,13 +50,27 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 후보: `@tailwindcss/typography`의 `prose` 클래스로 교체 (의존성 1개 추가) / `@apply`로 토큰만 재사용
   - 트리거: 리치 에디터 도입 시 같이 처리하면 효율적
   - 검증: `grep "post-content" frontend/src/index.css` → 룰 제거 여부, 게시글 상세에서 시각 회귀 없음
-- [?] **R-10** 댓글 리액션 API 연동 — staging 검증 잔여 (2026-05-04~05)
+- [x] **R-10** 댓글 리액션 API 연동 — staging 검증 통과 (2026-05-06)
   - 완료 (origin/develop c0db39a): 타입 4필드+`CommentReaction` / API 추가+리네임+unwrap / `ReactionBar` 시그니처 일반화 / `useCommentReactionToggle` 신설(B 패턴) / `CommentCard` placeholder 제거+ReactionBar 연동 / `PostDetailPage`+`CommentDetailPage` 통합
   - tsc ✅ (R-07 시그니처 mismatch fix 동반 — 커밋 ccb21d6, 2026-05-05)
   - MSW 스킵 결정 — 백엔드 dev/staging 이미 배포 → 직접 테스트로 대체
-  - 잔여:
-    - [ ] staging 검증 (현재 develop unpushed 3 커밋 push 필요) — 시나리오: 토글 즉시 active+카운트, PUT 응답 reconcile, 동일 타입 해제, 다른 타입 전환, 실패 롤백
+  - staging 검증 통과: 토글 즉시 active+카운트 / PUT 응답 reconcile / 동일 타입 해제 / 다른 타입 전환 / 실패 롤백
   - 결정/Why: B 패턴(진실 단일화) + PUT 응답 reconcile(동시성/규칙 변경 견고) + CommentResponse 4필드 동봉으로 N+1 없음(Swagger 2026-05-04 재확인). 별도 메모리 박제는 /wrap-up 시점
+- [ ] **R-11 ★ 내일 1순위 (2026-05-07)** PostListPage custom hook 분리 — logic만 추출, JSX 0 변경
+  - 현황: PostListPage.tsx 385줄 / state 8개 / useEffect 4개 / 핸들러 5개. 환영 모달까지 추가되며 책임 영역이 7개로 늘어남(검색바·탭·무한스크롤·페이지 fallback·필터·리액션 캐시·환영 모달)
+  - 옵션 A 채택 (Why): blast radius 작음(컴포넌트 외부 인터페이스 0 변경) + 단일 책임 hook + 테스트 용이. JSX 분리(옵션 B/C)는 회귀 위험 ↑로 post-MVP 보류
+  - 분리 대상 hook 5개:
+    - `useWelcomeModal` — welcomeOpen + localStorage useEffect + handleVerify/handleClose (2026-05-06 추가분)
+    - `useFeedTab` — activeTab state (전체/팔로우)
+    - `useTherapyAreaFilter` — therapyArea + VALID_THERAPY_AREAS 검증 effect + handleFilterClick
+    - `usePageModeFeed` — data/loading/error/feedFailed + fetch effect + handlePageChange
+    - `useFeedReactionCache` — handleReactionUpdated (qc.setQueriesData 캐시 갱신)
+  - 잔존 (PostListPage 본체): useInfiniteFeed + IntersectionObserver + initialSnapshotRef(스크롤 복원). 무한스크롤 코어는 그대로 두는 게 안전
+  - ⚠️ MVP D-8 blast radius 경고 — 회귀 시나리오 5종 동반 검증 필수:
+    1. 무한 스크롤 다음 페이지 페치 / 2. 게시글 클릭 → 뒤로가기 시 스크롤·필터 복원
+    3. 필터 칩 변경 시 깜빡임 없음 / 4. 페이지 모드 fallback 전환 / 5. 리액션 토글 캐시 갱신
+  - 검증: `wc -l frontend/src/pages/post/PostListPage.tsx` → 분리 후 200줄 이하 목표 + 위 5종 production staging 직접 통과
+  - 연관: R-04 FilterChips 추출(완료) / R-05 ProfilePage 관심사 분리(미착수, 같은 패턴)
 - [ ] **R-09** `CommentCard` `React.memo` 적용 — 댓글 리액션 토글 시 불필요 리렌더 차단
   - 현황: 댓글 리액션 hook을 페이지 레벨 단일(B 옵션)로 채택 → 토글 시 부모 `comments` 배열 갱신 → 모든 CommentCard 기본 리렌더
   - 목표: `React.memo(CommentCard)` + immutable update 패턴(이미 hook에서 적용)으로 변경된 카드만 실제 리렌더
@@ -64,23 +78,20 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 함정: `CommentCard` 안에서 `ReactionBar`에 `counts={{LIKE:..., CURIOUS:..., USEFUL:...}}` 객체 리터럴로 넘김 → 매 리렌더마다 reference 새 객체. ReactionBar에 memo 씌워도 props 비교 통과 X. `useMemo` 또는 어댑터 헬퍼로 정리
   - 검증: React DevTools Profiler에서 한 카드 토글 시 다른 카드 렌더 횟수 0 확인
   - 연관: 댓글 리액션 작업 완료 후 측정 → 실측 부하가 미미하면 보류 가능
-- [?] **R-08** `togglePostReaction` reconcile + RQ 캐시 패치 통일 — 1~4단계 완료, 5단계 push만 남음 (2026-05-05)
-  - 완료:
-    - 1단계 ✅ 백엔드 PUT 응답 형태 확인 — `{success, data: PostReaction}` 래퍼, PostReaction 인터페이스와 정합 (topReaction* 3필드는 미사용)
-    - 2단계 ✅ `togglePostReaction` 반환 `Promise<void>` → `Promise<PostReaction>` + unwrap (커밋 8e1c30c)
-    - 3단계 ✅ `useReactionToggle`이 응답으로 `setReaction(fresh)` reconcile (커밋 8e1c30c)
-    - 4단계 ✅ B 패턴 채택 — `useReactionToggle`에 `onUpdated?` 콜백 옵션 추가 / `PostCard`가 prop drilling으로 패스 / `PostListPage`가 `qc.setQueriesData({queryKey:['feed']}, ...)`로 캐시 4필드 갱신 (커밋 bdb4586). 로컬 시나리오 재현 → fix 확인 완료
-  - 남음:
-    - [ ] **5단계**: develop push → staging 검증 (토글/뒤로가기/새로고침/실패 롤백 4시나리오)
+- [x] **R-08** `togglePostReaction` reconcile + RQ 캐시 패치 통일 — staging 검증 통과 (2026-05-06)
+  - 1단계 ✅ 백엔드 PUT 응답 형태 확인 — `{success, data: PostReaction}` 래퍼
+  - 2단계 ✅ `togglePostReaction` 반환 `Promise<PostReaction>` + unwrap (커밋 8e1c30c)
+  - 3단계 ✅ `useReactionToggle`이 응답으로 `setReaction(fresh)` reconcile (커밋 8e1c30c)
+  - 4단계 ✅ B 패턴 채택 — `useReactionToggle.onUpdated?` 콜백 / `PostListPage`가 `qc.setQueriesData({queryKey:['feed']}, ...)` 캐시 4필드 갱신 (커밋 bdb4586)
+  - 5단계 ✅ staging 검증 통과 (토글/뒤로가기/새로고침/실패 롤백 4시나리오)
   - 한계점 박제: 다른 PostCard 호출부(PostListPage pagination mode 333행 / ProfilePage 333,424행 / SearchPage 152행)는 콜백 미등록 — 각 데이터 소스 캐시 다르므로 별도 처리 필요. `onReactionUpdated`를 옵셔널(`?`) prop으로 두어 컴파일 통과
   - 옵션 검토 메모리: `project_post_reaction_cache_patch_options.md` (A/B/C 트레이드오프 + B 채택 Why)
-  - 연관: 댓글 리액션(`useCommentReactionToggle`)은 RQ 미사용·페이지 state 직접 관리(B 패턴) → 캐시 갱신 불필요, 게시글만 추가 필요
 - [?] **R-07** 댓글 줄바꿈 허용 후속 작업 — 2차분 develop 배포(5927bf4), 모바일 테스트 검증 중
   - 1차 완료(05-02): `CommentCard.tsx` 편집 input→textarea + 표시 `whitespace-pre-wrap`, `index.css` `.post-content white-space: pre-wrap`
   - 2차 완료(05-03): `CommentInput.tsx` textarea + Enter 분기 + `CommentCard.tsx` line-clamp-2 + `useCommentSubmit` normalize
   - [x] **#1** 작성/편집 비대칭 해소 — Enter 분기(데스크탑 Enter=submit, 모바일 버튼 강제)
   - [x] **#2** 줄바꿈 도배 방어 — `useCommentSubmit`에서 `replace(/\n{3,}/g, '\n\n').trim()` 적용
-  - [?] **#3** 백엔드 `\n` round-trip 검증 — staging 테스트 대기 (작성 → GET 응답 `\n` 보존 여부)
+  - [x] **#3** 백엔드 `\n` round-trip 검증 통과 (2026-05-06 staging 확인)
   - [ ] **#4** ProfilePage 댓글 미리보기 line-clamp-2 왜곡 — `ProfilePage.tsx:514` 줄바꿈만으로 truncate
   - [x] **#5** Enter=submit 깨짐 — #1과 함께 해결됨
   - [ ] **#6** 편집 모드 변경 손실 가드 — dirty 감지 + 이탈 confirm
@@ -109,9 +120,15 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
     - `post_created` / `first_post_created` → `PostCreatePage.tsx:96-97`
     - `reaction` 헬퍼 → `lib/analytics.ts:79` (type 분기)
     - `screen_exit` → `hooks/useScreenExit.ts:63` (beacon transport)
-  - [?] GA4 실시간 리포트 집계 검증 잔여 (특히 reaction type별, screen_exit duration)
+  - [?] GA4 실시간 리포트 집계 검증 — 6/7개 정상 추적 확인. **`certification_completed` 1건만 미발생** (재현/원인 추적 필요, `VerificationCompletePage.tsx:32` `verStatus === 'APPROVED'` 분기 effect)
 - [ ] **G-03** PM 정식 스펙 비주요 17개 점진 삽입 (G-02 안정화 후)
   - 콘텐츠/탐색/세부 인증 이벤트들. 우선순위 낮음
+- [ ] **G-04** `certification_completed` 미추적 원인 추적 (G-02 잔여)
+  - 현황: 2026-05-06 GA4 실시간 검증 시 7개 중 6개 정상, 이 1건만 미발생
+  - 위치: `VerificationCompletePage.tsx:32` (`verStatus === 'APPROVED'` 분기 effect)
+  - 후보 가설: ① MVP 즉시 APPROVED 정책으로 effect deps/타이밍 미스 ② 중복 fire 가드가 첫 fire도 막음 ③ 페이지 재진입 시 fire 안 되도록 의도라면 정상(스펙 재확인)
+  - 검증: GA4 DebugView에서 인증 신청 → APPROVED 페이지 진입 시 이벤트 발생 여부, `verStatus` 값/effect 호출 횟수 console.log
+  - 우선순위: 낮음 (북극성 지표 아님, MVP 정책상 모든 신청자가 도달 → 누락분 추후 boring fix)
 
 ### SEO
 - [x] **S-01** vite-prerender-plugin 빌드 hang 진단 + prerender 재도입 (2026-04-27 완료, 커밋 6d234cc)
@@ -148,9 +165,10 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 - [?] **B-05** 스크랩 `scrapped` 필드 초기값 연동 (P1) — 확인일: 04-16
   - 현황: 합의 완료 + 구현 가능성. 프론트는 `useState(false)` 고정 중
   - 검증: DevTools → GET /posts 응답에서 `scrapped` 값 확인 → 있으면 `useState(post.scrapped)` 교체
-- [ ] **B-06** 환영 페이지 isNewUser 하드코딩 — 확인일: 04-16
-  - 현황: 백엔드 isNewUser 값 정상 여부 미확인
+- [ ] **B-06** 환영 모달 isNewUser 트리거 — 확인일: 2026-05-06
+  - 현황: 환영 모달 자체는 회원가입 직후 SignupPage에서 localStorage 신호로 트리거 완료(2026-05-06). 다른 디바이스/세션 첫 로그인 시 트리거는 미구현 — 백엔드 isNewUser 응답 정상 여부 확인 후 LoginPage에 같은 신호 추가 가능
   - 검증: DevTools → 로그인 응답 `isNewUser` 값이 실제 상태와 일치하는지
+  - 상세: `project_welcome_modal_implementation.md`
 - [ ] **B-07** 게시글 이미지 presigned URL 대응 (P1) — 확인일: 04-22
   - 현황: 백엔드가 presigned URL 방식으로 결정, 작업 대기
   - 검증: Swagger `/v3/api-docs` 재조회 → `PostImageResponse.imageUrl`이 서명 쿼리 포함 절대 URL인지

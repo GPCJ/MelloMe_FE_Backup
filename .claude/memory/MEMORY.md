@@ -8,10 +8,12 @@
 - [지식 흡수 기준 — 이미지/구조가 떠올라야 흡수](./user_comprehension_criterion.md) — 텍스트로 읽힌 느낌 ≠ 흡수, 비유/다이어그램/추적 트리거 필요
 - [작업 집중 패턴 — 싱글태스크 선호 + 스쳐가는 생각 캡처](./user_work_focus_pattern.md) — 한 작업 몰입 스타일, 떠오르는 생각은 즉시 notepad, 25분 타이머
 - [코드 추적/학습 흐름 — outside-in (호출부 → 선언부)](./user_code_navigation_style.md) — 새 기능 가이드도 outside-in 순서로
+- [Zustand/RQ 등 reactivity 라이브러리 학습 — 단편 규칙 누적](./user_reactivity_libs_learning.md) — Zustand/RQ가 가장 어려움(reactivity 모델), 한 번에 큰 그림 X, AI 가이드는 selector 같은 단편 한 가지씩
 - [AI 의존 불안 패턴 — "AI 없던 시절이라면" 사고](./user_ai_dependency_anxiety.md) — 주기적 재출현, 4프레임 응답 + 테스트 가능 실험으로 redirect
 - 문서화 역량 면접 Q&A 7항목 → wiki `q-a-7` (reference)
 
 ## 작업 관리
+- **[MVP 발표일 2026-05-15](./project_mvp_launch_2026_05_15.md)** — D-day까지 안정화/완성 최우선, blast radius 큰 변경 회피
 - **[2주 우선순위 2026-04-23~05-07](./project_2weeks_priority_0423.md)** — SEO/Analytics/UI 3개만 최우선, 다른 R-xx 리팩토링은 후순위 (05-07까지 유효)
 - **[프론트엔드 작업 백로그](./backlog.md)** — 데일리 태스크 선택용 단일 참조 (할 수 있는 것 / 블로킹 / 검증 방법)
 
@@ -31,6 +33,8 @@
 - **[MVP 치료사 인증 = 즉시 승인](./project_auth_policy_mvp_immediate_approval.md)** — UNDER_REVIEW 생략, 신청→APPROVED 바로
 - [댓글 시스템 — flat 2레벨, @멘션](./project_comment_system.md)
 - **[댓글 줄바꿈 허용 정책 전환 (2026-05-02)](./project_comment_linebreak_policy.md)** — input→textarea + `whitespace-pre-wrap`, 한계 7개 박제(작성/편집 비대칭 #1 최우선) → 후속은 backlog R-07
+- **[랜딩페이지 폐기 결정 (2026-05-06)](./project_landing_page_deprecation.md)** — X/Threads 패턴 정합. `/`→비로그인 `/signup`/로그인 `/posts` redirect. 회사 소개형 랜딩 다시 만들지 않음, 베타 후 콘텐츠 미리보기 진입으로 전환 로드맵
+- **[회원가입 환영 모달 구현 (2026-05-06)](./project_welcome_modal_implementation.md)** — 가입 → /posts navigate + 모달이 피드 위 1회 노출. localStorage 신호 + 시안 카피 1곳 자체 교정
 
 ## 공통 컴포넌트
 - [UserAvatar 공통 컴포넌트 통합](./project_user_avatar_component.md) — 6곳 아바타 통합, PostDetail/CommentResponse 타입 확장
@@ -110,6 +114,7 @@
 - [질문 방식 — 객관식 vs 주관식](./feedback_question_style.md) / [불확실하면 질문](./feedback_ask_when_uncertain.md)
 - [/wrap-up으로 세션 마무리](./feedback_session_bridge_removed.md) / [집중력↓ 시 간결하게](./feedback_concise_when_tired.md) / [세션 중 notepad 자동 기록](./feedback_notepad_session_logging.md)
 - [피그마 공유 — 스크린샷+Export PNG 2x](./feedback_figma_sharing.md) / [figma 링크→메모리 저장](./feedback_figma_link_recognition.md)
+- [Figma React export는 의미 부여를 개발자가 한다](./feedback_figma_export_semantic_html.md) — div 떨굼, h2/p/button/role 4단계 변환
 - [노션 업로드 워크플로우](./feedback_notion_upload_workflow.md) / [노션 날짜별 서브페이지](./feedback_notion_daily_pages.md) / [Notion 운영 방침](./project_notion_page_policy.md)
 - 노션 스킬 정리(2026-04-15, /report-notion 단일화) → wiki `2026-04-15-report-notion` (session-log)
 - [/report-notion 재질문 기준](./feedback_report_notion_requery_rule.md) — 날짜/분류/임팩트만, 기술 디테일은 소스코드에서
