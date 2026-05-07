@@ -15,6 +15,7 @@ import Pagination from '../../components/common/Pagination';
 import { useInfiniteFeed } from '@/hooks/useInfiniteFeed';
 import { useFeedScrollStore } from '@/stores/feedScrollStore';
 import { useScreenExit } from '@/hooks/useScreenExit';
+import { useWelcomeModal } from '@/hooks/useWelcomeModal';
 import { useQueryClient } from '@tanstack/react-query';
 
 type FeedTab = 'all' | 'following';
@@ -44,26 +45,9 @@ function PostCardSkeleton() {
 export default function PostListPage() {
   // 체류 시간 측정 — PM 정식 스펙 부가 KPI(피드 체류).
   useScreenExit('feed');
-
-  const [welcomeOpen, setWelcomeOpen] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const pending = localStorage.getItem('mello:welcome-pending');
-    if (pending) {
-      setWelcomeOpen(true);
-      localStorage.removeItem('mello:welcome-pending');
-    }
-  }, []);
-
-  const handleVerify = () => {
-    setWelcomeOpen(false);
-    navigate('/therapist-verifications');
-  };
-
-  const handleClose = () => {
-    setWelcomeOpen(false);
-  };
+  const welcome = useWelcomeModal();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
@@ -216,8 +200,8 @@ export default function PostListPage() {
 
   return (
     <div className="pb-20 md:pb-8">
-      {/* 회원가입 환영 모달 */}
-      <WelcomeModal open={welcomeOpen} onClose={handleClose} onVerify={handleVerify} />
+      {/* 회원가입 환영 모달(useWelcomeModal훅의 함수와 state를 import해서 상속중) */}
+      <WelcomeModal open={welcome.open} onClose={welcome.onClose} onVerify={welcome.onVerify} />
       {/* 모바일 상단 헤더 */}
       <MobilePageHeader
         title="치료사 커뮤니티"
