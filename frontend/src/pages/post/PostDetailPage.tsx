@@ -393,6 +393,7 @@ export default function PostDetailPage() {
               {images.map((img) => (
                 <div key={`img-${img.id}`}>
                   <img
+                    crossOrigin="anonymous"
                     src={resolveImageUrl(img.imageUrl) ?? ''}
                     alt={img.originalFilename}
                     className="rounded-lg max-h-80 object-contain mb-2"
@@ -421,6 +422,7 @@ export default function PostDetailPage() {
                   <div key={att.id}>
                     {isImage && (
                       <img
+                        crossOrigin="anonymous"
                         src={att.downloadUrl}
                         alt={att.originalFilename}
                         className="rounded-lg max-h-80 object-contain mb-2"
