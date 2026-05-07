@@ -2,7 +2,7 @@
 name: 프론트엔드 작업 백로그
 description: 데일리 태스크 선택용 단일 참조 파일 — 할 수 있는 것 / 블로킹 대기 / 검증 방법 포함
 type: project
-updated: 2026-05-07
+updated: 2026-04-16
 originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 ---
 # 프론트엔드 작업 백로그
@@ -56,12 +56,24 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - MSW 스킵 결정 — 백엔드 dev/staging 이미 배포 → 직접 테스트로 대체
   - staging 검증 통과: 토글 즉시 active+카운트 / PUT 응답 reconcile / 동일 타입 해제 / 다른 타입 전환 / 실패 롤백
   - 결정/Why: B 패턴(진실 단일화) + PUT 응답 reconcile(동시성/규칙 변경 견고) + CommentResponse 4필드 동봉으로 N+1 없음(Swagger 2026-05-04 재확인). 별도 메모리 박제는 /wrap-up 시점
-- [-] **R-11** PostListPage 리팩토링 — 1단계만 진행 후 보류 (2026-05-07)
-  - **1단계 완료**: `useWelcomeModal` 추출 (커밋 `8af60f1`, develop, -16줄: 385→369). JSX 0 변경, tsc 통과
-  - **보류 결정 (2026-05-07)**: 옵션 A로 1단계 진행 후 페이로드 평가 → 369줄 시작에서 잔여 4개 hook 분리해도 290~310줄 추정. 회귀 시나리오 5종 검증 비용이 줄 수 감소량에 비대칭 → MVP D-8 시점에 우선순위 ↓
-  - skip: `useFeedTab` (B-04 팔로우 백엔드 미구현 → 분리 가치 zero)
-  - 미진행 잔여 (보류): `useTherapyAreaFilter` / `useFeedReactionCache` / `usePageModeFeed`
-  - 후속 트리거: post-MVP 안정화 후 옵션 B/C로 한 번에 재설계 검토 권장 (점진적 hook 분리는 ROI 낮음 확인됨)
+- [ ] **R-11 ★ 내일 1순위 (2026-05-07)** PostListPage 리팩토링 — 옵션 미결정, 채택 다음 세션에서 결정
+  - 현황: PostListPage.tsx 385줄 / state 8개 / useEffect 4개 / 핸들러 5개. 환영 모달까지 추가되며 책임 영역이 7개로 늘어남(검색바·탭·무한스크롤·페이지 fallback·필터·리액션 캐시·환영 모달)
+  - 옵션 비교 (채택 미결정):
+    - **A. custom hook 분리만** (권장 후보) — logic만 추출, JSX 0 변경. blast radius 작음, 테스트 용이 / hook 4-5개 신설
+    - B. JSX도 sub-component 분리 — `<InfiniteFeedSection />` 등으로 마크업도 추출. 더 깔끔 / Hot Path 큰 변경, 회귀 위험 ↑
+    - C. 라우트/RQ 추상화 — `useFeedQuery` 추상화로 RQ에 fully 위임. 가장 정리됨 / post-MVP 규모
+  - 옵션 A 가정 시 분리 대상 hook 5개 (참고):
+    - `useWelcomeModal` — welcomeOpen + localStorage useEffect + handleVerify/handleClose (2026-05-06 추가분)
+    - `useFeedTab` — activeTab state (전체/팔로우)
+    - `useTherapyAreaFilter` — therapyArea + VALID_THERAPY_AREAS 검증 effect + handleFilterClick
+    - `usePageModeFeed` — data/loading/error/feedFailed + fetch effect + handlePageChange
+    - `useFeedReactionCache` — handleReactionUpdated (qc.setQueriesData 캐시 갱신)
+  - 잔존 (PostListPage 본체, 옵션 A 가정): useInfiniteFeed + IntersectionObserver + initialSnapshotRef(스크롤 복원). 무한스크롤 코어는 그대로 두는 게 안전
+  - ⚠️ MVP D-8 blast radius 경고 — 회귀 시나리오 5종 동반 검증 필수:
+    1. 무한 스크롤 다음 페이지 페치 / 2. 게시글 클릭 → 뒤로가기 시 스크롤·필터 복원
+    3. 필터 칩 변경 시 깜빡임 없음 / 4. 페이지 모드 fallback 전환 / 5. 리액션 토글 캐시 갱신
+  - 검증: `wc -l frontend/src/pages/post/PostListPage.tsx` → 분리 후 200줄 이하 목표 + 위 5종 production staging 직접 통과
+  - 연관: R-04 FilterChips 추출(완료) / R-05 ProfilePage 관심사 분리(미착수, 같은 패턴)
 - [ ] **R-09** `CommentCard` `React.memo` 적용 — 댓글 리액션 토글 시 불필요 리렌더 차단
   - 현황: 댓글 리액션 hook을 페이지 레벨 단일(B 옵션)로 채택 → 토글 시 부모 `comments` 배열 갱신 → 모든 CommentCard 기본 리렌더
   - 목표: `React.memo(CommentCard)` + immutable update 패턴(이미 hook에서 적용)으로 변경된 카드만 실제 리렌더
@@ -134,25 +146,6 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 - [x] **P-02** 이용약관 페이지 `/terms` + SignupPage/LoginPage 이용약관 링크 연결 (2026-04-24 완료, 준비중 스텁)
   - TermsPage는 본문 없이 "준비 중" 안내만. 본문 채우는 건 후속 작업(법적 검토 이후)
   - SignupPage는 새탭, LoginPage는 same-tab 유지 (PrivacyPage 패턴 동일)
-
-### 릴리즈 / 운영
-- [ ] **REL-01** develop → main 회귀 점검 + 묶음별 머지 train (별도 세션 필요)
-  - 현황: develop이 main보다 **34커밋 / 41파일 / +1,359 / -557줄** 앞섬 (확인일: 2026-05-07)
-  - 제안 묶음 (회귀 영향 격리 + 점진 반영):
-    1. **CORS hotfix** `9720c9e` — cherry-pick, blast radius 최소
-    2. **첨부 다운로드 1차 fix** `60a4e09` (presigned URL 다운로드 동작 복구)
-    3. **댓글 작업 묶음** — 줄바꿈 허용, 리액션 API 연동, textarea 전환, reconcile
-    4. **게시글 목록·리액션 묶음** — R-08 reconcile, 하트 active 표시 fix
-    5. **회원가입·랜딩 묶음** — UI 통일, 환영 모달, 랜딩 폐기
-    6. **인프라/스타일 묶음** — Inter 폰트 교체, prerender 정리
-  - 기준: 묶음별 staging 회귀 시나리오 통과 후 main 머지 (cherry-pick or 묶음 PR)
-  - 한 세션 분량 X — **별도 세션** 필요 (회귀 검증 시간 확보)
-- [ ] **REL-02** wiki `presigned-url-axiosinstance-s3-cors-3-layer.md` 정정 + Layer 4 추가
-  - 기존 박제: "Layer 3: S3 CORS 미설정" 가설로 종결됨
-  - 정정 사유: 2026-05-07 진단 결과 **S3 CORS는 정상**이었음. 진짜 원인은 브라우저 HTTP 캐시 오염 (`<img>` no-cors → ACAO 없는 응답 캐시 → axios 다운로드 재사용 차단)
-  - 작업: Layer 3 보정 + **Layer 4: 브라우저 캐시 오염 + `<img crossOrigin>` 누락** 추가, fix 코드 (`crossOrigin="anonymous"`) 박제
-  - 정합 규칙: `feedback_document_limitations_with_benefits.md` (한계점 박제) — 노션 트러블슈팅 #010 (`notion_draft.md`)도 같은 정정 반영 필요
-  - 검증: `wiki_query` 또는 `wiki_read presigned-url-axiosinstance-s3-cors-3-layer` → Layer 4 항목 존재 여부
 
 ---
 

@@ -93,6 +93,7 @@
 
 ## 개발 규칙 / 피드백
 - **[최우선]** [직접 작성 모드 — AI 코드 생성은 데드라인 임박 시에만 unlock](./feedback_direct_coding_default.md) — `.claude/deadline-unlock` 4h TTL hook + 힌트/수도코드 기본 응답
+- **[최우선]** [pseudocode 의무화 + 막막함 대응 프로토콜](./feedback_pseudocode_first_protocol.md) — 코드 요청 전 3단계 설명 의무화, 막막함=피로→휴식/몰라서→질문으로 좁히기, 코드는 항상 마지막
 - **[최우선]** [코드 작업 전 트레이드오프 설명 필수](./feedback_tradeoff_before_code.md) / [클린 커밋 히스토리 관리](./feedback_clean_commit_history.md)
 - **[최우선]** [진단→이해→지시→조치 (과잉설명 금지)](./feedback_explain_before_act.md) — 레이블/경쟁가설/1분 검증/최소 정보 제시 5원칙
 - **[최우선]** [작업 가이드는 단계 단위로 잘게 끊어 제시](./feedback_step_by_step_guidance.md) — 큰 작업 전체 절차 한꺼번에 덤프 X, 한 단계 가이드 → 사용자 작성 → 검증 → 다음 단계 형태
@@ -135,7 +136,7 @@
 - [가드/임시대응 코드 주석 스타일](./feedback_guard_comment_style.md) — 레이스 가드·workaround에는 상세 한국어 WHY 주석 + 의존 관계 명시
 - **[vite plugin closeBundle 작업 전 wiki 우선 검토](./feedback_vite_plugin_closeBundle_check.md)** — Sentry 등 closeBundle 사용 plugin 추가 시 forceExit과의 순서 충돌 점검 필수, wiki 회복 트리거
 - **[브랜치별 스크립트 테스트 함정](./feedback_branch_aware_script_test.md)** — 2026-04-29 사고: 패치된 스크립트가 한 브랜치에만 있을 때 다른 브랜치 checkout 시 OLD로 회귀, force-push 회복 필요
-- [git 커밋 전 diff --stat](./feedback_git_diff_stat_check.md) / [커밋 직전 브랜치 검증](./feedback_verify_branch_before_commit.md) / [커맨드 네이밍 — 범용 이름](./feedback_draft_notion_naming.md)
+- [git 커밋 전 diff --stat](./feedback_git_diff_stat_check.md) / [커맨드 네이밍 — 범용 이름](./feedback_draft_notion_naming.md)
 - [에러 삼키지 말고 실패 표시](./feedback_error_handling_visible.md) / [API 에러 원인별 분기](./feedback_error_handling_by_cause.md)
 - [백엔드 필드 요청 전 기존 스펙 확인](./feedback_backend_field_request_check.md) / [Explore 결과 직접 검증](./feedback_explore_result_verification.md)
 - [GitHub Issues 기술부채 관리](./feedback_github_issues.md) / [이슈는 airo 레포에만](./feedback_airo_issues_only.md)
