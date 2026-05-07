@@ -2,6 +2,7 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 @import '@fontsource-variable/inter';
+@import 'pretendard/dist/web/variable/pretendardvariable.css';
 
 @custom-variant dark (&:is(.dark *));
 

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import TermsContent from '../components/legal/TermsContent';
 
 export default function TermsPage() {
   return (
@@ -8,14 +9,13 @@ export default function TermsPage() {
           <Link to="/" className="text-xl font-bold text-gray-900">
             멜로미
           </Link>
+          <span className="text-xs text-gray-400">시행일 2026-05-04</span>
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-6 py-20 text-center">
-        <h1 className="text-2xl font-bold text-gray-900 mb-3">이용약관</h1>
-        <p className="text-sm text-gray-500">
-          이용약관은 현재 준비 중입니다. 공개 전까지 조금만 기다려 주세요.
-        </p>
+      <main className="max-w-3xl mx-auto px-6 py-10">
+        <h1 className="text-2xl font-bold text-gray-900 mb-8">이용약관</h1>
+        <TermsContent />
       </main>
 
       <footer className="border-t border-gray-200 py-6">

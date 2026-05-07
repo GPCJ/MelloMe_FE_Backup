@@ -1,7 +1,13 @@
-Read `.claude/memory/MEMORY.md` and summarize the current project status in Korean. Focus on:
-1. 다음 작업 (우선순위 순) — 완료되지 않은 것만
-2. 백엔드 대기 중 항목
-3. 미해결 이슈
-4. 마지막 메모리 동기화 시간 (sync_status.md도 함께 읽어서 표시)
+1, 2, 3순위 작업 3개만 한국어로 보여줘. 부가 설명 X, 핵심만.
 
-간결하게 요약해줘.
+## 소스
+
+- 시스템 프롬프트의 `[NOTEPAD - Priority Context]` (SessionStart hook으로 자동 주입됨, 별도 파일 읽기 X)
+- 필요 시 `.claude/memory/MEMORY.md`의 `## 작업 관리` 섹션 참고
+
+## 표기 컨벤션
+
+- **★ 1순위** — 사용자가 직접 끌어올린 작업 (인위적 우선)
+- **1순위 / 2순위 / 3순위** — 자연스러운 우선순위 (마감 / blast radius / 의존성 기반)
+
+3개 초과는 생략. 각 항목은 제목 + 1줄 메모.

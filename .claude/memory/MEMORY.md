@@ -135,7 +135,7 @@
 - [가드/임시대응 코드 주석 스타일](./feedback_guard_comment_style.md) — 레이스 가드·workaround에는 상세 한국어 WHY 주석 + 의존 관계 명시
 - **[vite plugin closeBundle 작업 전 wiki 우선 검토](./feedback_vite_plugin_closeBundle_check.md)** — Sentry 등 closeBundle 사용 plugin 추가 시 forceExit과의 순서 충돌 점검 필수, wiki 회복 트리거
 - **[브랜치별 스크립트 테스트 함정](./feedback_branch_aware_script_test.md)** — 2026-04-29 사고: 패치된 스크립트가 한 브랜치에만 있을 때 다른 브랜치 checkout 시 OLD로 회귀, force-push 회복 필요
-- [git 커밋 전 diff --stat](./feedback_git_diff_stat_check.md) / [커맨드 네이밍 — 범용 이름](./feedback_draft_notion_naming.md)
+- [git 커밋 전 diff --stat](./feedback_git_diff_stat_check.md) / [커밋 직전 브랜치 검증](./feedback_verify_branch_before_commit.md) / [커맨드 네이밍 — 범용 이름](./feedback_draft_notion_naming.md)
 - [에러 삼키지 말고 실패 표시](./feedback_error_handling_visible.md) / [API 에러 원인별 분기](./feedback_error_handling_by_cause.md)
 - [백엔드 필드 요청 전 기존 스펙 확인](./feedback_backend_field_request_check.md) / [Explore 결과 직접 검증](./feedback_explore_result_verification.md)
 - [GitHub Issues 기술부채 관리](./feedback_github_issues.md) / [이슈는 airo 레포에만](./feedback_airo_issues_only.md)
