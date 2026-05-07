@@ -47,12 +47,12 @@ function App() {
         - GuestRoute 밖: setUser() 호출 시 GuestRoute가 먼저 리렌더되어 환영 UI 전에
         튕기는 race condition 회피. 로그인 유저 차단은 SignupPage 내부에서. */}
         <Route path="/signup" element={<SignupPage />} />
+        <Route element={<GuestRoute />}>
+          <Route path="/login" element={<LoginPage />} />
+        </Route>
 
         <Route element={<Layout />}>
           {/* 비로그인 전용 라우트 */}
-          <Route element={<GuestRoute />}>
-            <Route path="/login" element={<LoginPage />} />
-          </Route>
 
           <Route element={<AuthRoute />}>
             <Route path="/verification-complete" element={<VerificationCompletePage />} />

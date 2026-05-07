@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { login } from '../../api/auth';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { Button } from '@/components/shadcn-ui/button';
 import { Input } from '@/components/shadcn-ui/input';
 import { Label } from '@/components/shadcn-ui/label';
+import { Checkbox } from '@/components/shadcn-ui/checkbox';
 import {
   Card,
   CardContent,
@@ -23,6 +24,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [keepSignedIn, setKeepSignedIn] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   async function handleEmailLogin(e: React.FormEvent) {
@@ -47,7 +49,9 @@ export default function LoginPage() {
         navigate('/therapist-verifications');
       }
     } catch (err) {
-      if (axios.isAxiosError(err)) {
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        setError('이메일 또는 비밀번호가 올바르지 않습니다.');
+      } else if (axios.isAxiosError(err)) {
         setError(err.response?.data?.message || '로그인에 실패했습니다.');
       } else {
         setError('로그인에 실패했습니다.');
@@ -60,22 +64,22 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
       {/* 상단 타이틀 */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">멜로미</h1>
-        <p className="mt-2 text-sm text-gray-500">치료사들의 따뜻한 성장 공간</p>
+      <div className="w-full max-w-[640px] text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">mellty</h1>
+        <p className="mt-2 text-sm text-gray-500">치료사들의 따뜻한 성장의 바다 멜티</p>
       </div>
 
       {/* 카드 */}
-      <Card className="w-full max-w-md">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">로그인</CardTitle>
-          <CardDescription>멜로미 커뮤니티에 오신 것을 환영합니다</CardDescription>
+      <Card className="w-full max-w-[480px] rounded-[14px]">
+        <CardHeader>
+          <CardTitle className="text-2xl">로그인</CardTitle>
+          <CardDescription className="text-base">멜티에 오신것을 환영합니다.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent>
           <form onSubmit={handleEmailLogin} className="space-y-4">
             {/* 이메일 */}
             <div className="space-y-1">
-              <Label htmlFor="email">이메일</Label>
+              <Label htmlFor="email">이메일 *</Label>
               <div className="relative">
                 <Mail
                   size={16}
@@ -95,7 +99,7 @@ export default function LoginPage() {
 
             {/* 비밀번호 */}
             <div className="space-y-1">
-              <Label htmlFor="password">비밀번호</Label>
+              <Label htmlFor="password">비밀번호 *</Label>
               <div className="relative">
                 <Lock
                   size={16}
@@ -106,7 +110,7 @@ export default function LoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="8자 이상 입력해주세요"
+                  placeholder="••••••••"
                   autoComplete="current-password"
                   className="pl-9 pr-9 bg-gray-100"
                   required
@@ -123,53 +127,46 @@ export default function LoginPage() {
 
             {/* 로그인 상태 유지 + 비밀번호 찾기 */}
             <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 rounded border-gray-300" />
-                로그인 상태 유지
-              </label>
-              <button type="button" className="text-sm text-blue-500 hover:underline">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="keepSignedIn"
+                  checked={keepSignedIn}
+                  onCheckedChange={(v) => setKeepSignedIn(v === true)}
+                />
+                <Label htmlFor="keepSignedIn" className="text-sm font-normal cursor-pointer">
+                  로그인 상태 유지
+                </Label>
+              </div>
+              <button
+                type="button"
+                onClick={() => alert('준비 중인 기능입니다')}
+                className="text-sm font-medium text-[#6d00da]"
+              >
                 비밀번호 찾기
               </button>
             </div>
 
             {error && <p className="text-sm text-red-500">{error}</p>}
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              <LogIn size={16} />
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full rounded-full"
+              disabled={loading || !email || !password}
+            >
               {loading ? '로그인 중...' : '로그인'}
             </Button>
           </form>
 
           {/* 회원가입 링크 */}
-          <p className="text-center text-sm text-gray-500">
-            아직 계정이 없으신가요?{' '}
-            <Link to="/signup" className="text-blue-500 font-semibold hover:underline">
-              회원가입
-            </Link>
-          </p>
+          <Link
+            to="/signup"
+            className="flex h-10 w-full items-center justify-center px-4 rounded-full border border-black bg-white text-sm text-[#0a0a0a] mt-4"
+          >
+            아직 계정이 없으신가요? <span className="ml-1 font-bold text-[#6d00da]">회원가입</span>
+          </Link>
         </CardContent>
       </Card>
-
-      {/* 하단 이용약관 */}
-      <p className="mt-6 text-xs text-gray-400 text-center">
-        로그인 시{' '}
-        <button
-          onClick={() => navigate('/terms')}
-          type="button"
-          className="text-blue-400 hover:underline"
-        >
-          이용약관
-        </button>{' '}
-        및{' '}
-        <button
-          onClick={() => navigate('/privacy')}
-          type="button"
-          className="text-blue-400 hover:underline"
-        >
-          개인정보처리방침
-        </button>
-        에 동의하게 됩니다.
-      </p>
     </div>
   );
 }
