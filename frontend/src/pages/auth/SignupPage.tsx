@@ -16,6 +16,9 @@ import {
 } from '@/components/shadcn-ui/card';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
+import { LegalModal } from '@/components/legal/LegalModal';
+import TermsContent from '@/components/legal/TermsContent';
+import PrivacyContent from '@/components/legal/PrivacyContent';
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -29,6 +32,7 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [agreePrivacy, setAgreePrivacy] = useState(false);
+  const [legalModal, setLegalModal] = useState<'terms' | 'privacy' | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -168,14 +172,17 @@ export default function SignupPage() {
                   onCheckedChange={(v) => setAgreeTerms(v === true)}
                 />
                 <Label htmlFor="agreeTerms" className="text-sm font-normal cursor-pointer">
-                  <a
-                    href="/terms"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setLegalModal('terms');
+                    }}
                     className="underline text-[#ff7f4c] font-bold"
                   >
                     이용약관
-                  </a>
+                  </button>
                   에 동의합니다 (필수)
                 </Label>
               </div>
@@ -186,14 +193,17 @@ export default function SignupPage() {
                   onCheckedChange={(v) => setAgreePrivacy(v === true)}
                 />
                 <Label htmlFor="agreePrivacy" className="text-sm font-normal cursor-pointer">
-                  <a
-                    href="/privacy"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setLegalModal('privacy');
+                    }}
                     className="underline text-[#ff7f4c] font-bold"
                   >
                     개인정보처리방침
-                  </a>
+                  </button>
                   에 동의합니다 (필수)
                 </Label>
               </div>
@@ -220,6 +230,20 @@ export default function SignupPage() {
           </Link>
         </CardContent>
       </Card>
+      <LegalModal
+        open={legalModal === 'terms'}
+        onClose={() => setLegalModal(null)}
+        title="이용약관"
+      >
+        <TermsContent />
+      </LegalModal>
+      <LegalModal
+        open={legalModal === 'privacy'}
+        onClose={() => setLegalModal(null)}
+        title="개인정보처리방침"
+      >
+        <PrivacyContent />
+      </LegalModal>
     </div>
   );
 }
