@@ -156,3 +156,31 @@ export interface CommentReaction {
   usefulCount: number;
   myReactionType: ReactionType | null;
 }
+
+// Presigned Upload (3단계 흐름)
+export type UploadKind = 'IMAGE' | 'ATTACHMENT' | 'VIDEO';
+
+export interface UploadInitRequest {
+  kind: UploadKind;
+  originalFilename: string;
+  contentType: string;
+  sizeBytes: number;
+}
+
+export interface UploadInitResponse {
+  uploadUrl: string;
+  storedKey: string;
+  expiresAt: string;
+}
+
+export interface UploadConfirmRequest {
+  kind: UploadKind;
+  storedKey: string;
+  originalFilename: string;
+}
+
+export interface UploadConfirmResponse {
+  kind: UploadKind;
+  image?: PostImage;
+  attachment?: Attachment;
+}

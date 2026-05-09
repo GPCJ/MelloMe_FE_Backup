@@ -1,3 +1,4 @@
+import axios from 'axios';
 import axiosInstance from './axiosInstance';
 import type {
   PaginatedPosts,
@@ -14,6 +15,10 @@ import type {
   CommentResponse,
   Attachment,
   PostImage,
+  UploadInitRequest,
+  UploadInitResponse,
+  UploadConfirmRequest,
+  UploadConfirmResponse,
 } from '../types/post';
 
 export async function fetchPosts(params: {
@@ -151,3 +156,21 @@ export async function deletePostAttachment(postId: number, attachmentId: number)
 }
 
 // TODO: 백엔드에 이미지 DELETE 엔드포인트(/posts/{postId}/images/{imageId}) 추가 요청 후 구현 예정
+
+// Presigned Upload — 3단계 흐름 (init → S3 PUT → confirm)
+export async function initUpload(postId: number, req: UploadInitRequest): Promise<UploadInitResponse> {
+  const res = await axiosInstance.post(`/posts/${postId}/uploads/init`, req);
+  return res.data?.data ?? res.data;
+}
+
+// axiosInstance 대신 raw axios 사용 — presigned URL에 Authorization 헤더를 붙이면 S3 서명 불일치로 에러남
+export async function uploadToS3(uploadUrl: string, file: File, contentType: string): Promise<void> {
+  await axios.put(uploadUrl, file, {
+    headers: { 'Content-Type': contentType },
+  });
+}
+
+export async function confirmUpload(postId: number, req: UploadConfirmRequest): Promise<UploadConfirmResponse> {
+  const res = await axiosInstance.post(`/posts/${postId}/uploads/confirm`, req);
+  return res.data?.data ?? res.data;
+}

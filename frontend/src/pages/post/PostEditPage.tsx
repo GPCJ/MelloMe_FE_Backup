@@ -8,15 +8,16 @@ import {
   fetchPost,
   fetchPostImages,
   updatePost,
-  uploadPostPdf,
-  uploadPostImage,
+  initUpload,
+  uploadToS3,
+  confirmUpload,
   deletePostAttachment,
 } from '../../api/posts';
 import {
   useFileAttachment,
   IMAGE_ACCEPT,
   FILE_ACCEPT,
-  isImageFile,
+  resolveUploadContentType,
 } from '../../hooks/useFileAttachment';
 import { useAuthStore } from '../../stores/useAuthStore';
 import type { Attachment, PostImage, TherapyArea } from '../../types/post';
@@ -46,10 +47,6 @@ export default function PostEditPage() {
   const [removedAttachmentIds, setRemovedAttachmentIds] = useState<number[]>([]);
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
 
-  // 기존 이미지는 백엔드 DELETE 엔드포인트가 없어 삭제 불가 → 개수는 MAX 카운트에 포함
-  const remainingExisting =
-    existingAttachments.length - removedAttachmentIds.length + existingImages.length;
-
   const {
     pendingFiles,
     fileError,
@@ -58,7 +55,10 @@ export default function PostEditPage() {
     addFiles,
     removeFile: removePendingFile,
     clearFileError,
-  } = useFileAttachment(remainingExisting);
+  } = useFileAttachment(
+    existingImages.length,
+    existingAttachments.length - removedAttachmentIds.length,
+  );
 
   const hasChanges =
     content !== initialContent ||
@@ -142,9 +142,20 @@ export default function PostEditPage() {
         for (const pf of pendingFiles) {
           done++;
           setUploadProgress(`첨부파일 업로드 중... (${done}/${totalOps})`);
-          const upload = isImageFile(pf.file) ? uploadPostImage : uploadPostPdf;
+          const contentType = resolveUploadContentType(pf.file);
           try {
-            await upload(pid, pf.file);
+            const { uploadUrl, storedKey } = await initUpload(pid, {
+              kind: pf.kind,
+              originalFilename: pf.file.name,
+              contentType,
+              sizeBytes: pf.file.size,
+            });
+            await uploadToS3(uploadUrl, pf.file, contentType);
+            await confirmUpload(pid, {
+              kind: pf.kind,
+              storedKey,
+              originalFilename: pf.file.name,
+            });
           } catch {
             failedCount++;
           }
