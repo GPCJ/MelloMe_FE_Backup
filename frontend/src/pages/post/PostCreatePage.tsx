@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Image, Lock, LockOpen, Paperclip } from 'lucide-react';
 import SimpleTextEditor from '../../components/post/SimpleTextEditor';
 import FilePreviewGrid from '../../components/post/FilePreviewGrid';
-import { createPost, uploadPostPdf, uploadPostImage } from '../../api/posts';
+import { createPost, initUpload, uploadToS3, confirmUpload } from '../../api/posts';
 import {
   useFileAttachment,
   IMAGE_ACCEPT,
   FILE_ACCEPT,
-  isImageFile,
+  resolveUploadContentType,
 } from '../../hooks/useFileAttachment';
 import { useAuthStore } from '../../stores/useAuthStore';
 import type { TherapyArea } from '../../types/post';
@@ -71,17 +71,27 @@ export default function PostCreatePage() {
       });
       createdPostId = post.id;
 
-      // 첨부파일 순차 업로드
+      // 첨부파일 순차 업로드 (presigned 3단계: init → S3 PUT → confirm)
       let failedCount = 0;
       if (pendingFiles.length > 0) {
         setUploadProgress(`첨부파일 업로드 중... (0/${pendingFiles.length})`);
         for (let i = 0; i < pendingFiles.length; i++) {
           setUploadProgress(`첨부파일 업로드 중... (${i + 1}/${pendingFiles.length})`);
-          const file = pendingFiles[i].file;
-          // 이미지인지 판별해서 API 업로드
-          const upload = isImageFile(file) ? uploadPostImage : uploadPostPdf;
+          const pf = pendingFiles[i];
+          const contentType = resolveUploadContentType(pf.file);
           try {
-            await upload(post.id, file);
+            const { uploadUrl, storedKey } = await initUpload(post.id, {
+              kind: pf.kind,
+              originalFilename: pf.file.name,
+              contentType,
+              sizeBytes: pf.file.size,
+            });
+            await uploadToS3(uploadUrl, pf.file, contentType);
+            await confirmUpload(post.id, {
+              kind: pf.kind,
+              storedKey,
+              originalFilename: pf.file.name,
+            });
           } catch {
             failedCount++;
           }
