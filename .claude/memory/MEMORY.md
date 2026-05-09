@@ -14,7 +14,6 @@
 
 ## 작업 관리
 - **[MVP 발표일 2026-05-15](./project_mvp_launch_2026_05_15.md)** — D-day까지 안정화/완성 최우선, blast radius 큰 변경 회피
-- **[MEL-44 presigned 업로드 전환 완료 (2026-05-09)](./project_mel44_presigned_upload_done.md)** — PR #9 머지, Jira 완료. GET /images presigned 이미지 반환 여부 미확인 잔여
 - **[2주 우선순위 2026-04-23~05-07](./project_2weeks_priority_0423.md)** — SEO/Analytics/UI 3개만 최우선, 다른 R-xx 리팩토링은 후순위 (05-07까지 유효)
 - **[프론트엔드 작업 백로그](./backlog.md)** — 데일리 태스크 선택용 단일 참조 (할 수 있는 것 / 블로킹 / 검증 방법)
 
@@ -39,8 +38,10 @@
 
 ## 공통 컴포넌트
 - [UserAvatar 공통 컴포넌트 통합](./project_user_avatar_component.md) — 6곳 아바타 통합, PostDetail/CommentResponse 타입 확장
-- [MobilePageHeader rightAction slot 패턴 + 데스크탑 회귀 주의](./project_mobile_header_slot_pattern.md) — rightAction은 md:hidden이라 데스크탑에서 사라짐, hidden md:flex 래퍼 중복 렌더 필수
+- [MobilePageHeader rightAction slot 패턴 + 데스크탑 회귀 주의](./project_mobile_header_slot_pattern.md) — rightAction은 md:hidden이라 데스크탑에서 사라짐, hidden md:flex 래퍼 중복 렌더 필수 (※ 2026-05-08 PageHeader로 리네임 + PC/모바일 통일됨)
 - [모바일 프로필 헤더 구현](./project_mobile_profile_header.md) — ProfilePage ← 내 프로필 ⚙️, 톱니바퀴→로그아웃 임시 구현, 설정 메뉴 확장은 팀 논의 안건
+- **[Chrome 통일 정책 (2026-05-08)](./project_chrome_unification_policy.md)** — Layout 글로벌 헤더 폐기 + PageHeader 단일 + SideNav 6슬롯(케밥 포함) + BottomNav 5
+- **[UserMenu 컴포넌트 패턴](./project_user_menu_component.md)** — PC 케밥 + 모바일 햄버거 공유, side/align/sideOffset/className props로 위치·스타일 호출처 결정
 
 
 ## 게시글 첨부파일
@@ -126,8 +127,7 @@
 - [shadcn asChild 미지원](./feedback_shadcn_button_aschild.md) / [shadcn/ui 기본 사용 원칙](./feedback_shadcn_default.md)
 - [GitHub 토큰 채팅 금지](./feedback_github_token.md) / [브랜치 정책 — main(prod) + develop(staging)](./feedback_branch_preference.md) / [credentials 갱신 방법](./feedback_github_credentials_renewal.md)
 - [백엔드 이슈에 LLM 프롬프트](./feedback_backend_llm_prompt.md) / [슬래시 커맨드 스크립트 금지](./feedback_no_scripts_for_commands.md)
-- [외부 push 전 승인 필수](./feedback_push_requires_approval.md)
-- **[자율 작업 후 PR 보고 워크플로우](./feedback_autonomous_work_then_report.md)** — 위임 시 feature브랜치→커밋→PR→보고 순서, GitHub diff로 사용자가 직접 리뷰·머지 / [push-airo reset --hard](./feedback_push_airo_claude_files.md)
+- [외부 push 전 승인 필수](./feedback_push_requires_approval.md) / [push-airo reset --hard](./feedback_push_airo_claude_files.md)
 - [커밋 메시지 한국어 통일 (forward-only)](./feedback_commit_message_korean.md) — 과거 영어 커밋은 rewrite 없이 둠
 - [커밋 서명 줄 금지](./feedback_no_co_authored_by.md) — Co-Authored-By/자동 서명 줄 넣지 말 것
 - [sync 전용 chore 커밋 금지](./feedback_no_sync_only_commits.md) — 메모리/자동화용 별도 chore 커밋 만들지 말고 feat/fix 커밋에 자연스럽게 포함

@@ -74,6 +74,12 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
     3. 필터 칩 변경 시 깜빡임 없음 / 4. 페이지 모드 fallback 전환 / 5. 리액션 토글 캐시 갱신
   - 검증: `wc -l frontend/src/pages/post/PostListPage.tsx` → 분리 후 200줄 이하 목표 + 위 5종 production staging 직접 통과
   - 연관: R-04 FilterChips 추출(완료) / R-05 ProfilePage 관심사 분리(미착수, 같은 패턴)
+- [ ] **R-12** `PostListPage.handleReactionUpdated` `any` 4건 → 정확 타입 (R-01b RQ 마이그레이션 잔여 부채)
+  - 현황: `qc.setQueriesData` 콜백에서 `old`/`page`/`item` 모두 `any`로 임시 처리, 동작 정상 / 타입 안전성만 부족
+  - 작업: `old: InfiniteData<PaginatedPosts>` / `page: PaginatedPosts` / `item: PaginatedPosts['items'][number]` 박기
+  - 함정: `setQueriesData` 콜백의 generic 추론이 까다로워 잘못 박으면 빌드 깨짐 — staging 검증 필수
+  - 우선순위: 낮음 (MVP 발표 후), R-08/R-10 캐시 패치 코드 일관 정리 시 묶기
+
 - [ ] **R-09** `CommentCard` `React.memo` 적용 — 댓글 리액션 토글 시 불필요 리렌더 차단
   - 현황: 댓글 리액션 hook을 페이지 레벨 단일(B 옵션)로 채택 → 토글 시 부모 `comments` 배열 갱신 → 모든 CommentCard 기본 리렌더
   - 목표: `React.memo(CommentCard)` + immutable update 패턴(이미 hook에서 적용)으로 변경된 카드만 실제 리렌더
@@ -102,10 +108,44 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 검증: 모바일 staging에서 댓글 작성 줄바꿈 + #3 round-trip 확인
   - 결정/Why: `project_comment_linebreak_policy.md`
 
+### Chrome 통일 후속 (시안 진행)
+2026-05-08 chrome 통일 정책 결정/구현 후속. 상세: `project_chrome_unification_policy.md`, `project_user_menu_component.md`
+
+- [ ] **CH-01** `PageHeader` `leftAction` 슬롯 추가 + 모바일 햄버거 ≡ (UserMenu 재사용)
+  - 현황: PageHeader는 `title`/`backTo`/`rightAction` 3슬롯. 모바일에서 좌측 햄버거 진입점 부재
+  - 작업: `PageHeader`에 `leftAction?: ReactNode` 추가, 모바일 페이지에서 `<UserMenu side="bottom" align="start" sideOffset={8}>` 트리거로 햄버거 아이콘 주입
+  - 검증: 모바일 뷰에서 햄버거 → 메뉴 3항목 펼침 / PC에선 leftAction 없을 때 좌측 공간 깨지지 않음
+- [ ] **CH-02 ★ 진행 중 (맥북 이어서)** 비인증 차단 카드 (블러+🔒) — 시안 + 응답 분석 완료, 구현 단계만 남음 (2026-05-09 갱신)
+  - **분기 필드**: `post.accessLocked: boolean` (PostSummary 타입에 추가 필요)
+  - **시안 디자인 토큰** (figma 1321:4066, fileKey `nrgNkAzEjhSC74GzrVfMBG`):
+    - 블러 강도: `blur-[5.8px]` (Tailwind blur-sm=4px라 직접 값)
+    - 본문 텍스트: `opacity-50` + 회색 톤 (`text-[#4a5565]`)
+    - 안내 오버레이: 카드 본문 가운데 absolute 배치, 가로 `w-[270px]`, `gap-[4px]`
+    - 🔒 아이콘: `size-[18px]` (lucide `Lock` 사용 가능)
+    - 안내 텍스트: "치료사 인증 후에 볼 수 있어요!" — Inter Regular `text-[11px] text-black leading-[20px]`
+    - **블러 영역 = 본문(contentPreview) + 첨부파일** / 헤더(작성자/시간/케밥)는 정상 표시
+  - **클릭 동작**: 시안 미정의 → MVP 합리적 선택 = 클릭 시 `/therapist-verifications` navigate (또는 토스트). 별도 모달 시안 없음 → 모달 구현 보류
+  - **다음 단계 (맥북 시작점)**:
+    1. 정찰: `PostCard.tsx` 위치/구조 + `PostSummary` 타입 위치 (`frontend/src/types/post.ts` 추정)
+    2. 타입 추가: `PostSummary`에 `accessLocked: boolean`
+    3. PostCard 분기: `accessLocked === true`면 본문/첨부 영역을 `<div className="relative"><div className="blur-[5.8px] opacity-50">{...}</div><div className="absolute ... w-[270px]">🔒 안내</div></div>`로 래핑
+    4. 클릭 차단: 카드 onClick에 분기 (또는 부모 navigate를 막기)
+    5. PostDetailPage 진입 시 4xx 에러 → `/therapist-verifications` redirect (현재는 "게시글을 불러오는 데 실패했습니다." 표시)
+  - **검증 시나리오**:
+    - USER 계정 → 비공개 카드 블러 + 안내 정확 / 정상 카드는 평소대로
+    - 비공개 카드 클릭 → 인증 페이지로 이동
+    - 비공개 게시글 URL 직접 진입 (`/posts/47`) → 인증 페이지로 redirect
+    - THERAPIST 계정 → 모든 카드 정상 표시 (회귀 체크)
+  - **시안 부수 발견 (별도 backlog 후보)**: UserMenu 시안 1332:6580에서 메뉴가 bundle 2개(로그아웃+계정 / 고객센터) 사이 구분선 있음. 현재 UserMenu는 3개 평면 → 후속 정리
+- [ ] **CH-03** 카드 액션바 4종 리액션 — 백엔드 스펙 확인 필요, 별 PR 후보
+- [ ] **CH-04** PostListPage PC 검색바 제거 — 큰 UI 수정 시 묶어서
+- [ ] **CH-05** 알림 페이지 구현 — 현재 `/notifications` → `NotFoundPage`
+- [ ] **CH-06** 인증완료 모달 구현 — 시안 1321:5251 (현재는 `VerificationCompletePage` 페이지)
+
 ### 인지부채 (코드 아닌 학습)
 - [x] **L-01** `useInfiniteFeed` + P1 fallback 메커니즘 복습 (04-17 대략적 로직 + controller 이해 완료, 더 깊이 파는 것은 RQ 도입 후 불필요)
   - 상세: wiki `p1-feed-pagination-auto-fallback-high`
-- [-] ~~**L-02** multipart/form-data 연결 과정 이해~~ → 해소 (2026-05-09) presigned URL 방식으로 전환 완료, multipart 학습 필요성 낮아짐
+- [ ] **L-02** multipart/form-data 연결 과정 이해
 - [ ] **L-03** 리액션 API 리팩토링 흐름 이해
 - [x] **L-04** 마이페이지 3탭 데이터 흐름 이해 (04-17 완료)
 
@@ -158,10 +198,12 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 - [?] **B-02** title 필드 optional 변경 (P0) — 확인일: 04-16
   - 현황: 프론트 `PostCreateRequest`에 title 없음. 백엔드가 required로 막는지 확인 필요
   - 검증: Swagger에서 POST /posts title 없이 요청 → 400 여부
-- [ ] **B-03** visibility 블러 정책 변경 (P1) — 확인일: 04-16
-  - 현황: 합의 완료. 당분간 제외 유지 → 백엔드 병목 해소 후 블러 방식 변경
-  - 검증: Swagger에서 USER 롤로 GET /posts → PRIVATE 글 포함 여부
-  - 상세: `project_visibility_response_conflict.md`
+- [x] **B-03** visibility 블러 정책 — 백엔드 준비 완료 (2026-05-09 사용자 검증)
+  - 현황 갱신: USER 롤 GET /posts 응답에 PRIVATE 게시글 **포함**, `contentPreview="비공개 글입니다"` 마스킹 + `accessLocked: true` boolean 필드 제공
+  - 응답 예시 필드: visibility/accessLocked/contentPreview/imageUrls=[]/카운트=0
+  - 분기 신호: `accessLocked === true` (문자열 비교 X)
+  - 단, GET /posts/:id 직접 접근은 실패("게시글을 불러오는 데 실패했습니다.") — 디테일 진입 시 분기 필요
+  - 후속: CH-02 디자인 도착 시 블러 + 🔒 + VerificationRequiredModal 구현
 - [ ] **B-04** 팔로우 시스템 API (P1) — 확인일: 04-16
   - 현황: 미구현
   - 검증: Swagger에서 `/follow` 엔드포인트 존재 여부
@@ -172,14 +214,10 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 현황: 환영 모달 자체는 회원가입 직후 SignupPage에서 localStorage 신호로 트리거 완료(2026-05-06). 다른 디바이스/세션 첫 로그인 시 트리거는 미구현 — 백엔드 isNewUser 응답 정상 여부 확인 후 LoginPage에 같은 신호 추가 가능
   - 검증: DevTools → 로그인 응답 `isNewUser` 값이 실제 상태와 일치하는지
   - 상세: `project_welcome_modal_implementation.md`
-- [x] **B-07** 게시글 이미지 presigned URL 대응 (P1) — 완료 2026-05-09
-  - 백엔드 PR #99 + 프론트 PR #9(MEL-44) develop 머지 완료
-  - init→S3 PUT→confirm 3단계 흐름 전환, HWP·docx·xlsx 허용, 용량 상향
-  - 상세: `project_mel44_presigned_upload_done.md`
-- [ ] **B-09** `GET /posts/{postId}/images` presigned 이미지 반환 여부 확인 — 확인일: 2026-05-09
-  - 현황: 편집 화면에서 presigned 흐름으로 올린 이미지가 fetchPostImages로 잡히는지 미확인
-  - 영향: 미반환 시 편집 화면 기존 이미지 카운트 0 → 이미지 10장 초과 방어 클라이언트 우회 가능 (서버는 정상 차단)
-  - 검증: 편집 화면 진입 시 Network 탭 → GET /posts/{id}/images 응답 배열 확인
+- [ ] **B-07** 게시글 이미지 presigned URL 대응 (P1) — 확인일: 04-22
+  - 현황: 백엔드가 presigned URL 방식으로 결정, 작업 대기
+  - 검증: Swagger `/v3/api-docs` 재조회 → `PostImageResponse.imageUrl`이 서명 쿼리 포함 절대 URL인지
+  - 상세: `project_post_image_presigned_url.md`
 - [-] ~~**B-08** 유저 행동 분석용 `analyticsId` 필드 추가~~ → **드롭 (2026-04-24)** PM 결정: GA4 유저 단위 추적 안 함, Looker Studio/Firebase 로우데이터로 대체. 이벤트 4종은 프론트 독립 착수로 이동.
 
 ### 해소됨
