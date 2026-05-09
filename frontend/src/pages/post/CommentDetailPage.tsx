@@ -3,7 +3,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import { MoreVertical } from 'lucide-react';
 import CommentCard from '../../components/post/CommentCard';
 import CommentInput from '../../components/post/CommentInput';
-import MobilePageHeader from '@/components/common/MobilePageHeader';
+import PageHeader from '@/components/common/PageHeader';
 import MobileFixedBottom from '@/components/common/MobileFixedBottom';
 import { useReplyInput } from '../../hooks/useReplyInput';
 import { useCommentSubmit } from '../../hooks/useCommentSubmit';
@@ -155,7 +155,7 @@ export default function CommentDetailPage() {
   return (
     <div className={`max-w-3xl mx-auto px-4 py-6 ${showReplyInput ? 'pb-24' : 'pb-6'}`}>
       {/* 헤더 */}
-      <MobilePageHeader
+      <PageHeader
         title="댓글 달기"
         backTo={`/posts/${postId}`}
         rightAction={

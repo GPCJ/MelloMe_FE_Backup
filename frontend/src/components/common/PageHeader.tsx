@@ -2,16 +2,16 @@ import type { ReactNode } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-interface MobilePageHeaderProps {
-  title: string;
+interface PageHeaderProps {
+  title: ReactNode;
   backTo?: string;
   rightAction?: ReactNode;
 }
 
-export default function MobilePageHeader({ title, backTo, rightAction }: MobilePageHeaderProps) {
+export default function PageHeader({ title, backTo, rightAction }: PageHeaderProps) {
   const navigate = useNavigate();
   return (
-    <div className="flex md:hidden items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
+    <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
       <div className="flex items-center gap-3">
         {backTo && (
           <button
@@ -21,7 +21,11 @@ export default function MobilePageHeader({ title, backTo, rightAction }: MobileP
             <ArrowLeft size={20} />
           </button>
         )}
-        <h1 className="text-base font-bold text-gray-900">{title}</h1>
+        {typeof title === 'string' ? (
+          <h1 className="text-base font-bold text-gray-900">{title}</h1>
+        ) : (
+          title
+        )}
       </div>
       {rightAction}
     </div>

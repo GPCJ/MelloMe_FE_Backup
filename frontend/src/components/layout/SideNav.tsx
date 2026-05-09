@@ -1,15 +1,14 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Search, SquarePen, Bell, User, Settings } from 'lucide-react';
+import { Home, Search, SquarePen, Bell, User, MoreHorizontal } from 'lucide-react';
 import { useAuthStore } from '../../stores/useAuthStore';
+import UserMenu from './UserMenu';
 
 const NAV_ITEMS = [
   { to: '/posts', icon: Home, label: '홈' },
   { to: '/search', icon: Search, label: '검색' },
   { to: '/posts/new', icon: SquarePen, label: '글쓰기' },
-  // TODO: 디자이너가 데스크탑 네비바 형식 확정 시 네비바 또는 사이드바에 편입 예정
   { to: '/notifications', icon: Bell, label: '알림' },
   { to: '/profile', icon: User, label: '프로필' },
-  { to: '/settings', icon: Settings, label: '설정' },
 ];
 
 export default function SideNav() {
@@ -43,6 +42,14 @@ export default function SideNav() {
           </Link>
         );
       })}
+      <UserMenu
+        side="right"
+        align="start"
+        sideOffset={16}
+        className="p-2 rounded-xl text-gray-400 hover:text-gray-600 transition-colors"
+      >
+        <MoreHorizontal size={24} strokeWidth={1.5} />
+      </UserMenu>
     </nav>
   );
 }

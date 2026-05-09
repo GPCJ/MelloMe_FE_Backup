@@ -10,7 +10,7 @@ import { FILTER_CHIPS } from '../../constants/post';
 import WelcomeModal from '@/components/auth/WelcomeModal';
 import PostCard from '../../components/post/PostCard';
 import FilterChips from '../../components/common/FilterChips';
-import MobilePageHeader from '@/components/common/MobilePageHeader';
+import PageHeader from '@/components/common/PageHeader';
 import Pagination from '../../components/common/Pagination';
 import { useInfiniteFeed } from '@/hooks/useInfiniteFeed';
 import { useFeedScrollStore } from '@/stores/feedScrollStore';
@@ -203,8 +203,8 @@ export default function PostListPage() {
       {/* 회원가입 환영 모달(useWelcomeModal훅의 함수와 state를 import해서 상속중) */}
       <WelcomeModal open={welcome.open} onClose={welcome.onClose} onVerify={welcome.onVerify} />
       {/* 모바일 상단 헤더 */}
-      <MobilePageHeader
-        title="치료사 커뮤니티"
+      <PageHeader
+        title={<span className="text-2xl font-bold text-gray-900">mellty</span>}
         rightAction={
           <button
             onClick={() => navigate('/search')}
@@ -243,7 +243,7 @@ export default function PostListPage() {
       </div>
 
       {/* 탭 */}
-      <div className="sticky top-0 md:top-14 z-40 bg-white">
+      <div className="bg-white">
         <div className="flex">
           <button
             onClick={() => setActiveTab('all')}

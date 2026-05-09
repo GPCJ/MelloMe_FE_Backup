@@ -7,7 +7,7 @@ import ReactionBar from '../../components/post/ReactionBar';
 import { useReactionToggle, reactionFromPostDetail } from '../../hooks/useReactionToggle';
 import { Badge } from '@/components/shadcn-ui/badge';
 import CommentInput from '../../components/post/CommentInput';
-import MobilePageHeader from '@/components/common/MobilePageHeader';
+import PageHeader from '@/components/common/PageHeader';
 import MobileFixedBottom from '@/components/common/MobileFixedBottom';
 import { fetchPost, createComment } from '../../api/posts';
 import type { PostDetail } from '../../types/post';
@@ -83,7 +83,7 @@ export default function CommentWritePage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
       {/* 헤더 */}
-      <MobilePageHeader
+      <PageHeader
         title="댓글 달기"
         backTo={`/posts/${postId}`}
         rightAction={

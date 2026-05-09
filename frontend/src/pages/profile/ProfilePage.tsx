@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/shadcn-ui/dropdown-menu';
-import MobilePageHeader from '@/components/common/MobilePageHeader';
+import PageHeader from '@/components/common/PageHeader';
 import PostCard from '../../components/post/PostCard';
 import { fetchMyPosts, fetchMyComments, fetchMyScraps } from '../../api/mypage';
 import { deleteAccount, logout, uploadProfileImage, updateMyProfile } from '../../api/auth';
@@ -169,7 +169,7 @@ export default function ProfilePage() {
 
   return (
     <div className="pb-20 md:pb-8">
-      <MobilePageHeader
+      <PageHeader
         title="내 프로필"
         backTo="/posts"
         rightAction={

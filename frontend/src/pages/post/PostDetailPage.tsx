@@ -40,7 +40,7 @@ import { THERAPY_AREA_LABELS } from '../../constants/post';
 import { formatRelativeTime } from '../../utils/formatDate';
 import { resolveImageUrl } from '../../utils/resolveImageUrl';
 import UserAvatar from '../../components/common/UserAvatar';
-import MobilePageHeader from '@/components/common/MobilePageHeader';
+import PageHeader from '@/components/common/PageHeader';
 import { trackReaction } from '../../lib/analytics';
 import axios from 'axios';
 import { useCommentReactionToggle } from '../../hooks/useCommentReactionToggle';
@@ -251,7 +251,7 @@ export default function PostDetailPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-20 md:pb-8">
       {/* 상단 헤더 */}
-      <MobilePageHeader
+      <PageHeader
         title="게시글"
         backTo={`/posts`}
         // 수정, 삭제 케밥 메뉴
