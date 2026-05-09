@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { isAxiosError } from 'axios';
-import { Plus, PenSquare, Search, Menu } from 'lucide-react';
+import { Plus, Menu } from 'lucide-react';
 import { buttonVariants } from '@/components/shadcn-ui/button';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import { fetchPosts } from '../../api/posts';
@@ -46,12 +46,10 @@ function PostCardSkeleton() {
 export default function PostListPage() {
   // 체류 시간 측정 — PM 정식 스펙 부가 KPI(피드 체류).
   useScreenExit('feed');
-  const navigate = useNavigate();
 
   const welcome = useWelcomeModal();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState('');
   const therapyArea = (searchParams.get('therapyArea') as TherapyArea) ?? '';
   const currentPage = Number(searchParams.get('page') ?? '1');
 
@@ -206,14 +204,6 @@ export default function PostListPage() {
       {/* 모바일 상단 헤더 */}
       <PageHeader
         title={<span className="text-2xl font-bold text-gray-900">mellty</span>}
-        rightAction={
-          <button
-            onClick={() => navigate('/search')}
-            className="p-2 -mr-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <Search size={20} />
-          </button>
-        }
         leftAction={
           <div className="md:hidden">
             <UserMenu
@@ -228,33 +218,6 @@ export default function PostListPage() {
           </div>
         }
       />
-
-      {/* 데스크탑 검색바 + 글쓰기 버튼 */}
-      <div className="hidden md:flex items-center gap-2 px-4 py-3 border-b border-gray-200 bg-white">
-        <div className="flex-1 flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-1.5">
-          <Search size={16} className="text-gray-400 shrink-0" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && searchQuery.trim()) {
-                navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-                setSearchQuery('');
-              }
-            }}
-            placeholder="검색"
-            className="bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none w-full"
-          />
-        </div>
-        <button
-          onClick={() => navigate('/posts/new')}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors shrink-0"
-        >
-          <PenSquare size={16} />
-          글쓰기
-        </button>
-      </div>
 
       {/* 탭 */}
       <div className="bg-white">
