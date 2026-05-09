@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { isAxiosError } from 'axios';
-import { Plus, PenSquare, Search } from 'lucide-react';
+import { Plus, PenSquare, Search, Menu } from 'lucide-react';
 import { buttonVariants } from '@/components/shadcn-ui/button';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import { fetchPosts } from '../../api/posts';
@@ -11,6 +11,7 @@ import WelcomeModal from '@/components/auth/WelcomeModal';
 import PostCard from '../../components/post/PostCard';
 import FilterChips from '../../components/common/FilterChips';
 import PageHeader from '@/components/common/PageHeader';
+import UserMenu from '@/components/layout/UserMenu';
 import Pagination from '../../components/common/Pagination';
 import { useInfiniteFeed } from '@/hooks/useInfiniteFeed';
 import { useFeedScrollStore } from '@/stores/feedScrollStore';
@@ -212,6 +213,19 @@ export default function PostListPage() {
           >
             <Search size={20} />
           </button>
+        }
+        leftAction={
+          <div className="md:hidden">
+            <UserMenu
+              side="bottom"
+              align="start"
+              sideOffset={8}
+              className="p-2 -ml-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+              ariaLabel="메뉴"
+            >
+              <Menu size={20} />
+            </UserMenu>
+          </div>
         }
       />
 
