@@ -105,7 +105,7 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 ### 인지부채 (코드 아닌 학습)
 - [x] **L-01** `useInfiniteFeed` + P1 fallback 메커니즘 복습 (04-17 대략적 로직 + controller 이해 완료, 더 깊이 파는 것은 RQ 도입 후 불필요)
   - 상세: wiki `p1-feed-pagination-auto-fallback-high`
-- [ ] **L-02** multipart/form-data 연결 과정 이해
+- [-] ~~**L-02** multipart/form-data 연결 과정 이해~~ → 해소 (2026-05-09) presigned URL 방식으로 전환 완료, multipart 학습 필요성 낮아짐
 - [ ] **L-03** 리액션 API 리팩토링 흐름 이해
 - [x] **L-04** 마이페이지 3탭 데이터 흐름 이해 (04-17 완료)
 
@@ -172,10 +172,14 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 현황: 환영 모달 자체는 회원가입 직후 SignupPage에서 localStorage 신호로 트리거 완료(2026-05-06). 다른 디바이스/세션 첫 로그인 시 트리거는 미구현 — 백엔드 isNewUser 응답 정상 여부 확인 후 LoginPage에 같은 신호 추가 가능
   - 검증: DevTools → 로그인 응답 `isNewUser` 값이 실제 상태와 일치하는지
   - 상세: `project_welcome_modal_implementation.md`
-- [ ] **B-07** 게시글 이미지 presigned URL 대응 (P1) — 확인일: 04-22
-  - 현황: 백엔드가 presigned URL 방식으로 결정, 작업 대기
-  - 검증: Swagger `/v3/api-docs` 재조회 → `PostImageResponse.imageUrl`이 서명 쿼리 포함 절대 URL인지
-  - 상세: `project_post_image_presigned_url.md`
+- [x] **B-07** 게시글 이미지 presigned URL 대응 (P1) — 완료 2026-05-09
+  - 백엔드 PR #99 + 프론트 PR #9(MEL-44) develop 머지 완료
+  - init→S3 PUT→confirm 3단계 흐름 전환, HWP·docx·xlsx 허용, 용량 상향
+  - 상세: `project_mel44_presigned_upload_done.md`
+- [ ] **B-09** `GET /posts/{postId}/images` presigned 이미지 반환 여부 확인 — 확인일: 2026-05-09
+  - 현황: 편집 화면에서 presigned 흐름으로 올린 이미지가 fetchPostImages로 잡히는지 미확인
+  - 영향: 미반환 시 편집 화면 기존 이미지 카운트 0 → 이미지 10장 초과 방어 클라이언트 우회 가능 (서버는 정상 차단)
+  - 검증: 편집 화면 진입 시 Network 탭 → GET /posts/{id}/images 응답 배열 확인
 - [-] ~~**B-08** 유저 행동 분석용 `analyticsId` 필드 추가~~ → **드롭 (2026-04-24)** PM 결정: GA4 유저 단위 추적 안 함, Looker Studio/Firebase 로우데이터로 대체. 이벤트 4종은 프론트 독립 착수로 이동.
 
 ### 해소됨
