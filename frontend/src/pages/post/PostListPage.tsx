@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { isAxiosError } from 'axios';
 import { Plus, Menu } from 'lucide-react';
 import { buttonVariants } from '@/components/shadcn-ui/button';
@@ -15,6 +15,7 @@ import UserMenu from '@/components/layout/UserMenu';
 import Pagination from '../../components/common/Pagination';
 import { useInfiniteFeed } from '@/hooks/useInfiniteFeed';
 import { useFeedScrollStore } from '@/stores/feedScrollStore';
+import { usePostWriteModalStore } from '@/stores/postWriteModalStore';
 import { useScreenExit } from '@/hooks/useScreenExit';
 import { useWelcomeModal } from '@/hooks/useWelcomeModal';
 import { useQueryClient } from '@tanstack/react-query';
@@ -48,6 +49,8 @@ export default function PostListPage() {
   useScreenExit('feed');
 
   const welcome = useWelcomeModal();
+  const navigate = useNavigate();
+  const openWriteModal = usePostWriteModalStore((s) => s.openModal);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const therapyArea = (searchParams.get('therapyArea') as TherapyArea) ?? '';
@@ -197,6 +200,12 @@ export default function PostListPage() {
     });
   }
 
+  // 빈 상태 CTA — PC는 모달, 모바일은 라우트 이동.
+  function handleWriteClick() {
+    if (window.matchMedia('(min-width: 768px)').matches) openWriteModal();
+    else navigate('/posts/new');
+  }
+
   return (
     <div className="pb-20 md:pb-8">
       {/* 회원가입 환영 모달(useWelcomeModal훅의 함수와 state를 import해서 상속중) */}
@@ -281,9 +290,13 @@ export default function PostListPage() {
               {!infinite.isLoading && !infinite.error && infinite.items.length === 0 && (
                 <div className="text-center py-16">
                   <p className="text-gray-400 mb-4">아직 게시글이 없어요.</p>
-                  <Link to="/posts/new" className={buttonVariants({ size: 'sm' }) + ' gap-1'}>
+                  <button
+                    type="button"
+                    onClick={handleWriteClick}
+                    className={buttonVariants({ size: 'sm' }) + ' gap-1'}
+                  >
                     <Plus size={15} />첫 글 작성하기
-                  </Link>
+                  </button>
                 </div>
               )}
 
@@ -320,9 +333,13 @@ export default function PostListPage() {
               {!loading && !error && data?.items.length === 0 && (
                 <div className="text-center py-16">
                   <p className="text-gray-400 mb-4">아직 게시글이 없어요.</p>
-                  <Link to="/posts/new" className={buttonVariants({ size: 'sm' }) + ' gap-1'}>
+                  <button
+                    type="button"
+                    onClick={handleWriteClick}
+                    className={buttonVariants({ size: 'sm' }) + ' gap-1'}
+                  >
                     <Plus size={15} />첫 글 작성하기
-                  </Link>
+                  </button>
                 </div>
               )}
 
