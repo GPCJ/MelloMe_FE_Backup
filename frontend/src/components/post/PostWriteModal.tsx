@@ -34,13 +34,16 @@ export default function PostWriteModal() {
   return (
     <div
       className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center px-4"
-      onClick={closeModal}
+      // mousedown 기준으로 닫기 — 모달 안에서 시작한 드래그가 배경에서 끝나도 click 인식되어
+      // 닫히는 문제(예: 칩 가로 드래그) 방지. 배경에서 시작한 mousedown만 실제 닫기 의도로 처리.
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) closeModal();
+      }}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="post-write-modal-title"
-        onClick={(e) => e.stopPropagation()}
         className="w-full max-w-[520px] max-h-[90vh] bg-white rounded-2xl shadow-[0px_4px_20px_0px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col"
       >
         <PostWriteForm variant="modal" onClose={closeModal} onSuccess={handleSuccess} />

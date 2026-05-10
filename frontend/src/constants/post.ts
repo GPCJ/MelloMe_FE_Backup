@@ -15,14 +15,17 @@ export function fromApiVisibility(api: Visibility | undefined): UIVisibility {
 
 export const VISIBILITY_OPTIONS: { value: UIVisibility; label: string; chipLabel: string }[] = [
   { value: 'PUBLIC', label: '전체 공개', chipLabel: '모든 사람이 볼 수 있어요.' },
-  { value: 'VERIFIED_ONLY', label: '인증된 치료사에게 공개', chipLabel: '인증된 치료사만 볼 수 있어요.' },
+  {
+    value: 'VERIFIED_ONLY',
+    label: '인증된 치료사에게 공개',
+    chipLabel: '인증된 치료사만 볼 수 있어요.',
+  },
   { value: 'PRIVATE_ONLY', label: '비공개', chipLabel: '나만 볼 수 있어요.' },
 ];
 
-
 export const THERAPY_AREA_LABELS: Record<string, string> = {
   UNSPECIFIED: '전체',
-  SENSORY_INTEGRATION: '감각통합치료',
+  SENSORY_INTEGRATION: '감각통합',
   SPEECH: '언어치료',
   OCCUPATIONAL: '작업치료',
   COGNITIVE: '인지치료',
@@ -35,7 +38,7 @@ export const THERAPY_AREA_LABELS: Record<string, string> = {
 
 export const FILTER_CHIPS: { value: TherapyArea | ''; label: string }[] = [
   { value: '', label: '전체' },
-  { value: 'SENSORY_INTEGRATION', label: '감각통합치료' },
+  { value: 'SENSORY_INTEGRATION', label: '감각통합' },
   { value: 'SPEECH', label: '언어치료' },
   { value: 'OCCUPATIONAL', label: '작업치료' },
   { value: 'COGNITIVE', label: '인지치료' },
@@ -49,12 +52,12 @@ export const FILTER_CHIPS: { value: TherapyArea | ''; label: string }[] = [
 export const THERAPY_CHIPS: { value: TherapyArea; label: string }[] = [
   { value: 'UNSPECIFIED', label: '전체' },
   { value: 'SENSORY_INTEGRATION', label: '감각통합' },
-  { value: 'SPEECH', label: '언어' },
-  { value: 'OCCUPATIONAL', label: '작업' },
-  { value: 'COGNITIVE', label: '인지' },
-  { value: 'PHYSICAL', label: '물리' },
-  { value: 'ART', label: '미술' },
-  { value: 'MUSIC', label: '음악' },
-  { value: 'PLAY', label: '놀이' },
-  { value: 'BEHAVIOR', label: '행동' },
+  { value: 'SPEECH', label: '언어치료' },
+  { value: 'OCCUPATIONAL', label: '작업치료' },
+  { value: 'COGNITIVE', label: '인지치료' },
+  { value: 'PHYSICAL', label: '물리치료' },
+  { value: 'ART', label: '미술치료' },
+  { value: 'MUSIC', label: '음악치료' },
+  { value: 'PLAY', label: '놀이치료' },
+  { value: 'BEHAVIOR', label: '행동치료' },
 ];

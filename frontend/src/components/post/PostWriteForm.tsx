@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Image, Lock, LockOpen, Paperclip, PencilLine } from 'lucide-react';
-import SimpleTextEditor from './SimpleTextEditor';
-import FilePreviewGrid from './FilePreviewGrid';
+import { ArrowLeft, Image, Lock, LockOpen, Paperclip, PencilLine, X } from 'lucide-react';
 import VerifiedBadge from './VerifiedBadge';
 import UserAvatar from '../common/UserAvatar';
 import { createPost, initUpload, uploadToS3, confirmUpload } from '../../api/posts';
@@ -21,6 +19,49 @@ import {
 } from '../../constants/post';
 import { fetchMyPosts } from '../../api/mypage';
 import { trackEvent } from '../../lib/analytics';
+
+const MAX_LENGTH = 2000;
+// 시안 1373:8834(PC 모달) — 짧은 한 줄.
+const PLACEHOLDER_MODAL = '치료사님의 시그널을 남겨보세요!';
+// 시안 1367:6119(모바일 페이지) — 긴 예시 안내.
+const PLACEHOLDER_PAGE = `궁금한 점이나 나누고 싶은 이야기를 자유롭게 작성해보세요.
+
+예시:
+- 치료 중 어려운 케이스 상담
+- 교구 및 활동지 추천 요청
+- 일상적인 치료 경험 공유
+- 감정 노동에 대한 이야기`;
+
+// 가로 드래그 스크롤 — 칩/이미지 미리보기 양쪽에서 동일 패턴이라 공통화.
+// 반환값: ref(컨테이너 div에 부착), handlers(div에 spread), draggedRef(클릭 흡수 가드용 — moved>5px면 클릭 무시).
+function useDragScroll() {
+  const ref = useRef<HTMLDivElement>(null);
+  const state = useRef({ active: false, startX: 0, startScroll: 0, moved: 0 });
+  const handlers = {
+    onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => {
+      const el = ref.current;
+      if (!el) return;
+      state.current = { active: true, startX: e.pageX, startScroll: el.scrollLeft, moved: 0 };
+      el.style.cursor = 'grabbing';
+    },
+    onMouseMove: (e: React.MouseEvent<HTMLDivElement>) => {
+      const el = ref.current;
+      if (!el || !state.current.active) return;
+      const dx = e.pageX - state.current.startX;
+      el.scrollLeft = state.current.startScroll - dx;
+      state.current.moved = Math.abs(dx);
+    },
+    onMouseUp: () => {
+      if (ref.current) ref.current.style.cursor = '';
+      state.current.active = false;
+    },
+    onMouseLeave: () => {
+      if (ref.current) ref.current.style.cursor = '';
+      state.current.active = false;
+    },
+  };
+  return { ref, state, handlers };
+}
 
 interface PostWriteFormProps {
   // 'modal'은 PC 모달 컨테이너 안에서, 'page'는 모바일 단독 페이지에서 사용.
@@ -67,6 +108,10 @@ export default function PostWriteForm({ variant, onClose, onSuccess }: PostWrite
 
   // 공개범위 popover 외부 클릭 시 닫기.
   const visibilityRef = useRef<HTMLDivElement>(null);
+
+  // 가로 드래그 스크롤 헬퍼 — 카테고리 칩, 이미지 미리보기에서 공유.
+  const chipsScroll = useDragScroll();
+  const imagesScroll = useDragScroll();
   useEffect(() => {
     if (!visibilityOpen) return;
     function onDocClick(e: MouseEvent) {
@@ -182,15 +227,26 @@ export default function PostWriteForm({ variant, onClose, onSuccess }: PostWrite
           </div>
         )}
 
-        {/* 치료영역 칩 — 가로 스크롤 */}
-        <div className="flex gap-2 overflow-x-auto -mx-4 px-4">
+        {/* 치료영역 칩 — PC 마우스 드래그 스크롤 + 모바일 터치 swipe 자연 동작 */}
+        <div
+          ref={chipsScroll.ref}
+          {...chipsScroll.handlers}
+          className="flex gap-2 overflow-x-auto -mx-4 px-4 cursor-grab select-none"
+        >
           {THERAPY_CHIPS.map((chip) => {
             const active = therapyArea === chip.value;
             return (
               <button
                 key={chip.value}
                 type="button"
-                onClick={() => setTherapyArea(chip.value)}
+                onClick={(e) => {
+                  // 드래그 거리 > 5px면 클릭 무시 (드래그 끝에 칩이 우연히 선택되는 것 방지)
+                  if (chipsScroll.state.current.moved > 5) {
+                    e.preventDefault();
+                    return;
+                  }
+                  setTherapyArea(chip.value);
+                }}
                 className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                   active
                     ? 'bg-gray-900 text-white border-gray-900'
@@ -203,15 +259,91 @@ export default function PostWriteForm({ variant, onClose, onSuccess }: PostWrite
           })}
         </div>
 
-        {/* 본문 */}
-        <SimpleTextEditor
-          content={content}
-          onChange={setContent}
-          placeholder="치료사님의 시그널을 남겨보세요!"
-        />
+        {/* 본문 — 시안 1367:6119: 옅은 회색 배경, border 없음, placeholder 멀티라인 예시. */}
+        <div className="flex flex-col gap-1">
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder={variant === 'page' ? PLACEHOLDER_PAGE : PLACEHOLDER_MODAL}
+            maxLength={MAX_LENGTH}
+            rows={9}
+            className="w-full resize-none rounded-lg bg-gray-100 px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 placeholder:whitespace-pre-line focus:outline-none focus:ring-2 focus:ring-gray-300"
+          />
+          <p className="text-xs text-gray-400 text-right">
+            {content.length} / {MAX_LENGTH}
+          </p>
+        </div>
 
-        {/* 첨부파일 */}
-        <FilePreviewGrid pendingFiles={pendingFiles} onRemovePending={removeFile} />
+        {/* 비이미지 첨부(PDF 등) — 시안 1427:22534: 세로 리스트, ⊗ + 파일명 */}
+        {(() => {
+          const otherRows = pendingFiles
+            .map((pf, originalIndex) => ({ pf, originalIndex }))
+            .filter((row) => row.pf.kind !== 'IMAGE');
+          if (otherRows.length === 0) return null;
+          return (
+            <ul className="flex flex-col gap-1.5">
+              {otherRows.map(({ pf, originalIndex }) => (
+                <li
+                  key={`${pf.file.name}-${pf.file.lastModified}-${originalIndex}`}
+                  className="flex items-center gap-2 text-sm text-gray-900"
+                >
+                  <button
+                    type="button"
+                    aria-label={`${pf.file.name} 삭제`}
+                    onClick={() => removeFile(originalIndex)}
+                    className="shrink-0 bg-black text-white rounded-full p-0.5 hover:bg-gray-800 transition-colors"
+                  >
+                    <X size={12} />
+                  </button>
+                  <span className="truncate">{pf.file.name}</span>
+                </li>
+              ))}
+            </ul>
+          );
+        })()}
+
+        {/* 이미지 미리보기 — 가로 드래그 스크롤 (시안 1427:22534), 원본 인덱스 기억해서 removeFile에 전달 */}
+        {(() => {
+          const imageRows = pendingFiles
+            .map((pf, originalIndex) => ({ pf, originalIndex }))
+            .filter((row) => row.pf.kind === 'IMAGE');
+          if (imageRows.length === 0) return null;
+          return (
+            <div
+              ref={imagesScroll.ref}
+              {...imagesScroll.handlers}
+              className="flex gap-2 overflow-x-auto -mx-4 px-4 cursor-grab select-none"
+            >
+              {imageRows.map(({ pf, originalIndex }) => (
+                <div
+                  key={`${pf.file.name}-${pf.file.lastModified}-${originalIndex}`}
+                  className="relative shrink-0"
+                >
+                  <img
+                    src={pf.previewUrl ?? ''}
+                    alt={pf.file.name}
+                    draggable={false}
+                    className="w-24 h-24 rounded-lg object-cover border border-gray-200"
+                  />
+                  <button
+                    type="button"
+                    aria-label="이미지 삭제"
+                    onClick={(e) => {
+                      if (imagesScroll.state.current.moved > 5) {
+                        e.preventDefault();
+                        return;
+                      }
+                      removeFile(originalIndex);
+                    }}
+                    className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5 hover:bg-black/80 transition-colors"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
 
         {/* 숨겨진 file inputs */}
         <input
@@ -302,21 +434,14 @@ export default function PostWriteForm({ variant, onClose, onSuccess }: PostWrite
                     type="button"
                     role="menuitemradio"
                     aria-checked={selected}
-                    onClick={() => {
-                      setVisibility(opt.value);
-                      setVisibilityOpen(false);
-                    }}
+                    onClick={() => setVisibility(opt.value)}
                     className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 transition-colors"
                   >
                     <span className="text-sm text-gray-900">{opt.label}</span>
-                    {/* 토글 표시 — 시안과 유사하게 둥근 점 */}
-                    <span
-                      className={`relative inline-flex w-9 h-5 rounded-full transition-colors ${
-                        selected ? 'bg-gray-900' : 'bg-gray-200'
-                      }`}
-                    >
+                    {/* 토글 — 시안 1367:6227: 흰 배경 pill + 검은 점이 좌/우 이동. */}
+                    <span className="relative inline-flex w-9 h-5 rounded-full bg-white border border-gray-200">
                       <span
-                        className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
+                        className={`absolute top-0.5 w-4 h-4 rounded-full bg-gray-900 transition-transform ${
                           selected ? 'translate-x-4' : 'translate-x-0.5'
                         }`}
                       />
