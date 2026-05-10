@@ -49,8 +49,8 @@ export interface PostSummary {
   likeCount?: number;
   myReactionType: ReactionType | null;
   hasAttachment?: boolean;
-  // 백엔드가 인증 전용 글을 USER에게 전달할 때 true로 내려오며 content/contentPreview는 빈값으로 마스킹됨
-  isBlurred?: boolean;
+  // 백엔드가 인증 전용 글을 USER에게 전달할 때 true로 내려오며 contentPreview는 "비공개 글입니다"로 마스킹, imageUrls=[], 카운트=0
+  accessLocked?: boolean;
   createdAt: string;
   scrapped?: boolean;
 }
@@ -95,8 +95,8 @@ export interface PostDetail {
   canDelete: boolean;
   attachments?: Attachment[];
   authorVerificationStatus?: 'NOT_REQUESTED' | 'PENDING' | 'APPROVED' | 'REJECTED';
-  // 백엔드가 인증 전용 글을 USER에게 전달할 때 true로 내려오며 content/contentPreview는 빈값으로 마스킹됨
-  isBlurred?: boolean;
+  // 백엔드가 인증 전용 글을 USER에게 전달할 때 true로 내려오며 GET /posts/:id 직접 진입은 4xx로 차단됨
+  accessLocked?: boolean;
   scrapped?: boolean;
 }
 

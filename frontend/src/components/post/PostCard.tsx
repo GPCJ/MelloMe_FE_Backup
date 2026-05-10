@@ -56,7 +56,10 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
   );
 
   return (
-    <Link to={`/posts/${post.id}`} className="block">
+    <Link
+      to={post.accessLocked ? '/therapist-verifications' : `/posts/${post.id}`}
+      className="block"
+    >
       <div className="px-6 py-5 border-b border-gray-200">
         {/* 1행: 프로필 + 닉네임 + 인증뱃지 + 시간 + 북마크 */}
         <div className="flex items-center gap-1.5 mb-2.5">
@@ -90,21 +93,32 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
           </button>
         </div>
 
-        {/* 2행: 본문 미리보기 또는 블러 */}
-        {post.isBlurred ? (
-          <div className="bg-stone-50 rounded-lg py-6 px-4 mb-2.5">
-            <p className="text-center text-gray-600 text-xs">
-              인증된 회원에게만 공개된 게시물입니다.
-            </p>
+        {/* 2행: 본문 + 첨부파일 (비인증 차단 시 블러 + 안내 오버레이) */}
+        {post.accessLocked ? (
+          <div className="relative mb-2.5">
+            <div className="blur-[5.8px] opacity-50 pointer-events-none select-none">
+              <p className="text-sm text-[#4a5565] leading-5 line-clamp-3 whitespace-pre-wrap mb-2.5">
+                {post.contentPreview}
+              </p>
+              {post.hasAttachment && <p className="text-[10px] text-gray-900">첨부파일 있음</p>}
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="flex items-center justify-center gap-[4px] w-[270px]">
+                <Lock size={18} className="text-black" />
+                <span className="text-[11px] text-black leading-[20px]">
+                  치료사 인증 후에 볼 수 있어요!
+                </span>
+              </div>
+            </div>
           </div>
         ) : (
-          <p className="text-sm text-gray-600 leading-5 line-clamp-3 mb-2.5 whitespace-pre-wrap">
-            {post.contentPreview}
-          </p>
+          <>
+            <p className="text-sm text-gray-600 leading-5 line-clamp-3 mb-2.5 whitespace-pre-wrap">
+              {post.contentPreview}
+            </p>
+            {post.hasAttachment && <p className="text-[10px] text-gray-900 mb-2.5">첨부파일 있음</p>}
+          </>
         )}
-
-        {/* 4행: 첨부파일 */}
-        {post.hasAttachment && <p className="text-[10px] text-gray-900 mb-2.5">첨부파일 있음</p>}
 
         {/* 4행: 댓글 수 + 공감 */}
         <div className="flex items-center gap-3 text-gray-400">
