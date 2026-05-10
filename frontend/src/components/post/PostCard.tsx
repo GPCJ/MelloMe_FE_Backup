@@ -71,15 +71,6 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
           <span className="text-sm font-medium text-neutral-950">{post.authorNickname}</span>
           <VerifiedBadge status={post.authorVerificationStatus} />
           <span className="text-[11px] text-gray-500">{formatRelativeTime(post.createdAt)}</span>
-          {post.visibility === 'PRIVATE' && (
-            <span
-              className="inline-flex items-center text-gray-500"
-              aria-label="치료사 전용 게시글"
-              title="치료사 전용 게시글"
-            >
-              <Lock size={12} />
-            </span>
-          )}
           <button
             type="button"
             onClick={handleScrapToggle}
