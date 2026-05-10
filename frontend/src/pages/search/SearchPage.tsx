@@ -108,7 +108,7 @@ export default function SearchPage() {
               type="text"
               name="keyword"
               defaultValue={searchParams.get('q') ?? ''}
-              placeholder="발음"
+              placeholder="검색어를 입력하세요"
               className="flex-1 min-w-0 bg-transparent text-[13px] text-gray-900 placeholder:text-[#99a1af] outline-none"
               autoFocus
             />
