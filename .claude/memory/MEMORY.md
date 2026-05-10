@@ -73,6 +73,7 @@
 ## 진행 중 이슈
 - **[PostListPage ref 렌더 중 접근 이슈](./project_postlistpage_ref_render_issue.md)** — React 19 에러, useEffect 이전 방향 잡음, initialSnapshot 타이밍 문제 미해결 (내일 아침 이어서)
 - **[APP_BASE_URL staging 회귀 (2026-04-30)](./project_app_base_url_staging_regression.md)** — staging 백엔드에서 04-22 localhost 버그가 EC2 IP 형태로 재발, 백엔드 환경변수 누락. 사용자가 삭제 요청할 때까지 보존
+- [sticky offset 잔재 정리 — Chrome 통일 후속](./project_sticky_offset_legacy_cleanup.md) — SearchPage 정리(PR #11), ProfilePage:306 잔존. chrome 정책 변경 후 `(md:)?top-14` grep 권장
 
 ## 기능명세 / 아키텍처
 - [프론트 기능명세 체계](./project_feature_spec_frontend.md) — FNC-001~007 인증 완료
@@ -96,13 +97,14 @@
 ## 개발 규칙 / 피드백
 - **[최우선]** [직접 작성 모드 — AI 코드 생성은 데드라인 임박 시에만 unlock](./feedback_direct_coding_default.md) — `.claude/deadline-unlock` 4h TTL hook + 힌트/수도코드 기본 응답
 - **[최우선]** [pseudocode 의무화 + 막막함 대응 프로토콜](./feedback_pseudocode_first_protocol.md) — 코드 요청 전 3단계 설명 의무화, 막막함=피로→휴식/몰라서→질문으로 좁히기, 코드는 항상 마지막
+- **[최우선]** [큰 UI 변경 요청 시 이해 컨펌 후 실행](./feedback_confirm_understanding_before_implement.md) — 시안 매칭/모호 변경은 bullet+대조표로 정리해 사용자 OK 받은 뒤 코드 진입, pseudocode-first 앞 단계
 - **[최우선]** [코드 작업 전 트레이드오프 설명 필수](./feedback_tradeoff_before_code.md) / [클린 커밋 히스토리 관리](./feedback_clean_commit_history.md)
 - **[최우선]** [진단→이해→지시→조치 (과잉설명 금지)](./feedback_explain_before_act.md) — 레이블/경쟁가설/1분 검증/최소 정보 제시 5원칙
 - **[최우선]** [작업 가이드는 단계 단위로 잘게 끊어 제시](./feedback_step_by_step_guidance.md) — 큰 작업 전체 절차 한꺼번에 덤프 X, 한 단계 가이드 → 사용자 작성 → 검증 → 다음 단계 형태
 - **[최우선]** [workaround 추가 전 스펙/상태 재확인](./feedback_verify_spec_before_workaround.md) — 400/감싸기 판단 전에 Swagger·네트워크·실코드 재확인
 - **[최우선]** [단일 작업 집중 존중 — 곁가지 제안 덤핑 금지](./feedback_single_task_focus.md) — 작업 중 답변은 현재 맥락만, 새 아이디어는 notepad로 라우팅
 - **[최우선]** [기능 작업 중 번들러/인프라 설정 건드리지 말기](./feedback_scope_discipline_no_bundler_drift.md) — 빌드/CI 깨짐 발견해도 기능 브랜치 안에서 고치지 말고 별도 분리, 사용자 컨펌 후 수정
-- [worktree 생성 시 base 브랜치 확인 필수](./feedback_worktree_base_check.md) — EnterWorktree 기본 origin/main, develop 작업 흐름이면 즉시 교체 필요
+- [worktree 생성 시 base 브랜치 + gitignore 항목 확인 필수](./feedback_worktree_base_check.md) — EnterWorktree 기본 origin/main 분기 + .env 등 gitignore 항목은 메인 repo에서 따로 cp 필요
 - **[AI 직접 작성 코드 → 인지부채 HIGH 메모리 의무](./feedback_ai_written_code_cognitive_debt.md)** — Claude 위임 코드는 메커니즘 상세 기록, 04-15 P1이 첫 사례
 - [AI 작성 코드 학습용 주석 리뷰 워크플로우](./feedback_ai_code_learning_comments.md) — push 전 교육용 밀도 높은 주석 요청 → 리뷰 후 승인
 - **[AI 개입도 50%+ 작업 후 소크라테스식 Q&A](./feedback_learning_gap_socratic_checkin.md)** — 시작 시 모드 선언(A) + 종료 시 라인 비율 공유(C), 50% 넘으면 /wrap-up 전 6~8문항 Q&A 제안
