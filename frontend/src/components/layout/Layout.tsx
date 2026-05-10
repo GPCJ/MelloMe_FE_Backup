@@ -2,6 +2,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Home, Search, PlusCircle, Bell, User } from 'lucide-react';
 import { useAuthStore } from '../../stores/useAuthStore';
 import SideNav from './SideNav';
+import PostWriteModal from '../post/PostWriteModal';
 
 export default function Layout() {
   const location = useLocation();
@@ -15,6 +16,9 @@ export default function Layout() {
       <main className="flex-1 md:mx-20">
         <Outlet />
       </main>
+
+      {/* PC 게시글 작성 모달 — 진입점(SideNav, PostListPage 글쓰기 버튼)에서 store로 토글 */}
+      <PostWriteModal />
 
       {/* Bottom Navigation (Mobile) */}
       <nav

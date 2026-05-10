@@ -1,6 +1,10 @@
 export type PostSort = 'LATEST' | 'MOST_VIEWED';
 export type PostType = 'COMMUNITY' | 'RESOURCE';
 export type Visibility = 'PUBLIC' | 'PRIVATE';
+
+// UI 3-옵션 공개 범위. 백엔드 API는 PUBLIC/PRIVATE 2-옵션만 지원 — 작성/수정 시 toApiVisibility 거쳐 매핑.
+// PRIVATE_ONLY(나만 보기)는 현재 PRIVATE(인증치료사 전용)에 임시 매핑되며 백엔드 지원 시 분리.
+export type UIVisibility = 'PUBLIC' | 'VERIFIED_ONLY' | 'PRIVATE_ONLY';
 export type ReactionType = 'LIKE' | 'CURIOUS' | 'USEFUL';
 
 export interface PostReaction {
