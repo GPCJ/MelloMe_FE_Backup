@@ -16,6 +16,13 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 
 ## 1. 바로 할 수 있는 것 (프론트 독립)
 
+### ★ 내일 1순위 (2026-05-11)
+- [ ] **MEL-47** 피드 정렬 전환 UI 추가 (최신순/인기순)
+  - Jira: MEL-47 / 담당: 진서현(나) / 상태: 해야 할 일
+  - 현황: 정렬 API 스펙 확인 필요 (Swagger `GET /posts?sort=LATEST|POPULAR` 파라미터 여부)
+  - 연관: D-01 (디자이너 시안 대기 중) — 시안 없으면 임시 UI로 선착수 가능
+  - 검증: 최신순 ↔ 인기순 전환 시 피드 재요청 + 탭 상태 유지 확인
+
 ### 임시 조치 / 버그
 - [x] **F-01** 인터셉터 로그인 401 refresh 버그 (커밋 a92320a)
 - [x] **F-02** LoginPage/SignupPage catch 에러 메시지 추출 오류 (커밋 a92320a)
@@ -56,7 +63,7 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - MSW 스킵 결정 — 백엔드 dev/staging 이미 배포 → 직접 테스트로 대체
   - staging 검증 통과: 토글 즉시 active+카운트 / PUT 응답 reconcile / 동일 타입 해제 / 다른 타입 전환 / 실패 롤백
   - 결정/Why: B 패턴(진실 단일화) + PUT 응답 reconcile(동시성/규칙 변경 견고) + CommentResponse 4필드 동봉으로 N+1 없음(Swagger 2026-05-04 재확인). 별도 메모리 박제는 /wrap-up 시점
-- [ ] **R-11 ★ 내일 1순위 (2026-05-07)** PostListPage 리팩토링 — 옵션 미결정, 채택 다음 세션에서 결정
+- [ ] **R-11** PostListPage 리팩토링 — 옵션 미결정, 채택 다음 세션에서 결정
   - 현황: PostListPage.tsx 385줄 / state 8개 / useEffect 4개 / 핸들러 5개. 환영 모달까지 추가되며 책임 영역이 7개로 늘어남(검색바·탭·무한스크롤·페이지 fallback·필터·리액션 캐시·환영 모달)
   - 옵션 비교 (채택 미결정):
     - **A. custom hook 분리만** (권장 후보) — logic만 추출, JSX 0 변경. blast radius 작음, 테스트 용이 / hook 4-5개 신설

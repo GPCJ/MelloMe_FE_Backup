@@ -126,6 +126,7 @@
 - 노션 스킬 정리(2026-04-15, /report-notion 단일화) → wiki `2026-04-15-report-notion` (session-log)
 - [/report-notion 재질문 기준](./feedback_report_notion_requery_rule.md) — 날짜/분류/임팩트만, 기술 디테일은 소스코드에서
 - [노션 서브페이지 분리 전 양질 자기평가](./feedback_notion_subpage_quality_check.md) — 과포장 지양, 내용 약하면 TIL 1개 통합 + 강조 박스
+- **[pull-mello 후 노션 초안 존재 시 VSCode 우선 확인 요청](./feedback_notion_draft_on_pull.md)** — 초안 있으면 1순위로 VSCode 열어 알림
 - [와이어프레임 색상 보수적](./feedback_wireframe_color.md) / [서버 에러 시 프론트 먼저](./feedback_backend_blame.md)
 - [compact/clear 타이밍](./feedback_compact_timing.md) / [TS 타입 체크 tsc -b](./feedback_ts_type_check.md)
 - [shadcn asChild 미지원](./feedback_shadcn_button_aschild.md) / [shadcn/ui 기본 사용 원칙](./feedback_shadcn_default.md)
