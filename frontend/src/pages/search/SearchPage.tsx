@@ -7,18 +7,13 @@ import { fetchPosts } from '../../api/posts';
 import type { TherapyArea, PostSort, PostSummary } from '../../types/post';
 import Pagination from '../../components/common/Pagination';
 
-const SORT_OPTIONS: { value: PostSort; label: string }[] = [
-  { value: 'LATEST', label: '최신순' },
-  { value: 'MOST_VIEWED', label: '조회순' },
-];
-
 export default function SearchPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [therapyArea, setTherapyArea] = useState<TherapyArea | ''>('');
-  const [sortType, setSortType] = useState<PostSort>('LATEST');
+  const sortType: PostSort = 'LATEST';
   const [results, setResults] = useState<PostSummary[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -30,7 +25,9 @@ export default function SearchPage() {
   const keywordRef = useRef('');
 
   async function doSearch(keyword: string, page: number) {
-    if (!keyword && !therapyArea) return;
+    // 초기 마운트 보호: 검색어/필터 둘 다 비어있고 아직 검색 이력 없으면 호출 생략.
+    // 첫 검색 후에는 "전체"(therapyArea='') 리셋도 정상 재조회되도록 허용.
+    if (!keyword && !therapyArea && !searched) return;
     setLoading(true);
     setSearched(true);
     setError(null);
@@ -85,57 +82,49 @@ export default function SearchPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 필터/정렬 변경 시 재검색
+  // 필터 변경 시 검색 실행 (검색어 없어도 필터만으로 트리거)
+  // 초기 마운트는 doSearch 가드에서 흡수.
   useEffect(() => {
-    if (searched) doSearch(keywordRef.current, 1);
+    doSearch(keywordRef.current, 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [therapyArea, sortType]);
+  }, [therapyArea]);
 
   return (
     <div className="pb-20 md:pb-8">
       {/* 검색 헤더 */}
-      <div className="sticky top-0 md:top-14 z-40 bg-white border-b border-gray-200">
-        <form onSubmit={handleSubmit} className="flex items-center gap-2 px-4 py-3">
+      <div className="sticky top-0 z-40 bg-white border-b border-gray-200">
+        <form onSubmit={handleSubmit} className="flex items-center h-14 pr-4">
           <button
             type="button"
             onClick={() => navigate('/posts')}
-            className="p-1 text-gray-500 hover:text-gray-900 transition-colors shrink-0"
+            className="flex items-center justify-center px-4 h-full text-gray-700 hover:text-gray-900 transition-colors shrink-0"
+            aria-label="뒤로가기"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={24} />
           </button>
-          <div className="flex-1 flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2">
+          <div className="flex-1 flex items-center bg-[#f3f3f5] rounded-full pl-4 pr-1 h-9">
             <input
               ref={inputRef}
               type="text"
               name="keyword"
               defaultValue={searchParams.get('q') ?? ''}
-              placeholder="검색어를 입력하세요"
-              className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none"
+              placeholder="발음"
+              className="flex-1 min-w-0 bg-transparent text-[13px] text-gray-900 placeholder:text-[#99a1af] outline-none"
               autoFocus
             />
             <button
               type="submit"
-              className="text-gray-500 hover:text-gray-900 transition-colors shrink-0"
+              className="flex items-center justify-center w-10 h-9 text-gray-700 hover:text-gray-900 transition-colors shrink-0"
+              aria-label="검색"
             >
               <Search size={18} />
             </button>
           </div>
         </form>
 
-        {/* 필터 칩 + 정렬 */}
-        <div className="flex items-center justify-between px-4 py-2">
+        {/* 카테고리 필터 칩 */}
+        <div className="px-4 pt-2 pb-4">
           <FilterChips value={therapyArea} onChange={setTherapyArea} />
-          <select
-            value={sortType}
-            onChange={(e) => setSortType(e.target.value as PostSort)}
-            className="shrink-0 ml-2 text-xs text-gray-600 border border-gray-200 rounded-md px-2 py-1.5 bg-white"
-          >
-            {SORT_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
         </div>
       </div>
 
@@ -152,8 +141,8 @@ export default function SearchPage() {
         {!loading && results?.map((post) => <PostCard key={post.id} post={post} />)}
 
         {!searched && !loading && (
-          <p className="text-center text-gray-400 text-sm py-12">
-            검색어를 입력하고 돋보기 버튼을 눌러주세요
+          <p className="text-[#6d7685] text-lg font-bold p-6">
+            시그널을 찾아보세요!
           </p>
         )}
       </div>
