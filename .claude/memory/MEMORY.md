@@ -101,6 +101,8 @@
 - **[최우선]** [작업 가이드는 단계 단위로 잘게 끊어 제시](./feedback_step_by_step_guidance.md) — 큰 작업 전체 절차 한꺼번에 덤프 X, 한 단계 가이드 → 사용자 작성 → 검증 → 다음 단계 형태
 - **[최우선]** [workaround 추가 전 스펙/상태 재확인](./feedback_verify_spec_before_workaround.md) — 400/감싸기 판단 전에 Swagger·네트워크·실코드 재확인
 - **[최우선]** [단일 작업 집중 존중 — 곁가지 제안 덤핑 금지](./feedback_single_task_focus.md) — 작업 중 답변은 현재 맥락만, 새 아이디어는 notepad로 라우팅
+- **[최우선]** [기능 작업 중 번들러/인프라 설정 건드리지 말기](./feedback_scope_discipline_no_bundler_drift.md) — 빌드/CI 깨짐 발견해도 기능 브랜치 안에서 고치지 말고 별도 분리, 사용자 컨펌 후 수정
+- [worktree 생성 시 base 브랜치 확인 필수](./feedback_worktree_base_check.md) — EnterWorktree 기본 origin/main, develop 작업 흐름이면 즉시 교체 필요
 - **[AI 직접 작성 코드 → 인지부채 HIGH 메모리 의무](./feedback_ai_written_code_cognitive_debt.md)** — Claude 위임 코드는 메커니즘 상세 기록, 04-15 P1이 첫 사례
 - [AI 작성 코드 학습용 주석 리뷰 워크플로우](./feedback_ai_code_learning_comments.md) — push 전 교육용 밀도 높은 주석 요청 → 리뷰 후 승인
 - **[AI 개입도 50%+ 작업 후 소크라테스식 Q&A](./feedback_learning_gap_socratic_checkin.md)** — 시작 시 모드 선언(A) + 종료 시 라인 비율 공유(C), 50% 넘으면 /wrap-up 전 6~8문항 Q&A 제안

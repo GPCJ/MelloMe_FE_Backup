@@ -115,32 +115,30 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 현황: PageHeader는 `title`/`backTo`/`rightAction` 3슬롯. 모바일에서 좌측 햄버거 진입점 부재
   - 작업: `PageHeader`에 `leftAction?: ReactNode` 추가, 모바일 페이지에서 `<UserMenu side="bottom" align="start" sideOffset={8}>` 트리거로 햄버거 아이콘 주입
   - 검증: 모바일 뷰에서 햄버거 → 메뉴 3항목 펼침 / PC에선 leftAction 없을 때 좌측 공간 깨지지 않음
-- [ ] **CH-02 ★ 진행 중 (맥북 이어서)** 비인증 차단 카드 (블러+🔒) — 시안 + 응답 분석 완료, 구현 단계만 남음 (2026-05-09 갱신)
-  - **분기 필드**: `post.accessLocked: boolean` (PostSummary 타입에 추가 필요)
-  - **시안 디자인 토큰** (figma 1321:4066, fileKey `nrgNkAzEjhSC74GzrVfMBG`):
-    - 블러 강도: `blur-[5.8px]` (Tailwind blur-sm=4px라 직접 값)
-    - 본문 텍스트: `opacity-50` + 회색 톤 (`text-[#4a5565]`)
-    - 안내 오버레이: 카드 본문 가운데 absolute 배치, 가로 `w-[270px]`, `gap-[4px]`
-    - 🔒 아이콘: `size-[18px]` (lucide `Lock` 사용 가능)
-    - 안내 텍스트: "치료사 인증 후에 볼 수 있어요!" — Inter Regular `text-[11px] text-black leading-[20px]`
-    - **블러 영역 = 본문(contentPreview) + 첨부파일** / 헤더(작성자/시간/케밥)는 정상 표시
-  - **클릭 동작**: 시안 미정의 → MVP 합리적 선택 = 클릭 시 `/therapist-verifications` navigate (또는 토스트). 별도 모달 시안 없음 → 모달 구현 보류
-  - **다음 단계 (맥북 시작점)**:
-    1. 정찰: `PostCard.tsx` 위치/구조 + `PostSummary` 타입 위치 (`frontend/src/types/post.ts` 추정)
-    2. 타입 추가: `PostSummary`에 `accessLocked: boolean`
-    3. PostCard 분기: `accessLocked === true`면 본문/첨부 영역을 `<div className="relative"><div className="blur-[5.8px] opacity-50">{...}</div><div className="absolute ... w-[270px]">🔒 안내</div></div>`로 래핑
-    4. 클릭 차단: 카드 onClick에 분기 (또는 부모 navigate를 막기)
-    5. PostDetailPage 진입 시 4xx 에러 → `/therapist-verifications` redirect (현재는 "게시글을 불러오는 데 실패했습니다." 표시)
-  - **검증 시나리오**:
-    - USER 계정 → 비공개 카드 블러 + 안내 정확 / 정상 카드는 평소대로
-    - 비공개 카드 클릭 → 인증 페이지로 이동
-    - 비공개 게시글 URL 직접 진입 (`/posts/47`) → 인증 페이지로 redirect
-    - THERAPIST 계정 → 모든 카드 정상 표시 (회귀 체크)
-  - **시안 부수 발견 (별도 backlog 후보)**: UserMenu 시안 1332:6580에서 메뉴가 bundle 2개(로그아웃+계정 / 고객센터) 사이 구분선 있음. 현재 UserMenu는 3개 평면 → 후속 정리
+- [x] **CH-02** 비인증 차단 카드 — 완료 (2026-05-10, develop 머지 PR #10)
+  - **분기 필드**: `accessLocked: boolean` (PostSummary/PostDetail), 백엔드 응답 키 그대로 매핑 (이전 `isBlurred` 변환 레이어 제거)
+  - **PostCard 시안 적용** (figma 1321:4066): `blur-[5.8px]` + `opacity-50` 본문/첨부 블러 + 중앙 🔒 + "치료사 인증 후에 볼 수 있어요!" 오버레이
+  - **클릭 동작**: 차단 카드 Link `to`를 `/therapist-verifications`로 분기
+  - **상세 페이지**: `GET /posts/:id` 403 시 `/therapist-verifications` redirect (axios.isAxiosError 분기)
+  - **회귀 fix 동반**: 로그아웃→재로그인 시 이전 사용자 RQ 캐시(feed 등) 노출 버그 발견, `queryClient` 싱글턴 분리(`lib/queryClient.ts`) + `clearAuth`에서 `queryClient.clear()` 호출 → UserMenu/ProfilePage/401 refresh 4경로 일괄 통과
+  - **헤더 자물쇠 아이콘 제거**: 본문 블러+오버레이로 차단 상태 충분히 전달, 시각 노이즈 정리
+  - **부수 발견 (후속 backlog 후보)**: UserMenu 시안 1332:6580에서 메뉴 bundle 구분선 있음 — 현재 평면 3개
 - [ ] **CH-03** 카드 액션바 4종 리액션 — 백엔드 스펙 확인 필요, 별 PR 후보
 - [ ] **CH-04** PostListPage PC 검색바 제거 — 큰 UI 수정 시 묶어서
 - [ ] **CH-05** 알림 페이지 구현 — 현재 `/notifications` → `NotFoundPage`
 - [ ] **CH-06** 인증완료 모달 구현 — 시안 1321:5251 (현재는 `VerificationCompletePage` 페이지)
+- [ ] **CH-07** 게시글 작성 모달/페이지 임시저장(Draft) — 2026-05-10 PR #12 작업 중 후순위 결정
+  - **트리거**: 모달 닫힘(ESC/배경/← back) 또는 모바일 페이지 이탈 시 본문/카테고리/공개범위 localStorage 보관, 다음 진입 시 복원
+  - **clear 시점**: 작성 성공 직후, 또는 N일(예: 7일) 만료
+  - **고려 사항**: 멀티 유저 시 user ID 키링 (예: `mello:post-draft:${userId}`), 첨부 파일은 File 객체 직렬화 불가라 메타데이터만 저장(파일 자체는 미보존)
+  - **검증**: 작성 중 새로고침 → 본문/공개범위 복원 / 작성 성공 → localStorage 키 삭제 / 다른 유저 로그인 → 이전 유저 draft 안 보임
+  - **PM/디자이너 컨펌**: 시안에 임시저장 명시 없음 — 도입 전 컨펌 필요 (자동 저장 vs 명시적 저장 등)
+- [ ] **CH-08** 시안 아이콘 컴포넌트 적용 (현재 lucide-react 라이브러리 사용 중)
+  - **현황**: 작성 모달/페이지 헤더(←, ✏️), 본문 툴바(🖼️ 📎), 공개범위 자물쇠(🔒/🔓), 첨부 X 등 모두 lucide-react 아이콘 임시 사용
+  - **목표**: figma 라이브러리에 정의된 멜로미 전용 아이콘 컴포넌트로 교체 (디자이너 export 또는 SVG 직접 사용)
+  - **우선순위**: 낮음 — 시각적 차이가 미세하고 lucide도 디자인 일관성에 큰 해는 안 됨. 디자이너가 아이콘 셋 export 일괄 제공 시점에 일괄 교체가 효율적
+  - **확장 적용 범위**: PostCard 헤더, PostListPage 빈 상태 +, BottomNav, SideNav 등 lucide 사용 전 화면 전체
+  - **검증**: `grep -r "from 'lucide-react'" frontend/src` 0건 또는 의도적 잔존 명시
 
 ### 인지부채 (코드 아닌 학습)
 - [x] **L-01** `useInfiniteFeed` + P1 fallback 메커니즘 복습 (04-17 대략적 로직 + controller 이해 완료, 더 깊이 파는 것은 RQ 도입 후 불필요)
