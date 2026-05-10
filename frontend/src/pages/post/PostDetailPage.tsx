@@ -130,9 +130,17 @@ export default function PostDetailPage() {
         setReaction(reactionFromPostDetail(postData));
         setImages(imagesData);
       })
-      .catch(() => setError('게시글을 불러오는 데 실패했습니다.'))
+      .catch((err) => {
+        // 비인증 회원이 인증 전용 게시글에 직접 진입(/posts/:id) 시 백엔드는 403을 내려보냄.
+        // 목록 카드 블러는 PostCard가 처리하지만, URL 직접 진입은 페이지 단위에서 인증 페이지로 redirect.
+        if (axios.isAxiosError(err) && err.response?.status === 403) {
+          navigate('/therapist-verifications', { replace: true });
+          return;
+        }
+        setError('게시글을 불러오는 데 실패했습니다.');
+      })
       .finally(() => setLoading(false));
-  }, [postId]);
+  }, [postId, navigate]);
 
   async function handleDeletePost() {
     if (!post || !confirm('게시글을 삭제할까요?')) return;
@@ -367,8 +375,9 @@ export default function PostDetailPage() {
           </div>
         )}
 
-        {/* 본문 */}
-        {post.isBlurred ? (
+        {/* 본문 — accessLocked 분기는 fetch 단계에서 4xx redirect로 처리되어 일반적으론 도달 X.
+            백엔드가 향후 4xx 대신 마스킹 응답으로 바뀔 가능성을 대비해 방어적으로 유지. */}
+        {post.accessLocked ? (
           <div className="bg-stone-50 rounded-lg py-12 px-4 mb-6">
             <p className="text-center text-gray-600 text-sm">
               인증된 회원에게만 공개된 게시물입니다.

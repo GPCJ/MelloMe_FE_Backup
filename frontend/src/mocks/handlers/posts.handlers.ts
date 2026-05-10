@@ -76,7 +76,7 @@ export const postsHandlers = [
         // 백엔드 명세 변경(2026-04-21): 목록은 LIKE 1종만 카운트해서 노출
         likeCount: mockReactions[p.id]?.likeCount ?? 0,
         hasAttachment: p.hasAttachment,
-        isBlurred: blurred,
+        accessLocked: blurred,
         createdAt: p.createdAt,
         scrapped: false,
       };
@@ -179,7 +179,7 @@ export const postsHandlers = [
               },
             ]
           : [],
-      isBlurred: blurred,
+      accessLocked: blurred,
       scrapped: false,
     });
   }),
@@ -203,7 +203,7 @@ export const postsHandlers = [
       viewCount: 0,
       commentCount: 0,
       hasAttachment: false,
-      isBlurred: false,
+      accessLocked: false,
       authorId: currentAccount?.id ?? 1,
       authorNickname: currentAccount?.nickname ?? '테스트치료사',
       authorProfileImageUrl: null,
