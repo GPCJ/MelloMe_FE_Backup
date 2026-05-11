@@ -33,6 +33,7 @@
 - **[MVP 치료사 인증 = 즉시 승인](./project_auth_policy_mvp_immediate_approval.md)** — UNDER_REVIEW 생략, 신청→APPROVED 바로
 - [댓글 시스템 — flat 2레벨, @멘션](./project_comment_system.md)
 - **[댓글 줄바꿈 허용 정책 전환 (2026-05-02)](./project_comment_linebreak_policy.md)** — input→textarea + `whitespace-pre-wrap`, 한계 7개 박제(작성/편집 비대칭 #1 최우선) → 후속은 backlog R-07
+- **[CH-09 답글 동선 — PC 모달 / 모바일 라우트 분기 (2026-05-11)](./project_ch09_reply_modal_pc_decision_2026_05_11.md)** — CommentReplyModal 신규(a6bbca3), `matchMedia(min-width:768px)` 분기. 댓글 첨부·공개범위는 의도적 제외(텍스트만), 대댓글 목록은 모달 밖 유지
 - **[랜딩페이지 폐기 결정 (2026-05-06)](./project_landing_page_deprecation.md)** — X/Threads 패턴 정합. `/`→비로그인 `/signup`/로그인 `/posts` redirect. 회사 소개형 랜딩 다시 만들지 않음, 베타 후 콘텐츠 미리보기 진입으로 전환 로드맵
 - **[회원가입 환영 모달 구현 (2026-05-06)](./project_welcome_modal_implementation.md)** — 가입 → /posts navigate + 모달이 피드 위 1회 노출. localStorage 신호 + 시안 카피 1곳 자체 교정
 - **[댓글 중복 POST 방어 (2026-05-11, PR #13)](./project_comment_duplicate_post_fix_2026_05_11.md)** — A 가드(in-flight)+B 가드(IME `isComposing`) develop 머지 `1ef340e`, 사용자 환경 재현 실패라 prod 로그 모니터링이 유일 검증
@@ -43,6 +44,8 @@
 - [모바일 프로필 헤더 구현](./project_mobile_profile_header.md) — ProfilePage ← 내 프로필 ⚙️, 톱니바퀴→로그아웃 임시 구현, 설정 메뉴 확장은 팀 논의 안건
 - **[Chrome 통일 정책 (2026-05-08)](./project_chrome_unification_policy.md)** — Layout 글로벌 헤더 폐기 + PageHeader 단일 + SideNav 6슬롯(케밥 포함) + BottomNav 5
 - **[UserMenu 컴포넌트 패턴](./project_user_menu_component.md)** — PC 케밥 + 모바일 햄버거 공유, side/align/sideOffset/className props로 위치·스타일 호출처 결정
+- **[ProfilePage 시그널 시안 정합 + 회원 탈퇴 MVP 제외 (2026-05-11)](./project_profile_page_signal_chrome_2026_05_11.md)** — 헤더 Search(UI only)+UserPen 단일 진입점, 본체 "프로필 수정"/"회원 탈퇴" 제거, 탭 시그널 메타포, 본문 max-w-[640px]
+- **[피그마 시안 아이콘 점진 교체 (2026-05-11~)](./project_figma_icon_migration.md)** — lucide-react→피그마 점진. 사이드바 5개 완료(HomeIcon/SearchIcon/WriteIcon/BellIcon/ProfileIcon), MoreHorizontal은 lucide 유지. `components/icons/` SVG path 인라인 + currentColor
 
 
 ## 게시글 첨부파일
@@ -124,6 +127,7 @@
 - [/wrap-up으로 세션 마무리](./feedback_session_bridge_removed.md) / [집중력↓ 시 간결하게](./feedback_concise_when_tired.md) / [세션 중 notepad 자동 기록](./feedback_notepad_session_logging.md)
 - [피그마 공유 — 스크린샷+Export PNG 2x](./feedback_figma_sharing.md) / [figma 링크→메모리 저장](./feedback_figma_link_recognition.md)
 - [Figma React export는 의미 부여를 개발자가 한다](./feedback_figma_export_semantic_html.md) — div 떨굼, h2/p/button/role 4단계 변환
+- **[피그마 아이콘 SVG 추출 워크플로우 + MCP 한계](./feedback_figma_icon_export_workflow.md)** — MCP는 raster 분해라 사용자 직접 export. 트랩 4종(노드 깊이 24×24 vs 60×60 / on·off variant A·B / fill+stroke 혼합 / JSX camelCase)
 - [노션 업로드 워크플로우](./feedback_notion_upload_workflow.md) / [노션 날짜별 서브페이지](./feedback_notion_daily_pages.md) / [Notion 운영 방침](./project_notion_page_policy.md)
 - 노션 스킬 정리(2026-04-15, /report-notion 단일화) → wiki `2026-04-15-report-notion` (session-log)
 - [/report-notion 재질문 기준](./feedback_report_notion_requery_rule.md) — 날짜/분류/임팩트만, 기술 디테일은 소스코드에서
@@ -136,6 +140,7 @@
 - [백엔드 이슈에 LLM 프롬프트](./feedback_backend_llm_prompt.md) / [슬래시 커맨드 스크립트 금지](./feedback_no_scripts_for_commands.md)
 - [외부 push 전 승인 필수](./feedback_push_requires_approval.md) / [push-airo reset --hard](./feedback_push_airo_claude_files.md)
 - **[force-push/reset --hard 안전 프로토콜](./feedback_force_push_safety_protocol.md)** — 백업 브랜치 생성→origin/airo 양쪽 push→본 작업→`--force-with-lease`, 롤백 명령 함께 제시. 2026-05-11 develop→main 동기화에서 검증
+- **[다른 세션이 만진 변경은 건드리지 말기](./feedback_dont_touch_other_session_changes.md)** — lint auto-fix가 박은 미사용 import 등 본인이 추가 안 한 변경은 그대로 두고 본인 작업분만 commit. 2026-05-11 PostDetailPage 작업 중 박제
 - [커밋 메시지 한국어 통일 (forward-only)](./feedback_commit_message_korean.md) — 과거 영어 커밋은 rewrite 없이 둠
 - [커밋 서명 줄 금지](./feedback_no_co_authored_by.md) — Co-Authored-By/자동 서명 줄 넣지 말 것
 - [sync 전용 chore 커밋 금지](./feedback_no_sync_only_commits.md) — 메모리/자동화용 별도 chore 커밋 만들지 말고 feat/fix 커밋에 자연스럽게 포함
@@ -162,6 +167,7 @@
 
 ## 공유 문서 / 레퍼런스
 - **[분석/검색 대시보드 (Search Console/GA4/Clarity)](./reference_analytics_dashboards.md)** — 대시보드 URL + 식별자 (GA4 `G-7VPMPFL76M`, Clarity `wg3vefhmgy`)
+- **[피그마 디자인 시스템 페이지](./reference_figma_design_system_page.md)** — 시안 컴포넌트+variant 모음 노드 `1321:5320` 진입점, nav 아이콘 노드 ID 매핑표, Education plan MCP rate limit 주의
 - **[Jira 프로젝트 구조 및 MEL 컨벤션](./reference_jira_project_structure.md)** — MEL=멜로미, BUR=burst!(별개), 이슈 생성 전 프로젝트 조회 필수
 - [팀 요구사항 Google Sheets](./reference_requirements_doc.md) / [Swagger UI](./reference_swagger_endpoint.md) — `api.melonnetherapists.com/swagger-ui/index.html`
 - [Swagger enum 전체 값 확인 정확한 방법](./reference_swagger_enum_verification.md) — Example Value 탭은 한 값만 표시, Schema 탭 또는 raw JSON `/v3/api-docs` 직접 확인 권장

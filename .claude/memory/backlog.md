@@ -178,6 +178,12 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - **유지 사항**: `CommentDetailPage` 자체는 변경 X (메시지 아이콘 진입점만 유지), `@replyToNickname` 멘션 표시 그대로, `flat 2레벨` 정책(메모리) 유지
   - **검증**: top 댓글 1+자식 N 케이스 / 자식 없는 top 댓글 / 삭제된 부모+살아있는 자식 케이스 / 모바일·PC 양쪽 시각 확인 / 카드 클릭 navigate 제거 회귀(편집 모드 입력 보존 등)
   - **함정**: 외부 래퍼 div의 `cursor-pointer + onClick`이 편집 중인 textarea 입력 보존 가드 역할 했음 → onClick 제거 시 편집 모드 가드 흐름 재검토 필요
+- [ ] **CH-10** ProfilePage 빈 상태 카피 시안 정합 후속
+  - 현황: 2026-05-11 헤더/탭 라벨/본문 폭 시안 정합 완료. 빈 상태 메시지는 이번 범위 밖이라 그대로 둠
+  - 시안 카피: `내 시그널` → "첫 시그널을 보내세요!" / `이어진 시그널` → "시그널을 이어보세요!" / `수집한 시그널` → "시그널을 수집해보세요!"
+  - 위치: `ProfilePage.tsx` `TabEmpty message=...` 호출 3곳
+  - 검증: 각 탭에서 빈 상태 시각 확인 + 메시지 문구 정확 매칭
+  - 상세: `project_profile_page_signal_chrome_2026_05_11.md`
 
 ### 인지부채 (코드 아닌 학습)
 - [x] **L-01** `useInfiniteFeed` + P1 fallback 메커니즘 복습 (04-17 대략적 로직 + controller 이해 완료, 더 깊이 파는 것은 RQ 도입 후 불필요)
