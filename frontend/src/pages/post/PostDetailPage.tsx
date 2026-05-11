@@ -424,17 +424,16 @@ export default function PostDetailPage() {
                   ))}
                 </div>
               )}
-              {/* 비이미지 첨부 칩 — 시안 정합:
-                  - 알약 칩(⬇ N) + 첫 파일명 1줄. 칩 카운트는 비이미지 파일만(이미지는 위 캐러셀에서 시각화).
+              {/* 첨부 칩 — 시안 정합:
+                  - 알약 칩(⬇ N) + 첫 파일명 1줄. 칩 카운트는 이미지+파일 통합(panelItems.length).
                   - 칩 클릭 시 시안(1597:10954) 플로팅 패널: 상단 '전체 다운로드' + 이미지+파일 통합 리스트.
-                  - 예외: 총 첨부가 1건뿐(파일 1, 이미지 0)이면 패널 생략하고 즉시 다운로드(annotation 정합). */}
+                  - 예외: 첨부 총합 1건일 때만 패널 생략하고 즉시 다운로드(annotation 정합).
+                  - 미리보기 파일명은 파일 우선(첫 비이미지 파일), 없으면 첫 이미지로 폴백. */}
               {(() => {
                 const files =
                   post.attachments?.filter(
                     (att) => !att.contentType.startsWith('image/'),
                   ) ?? [];
-                if (files.length === 0) return null;
-                const firstFile = files[0];
                 const triggerDownload = (downloadUrl: string, filename: string) => {
                   trackReaction('download', { postId: post.id });
                   void downloadAsBlob(downloadUrl, filename);
@@ -459,6 +458,9 @@ export default function PostDetailPage() {
                     url: att.downloadUrl,
                   })),
                 ];
+                if (panelItems.length === 0) return null;
+                const previewFilename =
+                  files[0]?.originalFilename ?? images[0]?.originalFilename ?? '';
                 // 전체 다운로드는 브라우저 동시 다운로드 제한을 피하기 위해 150ms 간격으로 순차 트리거.
                 // 각 다운로드마다 GA4 'download' 이벤트 발생 — KPI는 행위 횟수 기준.
                 const downloadAll = () => {
@@ -472,7 +474,7 @@ export default function PostDetailPage() {
                   <>
                     <Download size={18} className="text-black" />
                     <span className="text-xs font-semibold text-black leading-none">
-                      {files.length}
+                      {panelItems.length}
                     </span>
                   </>
                 );
@@ -483,10 +485,10 @@ export default function PostDetailPage() {
                       <button
                         type="button"
                         onClick={() =>
-                          triggerDownload(firstFile.downloadUrl, firstFile.originalFilename)
+                          triggerDownload(panelItems[0].url, panelItems[0].filename)
                         }
                         className={chipClass}
-                        aria-label={`${firstFile.originalFilename} 다운로드`}
+                        aria-label={`${panelItems[0].filename} 다운로드`}
                       >
                         {chipInner}
                       </button>
@@ -538,7 +540,7 @@ export default function PostDetailPage() {
                       </DropdownMenu>
                     )}
                     <span className="text-xs text-gray-900 truncate min-w-0">
-                      {firstFile.originalFilename}
+                      {previewFilename}
                     </span>
                   </div>
                 );
