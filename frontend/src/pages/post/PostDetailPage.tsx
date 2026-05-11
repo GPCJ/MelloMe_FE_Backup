@@ -413,36 +413,14 @@ export default function PostDetailPage() {
                   className="flex gap-2 overflow-x-auto -mx-4 px-4 cursor-grab select-none"
                 >
                   {images.map((img) => (
-                    <div key={`img-${img.id}`} className="shrink-0 w-72 flex flex-col">
-                      <img
-                        crossOrigin="anonymous"
-                        src={resolveImageUrl(img.imageUrl) ?? ''}
-                        alt={img.originalFilename}
-                        draggable={false}
-                        className="w-72 h-72 rounded-lg object-cover bg-gray-100 mb-2"
-                      />
-                      <a
-                        href={resolveImageUrl(img.imageUrl) ?? '#'}
-                        download={img.originalFilename}
-                        onClick={(e) => {
-                          // 드래그 종료점이 링크 위일 때 우연한 다운로드 방지.
-                          if (imagesScroll.state.current.moved > 5) {
-                            e.preventDefault();
-                            return;
-                          }
-                          e.preventDefault();
-                          trackReaction('download', { postId: post.id });
-                          void downloadAsBlob(
-                            resolveImageUrl(img.imageUrl) ?? '',
-                            img.originalFilename,
-                          );
-                        }}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm text-gray-700"
-                      >
-                        <Download size={16} />
-                        <span className="truncate flex-1">{img.originalFilename}</span>
-                      </a>
-                    </div>
+                    <img
+                      key={`img-${img.id}`}
+                      crossOrigin="anonymous"
+                      src={resolveImageUrl(img.imageUrl) ?? ''}
+                      alt={img.originalFilename}
+                      draggable={false}
+                      className="shrink-0 w-72 h-72 rounded-lg object-cover bg-gray-100"
+                    />
                   ))}
                 </div>
               )}
