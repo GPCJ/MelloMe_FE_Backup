@@ -466,39 +466,61 @@ export default function PostDetailPage() {
           </div>
         </div>
 
-        {/* 댓글 카드 — 회색 컨테이너의 직접 자식이라 gap-px이 카드 사이에 적용됨 */}
-        {topComments.map((comment) => {
-          const isEditing = editingCommentId === comment.id;
-          return (
-            <div
-              key={comment.id}
-              // 편집 중엔 카드 클릭으로 인한 댓글 상세 이동 차단.
-              // form 내부 클릭은 CommentCard가 stopPropagation으로 보호하지만, 카드 여백
-              // (작성자 영역 등)을 누르면 navigate가 발동해 작업 중인 입력이 사라지는 사고가 남.
-              onClick={
-                isEditing ? undefined : () => navigate(`/posts/${postId}/comments/${comment.id}`)
+        {/* 댓글 카드 — 옵션 A(메인 통합): 부모 댓글 + 그 자식들을 한 번에 렌더.
+            기존엔 외부 래퍼 div onClick으로 카드 클릭 → CommentDetailPage 이동이었으나,
+            시안 정합을 위해 카드 자체 navigate를 제거. 답글 작성 동선은 카드 내부
+            💬 아이콘(onMessageClick) → CommentDetailPage 진입으로 유지(D-4 안전).
+            isReply/hasReplies는 다음 UI 커밋에서 좌측 컬럼 세로선/꺾인 선 prefix에 사용. */}
+        {topComments.flatMap((parent) => {
+          const replies = getReplies(parent.id);
+          const parentEditing = editingCommentId === parent.id;
+          return [
+            <CommentCard
+              key={parent.id}
+              comment={parent}
+              replyCount={replies.length}
+              isReply={false}
+              hasReplies={replies.length > 0}
+              onMessageClick={() =>
+                navigate(`/posts/${postId}/comments/${parent.id}`, {
+                  state: { autoReply: true },
+                })
               }
-              className={isEditing ? '' : 'cursor-pointer'}
-            >
-              <CommentCard
-                comment={comment}
-                replyCount={getReplies(comment.id).length}
-                onMessageClick={() =>
-                  navigate(`/posts/${postId}/comments/${comment.id}`, {
-                    state: { autoReply: true },
-                  })
-                }
-                onDelete={() => handleDeleteComment(comment.id)}
-                isEditing={isEditing}
-                editSubmitting={editSubmitting}
-                onEditStart={() => handleEditStart(comment.id)}
-                onEditSubmit={(newContent) => handleEditSubmit(comment.id, newContent)}
-                onEditCancel={handleEditCancel}
-                onToggleReaction={(type) => handleCommentToggle(comment.id, type)}
-                toggling={togglingId === comment.id}
-              />
-            </div>
-          );
+              onDelete={() => handleDeleteComment(parent.id)}
+              isEditing={parentEditing}
+              editSubmitting={editSubmitting}
+              onEditStart={() => handleEditStart(parent.id)}
+              onEditSubmit={(newContent) => handleEditSubmit(parent.id, newContent)}
+              onEditCancel={handleEditCancel}
+              onToggleReaction={(type) => handleCommentToggle(parent.id, type)}
+              toggling={togglingId === parent.id}
+            />,
+            ...replies.map((reply) => {
+              const replyEditing = editingCommentId === reply.id;
+              return (
+                <CommentCard
+                  key={reply.id}
+                  comment={reply}
+                  replyToNickname={parent.authorNickname}
+                  isReply={true}
+                  hasReplies={false}
+                  onMessageClick={() =>
+                    navigate(`/posts/${postId}/comments/${parent.id}`, {
+                      state: { autoReply: true, replyToCommentId: reply.id },
+                    })
+                  }
+                  onDelete={() => handleDeleteComment(reply.id)}
+                  isEditing={replyEditing}
+                  editSubmitting={editSubmitting}
+                  onEditStart={() => handleEditStart(reply.id)}
+                  onEditSubmit={(newContent) => handleEditSubmit(reply.id, newContent)}
+                  onEditCancel={handleEditCancel}
+                  onToggleReaction={(type) => handleCommentToggle(reply.id, type)}
+                  toggling={togglingId === reply.id}
+                />
+              );
+            }),
+          ];
         })}
         {topComments.length === 0 && (
           <div className="bg-white py-12 text-center text-sm text-gray-400">
