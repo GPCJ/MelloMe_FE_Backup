@@ -21,6 +21,7 @@ import { useWelcomeModal } from '@/hooks/useWelcomeModal';
 import { useQueryClient } from '@tanstack/react-query';
 
 type FeedTab = 'all' | 'following';
+type FeedSort = 'LATEST' | 'POPULAR';
 
 function PostCardSkeleton() {
   return (
@@ -70,11 +71,15 @@ export default function PostListPage() {
     isInfiniteMode ? consumeSnapshot() : null,
   );
 
+  // 뒤로가기 복원 시 snapshot에 저장된 sort를 초기값으로 사용.
+  const [sort, setSort] = useState<FeedSort>(initialSnapshotRef.current?.sort ?? 'LATEST');
+
   const qc = useQueryClient();
 
   const infinite = useInfiniteFeed({
     size: 20,
     enabled: isInfiniteMode,
+    sort,
     initialSnapshot: initialSnapshotRef.current
       ? {
           items: initialSnapshotRef.current.items,
@@ -160,7 +165,14 @@ export default function PostListPage() {
       nextCursor: infinite.nextCursor,
       hasNext: infinite.hasNext,
       scrollY: window.scrollY,
+      sort,
     });
+  }
+
+  function handleSortChange(next: FeedSort) {
+    if (next === sort) return;
+    setSort(next);
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
   }
 
   function handleFilterClick(value: TherapyArea | '') {
@@ -258,6 +270,32 @@ export default function PostListPage() {
       <div className="p-4 border-b border-gray-200">
         <FilterChips value={therapyArea} onChange={handleFilterClick} />
       </div>
+
+      {/* 정렬 전환 — 무한스크롤 모드(전체 피드 + 필터 없음)에서만 노출 */}
+      {isInfiniteMode && (
+        <div className="flex px-4 py-2 gap-2 border-b border-gray-200 bg-white">
+          <button
+            onClick={() => handleSortChange('LATEST')}
+            className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+              sort === 'LATEST'
+                ? 'bg-gray-900 text-white border-gray-900'
+                : 'text-gray-500 border-gray-300 hover:border-gray-400'
+            }`}
+          >
+            최신순
+          </button>
+          <button
+            onClick={() => handleSortChange('POPULAR')}
+            className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+              sort === 'POPULAR'
+                ? 'bg-gray-900 text-white border-gray-900'
+                : 'text-gray-500 border-gray-300 hover:border-gray-400'
+            }`}
+          >
+            인기순
+          </button>
+        </div>
+      )}
 
       {/* 피드 콘텐츠 */}
       {activeTab === 'all' ? (
