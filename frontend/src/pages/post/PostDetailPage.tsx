@@ -10,12 +10,14 @@ import {
   FileText,
   Bookmark,
   Lock,
+  Image as ImageIcon,
 } from 'lucide-react';
 import ReactionBar from '../../components/post/ReactionBar';
 import VerifiedBadge from '../../components/post/VerifiedBadge';
 import { useReactionToggle, reactionFromPostDetail } from '../../hooks/useReactionToggle';
 import CommentCard from '../../components/post/CommentCard';
 import CommentInput from '../../components/post/CommentInput';
+import CommentReplyModal from '../../components/post/CommentReplyModal';
 import { useCommentSubmit } from '../../hooks/useCommentSubmit';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import {
@@ -117,6 +119,24 @@ export default function PostDetailPage() {
   // editSubmitting은 PATCH 진행 중 저장 버튼 disable + 카드 잠금에 사용.
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editSubmitting, setEditSubmitting] = useState(false);
+  // PC 전용 답글 모달의 대상 댓글(top-level). null이면 모달 닫힘.
+  // 모바일은 기존 라우트 이동을 유지하므로 이 state를 거치지 않는다.
+  const [replyModalParent, setReplyModalParent] = useState<CommentResponse | null>(null);
+
+  // 댓글/대댓글의 💬 답글 액션 진입 분기.
+  // - PC(md 이상): 같은 페이지 위 모달 — PostDetailPage 위에 답글 작성 폼만 노출.
+  // - 모바일: 기존 CommentDetailPage 라우트로 이동 (autoReply state로 입력 영역 자동 활성).
+  // 자식 댓글에서 답글 다는 경우에도 답글은 top-level 부모(parent) 아래에 평탄(flat 2레벨)으로
+  // 달리는 게 정책이라 PC 모달엔 항상 부모 객체를 전달한다. mention 동선은 PC 모달 v1에서는 단순화.
+  function openReplyTo(parent: CommentResponse, replyToCommentId?: number) {
+    if (window.matchMedia('(min-width: 768px)').matches) {
+      setReplyModalParent(parent);
+    } else {
+      navigate(`/posts/${postId}/comments/${parent.id}`, {
+        state: { autoReply: true, ...(replyToCommentId && { replyToCommentId }) },
+      });
+    }
+  }
 
   // 첨부 이미지 가로 드래그 캐러셀 — 시안 정합: 작성 모달과 동일 패턴.
   const imagesScroll = useDragScroll();
@@ -427,9 +447,9 @@ export default function PostDetailPage() {
                 </div>
               )}
               {/* 비이미지 첨부 칩 — 시안 정합:
-                  - 알약 칩(⬇ N) + 첫 파일명 1줄.
-                  - annotation: "파일 1개일 때는 플로팅 리스트 뜨지 않음" → 1개=직접 다운로드, 2+=DropdownMenu.
-                  - 이미지 타입은 위 캐러셀에서 처리하므로 attachments에서 제외(중복 노출 방지). */}
+                  - 알약 칩(⬇ N) + 첫 파일명 1줄. 칩 카운트는 비이미지 파일만(이미지는 위 캐러셀에서 시각화).
+                  - 칩 클릭 시 시안(1597:10954) 플로팅 패널: 상단 '전체 다운로드' + 이미지+파일 통합 리스트.
+                  - 예외: 총 첨부가 1건뿐(파일 1, 이미지 0)이면 패널 생략하고 즉시 다운로드(annotation 정합). */}
               {(() => {
                 const files =
                   post.attachments?.filter(
@@ -441,11 +461,47 @@ export default function PostDetailPage() {
                   trackReaction('download', { postId: post.id });
                   void downloadAsBlob(downloadUrl, filename);
                 };
+                type PanelItem = {
+                  key: string;
+                  type: 'image' | 'file';
+                  filename: string;
+                  url: string;
+                };
+                const panelItems: PanelItem[] = [
+                  ...images.map((img) => ({
+                    key: `img-${img.id}`,
+                    type: 'image' as const,
+                    filename: img.originalFilename,
+                    url: resolveImageUrl(img.imageUrl) ?? '',
+                  })),
+                  ...files.map((att) => ({
+                    key: `file-${att.id}`,
+                    type: 'file' as const,
+                    filename: att.originalFilename,
+                    url: att.downloadUrl,
+                  })),
+                ];
+                // 전체 다운로드는 브라우저 동시 다운로드 제한을 피하기 위해 150ms 간격으로 순차 트리거.
+                // 각 다운로드마다 GA4 'download' 이벤트 발생 — KPI는 행위 횟수 기준.
+                const downloadAll = () => {
+                  panelItems.forEach((item, i) => {
+                    setTimeout(() => triggerDownload(item.url, item.filename), i * 150);
+                  });
+                };
                 const chipClass =
                   'shrink-0 inline-flex items-center gap-0.5 bg-gray-200 hover:bg-gray-300 transition-colors rounded-full px-2 py-1';
+                const chipInner = (
+                  <>
+                    <Download size={18} className="text-black" />
+                    <span className="text-xs font-semibold text-black leading-none">
+                      {files.length}
+                    </span>
+                  </>
+                );
+                const usePanel = panelItems.length > 1;
                 return (
                   <div className="flex items-center gap-2">
-                    {files.length === 1 ? (
+                    {!usePanel ? (
                       <button
                         type="button"
                         onClick={() =>
@@ -454,30 +510,46 @@ export default function PostDetailPage() {
                         className={chipClass}
                         aria-label={`${firstFile.originalFilename} 다운로드`}
                       >
-                        <Download size={18} className="text-black" />
-                        <span className="text-xs font-semibold text-black leading-none">1</span>
+                        {chipInner}
                       </button>
                     ) : (
                       <DropdownMenu>
                         <DropdownMenuTrigger
                           className={chipClass}
-                          aria-label={`첨부 파일 ${files.length}개 보기`}
+                          aria-label={`첨부 ${panelItems.length}개 보기`}
                         >
-                          <Download size={18} className="text-black" />
-                          <span className="text-xs font-semibold text-black leading-none">
-                            {files.length}
-                          </span>
+                          {chipInner}
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="min-w-[240px]">
-                          {files.map((att) => (
+                        <DropdownMenuContent
+                          align="start"
+                          sideOffset={8}
+                          className="min-w-[240px] rounded-2xl border border-[#cdcdcd] shadow-[0_4px_10px_rgba(136,136,136,0.2)] p-0 overflow-hidden"
+                        >
+                          {/* 상단 bundle — 전체 다운로드. border-b로 리스트와 구분. */}
+                          <DropdownMenuItem
+                            onClick={downloadAll}
+                            className="rounded-none border-b border-[#cdcdcd] py-3 pl-5 pr-3 gap-2.5 focus:bg-gray-50"
+                          >
+                            <span className="size-8 flex items-center justify-center shrink-0">
+                              <Download size={24} className="text-black" />
+                            </span>
+                            <span className="text-sm font-semibold text-black truncate">
+                              전체 다운로드
+                            </span>
+                          </DropdownMenuItem>
+                          {/* 하단 bundle — 이미지 + 파일 통합 리스트. 각 행 클릭 시 개별 다운로드. */}
+                          {panelItems.map((item) => (
                             <DropdownMenuItem
-                              key={att.id}
-                              onClick={() =>
-                                triggerDownload(att.downloadUrl, att.originalFilename)
-                              }
+                              key={item.key}
+                              onClick={() => triggerDownload(item.url, item.filename)}
+                              className="rounded-none py-2 pl-5 pr-3 gap-2.5 focus:bg-gray-50"
                             >
-                              <FileText size={14} className="mr-2 text-gray-500 shrink-0" />
-                              <span className="truncate flex-1">{att.originalFilename}</span>
+                              <span className="size-8 flex items-center justify-center shrink-0">
+                                <FileText size={24} className="text-black" />
+                              </span>
+                              <span className="text-sm font-semibold text-black truncate">
+                                {item.filename}
+                              </span>
                             </DropdownMenuItem>
                           ))}
                         </DropdownMenuContent>
@@ -562,11 +634,7 @@ export default function PostDetailPage() {
                 replyCount={replies.length}
                 isReply={false}
                 hasReplies={replies.length > 0}
-                onMessageClick={() =>
-                  navigate(`/posts/${postId}/comments/${parent.id}`, {
-                    state: { autoReply: true },
-                  })
-                }
+                onMessageClick={() => openReplyTo(parent)}
                 onDelete={() => handleDeleteComment(parent.id)}
                 isEditing={parentEditing}
                 editSubmitting={editSubmitting}
@@ -585,11 +653,7 @@ export default function PostDetailPage() {
                     replyToNickname={parent.authorNickname}
                     isReply={true}
                     hasReplies={false}
-                    onMessageClick={() =>
-                      navigate(`/posts/${postId}/comments/${parent.id}`, {
-                        state: { autoReply: true, replyToCommentId: reply.id },
-                      })
-                    }
+                    onMessageClick={() => openReplyTo(parent, reply.id)}
                     onDelete={() => handleDeleteComment(reply.id)}
                     isEditing={replyEditing}
                     editSubmitting={editSubmitting}
@@ -610,6 +674,16 @@ export default function PostDetailPage() {
           </div>
         )}
       </div>
+      {/* PC 전용 답글 모달. fixed inset-0이라 페이지 wrapper 위치는 무관하지만
+          상태 분리를 명확히 하기 위해 댓글 리스트 바로 다음에 렌더. */}
+      {replyModalParent && (
+        <CommentReplyModal
+          parentComment={replyModalParent}
+          postId={Number(postId) || 0}
+          onClose={() => setReplyModalParent(null)}
+          onSuccess={(newReply) => setComments((prev) => [...prev, newReply])}
+        />
+      )}
     </div>
   );
 }
