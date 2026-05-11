@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Image, Lock, LockOpen, Paperclip } from 'lucide-react';
+import { ArrowLeft, Image, Lock, LockOpen, Paperclip, PencilLine } from 'lucide-react';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import SimpleTextEditor from '../../components/post/SimpleTextEditor';
 import FilePreviewGrid from '../../components/post/FilePreviewGrid';
@@ -12,6 +12,7 @@ import {
   uploadToS3,
   confirmUpload,
   deletePostAttachment,
+  deletePostImage,
 } from '../../api/posts';
 import {
   useFileAttachment,
@@ -20,8 +21,92 @@ import {
   resolveUploadContentType,
 } from '../../hooks/useFileAttachment';
 import { useAuthStore } from '../../stores/useAuthStore';
-import type { Attachment, PostImage, TherapyArea } from '../../types/post';
-import { THERAPY_CHIPS } from '../../constants/post';
+import type { Attachment, PostImage, TherapyArea, UIVisibility } from '../../types/post';
+import {
+  THERAPY_CHIPS,
+  VISIBILITY_OPTIONS,
+  toApiVisibility,
+  fromApiVisibility,
+} from '../../constants/post';
+
+// 공개 범위 chip + popover — PostWriteForm 푸터와 동일 패턴.
+// 모바일/데스크탑 두 곳에서 재사용하므로 로컬 헬퍼로 분리(각 인스턴스가 자체 open/ref 보유 → 외부 클릭 가드 단순).
+function VisibilityPicker({
+  visibility,
+  onChange,
+  isPublicOnly,
+}: {
+  visibility: UIVisibility;
+  onChange: (v: UIVisibility) => void;
+  isPublicOnly: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onDocClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [open]);
+
+  const current = isPublicOnly
+    ? VISIBILITY_OPTIONS[0]
+    : VISIBILITY_OPTIONS.find((o) => o.value === visibility) ?? VISIBILITY_OPTIONS[0];
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => !isPublicOnly && setOpen((v) => !v)}
+        disabled={isPublicOnly}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        title={isPublicOnly ? '치료사 인증 후 공개 범위 설정 가능' : undefined}
+        className={`flex items-center gap-1.5 text-xs ${
+          isPublicOnly
+            ? 'text-gray-400 cursor-not-allowed'
+            : 'text-gray-700 hover:text-gray-900 cursor-pointer'
+        }`}
+      >
+        <span>{current.chipLabel}</span>
+        {current.value === 'PUBLIC' ? <LockOpen size={14} /> : <Lock size={14} />}
+      </button>
+
+      {open && (
+        <div
+          role="menu"
+          className="absolute bottom-full right-0 mb-2 w-64 bg-white rounded-xl shadow-[0px_4px_10px_0px_rgba(136,136,136,0.20)] border border-gray-100 py-2 z-10"
+        >
+          {VISIBILITY_OPTIONS.map((opt) => {
+            const selected = visibility === opt.value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                role="menuitemradio"
+                aria-checked={selected}
+                onClick={() => onChange(opt.value)}
+                className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 transition-colors"
+              >
+                <span className="text-sm text-gray-900">{opt.label}</span>
+                <span className="relative inline-flex w-9 h-5 rounded-full bg-white border border-gray-200">
+                  <span
+                    className={`absolute top-0.5 w-4 h-4 rounded-full bg-gray-900 transition-transform ${
+                      selected ? 'translate-x-4' : 'translate-x-0.5'
+                    }`}
+                  />
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function PostEditPage() {
   const { postId } = useParams<{ postId: string }>();
@@ -34,17 +119,14 @@ export default function PostEditPage() {
   const [therapyArea, setTherapyArea] = useState<TherapyArea>('UNSPECIFIED');
   const [initialTherapyArea, setInitialTherapyArea] = useState<TherapyArea>('UNSPECIFIED');
   const [loading, setLoading] = useState(true);
-  const [isPublic, setIsPublic] = useState(true);
-  const [initialIsPublic, setInitialIsPublic] = useState(true);
-  const togglePublic = () => {
-    if (isPublicOnly) return;
-    setIsPublic((v) => !v);
-  };
+  const [visibility, setVisibility] = useState<UIVisibility>('PUBLIC');
+  const [initialVisibility, setInitialVisibility] = useState<UIVisibility>('PUBLIC');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [existingAttachments, setExistingAttachments] = useState<Attachment[]>([]);
   const [existingImages, setExistingImages] = useState<PostImage[]>([]);
   const [removedAttachmentIds, setRemovedAttachmentIds] = useState<number[]>([]);
+  const [removedImageIds, setRemovedImageIds] = useState<number[]>([]);
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
 
   const {
@@ -56,15 +138,16 @@ export default function PostEditPage() {
     removeFile: removePendingFile,
     clearFileError,
   } = useFileAttachment(
-    existingImages.length,
+    existingImages.length - removedImageIds.length,
     existingAttachments.length - removedAttachmentIds.length,
   );
 
   const hasChanges =
     content !== initialContent ||
     therapyArea !== initialTherapyArea ||
-    isPublic !== initialIsPublic ||
+    visibility !== initialVisibility ||
     removedAttachmentIds.length > 0 ||
+    removedImageIds.length > 0 ||
     pendingFiles.length > 0;
 
   useEffect(() => {
@@ -93,9 +176,9 @@ export default function PostEditPage() {
         setInitialContent(post.content);
         setTherapyArea(post.therapyArea ?? 'UNSPECIFIED');
         setInitialTherapyArea(post.therapyArea ?? 'UNSPECIFIED');
-        const publicFlag = post.visibility !== 'PRIVATE';
-        setIsPublic(publicFlag);
-        setInitialIsPublic(publicFlag);
+        const uiVis = fromApiVisibility(post.visibility);
+        setVisibility(uiVis);
+        setInitialVisibility(uiVis);
         setExistingAttachments(post.attachments ?? []);
         setExistingImages(imagesData);
       })
@@ -107,6 +190,9 @@ export default function PostEditPage() {
 
   function removeExistingAttachment(attachmentId: number) {
     setRemovedAttachmentIds((prev) => [...prev, attachmentId]);
+  }
+  function removeExistingImage(imageId: number) {
+    setRemovedImageIds((prev) => [...prev, imageId]);
   }
 
   async function handleSubmit() {
@@ -120,10 +206,11 @@ export default function PostEditPage() {
       await updatePost(pid, {
         content,
         therapyArea,
-        visibility: isPublic ? 'PUBLIC' : 'PRIVATE',
+        visibility: toApiVisibility(visibility),
       });
 
-      const totalOps = removedAttachmentIds.length + pendingFiles.length;
+      const totalOps =
+        removedAttachmentIds.length + removedImageIds.length + pendingFiles.length;
       let failedCount = 0;
       if (totalOps > 0) {
         let done = 0;
@@ -134,6 +221,16 @@ export default function PostEditPage() {
           setUploadProgress(`첨부파일 처리 중... (${done}/${totalOps})`);
           try {
             await deletePostAttachment(pid, attachmentId);
+          } catch {
+            failedCount++;
+          }
+        }
+
+        for (const imageId of removedImageIds) {
+          done++;
+          setUploadProgress(`첨부파일 처리 중... (${done}/${totalOps})`);
+          try {
+            await deletePostImage(pid, imageId);
           } catch {
             failedCount++;
           }
@@ -190,15 +287,26 @@ export default function PostEditPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-20 md:pb-8">
-      {/* 헤더 */}
-      <div className="flex items-center gap-3 mb-6">
+      {/* 헤더 — PostWriteForm과 동일: ← 글 수정 ✏️(submit) */}
+      <div className="flex items-center justify-between mb-6">
         <button
+          type="button"
           onClick={() => navigate(`/posts/${postId}`)}
-          className="p-1 text-gray-500 hover:text-gray-900 transition-colors"
+          aria-label="닫기"
+          className="p-1 -ml-1 text-gray-700 hover:text-gray-900 transition-colors"
         >
           <ArrowLeft size={20} />
         </button>
         <h1 className="text-xl font-bold text-gray-900">글 수정</h1>
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={!canSubmit}
+          aria-label="수정하기"
+          className="p-1 -mr-1 text-gray-900 hover:text-black transition-colors disabled:text-gray-300 disabled:cursor-not-allowed"
+        >
+          <PencilLine size={20} />
+        </button>
       </div>
 
       <div className="flex flex-col gap-6">
@@ -235,6 +343,8 @@ export default function PostEditPage() {
           removedAttachmentIds={removedAttachmentIds}
           onRemoveExisting={removeExistingAttachment}
           existingImages={existingImages}
+          removedImageIds={removedImageIds}
+          onRemoveExistingImage={removeExistingImage}
         />
 
         {/* 숨겨진 file inputs */}
@@ -266,11 +376,6 @@ export default function PostEditPage() {
 
         {/* 하단 액션 */}
         <div className="pt-2 border-t border-gray-200 flex flex-col gap-3">
-          {isPublicOnly && (
-            <p id="visibility-lock-helper" className="text-xs text-gray-500">
-              치료사 인증 후 비공개 게시글 작성이 가능합니다.
-            </p>
-          )}
           {/* 모바일: 아이콘 행 */}
           <div className="flex items-center md:hidden">
             <button
@@ -292,36 +397,14 @@ export default function PostEditPage() {
               <Paperclip size={20} />
             </button>
             <div className="flex-1" />
-            <button
-              type="button"
-              aria-label={
-                isPublicOnly
-                  ? '치료사 인증 후 비공개 작성 가능'
-                  : isPublic
-                    ? '비공개로 전환'
-                    : '공개로 전환'
-              }
-              aria-describedby={isPublicOnly ? 'visibility-lock-helper' : undefined}
-              title={isPublicOnly ? '치료사 인증 후 비공개 작성 가능' : undefined}
-              onClick={togglePublic}
-              disabled={isPublicOnly}
-              className={`p-2 transition-colors ${isPublicOnly ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'} ${isPublic ? 'text-gray-400 hover:text-gray-600' : 'text-gray-900'}`}
-            >
-              {isPublic ? <LockOpen size={20} /> : <Lock size={20} />}
-            </button>
+            <VisibilityPicker
+              visibility={visibility}
+              onChange={setVisibility}
+              isPublicOnly={isPublicOnly}
+            />
           </div>
 
-          {/* 모바일: 풀너비 수정하기 */}
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={!canSubmit}
-            className="md:hidden w-full py-3 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            {submitting ? (uploadProgress ?? '수정 중...') : '수정하기'}
-          </button>
-
-          {/* 데스크탑: 한 줄 (아이콘들 | 자물쇠 + 수정하기) */}
+          {/* 데스크탑: 한 줄 (아이콘들 | 자물쇠) — 수정하기는 헤더로 이동 */}
           <div className="hidden md:flex items-center justify-between">
             <div className="flex items-center">
               <button
@@ -341,33 +424,11 @@ export default function PostEditPage() {
                 <Paperclip size={20} />
               </button>
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                aria-label={
-                  isPublicOnly
-                    ? '치료사 인증 후 비공개 작성 가능'
-                    : isPublic
-                      ? '비공개로 전환'
-                      : '공개로 전환'
-                }
-                aria-describedby={isPublicOnly ? 'visibility-lock-helper' : undefined}
-                title={isPublicOnly ? '치료사 인증 후 비공개 작성 가능' : undefined}
-                onClick={togglePublic}
-                disabled={isPublicOnly}
-                className={`p-2 transition-colors ${isPublicOnly ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'} ${isPublic ? 'text-gray-400 hover:text-gray-600' : 'text-gray-900'}`}
-              >
-                {isPublic ? <LockOpen size={20} /> : <Lock size={20} />}
-              </button>
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={!canSubmit}
-                className="px-6 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {submitting ? (uploadProgress ?? '수정 중...') : '수정하기'}
-              </button>
-            </div>
+            <VisibilityPicker
+              visibility={visibility}
+              onChange={setVisibility}
+              isPublicOnly={isPublicOnly}
+            />
           </div>
         </div>
       </div>

@@ -155,7 +155,9 @@ export async function deletePostAttachment(postId: number, attachmentId: number)
   await axiosInstance.delete(`/posts/${postId}/attachments/${attachmentId}`);
 }
 
-// TODO: 백엔드에 이미지 DELETE 엔드포인트(/posts/{postId}/images/{imageId}) 추가 요청 후 구현 예정
+export async function deletePostImage(postId: number, imageId: number): Promise<void> {
+  await axiosInstance.delete(`/posts/${postId}/images/${imageId}`);
+}
 
 // Presigned Upload — 3단계 흐름 (init → S3 PUT → confirm)
 export async function initUpload(postId: number, req: UploadInitRequest): Promise<UploadInitResponse> {

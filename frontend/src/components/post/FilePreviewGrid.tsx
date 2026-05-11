@@ -1,4 +1,4 @@
-import { Paperclip, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import type { PendingFile } from '../../hooks/useFileAttachment';
 import type { Attachment, PostImage } from '../../types/post';
 import { resolveImageUrl } from '../../utils/resolveImageUrl';
@@ -10,8 +10,15 @@ interface FilePreviewGridProps {
   removedAttachmentIds?: number[];
   onRemoveExisting?: (attachmentId: number) => void;
   existingImages?: PostImage[];
+  removedImageIds?: number[];
+  onRemoveExistingImage?: (imageId: number) => void;
 }
 
+// 글쓰기 모달(PostWriteForm)과 동일한 첨부 표시 패턴.
+//   - 비이미지(PDF/HWP/docx/xlsx 등) → 세로 리스트, ⊗ + 파일명
+//   - 이미지 → 가로 스크롤, 24x24 썸네일 우상단 ⊗
+// 기존(server) 항목과 신규(pending) 항목을 한 리스트에 섞어 노출.
+// 기존 항목 ⊗는 removed* IDs에 누적(서버 commit 시 일괄 DELETE), pending ⊗는 즉시 로컬에서 제거.
 export default function FilePreviewGrid({
   pendingFiles,
   onRemovePending,
@@ -19,93 +26,164 @@ export default function FilePreviewGrid({
   removedAttachmentIds = [],
   onRemoveExisting,
   existingImages = [],
+  removedImageIds = [],
+  onRemoveExistingImage,
 }: FilePreviewGridProps) {
-  const visibleExisting = existingAttachments.filter((a) => !removedAttachmentIds.includes(a.id));
+  const visibleExistingAttachments = existingAttachments.filter(
+    (a) => !removedAttachmentIds.includes(a.id),
+  );
+  const visibleExistingImages = existingImages.filter((i) => !removedImageIds.includes(i.id));
 
-  if (visibleExisting.length === 0 && pendingFiles.length === 0 && existingImages.length === 0)
-    return null;
+  // contentType이 image/* 인 기존 첨부도 이미지 스크롤에 합류.
+  const existingImageAttachments = visibleExistingAttachments.filter((a) =>
+    a.contentType.startsWith('image/'),
+  );
+  const existingNonImageAttachments = visibleExistingAttachments.filter(
+    (a) => !a.contentType.startsWith('image/'),
+  );
+
+  const otherRows: Array<
+    | { src: 'existing-attachment'; attachment: Attachment }
+    | { src: 'pending'; pf: PendingFile; originalIndex: number }
+  > = [
+    ...existingNonImageAttachments.map((a) => ({ src: 'existing-attachment' as const, attachment: a })),
+    ...pendingFiles
+      .map((pf, originalIndex) => ({ pf, originalIndex }))
+      .filter((row) => row.pf.kind !== 'IMAGE')
+      .map(({ pf, originalIndex }) => ({ src: 'pending' as const, pf, originalIndex })),
+  ];
+
+  const imageRows: Array<
+    | { src: 'existing-image'; image: PostImage }
+    | { src: 'existing-attachment-image'; attachment: Attachment }
+    | { src: 'pending'; pf: PendingFile; originalIndex: number }
+  > = [
+    ...visibleExistingImages.map((img) => ({ src: 'existing-image' as const, image: img })),
+    ...existingImageAttachments.map((a) => ({
+      src: 'existing-attachment-image' as const,
+      attachment: a,
+    })),
+    ...pendingFiles
+      .map((pf, originalIndex) => ({ pf, originalIndex }))
+      .filter((row) => row.pf.kind === 'IMAGE')
+      .map(({ pf, originalIndex }) => ({ src: 'pending' as const, pf, originalIndex })),
+  ];
+
+  if (otherRows.length === 0 && imageRows.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap gap-2">
-      {/* 기존 이미지 — 백엔드에 DELETE 엔드포인트 없어서 X 버튼 미노출 (대기 중) */}
-      {existingImages.map((img) => (
-        <div
-          key={`img-${img.id}`}
-          className="relative border border-gray-200 rounded-lg overflow-hidden"
-          title="이미지 삭제는 아직 지원되지 않습니다"
-        >
-          <img
-            src={resolveImageUrl(img.imageUrl) ?? ''}
-            alt={img.originalFilename}
-            className="w-24 h-24 object-cover"
-          />
-        </div>
-      ))}
-      {visibleExisting.map((a) => (
-        <div
-          key={a.id}
-          className="relative group border border-gray-200 rounded-lg overflow-hidden"
-        >
-          {a.contentType.startsWith('image/') ? (
-            <img src={a.downloadUrl} alt={a.originalFilename} className="w-24 h-24 object-cover" />
-          ) : (
-            <div className="w-24 h-24 flex flex-col items-center justify-center bg-gray-50 px-1">
-              <Paperclip size={16} className="text-gray-400 mb-1" />
-              <span className="text-xs text-gray-500 text-center truncate w-full">
-                {a.originalFilename}
-              </span>
-            </div>
-          )}
-          {onRemoveExisting && (
-            <button
-              type="button"
-              onClick={() => onRemoveExisting(a.id)}
-              className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <X size={14} />
-            </button>
-          )}
-        </div>
-      ))}
-      {pendingFiles.map((pf, i) => (
-        <div
-          key={`${pf.file.name}-${pf.file.lastModified}-${i}`}
-          className={`relative group border rounded-lg overflow-hidden ${
-            existingAttachments.length > 0 ? 'border-blue-200' : 'border-gray-200'
-          }`}
-        >
-          {pf.previewUrl ? (
-            <img src={pf.previewUrl} alt={pf.file.name} className="w-24 h-24 object-cover" />
-          ) : (
-            <div
-              className={`w-24 h-24 flex flex-col items-center justify-center px-1 ${
-                existingAttachments.length > 0 ? 'bg-blue-50' : 'bg-gray-50'
-              }`}
-            >
-              <Paperclip
-                size={16}
-                className={
-                  existingAttachments.length > 0 ? 'text-blue-400 mb-1' : 'text-gray-400 mb-1'
-                }
-              />
-              <span
-                className={`text-xs text-center truncate w-full ${
-                  existingAttachments.length > 0 ? 'text-blue-500' : 'text-gray-500'
-                }`}
+    <div className="flex flex-col gap-4">
+      {otherRows.length > 0 && (
+        <ul className="flex flex-col gap-1.5">
+          {otherRows.map((row) =>
+            row.src === 'existing-attachment' ? (
+              <li
+                key={`ex-att-${row.attachment.id}`}
+                className="flex items-center gap-2 text-sm text-gray-900"
               >
-                {pf.file.name}
-              </span>
-            </div>
+                {onRemoveExisting && (
+                  <button
+                    type="button"
+                    aria-label={`${row.attachment.originalFilename} 삭제`}
+                    onClick={() => onRemoveExisting(row.attachment.id)}
+                    className="shrink-0 bg-black text-white rounded-full p-0.5 hover:bg-gray-800 transition-colors"
+                  >
+                    <X size={12} />
+                  </button>
+                )}
+                <span className="truncate">{row.attachment.originalFilename}</span>
+              </li>
+            ) : (
+              <li
+                key={`pen-att-${row.pf.file.name}-${row.pf.file.lastModified}-${row.originalIndex}`}
+                className="flex items-center gap-2 text-sm text-gray-900"
+              >
+                <button
+                  type="button"
+                  aria-label={`${row.pf.file.name} 삭제`}
+                  onClick={() => onRemovePending(row.originalIndex)}
+                  className="shrink-0 bg-black text-white rounded-full p-0.5 hover:bg-gray-800 transition-colors"
+                >
+                  <X size={12} />
+                </button>
+                <span className="truncate">{row.pf.file.name}</span>
+              </li>
+            ),
           )}
-          <button
-            type="button"
-            onClick={() => onRemovePending(i)}
-            className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <X size={14} />
-          </button>
+        </ul>
+      )}
+
+      {imageRows.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto -mx-4 px-4">
+          {imageRows.map((row) => {
+            if (row.src === 'existing-image') {
+              return (
+                <div key={`ex-img-${row.image.id}`} className="relative shrink-0">
+                  <img
+                    src={resolveImageUrl(row.image.imageUrl) ?? ''}
+                    alt={row.image.originalFilename}
+                    draggable={false}
+                    className="w-24 h-24 rounded-lg object-cover border border-gray-200"
+                  />
+                  {onRemoveExistingImage && (
+                    <button
+                      type="button"
+                      aria-label="이미지 삭제"
+                      onClick={() => onRemoveExistingImage(row.image.id)}
+                      className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5 hover:bg-black/80 transition-colors"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+              );
+            }
+            if (row.src === 'existing-attachment-image') {
+              return (
+                <div key={`ex-att-img-${row.attachment.id}`} className="relative shrink-0">
+                  <img
+                    src={row.attachment.downloadUrl}
+                    alt={row.attachment.originalFilename}
+                    draggable={false}
+                    className="w-24 h-24 rounded-lg object-cover border border-gray-200"
+                  />
+                  {onRemoveExisting && (
+                    <button
+                      type="button"
+                      aria-label="이미지 삭제"
+                      onClick={() => onRemoveExisting(row.attachment.id)}
+                      className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5 hover:bg-black/80 transition-colors"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+              );
+            }
+            return (
+              <div
+                key={`pen-img-${row.pf.file.name}-${row.pf.file.lastModified}-${row.originalIndex}`}
+                className="relative shrink-0"
+              >
+                <img
+                  src={row.pf.previewUrl ?? ''}
+                  alt={row.pf.file.name}
+                  draggable={false}
+                  className="w-24 h-24 rounded-lg object-cover border border-gray-200"
+                />
+                <button
+                  type="button"
+                  aria-label="이미지 삭제"
+                  onClick={() => onRemovePending(row.originalIndex)}
+                  className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5 hover:bg-black/80 transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            );
+          })}
         </div>
-      ))}
+      )}
     </div>
   );
 }
