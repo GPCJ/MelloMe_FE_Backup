@@ -35,6 +35,7 @@
 - **[댓글 줄바꿈 허용 정책 전환 (2026-05-02)](./project_comment_linebreak_policy.md)** — input→textarea + `whitespace-pre-wrap`, 한계 7개 박제(작성/편집 비대칭 #1 최우선) → 후속은 backlog R-07
 - **[랜딩페이지 폐기 결정 (2026-05-06)](./project_landing_page_deprecation.md)** — X/Threads 패턴 정합. `/`→비로그인 `/signup`/로그인 `/posts` redirect. 회사 소개형 랜딩 다시 만들지 않음, 베타 후 콘텐츠 미리보기 진입으로 전환 로드맵
 - **[회원가입 환영 모달 구현 (2026-05-06)](./project_welcome_modal_implementation.md)** — 가입 → /posts navigate + 모달이 피드 위 1회 노출. localStorage 신호 + 시안 카피 1곳 자체 교정
+- **[댓글 중복 POST 방어 (2026-05-11, PR #13)](./project_comment_duplicate_post_fix_2026_05_11.md)** — A 가드(in-flight)+B 가드(IME `isComposing`) develop 머지 `1ef340e`, 사용자 환경 재현 실패라 prod 로그 모니터링이 유일 검증
 
 ## 공통 컴포넌트
 - [UserAvatar 공통 컴포넌트 통합](./project_user_avatar_component.md) — 6곳 아바타 통합, PostDetail/CommentResponse 타입 확장
@@ -48,7 +49,6 @@
 - [프론트 구현 완료 + 400 해결](./project_post_attachment_feature.md) — 백엔드 PDF만 허용, 이미지 허용 여부 미확인
 - [첨부파일 400 원인 확정 — MIME 불일치](./project_attachment_upload_400_bug.md) — 한컴 뷰어, Blob 강제 지정으로 해결
 - [이미지/PDF 엔드포인트 분리 대응](./project_post_attachment_endpoints_split.md) — 2026-04-21 Swagger 컨펌 + MSW GET/응답 수정, 실서버 테스트 남음
-- [이미지 DELETE 엔드포인트 백엔드 대기](./project_post_image_delete_pending.md) — 2026-04-21 Swagger 재확인, 여전히 DELETE 없음
 - [게시글 이미지 presigned URL 도입 완료 (히스토리)](./project_post_image_presigned_url.md) — 2026-04-22 백엔드 결정 → 도입 완료, 후속 다운로드 fix는 별도 메모리
 - **[첨부 다운로드 fix prod 머지 완료 + S3 CORS 인프라 재조치 대기 (2026-05-02)](./project_post_attachment_download_s3_cors_pending.md)** — PR#8 rebase merge(b6deca5/a0d3c78), airo 동기화. dev/prod 양쪽 CORS 에러 잔존. dev 버킷=`melonne-therapists-bucket-dev`(ap-northeast-2), prod 버킷명 미확인. 이전 "prod 머지 의미 없음" 결론 정정됨
 - **[이미지 업로드 500 — FILE_STORAGE_ERROR](./project_image_upload_500_file_storage_error.md)** — 2026-04-29 발견, 백엔드 구조화 에러, multipart 500 3건 단일 root cause 추정, staging 재현으로 검증 예정
@@ -74,6 +74,7 @@
 - **[PostListPage ref 렌더 중 접근 이슈](./project_postlistpage_ref_render_issue.md)** — React 19 에러, useEffect 이전 방향 잡음, initialSnapshot 타이밍 문제 미해결 (내일 아침 이어서)
 - **[APP_BASE_URL staging 회귀 (2026-04-30)](./project_app_base_url_staging_regression.md)** — staging 백엔드에서 04-22 localhost 버그가 EC2 IP 형태로 재발, 백엔드 환경변수 누락. 사용자가 삭제 요청할 때까지 보존
 - [sticky offset 잔재 정리 — Chrome 통일 후속](./project_sticky_offset_legacy_cleanup.md) — SearchPage 정리(PR #11), ProfilePage:306 잔존. chrome 정책 변경 후 `(md:)?top-14` grep 권장
+- **[main↔develop 강제 동기화 (2026-05-11)](./project_main_develop_force_sync_2026_05_11.md)** — cherry-pick 중복 27개 흡수, main=develop=`dd9ed7d`. 백업 브랜치 `main-backup-2026-05-11` (origin/airo 양쪽), MVP 발표 후 삭제 예정. airo main SHA가 origin과 달랐던 발견
 
 ## 기능명세 / 아키텍처
 - [프론트 기능명세 체계](./project_feature_spec_frontend.md) — FNC-001~007 인증 완료
@@ -104,6 +105,7 @@
 - **[최우선]** [workaround 추가 전 스펙/상태 재확인](./feedback_verify_spec_before_workaround.md) — 400/감싸기 판단 전에 Swagger·네트워크·실코드 재확인
 - **[최우선]** [단일 작업 집중 존중 — 곁가지 제안 덤핑 금지](./feedback_single_task_focus.md) — 작업 중 답변은 현재 맥락만, 새 아이디어는 notepad로 라우팅
 - **[최우선]** [기능 작업 중 번들러/인프라 설정 건드리지 말기](./feedback_scope_discipline_no_bundler_drift.md) — 빌드/CI 깨짐 발견해도 기능 브랜치 안에서 고치지 말고 별도 분리, 사용자 컨펌 후 수정
+- **[최우선]** [UI 통일 요청은 명시된 항목만 수정](./feedback_ui_unification_scope.md) — "통일/참고해서"라도 명시 컴포넌트만, 주변 UI 추론 확장 금지. 2026-05-11 PostEditPage 전체 리라이트 후 롤백 박제
 - [worktree 생성 시 base 브랜치 + gitignore 항목 확인 필수](./feedback_worktree_base_check.md) — EnterWorktree 기본 origin/main 분기 + .env 등 gitignore 항목은 메인 repo에서 따로 cp 필요
 - **[AI 직접 작성 코드 → 인지부채 HIGH 메모리 의무](./feedback_ai_written_code_cognitive_debt.md)** — Claude 위임 코드는 메커니즘 상세 기록, 04-15 P1이 첫 사례
 - [AI 작성 코드 학습용 주석 리뷰 워크플로우](./feedback_ai_code_learning_comments.md) — push 전 교육용 밀도 높은 주석 요청 → 리뷰 후 승인
@@ -133,10 +135,12 @@
 - [GitHub 토큰 채팅 금지](./feedback_github_token.md) / [브랜치 정책 — main(prod) + develop(staging)](./feedback_branch_preference.md) / [credentials 갱신 방법](./feedback_github_credentials_renewal.md)
 - [백엔드 이슈에 LLM 프롬프트](./feedback_backend_llm_prompt.md) / [슬래시 커맨드 스크립트 금지](./feedback_no_scripts_for_commands.md)
 - [외부 push 전 승인 필수](./feedback_push_requires_approval.md) / [push-airo reset --hard](./feedback_push_airo_claude_files.md)
+- **[force-push/reset --hard 안전 프로토콜](./feedback_force_push_safety_protocol.md)** — 백업 브랜치 생성→origin/airo 양쪽 push→본 작업→`--force-with-lease`, 롤백 명령 함께 제시. 2026-05-11 develop→main 동기화에서 검증
 - [커밋 메시지 한국어 통일 (forward-only)](./feedback_commit_message_korean.md) — 과거 영어 커밋은 rewrite 없이 둠
 - [커밋 서명 줄 금지](./feedback_no_co_authored_by.md) — Co-Authored-By/자동 서명 줄 넣지 말 것
 - [sync 전용 chore 커밋 금지](./feedback_no_sync_only_commits.md) — 메모리/자동화용 별도 chore 커밋 만들지 말고 feat/fix 커밋에 자연스럽게 포함
 - [규칙은 근본 원인 확인 후 적용](./feedback_verify_rules_root_cause.md) — 저장된 규칙 맹목 적용 금지, 실제 실패 원인 확인 후 근본 수정
+- **[fix 검증 시 baseline 측정 우선](./feedback_verify_fix_with_baseline.md)** — before-state 재현 먼저 확보 후 after 측정, 비교 없는 after-only 검증 금지 (2026-05-11 댓글 중복 POST에서 박제)
 - **[권장/판단 전 사용자 컨디션부터 평가](./feedback_assess_user_state_before_rule.md)** — 메뉴얼 맹목 적용 금지, 피로도·집중력·우선순위 추정 후 권장. 같은 작업 체인은 곁가지 아님
 - **[보조 기능이 핵심 의존성 메이저 업을 끌고 오면 회피](./feedback_dependency_blast_radius.md)** — SEO/분석/UI 보조 도입을 위해 Vite·React·RR 등 핵심 의존성 메이저 업 강요하는 옵션 회피, blast radius 좁은 옵션 우선
 - [코드 리뷰 severity triage](./feedback_review_triage_workflow.md) — HIGH만 즉시 조치, Medium/Low는 project 메모리 + notepad priority("오늘 뭐하지")

@@ -1,15 +1,16 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Search, SquarePen, Bell, User, MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
+import { HomeIcon, SearchIcon, WriteIcon, BellIcon, ProfileIcon } from '@/components/icons';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { usePostWriteModalStore } from '../../stores/postWriteModalStore';
 import UserMenu from './UserMenu';
 
-const NAV_ITEMS: { to: string; icon: typeof Home; label: string }[] = [
-  { to: '/posts', icon: Home, label: '홈' },
-  { to: '/search', icon: Search, label: '검색' },
+const NAV_ITEMS: { to: string; icon: typeof HomeIcon; label: string }[] = [
+  { to: '/posts', icon: HomeIcon, label: '홈' },
+  { to: '/search', icon: SearchIcon, label: '검색' },
   // 글쓰기는 라우트 이동 대신 모달 토글 — NAV_ITEMS와 별도 처리(아래 버튼).
-  { to: '/notifications', icon: Bell, label: '알림' },
-  { to: '/profile', icon: User, label: '프로필' },
+  { to: '/notifications', icon: BellIcon, label: '알림' },
+  { to: '/profile', icon: ProfileIcon, label: '프로필' },
 ];
 
 export default function SideNav() {
@@ -39,7 +40,7 @@ export default function SideNav() {
             aria-label={label}
             title={label}
           >
-            <Icon size={24} strokeWidth={active ? 2.2 : 1.5} />
+            <Icon size={24} />
           </Link>
         );
       })}
@@ -52,7 +53,7 @@ export default function SideNav() {
         title="글쓰기"
         className="p-2 rounded-xl text-gray-400 hover:text-gray-600 transition-colors"
       >
-        <SquarePen size={24} strokeWidth={1.5} />
+        <WriteIcon size={24} />
       </button>
 
       {/* 알림/프로필 */}
@@ -69,7 +70,7 @@ export default function SideNav() {
             aria-label={label}
             title={label}
           >
-            <Icon size={24} strokeWidth={active ? 2.2 : 1.5} />
+            <Icon size={24} />
           </Link>
         );
       })}

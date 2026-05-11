@@ -1,17 +1,11 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Camera, Pencil, Settings } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Camera, Pencil, Search, UserPen } from 'lucide-react';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/shadcn-ui/dropdown-menu';
 import PageHeader from '@/components/common/PageHeader';
 import PostCard from '../../components/post/PostCard';
 import { fetchMyPosts, fetchMyComments, fetchMyScraps } from '../../api/mypage';
-import { deleteAccount, logout, uploadProfileImage, updateMyProfile } from '../../api/auth';
+import { uploadProfileImage, updateMyProfile } from '../../api/auth';
 import { useAuthStore } from '../../stores/useAuthStore';
 import type { MyComment } from '../../types/mypage';
 import type { PostSummary } from '../../types/post';
@@ -26,9 +20,9 @@ import { useScreenExit } from '../../hooks/useScreenExit';
 type Tab = 'posts' | 'commented' | 'scrapped';
 
 const TABS: { key: Tab; label: string }[] = [
-  { key: 'posts', label: '내가 쓴 글' },
-  { key: 'commented', label: '답글 단 글' },
-  { key: 'scrapped', label: '스크랩' },
+  { key: 'posts', label: '내 시그널' },
+  { key: 'commented', label: '이어진 시그널' },
+  { key: 'scrapped', label: '수집한 시그널' },
 ];
 
 export default function ProfilePage() {
@@ -38,12 +32,6 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
-  const clearAuth = useAuthStore((s) => s.clearAuth);
-  function handleLogout() {
-    clearAuth();
-    navigate('/login');
-    logout().catch(() => {});
-  }
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [editingNickname, setEditingNickname] = useState(false);
@@ -112,18 +100,6 @@ export default function ProfilePage() {
     }
   }
 
-  async function handleDeleteAccount() {
-    if (!window.confirm('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
-    try {
-      await deleteAccount();
-      clearAuth();
-      navigate('/login');
-    } catch (err) {
-      console.error(err);
-      toast.error(getAxiosErrorMessage(err, 'delete'));
-    }
-  }
-
   const [activeTab, setActiveTab] = useState<Tab>('posts');
 
   const [postsPage, setPostsPage] = useState(1);
@@ -168,22 +144,22 @@ export default function ProfilePage() {
   const isVerified = user?.role === 'THERAPIST' || user?.role === 'ADMIN';
 
   return (
-    <div className="pb-20 md:pb-8">
+    <div className="pb-20 md:pb-8 mx-auto max-w-[640px]">
       <PageHeader
         title="내 프로필"
         backTo="/posts"
         rightAction={
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              aria-label="설정"
-              className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+          <>
+            <Search size={24} className="text-gray-900" aria-hidden="true" />
+            <button
+              type="button"
+              onClick={startEditNickname}
+              aria-label="프로필 수정"
+              className="text-gray-900 hover:text-gray-600 transition-colors"
             >
-              <Settings size={20} />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleLogout}>로그아웃</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              <UserPen size={24} />
+            </button>
+          </>
         }
       />
 
@@ -285,20 +261,6 @@ export default function ProfilePage() {
               </span>
             </div>
           </div>
-        </div>
-        <div className="flex items-center gap-3 mt-4">
-          <button
-            onClick={startEditNickname}
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            프로필 수정
-          </button>
-          <button
-            onClick={handleDeleteAccount}
-            className="text-sm text-gray-400 hover:text-red-500 transition-colors"
-          >
-            회원 탈퇴
-          </button>
         </div>
       </div>
 

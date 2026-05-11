@@ -17,6 +17,10 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 ## 1. 바로 할 수 있는 것 (프론트 독립)
 
 ### ★ 내일 1순위 (2026-05-11)
+- [ ] **CH-09** 게시글 상세 댓글/대댓글 시안 정합 — 옵션 A(메인 통합 + 카드 룩 재설계) — **사용자 직접 코딩** (인지부채 학습 목표)
+  - 현황: 이번 세션에서 옵션 A로 합의(2026-05-11). 단순 스타일 X, 로직 변경 多 → AI 위임 보류
+  - 진입점: `PostDetailPage.tsx` 댓글 리스트 렌더 로직 + `CommentCard.tsx` 재설계
+  - 상세는 아래 Chrome 통일 후속 섹션 CH-09 참조
 - [ ] **MEL-47** 피드 정렬 전환 UI 추가 (최신순/인기순)
   - Jira: MEL-47 / 담당: 진서현(나) / 상태: 해야 할 일
   - 현황: 정렬 API 스펙 확인 필요 (Swagger `GET /posts?sort=LATEST|POPULAR` 파라미터 여부)
@@ -30,6 +34,15 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 검증: `grep "FORCE_FEED_500" frontend/src/mocks/handlers/posts.handlers.ts` → `false` 여야 정상
 - [x] **F-04** Paginated 프로퍼티 fallback 매핑 검증 (04-16 확인 완료)
   - 결과: 세 엔드포인트 모두 `items`로 통일, 프론트 타입과 일치, 배포 환경 정상 동작 확인
+- [?] **F-05** 댓글 중복 POST 방어 (2026-05-11, PR #13 → develop `1ef340e`)
+  - 패치: A 가드 — `useCommentSubmit` / `CommentWritePage` `handleSubmit` 첫 줄 `if (submitting) return` + B 가드 — `CommentInput.handleKeyDown` 진입 시 `e.nativeEvent.isComposing` 차단 (3파일 11줄)
+  - 원인 가설: 백엔드 보고 20~30ms 간격 중복 POST → React `onKeyDown` 한글 IME 합성 종료 시 Enter 2회 발화 + in-flight 가드 부재 race 통과
+  - **한계 (박제)**: 사용자 환경(WSL/Win11 Chrome)에서 develop/fix 양쪽 모두 POST 1건만 발생 → fix 효과 사용자 환경 검증 불가. 트리거 환경(다른 OS/IME/모바일/답글 경로) 미특정
+  - [ ] Vercel staging 자동 배포 확인 (develop 푸시 트리거)
+  - [ ] 백엔드 로그 24h 모니터링 — 중복 POST 사라지는지 (유일한 실효 검증)
+  - [ ] main(prod) 머지 결정 — MVP D-4 핫픽스로 prod까지 올릴지 사용자 결정
+  - [ ] airo 동기화 — `/push-airo` 트리거 시 같이 반영
+  - 상세: `project_comment_duplicate_post_fix_2026_05_11.md`
 
 ### 리팩토링 / 마이그레이션 (미검증)
 - [x] **R-01a** ProfilePage 3탭 RQ 마이그레이션 완료 (2026-04-23, 커밋 924d55e + 0ba0523)
@@ -146,6 +159,25 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - **우선순위**: 낮음 — 시각적 차이가 미세하고 lucide도 디자인 일관성에 큰 해는 안 됨. 디자이너가 아이콘 셋 export 일괄 제공 시점에 일괄 교체가 효율적
   - **확장 적용 범위**: PostCard 헤더, PostListPage 빈 상태 +, BottomNav, SideNav 등 lucide 사용 전 화면 전체
   - **검증**: `grep -r "from 'lucide-react'" frontend/src` 0건 또는 의도적 잔존 명시
+- [ ] **CH-09** ★ 게시글 상세 댓글/대댓글 시안 정합 — 옵션 A (메인 통합 + 카드 룩 재설계)
+  - **사용자 직접 코딩 결정 (2026-05-11)**: 단순 스타일 변경이 아니라 데이터 렌더 로직·컴포넌트 재설계가 동반됨 → AI 위임 X, 학습 목표 정합
+  - **시안 출처**: PC `1387:13250` (Reply_list), Mobile `1321:3821` 댓글 영역
+  - **데이터 모델**: 이미 준비됨 — `comments`(flat 배열), `getReplies(parentId)`, `topComments` 헬퍼 존재. 추가 API 호출 / 모델 변경 X
+  - **변경 작업 (8가지)**:
+    1. `PostDetailPage` 댓글 리스트 렌더 로직 — `topComments.map(parent => [parent, ...getReplies(parent.id)])` 형태로 부모+자식 함께 렌더, 외부 div의 `onClick={navigate(detail)}` 제거
+    2. `CommentCard` 재설계 — 인라인 프로필(sm) → **좌측 프로필 컬럼(48px)** 분리 + 우측 contents_area(닉네임/뱃지/시간 한 줄+케밥, 본문, 액션 행)
+    3. `CommentCard` props 추가 — `isReply?: boolean`, `hasReplies?: boolean`
+    4. `hasReplies` 인 부모 댓글: 좌측 프로필 아래로 **세로선** (CSS `border-l` 또는 절대위치 `w-px bg-gray-300`)
+    5. `isReply` 인 대댓글: 카드 위쪽에 **꺾인 선(╰) prefix area** (16px 높이, 좌측 16px padding, 48px 폭, CSS `border-l + border-b + rounded-bl` 조합 권장 — SVG 자산 의존 X)
+    6. 댓글 액션 행 시안 정합 — 댓글 아이콘 좌측 + ReactionBar + (북마크 우측 끝)
+    7. 댓글 사이즈/폰트 — 닉네임 14px bold / 시간 11px gray-500 / 본문 14px leading-20
+    8. PostDetailSkeleton 시안 룩 반영
+  - **결정 미완료 (착수 전 확정)**:
+    - **답글 작성 동선**: ⓐ 메시지 아이콘 → CommentDetailPage 진입(권장, D-4 안전) / ⓑ 인라인 입력창
+    - **댓글 북마크**: 시각만(no-op) / **생략(권장)** — 백엔드 댓글 스크랩 API 없음, 존재하지 않는 기능 노출 회피
+  - **유지 사항**: `CommentDetailPage` 자체는 변경 X (메시지 아이콘 진입점만 유지), `@replyToNickname` 멘션 표시 그대로, `flat 2레벨` 정책(메모리) 유지
+  - **검증**: top 댓글 1+자식 N 케이스 / 자식 없는 top 댓글 / 삭제된 부모+살아있는 자식 케이스 / 모바일·PC 양쪽 시각 확인 / 카드 클릭 navigate 제거 회귀(편집 모드 입력 보존 등)
+  - **함정**: 외부 래퍼 div의 `cursor-pointer + onClick`이 편집 중인 textarea 입력 보존 가드 역할 했음 → onClick 제거 시 편집 모드 가드 흐름 재검토 필요
 
 ### 인지부채 (코드 아닌 학습)
 - [x] **L-01** `useInfiniteFeed` + P1 fallback 메커니즘 복습 (04-17 대략적 로직 + controller 이해 완료, 더 깊이 파는 것은 RQ 도입 후 불필요)
