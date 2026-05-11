@@ -545,7 +545,11 @@ export default function PostDetailPage() {
                               className="rounded-none py-2 pl-5 pr-3 gap-2.5 focus:bg-gray-50"
                             >
                               <span className="size-8 flex items-center justify-center shrink-0">
-                                <FileText size={24} className="text-black" />
+                                {item.type === 'image' ? (
+                                  <ImageIcon size={24} className="text-black" />
+                                ) : (
+                                  <FileText size={24} className="text-black" />
+                                )}
                               </span>
                               <span className="text-sm font-semibold text-black truncate">
                                 {item.filename}
