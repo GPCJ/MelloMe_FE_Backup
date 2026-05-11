@@ -78,6 +78,13 @@ axiosInstance.interceptors.response.use(
       axiosInstance.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
       originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
+      // profileImageUrl은 presigned URL (TTL ~1h). refresh마다 /me를 백그라운드 호출해
+      // store를 갱신하지 않으면 1시간 후 이미지가 깨짐 (MEL-45).
+      // 백엔드 RefreshResponse에 user 필드가 추가되면 이 호출은 제거 가능.
+      axiosInstance.get('/me').then((res) => {
+        useAuthStore.getState().setUser(res.data);
+      }).catch(() => {});
+
       processQueue(null, newAccessToken);
       return axiosInstance(originalRequest);
     } catch (refreshError) {
