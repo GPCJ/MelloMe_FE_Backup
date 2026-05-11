@@ -219,10 +219,10 @@ export default function PostListPage() {
               side="bottom"
               align="start"
               sideOffset={8}
-              className="p-2 -ml-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+              className="flex h-full items-center justify-center px-4 text-gray-900 hover:bg-gray-50 transition-colors"
               ariaLabel="메뉴"
             >
-              <Menu size={20} />
+              <Menu size={24} />
             </UserMenu>
           </div>
         }
