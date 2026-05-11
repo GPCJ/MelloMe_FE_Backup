@@ -379,19 +379,18 @@ export default function PostDetailPage() {
             />
           )}
 
-          {/* 첨부파일 + 이미지 */}
-          {((post.attachments && post.attachments.length > 0) || images.length > 0) && (
-            <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">
-                첨부파일 ({(post.attachments?.length ?? 0) + images.length})
-              </h3>
+          {/* 첨부파일 + 이미지 — 시안 정합(1387:12297).
+              "첨부파일 (N)" 헤더 제거: 칩 자체가 카운트/진입점 역할. */}
+          {(images.length > 0 ||
+            (post.attachments && post.attachments.length > 0)) && (
+            <div className="flex flex-col gap-3">
               {/* 이미지: 가로 드래그 캐러셀 — 시안 정합(작성 모달과 동일 패턴).
                   -mx-4 px-4: 카드 좌우 패딩(p-4)을 무시하고 가장자리까지 스크롤 영역 확장. */}
               {images.length > 0 && (
                 <div
                   ref={imagesScroll.ref}
                   {...imagesScroll.handlers}
-                  className="flex gap-2 overflow-x-auto -mx-4 px-4 cursor-grab select-none mb-2"
+                  className="flex gap-2 overflow-x-auto -mx-4 px-4 cursor-grab select-none"
                 >
                   {images.map((img) => (
                     <div key={`img-${img.id}`} className="shrink-0 w-72 flex flex-col">
@@ -427,44 +426,69 @@ export default function PostDetailPage() {
                   ))}
                 </div>
               )}
-              {/* 비이미지 첨부(PDF 등) — 기존 세로 리스트 유지. 이미지 타입 첨부도 동일 경로. */}
-              {post.attachments && post.attachments.length > 0 && (
-                <div className="flex flex-col gap-2">
-                  {post.attachments.map((att) => {
-                    const isImage = att.contentType.startsWith('image/');
-                    return (
-                      <div key={att.id}>
-                        {isImage && (
-                          <img
-                            crossOrigin="anonymous"
-                            src={att.downloadUrl}
-                            alt={att.originalFilename}
-                            className="rounded-lg max-h-80 object-contain mb-2"
-                          />
-                        )}
-                        <a
-                          href={att.downloadUrl}
-                          download={att.originalFilename}
-                          onClick={(e) => {
-                            trackReaction('download', { postId: post.id });
-                            e.preventDefault();
-                            void downloadAsBlob(att.downloadUrl, att.originalFilename);
-                          }}
-                          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm text-gray-700"
+              {/* 비이미지 첨부 칩 — 시안 정합:
+                  - 알약 칩(⬇ N) + 첫 파일명 1줄.
+                  - annotation: "파일 1개일 때는 플로팅 리스트 뜨지 않음" → 1개=직접 다운로드, 2+=DropdownMenu.
+                  - 이미지 타입은 위 캐러셀에서 처리하므로 attachments에서 제외(중복 노출 방지). */}
+              {(() => {
+                const files =
+                  post.attachments?.filter(
+                    (att) => !att.contentType.startsWith('image/'),
+                  ) ?? [];
+                if (files.length === 0) return null;
+                const firstFile = files[0];
+                const triggerDownload = (downloadUrl: string, filename: string) => {
+                  trackReaction('download', { postId: post.id });
+                  void downloadAsBlob(downloadUrl, filename);
+                };
+                const chipClass =
+                  'shrink-0 inline-flex items-center gap-0.5 bg-gray-200 hover:bg-gray-300 transition-colors rounded-full px-2 py-1';
+                return (
+                  <div className="flex items-center gap-2">
+                    {files.length === 1 ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          triggerDownload(firstFile.downloadUrl, firstFile.originalFilename)
+                        }
+                        className={chipClass}
+                        aria-label={`${firstFile.originalFilename} 다운로드`}
+                      >
+                        <Download size={18} className="text-black" />
+                        <span className="text-xs font-semibold text-black leading-none">1</span>
+                      </button>
+                    ) : (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger
+                          className={chipClass}
+                          aria-label={`첨부 파일 ${files.length}개 보기`}
                         >
-                          {isImage ? <Download size={16} /> : <FileText size={16} />}
-                          <span className="truncate flex-1">{att.originalFilename}</span>
-                          <span className="text-xs text-gray-400 shrink-0">
-                            {att.sizeBytes >= 1024 * 1024
-                              ? `${(att.sizeBytes / (1024 * 1024)).toFixed(1)}MB`
-                              : `${(att.sizeBytes / 1024).toFixed(0)}KB`}
+                          <Download size={18} className="text-black" />
+                          <span className="text-xs font-semibold text-black leading-none">
+                            {files.length}
                           </span>
-                        </a>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="min-w-[240px]">
+                          {files.map((att) => (
+                            <DropdownMenuItem
+                              key={att.id}
+                              onClick={() =>
+                                triggerDownload(att.downloadUrl, att.originalFilename)
+                              }
+                            >
+                              <FileText size={14} className="mr-2 text-gray-500 shrink-0" />
+                              <span className="truncate flex-1">{att.originalFilename}</span>
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                    <span className="text-xs text-gray-900 truncate min-w-0">
+                      {firstFile.originalFilename}
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
           )}
 
