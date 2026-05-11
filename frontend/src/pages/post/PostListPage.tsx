@@ -207,7 +207,7 @@ export default function PostListPage() {
   }
 
   return (
-    <div className="pb-20 md:pb-8">
+    <div className="max-w-3xl mx-auto pb-20 md:pb-8">
       {/* 회원가입 환영 모달(useWelcomeModal훅의 함수와 state를 import해서 상속중) */}
       <WelcomeModal open={welcome.open} onClose={welcome.onClose} onVerify={welcome.onVerify} />
       {/* 모바일 상단 헤더 */}
