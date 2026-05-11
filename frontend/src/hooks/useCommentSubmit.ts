@@ -19,8 +19,11 @@ export function useCommentSubmit({
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(content: string) {
+    // in-flight 가드: setSubmitting은 비동기 배치라 동기적 이중 호출(IME Enter 이중 발화,
+    // 더블탭 등)을 막지 못함. 함수 진입 시점 state로 직접 차단해야 두 번째 호출이 빠져나가지 않음.
+    if (submitting) return;
     const normalized = content.replace(/\n{3,}/g, '\n\n').trim();
-    if (!normalized.trim()) return;  
+    if (!normalized.trim()) return;
     setSubmitting(true);
     try {
       const newComment = await createComment(postId, {

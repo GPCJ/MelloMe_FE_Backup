@@ -20,6 +20,10 @@ export default function CommentInput({
   const isMobile = navigator.maxTouchPoints > 0;
 
   function handleKeyDown(e:React.KeyboardEvent<HTMLTextAreaElement>){
+    // 한글 IME 합성 종료 시 Enter keydown이 2회 발화하는 React 이슈 방어.
+    // 가드 없으면 한글 댓글 작성 시 onSubmit이 20~30ms 간격으로 두 번 호출되어
+    // 백엔드에 중복 POST가 전송됨 (2026-05-11 백엔드 로그로 확인).
+    if (e.nativeEvent.isComposing) return;
     if(e.key === 'Enter' && !e.shiftKey && !isMobile){
       e.preventDefault()
       onSubmit()

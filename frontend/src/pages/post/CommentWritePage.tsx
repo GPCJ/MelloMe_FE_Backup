@@ -54,6 +54,9 @@ export default function CommentWritePage() {
   }, [postId]);
 
   async function handleSubmit() {
+    // in-flight 가드: useCommentSubmit과 동일 사유. setSubmitting 비동기 배치 race를
+    // 함수 진입 state 체크로 차단. (R-06로 useCommentSubmit 통합되면 자연 제거됨.)
+    if (submitting) return;
     if (!postId || !commentInput.trim()) return;
     setSubmitting(true);
     try {
