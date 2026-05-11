@@ -65,7 +65,7 @@ export default function CommentCard({
   const showMenu = !isEditing && (canShowEdit || canShowDelete);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4">
+    <div className="bg-white p-4">
       {/* 작성자 정보 */}
       <div className="flex items-center gap-2 mb-2">
         <UserAvatar

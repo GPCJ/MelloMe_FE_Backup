@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import {
-  Eye,
   MessageSquare,
-  MoreVertical,
+  MoreHorizontal,
   Pencil,
   Trash2,
   Download,
@@ -47,23 +46,23 @@ import { useCommentReactionToggle } from '../../hooks/useCommentReactionToggle';
 
 function PostDetailSkeleton() {
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6 pb-20 md:pb-8">
-      <div className="flex items-center justify-between mb-6">
-        <Skeleton className="h-8 w-8 rounded-lg" />
-        <Skeleton className="h-8 w-8 rounded-lg" />
-      </div>
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
-        <div className="flex items-center gap-3 mb-6">
-          <Skeleton className="w-9 h-9 rounded-full" />
-          <div className="space-y-1.5">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-3 w-32" />
+    <div className="max-w-3xl mx-auto pb-20 md:pb-8">
+      {/* PageHeader 자리 — 시각 점프 방지용 흰 영역 */}
+      <div className="h-14 bg-white" />
+      <div className="bg-gray-200 flex flex-col gap-px">
+        <div className="bg-white p-4 flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <Skeleton className="w-9 h-9 rounded-full" />
+            <div className="space-y-1.5">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-3 w-32" />
+            </div>
           </div>
+          <Skeleton className="h-6 w-3/4" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-2/3" />
         </div>
-        <Skeleton className="h-6 w-3/4 mb-4" />
-        <Skeleton className="h-4 w-full mb-2" />
-        <Skeleton className="h-4 w-full mb-2" />
-        <Skeleton className="h-4 w-2/3" />
       </div>
     </div>
   );
@@ -257,290 +256,255 @@ export default function PostDetailPage() {
   const visibleCommentCount = comments.filter((c) => !c.deleted).length;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6 pb-20 md:pb-8">
+    <div className="max-w-3xl mx-auto pb-20 md:pb-8">
       {/* 상단 헤더 */}
-      <PageHeader
-        title="게시글"
-        backTo={`/posts`}
-        // 수정, 삭제 케밥 메뉴
-        rightAction={
-          (post.canEdit || post.canDelete) && (
-            <DropdownMenu>
-              <DropdownMenuTrigger className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
-                <MoreVertical size={20} />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {post.canEdit && (
-                  <DropdownMenuItem onClick={() => navigate(`/posts/${post.id}/edit`)}>
-                    <Pencil size={14} className="mr-2" />
-                    수정
-                  </DropdownMenuItem>
-                )}
-                {post.canDelete && (
-                  <DropdownMenuItem
-                    onClick={handleDeletePost}
-                    className="text-red-500 focus:text-red-500"
+      <PageHeader title="게시글" backTo={`/posts`} />
+
+      {/* 시안: 흰 카드를 회색 컨테이너 + gap-px로 묶어 카드 사이 1px 회색 띠로 분리 */}
+      <div className="bg-gray-200 flex flex-col gap-px">
+        {/* 게시글 카드 */}
+        <div className="bg-white p-4 flex flex-col gap-4">
+          {/* 작성자 정보 */}
+          <div className="flex items-center gap-3">
+            <UserAvatar
+              nickname={post.authorNickname}
+              imageUrl={post.authorProfileImageUrl}
+              size="md"
+            />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-gray-900">{post.authorNickname}</span>
+                <VerifiedBadge status={post.authorVerificationStatus} />
+                {post.visibility === 'PRIVATE' && (
+                  <span
+                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-600 text-[11px] font-medium"
+                    aria-label="치료사 전용 게시글"
+                    title="치료사 전용 게시글"
                   >
-                    <Trash2 size={14} className="mr-2" />
-                    삭제
-                  </DropdownMenuItem>
+                    <Lock size={11} />
+                    치료사 전용
+                  </span>
                 )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )
-        }
-      />
-
-      {/* 데스크탑: 카드 바깥 상단 우측 케밥 메뉴 */}
-      {(post.canEdit || post.canDelete) && (
-        <div className="hidden md:flex justify-end mb-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
-              <MoreVertical size={20} />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {post.canEdit && (
-                <DropdownMenuItem onClick={() => navigate(`/posts/${post.id}/edit`)}>
-                  <Pencil size={14} className="mr-2" />
-                  수정
-                </DropdownMenuItem>
-              )}
-              {post.canDelete && (
-                <DropdownMenuItem
-                  onClick={handleDeletePost}
-                  className="text-red-500 focus:text-red-500"
-                >
-                  <Trash2 size={14} className="mr-2" />
-                  삭제
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      )}
-
-      {/* 게시글 카드 */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
-        {/* 작성자 정보 */}
-        <div className="flex items-center gap-3 mb-5 pb-5 border-b border-gray-100">
-          <UserAvatar
-            nickname={post.authorNickname}
-            imageUrl={post.authorProfileImageUrl}
-            size="md"
-          />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-gray-900">{post.authorNickname}</span>
-              <VerifiedBadge status={post.authorVerificationStatus} />
-              {post.visibility === 'PRIVATE' && (
-                <span
-                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-600 text-[11px] font-medium"
-                  aria-label="치료사 전용 게시글"
-                  title="치료사 전용 게시글"
-                >
-                  <Lock size={11} />
-                  치료사 전용
-                </span>
-              )}
+                <span className="text-xs text-gray-400">{formatRelativeTime(post.createdAt)}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-0.5">
-              <span>{formatRelativeTime(post.createdAt)}</span>
-              <span>·</span>
-              <span className="flex items-center gap-0.5">
-                <Eye size={11} />
-                조회 {post.viewCount}
+            {/* 수정·삭제 케밥 — 시안: 게시글 카드 작성자 라인 우측 가로 점 3개 */}
+            {(post.canEdit || post.canDelete) && (
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  aria-label="게시글 메뉴"
+                  className="p-1.5 shrink-0 text-gray-400 hover:text-gray-600 rounded transition-colors"
+                >
+                  <MoreHorizontal size={20} />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {post.canEdit && (
+                    <DropdownMenuItem onClick={() => navigate(`/posts/${post.id}/edit`)}>
+                      <Pencil size={14} className="mr-2" />
+                      수정
+                    </DropdownMenuItem>
+                  )}
+                  {post.canDelete && (
+                    <DropdownMenuItem
+                      onClick={handleDeletePost}
+                      className="text-red-500 focus:text-red-500"
+                    >
+                      <Trash2 size={14} className="mr-2" />
+                      삭제
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+
+          {/* 해시태그 */}
+          {therapyLabel && (
+            <div className="flex flex-wrap gap-2">
+              <span className="px-3 py-1 rounded-full bg-gray-100 text-sm text-gray-700">
+                #{therapyLabel}
               </span>
             </div>
-          </div>
-          <button
-            onClick={handleScrapToggle}
-            disabled={scrapLoading}
-            className="p-1.5 shrink-0 transition-colors"
-          >
-            <Bookmark
-              size={20}
-              className={
-                scrapped ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 hover:text-gray-500'
-              }
-            />
-          </button>
-        </div>
+          )}
 
-        {/* 해시태그 */}
-        {therapyLabel && (
-          <div className="flex flex-wrap gap-2 mb-5">
-            <span className="px-3 py-1 rounded-full bg-gray-100 text-sm text-gray-700">
-              #{therapyLabel}
-            </span>
-          </div>
-        )}
-
-        {/* 본문 — accessLocked 분기는 fetch 단계에서 4xx redirect로 처리되어 일반적으론 도달 X.
+          {/* 본문 — accessLocked 분기는 fetch 단계에서 4xx redirect로 처리되어 일반적으론 도달 X.
             백엔드가 향후 4xx 대신 마스킹 응답으로 바뀔 가능성을 대비해 방어적으로 유지. */}
-        {post.accessLocked ? (
-          <div className="bg-stone-50 rounded-lg py-12 px-4 mb-6">
-            <p className="text-center text-gray-600 text-sm">
-              인증된 회원에게만 공개된 게시물입니다.
-            </p>
-          </div>
-        ) : (
-          <div
-            className="post-content mb-6"
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(post.content),
-            }}
-          />
-        )}
+          {post.accessLocked ? (
+            <div className="bg-stone-50 rounded-lg py-12 px-4">
+              <p className="text-center text-gray-600 text-sm">
+                인증된 회원에게만 공개된 게시물입니다.
+              </p>
+            </div>
+          ) : (
+            <div
+              className="post-content"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(post.content),
+              }}
+            />
+          )}
 
-        {/* 첨부파일 + 이미지 */}
-        {((post.attachments && post.attachments.length > 0) || images.length > 0) && (
-          <div className="mb-6 pt-4 border-t border-gray-100">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">
-              첨부파일 ({(post.attachments?.length ?? 0) + images.length})
-            </h3>
-            <div className="flex flex-col gap-2">
-              {images.map((img) => (
-                <div key={`img-${img.id}`}>
-                  <img
-                    crossOrigin="anonymous"
-                    src={resolveImageUrl(img.imageUrl) ?? ''}
-                    alt={img.originalFilename}
-                    className="rounded-lg max-h-80 object-contain mb-2"
-                  />
-                  <a
-                    href={resolveImageUrl(img.imageUrl) ?? '#'}
-                    download={img.originalFilename}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      trackReaction('download', { postId: post.id });
-                      void downloadAsBlob(
-                        resolveImageUrl(img.imageUrl) ?? '',
-                        img.originalFilename,
-                      );
-                    }}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm text-gray-700"
-                  >
-                    <Download size={16} />
-                    <span className="truncate flex-1">{img.originalFilename}</span>
-                  </a>
-                </div>
-              ))}
-              {post.attachments?.map((att) => {
-                const isImage = att.contentType.startsWith('image/');
-                return (
-                  <div key={att.id}>
-                    {isImage && (
-                      <img
-                        crossOrigin="anonymous"
-                        src={att.downloadUrl}
-                        alt={att.originalFilename}
-                        className="rounded-lg max-h-80 object-contain mb-2"
-                      />
-                    )}
+          {/* 첨부파일 + 이미지 */}
+          {((post.attachments && post.attachments.length > 0) || images.length > 0) && (
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                첨부파일 ({(post.attachments?.length ?? 0) + images.length})
+              </h3>
+              <div className="flex flex-col gap-2">
+                {images.map((img) => (
+                  <div key={`img-${img.id}`}>
+                    <img
+                      crossOrigin="anonymous"
+                      src={resolveImageUrl(img.imageUrl) ?? ''}
+                      alt={img.originalFilename}
+                      className="rounded-lg max-h-80 object-contain mb-2"
+                    />
                     <a
-                      href={att.downloadUrl}
-                      download={att.originalFilename}
+                      href={resolveImageUrl(img.imageUrl) ?? '#'}
+                      download={img.originalFilename}
                       onClick={(e) => {
-                        trackReaction('download', { postId: post.id });
                         e.preventDefault();
-                        void downloadAsBlob(att.downloadUrl, att.originalFilename);
+                        trackReaction('download', { postId: post.id });
+                        void downloadAsBlob(
+                          resolveImageUrl(img.imageUrl) ?? '',
+                          img.originalFilename,
+                        );
                       }}
                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm text-gray-700"
                     >
-                      {isImage ? <Download size={16} /> : <FileText size={16} />}
-                      <span className="truncate flex-1">{att.originalFilename}</span>
-                      <span className="text-xs text-gray-400 shrink-0">
-                        {att.sizeBytes >= 1024 * 1024
-                          ? `${(att.sizeBytes / (1024 * 1024)).toFixed(1)}MB`
-                          : `${(att.sizeBytes / 1024).toFixed(0)}KB`}
-                      </span>
+                      <Download size={16} />
+                      <span className="truncate flex-1">{img.originalFilename}</span>
                     </a>
                   </div>
-                );
-              })}
+                ))}
+                {post.attachments?.map((att) => {
+                  const isImage = att.contentType.startsWith('image/');
+                  return (
+                    <div key={att.id}>
+                      {isImage && (
+                        <img
+                          crossOrigin="anonymous"
+                          src={att.downloadUrl}
+                          alt={att.originalFilename}
+                          className="rounded-lg max-h-80 object-contain mb-2"
+                        />
+                      )}
+                      <a
+                        href={att.downloadUrl}
+                        download={att.originalFilename}
+                        onClick={(e) => {
+                          trackReaction('download', { postId: post.id });
+                          e.preventDefault();
+                          void downloadAsBlob(att.downloadUrl, att.originalFilename);
+                        }}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm text-gray-700"
+                      >
+                        {isImage ? <Download size={16} /> : <FileText size={16} />}
+                        <span className="truncate flex-1">{att.originalFilename}</span>
+                        <span className="text-xs text-gray-400 shrink-0">
+                          {att.sizeBytes >= 1024 * 1024
+                            ? `${(att.sizeBytes / (1024 * 1024)).toFixed(1)}MB`
+                            : `${(att.sizeBytes / 1024).toFixed(0)}KB`}
+                        </span>
+                      </a>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
+          )}
+
+          {/* 리액션 + 댓글 수 — 시안: 댓글 좌측 끝, 북마크 우측 끝 */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate(`/posts/${postId}/comments`)}
+              className="flex md:hidden items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <MessageSquare size={16} />
+              {visibleCommentCount}
+            </button>
+            <span className="hidden md:flex items-center gap-1.5 text-sm text-gray-400">
+              <MessageSquare size={16} />
+              {visibleCommentCount}
+            </span>
+            <ReactionBar
+              // reaction이 null일 경우 문제 발생함 혹시나 리액션 관련 버그 발생 시 이 코드 참조
+              counts={{
+                LIKE: reaction.likeCount,
+                CURIOUS: reaction.curiousCount,
+                USEFUL: reaction.usefulCount,
+              }}
+              myReactionType={reaction.myReactionType}
+              onToggle={handleToggle}
+              disabled={toggling}
+            />
+            <button
+              onClick={handleScrapToggle}
+              disabled={scrapLoading}
+              className="p-1.5 shrink-0 ml-auto transition-colors"
+            >
+              <Bookmark
+                size={20}
+                className={
+                  scrapped ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 hover:text-gray-500'
+                }
+              />
+            </button>
+          </div>
+        </div>
+
+        {/* 댓글 헤더 + 데스크탑 인라인 입력 — 풀폭 흰 카드 1개 */}
+        <div className="bg-white p-4">
+          <h2 className="text-base font-bold text-gray-900">댓글 {visibleCommentCount}</h2>
+          <div className="hidden md:block mt-4">
+            <CommentInput
+              value={commentInput}
+              onChange={setCommentInput}
+              onSubmit={() => handleSubmitComment(commentInput)}
+              submitting={submitting}
+            />
+          </div>
+        </div>
+
+        {/* 댓글 카드 — 회색 컨테이너의 직접 자식이라 gap-px이 카드 사이에 적용됨 */}
+        {topComments.map((comment) => {
+          const isEditing = editingCommentId === comment.id;
+          return (
+            <div
+              key={comment.id}
+              // 편집 중엔 카드 클릭으로 인한 댓글 상세 이동 차단.
+              // form 내부 클릭은 CommentCard가 stopPropagation으로 보호하지만, 카드 여백
+              // (작성자 영역 등)을 누르면 navigate가 발동해 작업 중인 입력이 사라지는 사고가 남.
+              onClick={
+                isEditing ? undefined : () => navigate(`/posts/${postId}/comments/${comment.id}`)
+              }
+              className={isEditing ? '' : 'cursor-pointer'}
+            >
+              <CommentCard
+                comment={comment}
+                replyCount={getReplies(comment.id).length}
+                onMessageClick={() =>
+                  navigate(`/posts/${postId}/comments/${comment.id}`, {
+                    state: { autoReply: true },
+                  })
+                }
+                onDelete={() => handleDeleteComment(comment.id)}
+                isEditing={isEditing}
+                editSubmitting={editSubmitting}
+                onEditStart={() => handleEditStart(comment.id)}
+                onEditSubmit={(newContent) => handleEditSubmit(comment.id, newContent)}
+                onEditCancel={handleEditCancel}
+                onToggleReaction={(type) => handleCommentToggle(comment.id, type)}
+                toggling={togglingId === comment.id}
+              />
+            </div>
+          );
+        })}
+        {topComments.length === 0 && (
+          <div className="bg-white py-12 text-center text-sm text-gray-400">
+            첫 댓글을 남겨보세요!
           </div>
         )}
-
-        {/* 리액션 + 댓글 수 */}
-        <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
-          <ReactionBar
-            // reaction이 null일 경우 문제 발생함 혹시나 리액션 관련 버그 발생 시 이 코드 참조
-            counts={{
-              LIKE: reaction.likeCount,
-              CURIOUS: reaction.curiousCount,
-              USEFUL: reaction.usefulCount,
-            }}
-            myReactionType={reaction.myReactionType}
-            onToggle={handleToggle}
-            disabled={toggling}
-          />
-          <button
-            onClick={() => navigate(`/posts/${postId}/comments`)}
-            className="flex md:hidden items-center gap-1.5 text-sm text-gray-400 ml-auto hover:text-gray-600 transition-colors"
-          >
-            <MessageSquare size={16} />
-            댓글 {visibleCommentCount}
-          </button>
-          <span className="hidden md:flex items-center gap-1.5 text-sm text-gray-400 ml-auto">
-            <MessageSquare size={16} />
-            댓글 {visibleCommentCount}
-          </span>
-        </div>
-      </div>
-
-      {/* 댓글 섹션 */}
-      <div>
-        <h2 className="text-base font-bold text-gray-900 mb-4">댓글 {visibleCommentCount}</h2>
-
-        {/* 데스크탑 인라인 댓글 입력 */}
-        <div className="hidden md:block mb-4">
-          <CommentInput
-            value={commentInput}
-            onChange={setCommentInput}
-            onSubmit={() => handleSubmitComment(commentInput)}
-            submitting={submitting}
-          />
-        </div>
-
-        <div className="flex flex-col gap-3">
-          {topComments.map((comment) => {
-            const isEditing = editingCommentId === comment.id;
-            return (
-              <div
-                key={comment.id}
-                // 편집 중엔 카드 클릭으로 인한 댓글 상세 이동 차단.
-                // form 내부 클릭은 CommentCard가 stopPropagation으로 보호하지만, 카드 여백
-                // (작성자 영역 등)을 누르면 navigate가 발동해 작업 중인 입력이 사라지는 사고가 남.
-                onClick={
-                  isEditing ? undefined : () => navigate(`/posts/${postId}/comments/${comment.id}`)
-                }
-                className={isEditing ? '' : 'cursor-pointer'}
-              >
-                <CommentCard
-                  comment={comment}
-                  replyCount={getReplies(comment.id).length}
-                  onMessageClick={() =>
-                    navigate(`/posts/${postId}/comments/${comment.id}`, {
-                      state: { autoReply: true },
-                    })
-                  }
-                  onDelete={() => handleDeleteComment(comment.id)}
-                  isEditing={isEditing}
-                  editSubmitting={editSubmitting}
-                  onEditStart={() => handleEditStart(comment.id)}
-                  onEditSubmit={(newContent) => handleEditSubmit(comment.id, newContent)}
-                  onEditCancel={handleEditCancel}
-                  onToggleReaction={(type) => handleCommentToggle(comment.id, type)}
-                  toggling={togglingId === comment.id}
-                />
-              </div>
-            );
-          })}
-          {topComments.length === 0 && (
-            <p className="text-sm text-gray-400 text-center py-6">첫 댓글을 남겨보세요!</p>
-          )}
-        </div>
       </div>
     </div>
   );
