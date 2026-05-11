@@ -470,57 +470,61 @@ export default function PostDetailPage() {
             기존엔 외부 래퍼 div onClick으로 카드 클릭 → CommentDetailPage 이동이었으나,
             시안 정합을 위해 카드 자체 navigate를 제거. 답글 작성 동선은 카드 내부
             💬 아이콘(onMessageClick) → CommentDetailPage 진입으로 유지(D-4 안전).
-            isReply/hasReplies는 다음 UI 커밋에서 좌측 컬럼 세로선/꺾인 선 prefix에 사용. */}
-        {topComments.flatMap((parent) => {
+
+            thread wrapper 역할: 부모 회색 컨테이너의 gap-px가 "스레드 사이"에만 적용되도록
+            부모 댓글 + 자식 댓글 묶음을 하나의 bg-white 박스로 감쌈 → 부모와 자식 사이엔
+            회색선이 끼지 않아 좌측 세로선/╰ 꺾인 선의 시각적 연결이 끊기지 않는다. */}
+        {topComments.map((parent) => {
           const replies = getReplies(parent.id);
           const parentEditing = editingCommentId === parent.id;
-          return [
-            <CommentCard
-              key={parent.id}
-              comment={parent}
-              replyCount={replies.length}
-              isReply={false}
-              hasReplies={replies.length > 0}
-              onMessageClick={() =>
-                navigate(`/posts/${postId}/comments/${parent.id}`, {
-                  state: { autoReply: true },
-                })
-              }
-              onDelete={() => handleDeleteComment(parent.id)}
-              isEditing={parentEditing}
-              editSubmitting={editSubmitting}
-              onEditStart={() => handleEditStart(parent.id)}
-              onEditSubmit={(newContent) => handleEditSubmit(parent.id, newContent)}
-              onEditCancel={handleEditCancel}
-              onToggleReaction={(type) => handleCommentToggle(parent.id, type)}
-              toggling={togglingId === parent.id}
-            />,
-            ...replies.map((reply) => {
-              const replyEditing = editingCommentId === reply.id;
-              return (
-                <CommentCard
-                  key={reply.id}
-                  comment={reply}
-                  replyToNickname={parent.authorNickname}
-                  isReply={true}
-                  hasReplies={false}
-                  onMessageClick={() =>
-                    navigate(`/posts/${postId}/comments/${parent.id}`, {
-                      state: { autoReply: true, replyToCommentId: reply.id },
-                    })
-                  }
-                  onDelete={() => handleDeleteComment(reply.id)}
-                  isEditing={replyEditing}
-                  editSubmitting={editSubmitting}
-                  onEditStart={() => handleEditStart(reply.id)}
-                  onEditSubmit={(newContent) => handleEditSubmit(reply.id, newContent)}
-                  onEditCancel={handleEditCancel}
-                  onToggleReaction={(type) => handleCommentToggle(reply.id, type)}
-                  toggling={togglingId === reply.id}
-                />
-              );
-            }),
-          ];
+          return (
+            <div key={parent.id} className="bg-white">
+              <CommentCard
+                comment={parent}
+                replyCount={replies.length}
+                isReply={false}
+                hasReplies={replies.length > 0}
+                onMessageClick={() =>
+                  navigate(`/posts/${postId}/comments/${parent.id}`, {
+                    state: { autoReply: true },
+                  })
+                }
+                onDelete={() => handleDeleteComment(parent.id)}
+                isEditing={parentEditing}
+                editSubmitting={editSubmitting}
+                onEditStart={() => handleEditStart(parent.id)}
+                onEditSubmit={(newContent) => handleEditSubmit(parent.id, newContent)}
+                onEditCancel={handleEditCancel}
+                onToggleReaction={(type) => handleCommentToggle(parent.id, type)}
+                toggling={togglingId === parent.id}
+              />
+              {replies.map((reply) => {
+                const replyEditing = editingCommentId === reply.id;
+                return (
+                  <CommentCard
+                    key={reply.id}
+                    comment={reply}
+                    replyToNickname={parent.authorNickname}
+                    isReply={true}
+                    hasReplies={false}
+                    onMessageClick={() =>
+                      navigate(`/posts/${postId}/comments/${parent.id}`, {
+                        state: { autoReply: true, replyToCommentId: reply.id },
+                      })
+                    }
+                    onDelete={() => handleDeleteComment(reply.id)}
+                    isEditing={replyEditing}
+                    editSubmitting={editSubmitting}
+                    onEditStart={() => handleEditStart(reply.id)}
+                    onEditSubmit={(newContent) => handleEditSubmit(reply.id, newContent)}
+                    onEditCancel={handleEditCancel}
+                    onToggleReaction={(type) => handleCommentToggle(reply.id, type)}
+                    toggling={togglingId === reply.id}
+                  />
+                );
+              })}
+            </div>
+          );
         })}
         {topComments.length === 0 && (
           <div className="bg-white py-12 text-center text-sm text-gray-400">
