@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import {
@@ -44,6 +44,38 @@ import { trackReaction } from '../../lib/analytics';
 import axios from 'axios';
 import { useCommentReactionToggle } from '../../hooks/useCommentReactionToggle';
 
+// 가로 드래그 스크롤 — 작성 모달(PostWriteForm)과 동일 패턴.
+// mousedown에서 시작점(scrollLeft+pageX) 캡쳐 → mousemove에서 그 차이만큼 scrollLeft 갱신.
+// state.current.moved는 다음 click 흡수 가드용 — 드래그 거리 > 5px면 우연한 클릭(다운로드 등) 무시.
+function useDragScroll() {
+  const ref = useRef<HTMLDivElement>(null);
+  const state = useRef({ active: false, startX: 0, startScroll: 0, moved: 0 });
+  const handlers = {
+    onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => {
+      const el = ref.current;
+      if (!el) return;
+      state.current = { active: true, startX: e.pageX, startScroll: el.scrollLeft, moved: 0 };
+      el.style.cursor = 'grabbing';
+    },
+    onMouseMove: (e: React.MouseEvent<HTMLDivElement>) => {
+      const el = ref.current;
+      if (!el || !state.current.active) return;
+      const dx = e.pageX - state.current.startX;
+      el.scrollLeft = state.current.startScroll - dx;
+      state.current.moved = Math.abs(dx);
+    },
+    onMouseUp: () => {
+      if (ref.current) ref.current.style.cursor = '';
+      state.current.active = false;
+    },
+    onMouseLeave: () => {
+      if (ref.current) ref.current.style.cursor = '';
+      state.current.active = false;
+    },
+  };
+  return { ref, state, handlers };
+}
+
 function PostDetailSkeleton() {
   return (
     <div className="max-w-3xl mx-auto pb-20 md:pb-8">
@@ -85,6 +117,9 @@ export default function PostDetailPage() {
   // editSubmitting은 PATCH 진행 중 저장 버튼 disable + 카드 잠금에 사용.
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editSubmitting, setEditSubmitting] = useState(false);
+
+  // 첨부 이미지 가로 드래그 캐러셀 — 시안 정합: 작성 모달과 동일 패턴.
+  const imagesScroll = useDragScroll();
 
   // handleCommentToggle은 별칭, handleToggle함수가 이미 이 파일 내부에 있기 때문에 별칭을 사용했음
   const { togglingId, handleToggle: handleCommentToggle } = useCommentReactionToggle(
@@ -350,67 +385,86 @@ export default function PostDetailPage() {
               <h3 className="text-sm font-semibold text-gray-700 mb-3">
                 첨부파일 ({(post.attachments?.length ?? 0) + images.length})
               </h3>
-              <div className="flex flex-col gap-2">
-                {images.map((img) => (
-                  <div key={`img-${img.id}`}>
-                    <img
-                      crossOrigin="anonymous"
-                      src={resolveImageUrl(img.imageUrl) ?? ''}
-                      alt={img.originalFilename}
-                      className="rounded-lg max-h-80 object-contain mb-2"
-                    />
-                    <a
-                      href={resolveImageUrl(img.imageUrl) ?? '#'}
-                      download={img.originalFilename}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        trackReaction('download', { postId: post.id });
-                        void downloadAsBlob(
-                          resolveImageUrl(img.imageUrl) ?? '',
-                          img.originalFilename,
-                        );
-                      }}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm text-gray-700"
-                    >
-                      <Download size={16} />
-                      <span className="truncate flex-1">{img.originalFilename}</span>
-                    </a>
-                  </div>
-                ))}
-                {post.attachments?.map((att) => {
-                  const isImage = att.contentType.startsWith('image/');
-                  return (
-                    <div key={att.id}>
-                      {isImage && (
-                        <img
-                          crossOrigin="anonymous"
-                          src={att.downloadUrl}
-                          alt={att.originalFilename}
-                          className="rounded-lg max-h-80 object-contain mb-2"
-                        />
-                      )}
+              {/* 이미지: 가로 드래그 캐러셀 — 시안 정합(작성 모달과 동일 패턴).
+                  -mx-4 px-4: 카드 좌우 패딩(p-4)을 무시하고 가장자리까지 스크롤 영역 확장. */}
+              {images.length > 0 && (
+                <div
+                  ref={imagesScroll.ref}
+                  {...imagesScroll.handlers}
+                  className="flex gap-2 overflow-x-auto -mx-4 px-4 cursor-grab select-none mb-2"
+                >
+                  {images.map((img) => (
+                    <div key={`img-${img.id}`} className="shrink-0 w-72 flex flex-col">
+                      <img
+                        crossOrigin="anonymous"
+                        src={resolveImageUrl(img.imageUrl) ?? ''}
+                        alt={img.originalFilename}
+                        draggable={false}
+                        className="w-72 h-72 rounded-lg object-cover bg-gray-100 mb-2"
+                      />
                       <a
-                        href={att.downloadUrl}
-                        download={att.originalFilename}
+                        href={resolveImageUrl(img.imageUrl) ?? '#'}
+                        download={img.originalFilename}
                         onClick={(e) => {
-                          trackReaction('download', { postId: post.id });
+                          // 드래그 종료점이 링크 위일 때 우연한 다운로드 방지.
+                          if (imagesScroll.state.current.moved > 5) {
+                            e.preventDefault();
+                            return;
+                          }
                           e.preventDefault();
-                          void downloadAsBlob(att.downloadUrl, att.originalFilename);
+                          trackReaction('download', { postId: post.id });
+                          void downloadAsBlob(
+                            resolveImageUrl(img.imageUrl) ?? '',
+                            img.originalFilename,
+                          );
                         }}
                         className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm text-gray-700"
                       >
-                        {isImage ? <Download size={16} /> : <FileText size={16} />}
-                        <span className="truncate flex-1">{att.originalFilename}</span>
-                        <span className="text-xs text-gray-400 shrink-0">
-                          {att.sizeBytes >= 1024 * 1024
-                            ? `${(att.sizeBytes / (1024 * 1024)).toFixed(1)}MB`
-                            : `${(att.sizeBytes / 1024).toFixed(0)}KB`}
-                        </span>
+                        <Download size={16} />
+                        <span className="truncate flex-1">{img.originalFilename}</span>
                       </a>
                     </div>
-                  );
-                })}
-              </div>
+                  ))}
+                </div>
+              )}
+              {/* 비이미지 첨부(PDF 등) — 기존 세로 리스트 유지. 이미지 타입 첨부도 동일 경로. */}
+              {post.attachments && post.attachments.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  {post.attachments.map((att) => {
+                    const isImage = att.contentType.startsWith('image/');
+                    return (
+                      <div key={att.id}>
+                        {isImage && (
+                          <img
+                            crossOrigin="anonymous"
+                            src={att.downloadUrl}
+                            alt={att.originalFilename}
+                            className="rounded-lg max-h-80 object-contain mb-2"
+                          />
+                        )}
+                        <a
+                          href={att.downloadUrl}
+                          download={att.originalFilename}
+                          onClick={(e) => {
+                            trackReaction('download', { postId: post.id });
+                            e.preventDefault();
+                            void downloadAsBlob(att.downloadUrl, att.originalFilename);
+                          }}
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm text-gray-700"
+                        >
+                          {isImage ? <Download size={16} /> : <FileText size={16} />}
+                          <span className="truncate flex-1">{att.originalFilename}</span>
+                          <span className="text-xs text-gray-400 shrink-0">
+                            {att.sizeBytes >= 1024 * 1024
+                              ? `${(att.sizeBytes / (1024 * 1024)).toFixed(1)}MB`
+                              : `${(att.sizeBytes / 1024).toFixed(0)}KB`}
+                          </span>
+                        </a>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
