@@ -38,10 +38,8 @@ export default function CommentCard({
   comment,
   replyCount,
   replyToNickname,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  isReply: _isReply = false,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  hasReplies: _hasReplies = false,
+  isReply = false,
+  hasReplies = false,
   onMessageClick,
   onDelete,
   isEditing = false,
@@ -72,138 +70,159 @@ export default function CommentCard({
   const canShowDelete = !comment.deleted && comment.canDelete && !!onDelete;
   const showMenu = !isEditing && (canShowEdit || canShowDelete);
 
+  // 시안 정합 레이아웃: 좌측 48px 프로필 컬럼 + 우측 컨텐츠 영역.
+  // - 부모 댓글(hasReplies=true): 좌측 컬럼 아바타 아래로 세로선이 카드 하단까지 이어져 자식과 시각 연결.
+  // - 대댓글(isReply=true): 좌측 컬럼 상단에 ╰ 꺾인 선(border-l + border-b + rounded-bl) prefix로 부모 세로선과 연결.
+  // 평면 padding이 아닌 flex 컬럼 구조라 본문/액션 행 모두 우측 컨텐츠 영역 안에서 정렬됨.
   return (
-    <div className="bg-white p-4">
-      {/* 작성자 정보 */}
-      <div className="flex items-center gap-2 mb-2">
+    <div className={`bg-white flex ${isReply ? 'pl-4 pr-4 pb-3' : 'p-4'}`}>
+      {/* 좌측 48px 프로필 컬럼 */}
+      <div className="shrink-0 w-12 flex flex-col items-center">
+        {/* 대댓글: ╰ 꺾인 선 prefix (16px 높이, 좌측 24px 오프셋으로 부모 세로선과 정렬, 12px 가로폭).
+            border-l + border-b + rounded-bl 조합으로 SVG 없이 곡선 표현. */}
+        {isReply && (
+          <div className="self-start h-4 w-3 ml-6 border-l border-b border-gray-300 rounded-bl-lg" />
+        )}
         <UserAvatar
           nickname={comment.authorNickname}
           imageUrl={comment.authorProfileImageUrl}
-          size="sm"
+          size={isReply ? 'sm' : 'md'}
         />
-        <div className="flex items-center gap-1.5 flex-1 min-w-0">
-          <span className="text-sm font-semibold text-gray-900">{comment.authorNickname}</span>
-
-          {comment.authorRole === 'THERAPIST' && <VerifiedBadge status="APPROVED" />}
-
-          {replyToNickname && <span className="text-xs text-gray-400">@{replyToNickname}</span>}
-        </div>
-        <span className="text-xs text-gray-400 shrink-0">
-          {formatRelativeTime(comment.createdAt)}
-        </span>
-        {showMenu && (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              onClick={(e) => e.stopPropagation()}
-              className="p-1 -mr-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
-              aria-label="댓글 메뉴"
-            >
-              <MoreHorizontal size={16} />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-              {canShowEdit && (
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEditStart?.();
-                  }}
-                >
-                  수정
-                </DropdownMenuItem>
-              )}
-              {canShowDelete && (
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete?.();
-                  }}
-                  className="text-red-600 focus:text-red-600"
-                >
-                  삭제
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+        {/* 부모 댓글이 자식을 가졌으면 세로선이 카드 하단까지 흐름.
+            자식 카드 ╰ 의 vertical 라인과 동일한 x=24 위치(items-center로 가운데). */}
+        {hasReplies && <div className="w-px flex-1 bg-gray-300 mt-2" />}
       </div>
 
-      {/* 본문 — 편집 모드일 땐 inline form으로 교체.
-          form onSubmit으로 묶어 Enter=저장이 자동 동작(input은 single-line이라 줄바꿈 충돌 없음).
-          취소 버튼은 type="button"으로 명시 — 없으면 form 안의 button은 기본 submit이라 취소가
-          저장으로 동작하는 사고가 생길 수 있다. */}
-      {isEditing ? (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const trimmed = draft.trim();
-            if (!trimmed || trimmed === comment.content) {
-              // 변경 없거나 공백만 → 저장 안 하고 그대로 닫음. 빈 PATCH로 백엔드 에러 유도하지 않기 위함.
-              onEditCancel?.();
-              return;
-            }
-            onEditSubmit?.(trimmed);
-          }}
-          className="mb-3"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <textarea
-            rows={3}
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            autoFocus
-            disabled={editSubmitting}
-            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50"
-          />
-          <div className="flex items-center gap-2 justify-end mt-2">
-            <button
-              type="button"
-              onClick={onEditCancel}
-              disabled={editSubmitting}
-              className="px-3 py-1 text-xs text-gray-600 hover:text-gray-900 disabled:opacity-50"
-            >
-              취소
-            </button>
-            <button
-              type="submit"
-              disabled={editSubmitting || !draft.trim()}
-              className="px-3 py-1 text-xs font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              저장
-            </button>
-          </div>
-        </form>
-      ) : (
-        <p className="text-sm text-gray-700 leading-relaxed mb-3 whitespace-pre-wrap">
-          {comment.deleted ? '삭제된 댓글입니다.' : comment.content}
-        </p>
-      )}
-
-      {/* 리액션 아이콘 — 편집 중엔 숨겨서 작업 흐름 방해 방지. */}
-      {!comment.deleted && !isEditing && (
-        <div className="flex items-center text-gray-400">
-          <ReactionBar
-            counts={{
-              LIKE: comment.likeCount ?? 0,
-              CURIOUS: comment.curiousCount ?? 0,
-              USEFUL: comment.usefulCount ?? 0,
-            }}
-            myReactionType={comment.myReactionType ?? null}
-            onToggle={onToggleReaction}
-            disabled={toggling}
-            size={14}
-          />
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onMessageClick?.();
-            }}
-            className="flex items-center gap-1 text-xs hover:text-gray-600 transition-colors ml-auto"
-          >
-            <MessageSquare size={14} />
-            {replyCount != null && replyCount > 0 && <span>{replyCount}</span>}
-          </button>
+      {/* 우측 컨텐츠 영역 */}
+      <div className={`flex-1 min-w-0 flex flex-col ${isReply ? 'pl-2' : 'pl-3'}`}>
+        {/* 메타 행: 닉네임 14 bold / 뱃지 / @부모 닉네임 / 시간 11 gray-500 / 케밥 */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-sm font-bold text-gray-900 truncate">
+            {comment.authorNickname}
+          </span>
+          {comment.authorRole === 'THERAPIST' && <VerifiedBadge status="APPROVED" />}
+          {replyToNickname && (
+            <span className="text-xs text-gray-400 truncate">@{replyToNickname}</span>
+          )}
+          <span className="text-[11px] text-gray-500 shrink-0 ml-1">
+            {formatRelativeTime(comment.createdAt)}
+          </span>
+          {showMenu && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                onClick={(e) => e.stopPropagation()}
+                className="ml-auto p-1 -mr-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
+                aria-label="댓글 메뉴"
+              >
+                <MoreHorizontal size={16} />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                {canShowEdit && (
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditStart?.();
+                    }}
+                  >
+                    수정
+                  </DropdownMenuItem>
+                )}
+                {canShowDelete && (
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete?.();
+                    }}
+                    className="text-red-600 focus:text-red-600"
+                  >
+                    삭제
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
-      )}
+
+        {/* 본문 — 편집 모드일 땐 inline form으로 교체.
+            form onSubmit으로 묶어 Enter=저장이 자동 동작.
+            취소 버튼은 type="button"으로 명시 — 없으면 form 안의 button은 기본 submit이라 취소가
+            저장으로 동작하는 사고가 생길 수 있다. */}
+        {isEditing ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const trimmed = draft.trim();
+              if (!trimmed || trimmed === comment.content) {
+                // 변경 없거나 공백만 → 저장 안 하고 그대로 닫음. 빈 PATCH로 백엔드 에러 유도하지 않기 위함.
+                onEditCancel?.();
+                return;
+              }
+              onEditSubmit?.(trimmed);
+            }}
+            className="mt-1.5 mb-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <textarea
+              rows={3}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              autoFocus
+              disabled={editSubmitting}
+              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50"
+            />
+            <div className="flex items-center gap-2 justify-end mt-2">
+              <button
+                type="button"
+                onClick={onEditCancel}
+                disabled={editSubmitting}
+                className="px-3 py-1 text-xs text-gray-600 hover:text-gray-900 disabled:opacity-50"
+              >
+                취소
+              </button>
+              <button
+                type="submit"
+                disabled={editSubmitting || !draft.trim()}
+                className="px-3 py-1 text-xs font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                저장
+              </button>
+            </div>
+          </form>
+        ) : (
+          <p className="text-sm text-gray-700 leading-5 mt-1 mb-2 whitespace-pre-wrap">
+            {comment.deleted ? '삭제된 댓글입니다.' : comment.content}
+          </p>
+        )}
+
+        {/* 액션 행 — 시안 정합: 💬 좌측 + ReactionBar (북마크는 백엔드 API 부재로 생략).
+            편집 중엔 숨겨서 작업 흐름 방해 방지. */}
+        {!comment.deleted && !isEditing && (
+          <div className="flex items-center gap-3 text-gray-400">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onMessageClick?.();
+              }}
+              className="flex items-center gap-1 text-xs hover:text-gray-600 transition-colors"
+              aria-label="답글"
+            >
+              <MessageSquare size={14} />
+              {replyCount != null && replyCount > 0 && <span>{replyCount}</span>}
+            </button>
+            <ReactionBar
+              counts={{
+                LIKE: comment.likeCount ?? 0,
+                CURIOUS: comment.curiousCount ?? 0,
+                USEFUL: comment.usefulCount ?? 0,
+              }}
+              myReactionType={comment.myReactionType ?? null}
+              onToggle={onToggleReaction}
+              disabled={toggling}
+              size={14}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
