@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../stores/useAuthStore';
+import type { RefreshResponse } from '../types/auth';
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -69,21 +70,17 @@ axiosInstance.interceptors.response.use(
       // _retry: true를 붙여서 refresh 요청의 401이 다시 토큰 갱신 로직을 타지 않도록 함.
       // 없으면 refresh 401 → isRefreshing 중이라 failedQueue 진입 → processQueue 호출 불가 → 데드락.
       // TODO: 리팩토링 시 refresh 전용 axios 인스턴스 분리로 대체 (관심사 분리)
-      const { data } = await axiosInstance.post('/auth/refresh', null, {
+      const { data } = await axiosInstance.post<RefreshResponse>('/auth/refresh', null, {
         _retry: true,
       } as any);
       const newAccessToken: string = data.accessToken;
 
       useAuthStore.getState().setTokens({ accessToken: newAccessToken });
+      // profileImageUrl은 presigned URL (TTL ~1h). refresh 응답에 user가 포함되어 있으므로
+      // store를 갱신해 URL 만료 방지 (MEL-45).
+      useAuthStore.getState().setUser(data.user);
       axiosInstance.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
       originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
-      // profileImageUrl은 presigned URL (TTL ~1h). refresh마다 /me를 백그라운드 호출해
-      // store를 갱신하지 않으면 1시간 후 이미지가 깨짐 (MEL-45).
-      // 백엔드 RefreshResponse에 user 필드가 추가되면 이 호출은 제거 가능.
-      axiosInstance.get('/me').then((res) => {
-        useAuthStore.getState().setUser(res.data);
-      }).catch(() => {});
 
       processQueue(null, newAccessToken);
       return axiosInstance(originalRequest);

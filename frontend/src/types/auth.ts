@@ -30,6 +30,12 @@ export interface LoginResponse {
   tokens: Tokens;
 }
 
+export interface RefreshResponse {
+  accessToken: string;
+  accessTokenExpiresInSec: number;
+  user: MeResponse;
+}
+
 export interface SignupResponse {
   id: number;
   email: string;
