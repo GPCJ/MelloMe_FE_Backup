@@ -13,7 +13,7 @@ import UserAvatar from '../../components/common/UserAvatar';
 import { toast } from 'sonner';
 import { getAxiosErrorMessage } from '@/utils/getAxiosErrorMessage';
 import { parseServerDate } from '../../utils/formatDate';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, keepPreviousData, useQueryClient } from '@tanstack/react-query';
 import { trackEvent } from '../../lib/analytics';
 import { useScreenExit } from '../../hooks/useScreenExit';
 
@@ -59,6 +59,10 @@ export default function ProfilePage() {
       const { profileImageUrl } = await uploadProfileImage(file);
       // 응답 URL로 스토어 직접 갱신 — getMe() 재호출 대비 API 1회 절약
       if (user) setUser({ ...user, profileImageUrl });
+
+      // 프사 변경 시에 아래 3종탭의 정보를 캐시 무효화 하여 최신화함
+      invalidateMyPageTabs();
+
       // PM 정식 스펙(2026-04-27): 프사 수정 성공 시 profile_edited 발송.
       // 자기소개 필드는 PATCH /me에 미존재 — 백엔드 API 추가 시 후속 삽입.
       trackEvent('profile_edited');
@@ -89,6 +93,7 @@ export default function ProfilePage() {
     try {
       const updated = await updateMyProfile(trimmed);
       setUser({ ...user!, ...updated });
+      invalidateMyPageTabs();
       setEditingNickname(false);
       // PM 정식 스펙(2026-04-27): 닉네임 수정 성공 시 profile_edited 발송.
       trackEvent('profile_edited');
@@ -101,6 +106,13 @@ export default function ProfilePage() {
   }
 
   const [activeTab, setActiveTab] = useState<Tab>('posts');
+
+  const queryClient = useQueryClient();
+  const invalidateMyPageTabs = () => {
+    queryClient.invalidateQueries({ queryKey: ['myPosts'] });
+    queryClient.invalidateQueries({ queryKey: ['myComments'] });
+    queryClient.invalidateQueries({ queryKey: ['myScraps'] });
+  };
 
   const [postsPage, setPostsPage] = useState(1);
   const postsQuery = useQuery({
