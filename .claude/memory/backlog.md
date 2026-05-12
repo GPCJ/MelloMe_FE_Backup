@@ -2,7 +2,7 @@
 name: 프론트엔드 작업 백로그
 description: 데일리 태스크 선택용 단일 참조 파일 — 할 수 있는 것 / 블로킹 대기 / 검증 방법 포함
 type: project
-updated: 2026-04-16
+updated: 2026-05-12
 originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 ---
 # 프론트엔드 작업 백로그
@@ -262,6 +262,28 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 검증: Swagger `/v3/api-docs` 재조회 → `PostImageResponse.imageUrl`이 서명 쿼리 포함 절대 URL인지
   - 상세: `project_post_image_presigned_url.md`
 - [-] ~~**B-08** 유저 행동 분석용 `analyticsId` 필드 추가~~ → **드롭 (2026-04-24)** PM 결정: GA4 유저 단위 추적 안 함, Looker Studio/Firebase 로우데이터로 대체. 이벤트 4종은 프론트 독립 착수로 이동.
+- [ ] **B-09** 타인 프로필 조회 API (P1, MVP 후) — 확인일: 2026-05-12 (staging Swagger 기준 부재)
+  - **현황**: staging Swagger에 `/me` 계열만 있고 `GET /users/{id}` 류 부재 확정. 타인 프로필 카드 채울 데이터 소스 없음
+  - **요청 엔드포인트 2종**:
+    1. `GET /api/v1/users/{userId}` — 공개 프로필 카드 (nickname, profileImageUrl, role/title, verifiedAt 또는 인증 배지 flag, introduction)
+    2. `GET /api/v1/users/{userId}/posts` — 그 사람이 쓴 공개 게시글 페이지네이션 (visibility=PUBLIC만, accessLocked 정책은 본인 피드와 동일)
+  - **권한 정책 확인 필요**: 비인증 유저가 타인 프로필 열람 시 403? 200 + 차단 카드? (`B-03` 패턴 재사용 가능)
+  - **시안 출처**:
+    - 타인 프로필 페이지: figma node `1444:24270` (PC 700+)
+    - ⋯ 더보기 메뉴: figma node `1416:19545` (링크복사/차단/신고)
+  - **프론트 단독 가능한 후속 작업 (백엔드 해소 후 즉시 착수)**:
+    1. 라우트 `/profile/:userId` 추가 (`App.tsx`)
+    2. `UserProfilePage` 신규 (헤더 ← + 닉네임 + 🔍 + ⋯ / 프로필 카드 / 액션바 / 탭 2종)
+    3. `PostCard` / `PostDetailPage` / `CommentCard` 프사에 `onClick → navigate('/profile/' + authorId)` (stopPropagation)
+    4. 본인 클릭 시 `/profile/:myId` → `MyProfilePage` 분기 (또는 `/profile` redirect)
+    5. `PostSummary` / `CommentResponse` 타입에 `authorId` 존재 확인 — 없으면 백엔드 추가 요청 묶기
+  - **MVP 스코프 결정 (2026-05-12)**:
+    - 액션바 [메세지][연결하기] → **버튼 hidden** (DM/팔로우 시스템 MVP 미포함, B-04 미해소)
+    - ⋯ 메뉴 → **링크복사만 노출** (clipboard 1줄), 차단/신고는 백엔드 미확인 → MVP 후
+    - "이어진 시그널" 탭 → **UI-only + NotFound** (`아직 이어진 시그널이 없어요`), 데이터 fetch 없음
+  - **컴포넌트 전략**: 기존 `ProfilePage`(본인, 탭 3종 구현 완료) **건드리지 않음**. `UserProfilePage`만 신규. 공통 추출(`ProfileView`)은 신규 페이지 동작 후 별도 작업으로 분리 (premature abstraction 회피)
+  - **MVP 발표(05-15) 후 진행**: 백엔드 의존 + 디자인 결정 미해소(차단/신고/연결) → MVP 안정화 우선
+  - 검증: staging Swagger 재조회로 엔드포인트 등재 확인, 응답 스키마 필드 매핑
 
 ### 해소됨
 - [-] ~~탈퇴 유저 에러코드 분리~~ → 비번 틀림과 동일 에러 유지 확정 (04-16)

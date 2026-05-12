@@ -1,215 +1,176 @@
 # Project Memory
 
 ## 사용자
-- [인증/보안 개념 지식 수준 — 비유적 설명 선호](./user_knowledge_auth.md)
-- [개발 스타일 — 기능 구현 우선, 트러블슈팅 강점, 설계/아키텍처 약점 자각](./user_dev_style.md)
-- [AI 의존 줄이기 — 직접 코딩 목표, 힌트는 OK 코드 작성은 직접](./user_self_coding_goal.md)
-- [협업 스타일 — AI 행동 규약 공동 설계형](./user_collab_style_meta.md) — 반복 실수 시 즉시 "규칙화할까요?" 제안 OK
-- [지식 흡수 기준 — 이미지/구조가 떠올라야 흡수](./user_comprehension_criterion.md) — 텍스트로 읽힌 느낌 ≠ 흡수, 비유/다이어그램/추적 트리거 필요
-- [작업 집중 패턴 — 싱글태스크 선호 + 스쳐가는 생각 캡처](./user_work_focus_pattern.md) — 한 작업 몰입 스타일, 떠오르는 생각은 즉시 notepad, 25분 타이머
-- [코드 추적/학습 흐름 — outside-in (호출부 → 선언부)](./user_code_navigation_style.md) — 새 기능 가이드도 outside-in 순서로
-- [Zustand/RQ 등 reactivity 라이브러리 학습 — 단편 규칙 누적](./user_reactivity_libs_learning.md) — Zustand/RQ가 가장 어려움(reactivity 모델), 한 번에 큰 그림 X, AI 가이드는 selector 같은 단편 한 가지씩
-- [AI 의존 불안 패턴 — "AI 없던 시절이라면" 사고](./user_ai_dependency_anxiety.md) — 주기적 재출현, 4프레임 응답 + 테스트 가능 실험으로 redirect
+- [인증/보안 개념 — 비유적 설명 선호](./user_knowledge_auth.md)
+- [개발 스타일 — 기능 구현 강, 설계 약 자각](./user_dev_style.md)
+- [AI 의존 줄이기 — 코드 직접 작성](./user_self_coding_goal.md)
+- [협업 스타일 — AI 행동 규약 공동 설계형](./user_collab_style_meta.md)
+- [지식 흡수 — 이미지/구조 떠올라야 흡수](./user_comprehension_criterion.md)
+- [작업 집중 — 싱글태스크 + 스쳐가는 생각 캡처](./user_work_focus_pattern.md)
+- [코드 추적 — outside-in (호출부→선언부)](./user_code_navigation_style.md)
+- [Zustand/RQ 학습 — 단편 규칙 누적](./user_reactivity_libs_learning.md)
+- [AI 의존 불안 패턴 — 주기적 재출현, 4프레임 응답](./user_ai_dependency_anxiety.md)
 - 문서화 역량 면접 Q&A 7항목 → wiki `q-a-7` (reference)
 
 ## 작업 관리
-- **[MVP 발표일 2026-05-15](./project_mvp_launch_2026_05_15.md)** — D-day까지 안정화/완성 최우선, blast radius 큰 변경 회피
-- **[2주 우선순위 2026-04-23~05-07](./project_2weeks_priority_0423.md)** — SEO/Analytics/UI 3개만 최우선, 다른 R-xx 리팩토링은 후순위 (05-07까지 유효)
-- **[프론트엔드 작업 백로그](./backlog.md)** — 데일리 태스크 선택용 단일 참조 (할 수 있는 것 / 블로킹 / 검증 방법)
+- **[MVP 발표일 2026-05-15](./project_mvp_launch_2026_05_15.md)** — D-3, 안정화 최우선, blast radius 큰 변경 회피
+- **[프론트 작업 백로그](./backlog.md)** — 데일리 태스크 선택용 단일 참조
 
 ## 프로젝트
-멜로미 — 발달장애 아동 치료사 커뮤니티 플랫폼 (MVP 개발 중)
-- Frontend: React 19, TypeScript, Vite, Tailwind CSS, shadcn/ui, Zustand, React Router, MSW
-- Backend: Spring Boot (Java), JWT + Google OAuth2 / DB: PostgreSQL 16 / 인프라: Docker Compose
-- 배포: **Vercel(프론트) + EC2(백엔드)** / 프론트: `www.melonnetherapists.com` / 백엔드: `api.melonnetherapists.com`
-- MVP 요구사항 상세 + KPI → wiki `mvp-req-001-019` (reference, REQ-001~012 MVP)
+멜로미 — 발달장애 아동 치료사 커뮤니티 (MVP)
+- Frontend: React 19, TypeScript, Vite, Tailwind, shadcn/ui, Zustand, React Router, MSW
+- Backend: Spring Boot, JWT + Google OAuth2 / DB: PostgreSQL 16 / Docker Compose
+- 배포: Vercel(프론트) + EC2(백엔드) / 프론트 `www.melonnetherapists.com` / 백엔드 `api.melonnetherapists.com`
+- MVP 요구사항 + KPI → wiki `mvp-req-001-019` (reference)
 
 ## 핵심 정책
-- [USER 롤도 게시글 작성 가능 — 공개글만](./project_user_role_post_create_policy.md) — 04-14 main 머지 완료(770e7af), 백엔드 권한 필드 이관 대기
-- 게시물 열람: 로그인만 필요, 공개 게시물 미인증 열람 가능, 인증 전용은 블러
-- 토큰: AT=body(localStorage ~15분), RT=httpOnly Cookie / 페이지네이션: 0-based (프론트 currentPage-1)
-- MVP 단일 게시판 (board 파라미터 미사용)
-- [치료사 인증 정책 + 닉네임/title 변경](./project_auth_policy_change.md) — 즉시 THERAPIST + UNDER_REVIEW
-- **[MVP 치료사 인증 = 즉시 승인](./project_auth_policy_mvp_immediate_approval.md)** — UNDER_REVIEW 생략, 신청→APPROVED 바로
+- [USER 롤 게시글 작성 — 공개글만](./project_user_role_post_create_policy.md) — 04-14 main 머지, 백엔드 권한 필드 이관 대기
+- 게시물 열람: 로그인 필요, 공개글 미인증 열람 가능, 인증 전용은 블러
+- 토큰: AT=body(localStorage ~15분), RT=httpOnly Cookie / 페이지네이션 0-based / MVP 단일 게시판
+- **[MVP 치료사 인증 = 즉시 승인](./project_auth_policy_mvp_immediate_approval.md)** — UNDER_REVIEW 생략
 - [댓글 시스템 — flat 2레벨, @멘션](./project_comment_system.md)
-- **[댓글 줄바꿈 허용 정책 전환 (2026-05-02)](./project_comment_linebreak_policy.md)** — input→textarea + `whitespace-pre-wrap`, 한계 7개 박제(작성/편집 비대칭 #1 최우선) → 후속은 backlog R-07
-- **[CH-09 답글 동선 — PC 모달 / 모바일 라우트 분기 (2026-05-11)](./project_ch09_reply_modal_pc_decision_2026_05_11.md)** — CommentReplyModal 신규(a6bbca3), `matchMedia(min-width:768px)` 분기. 댓글 첨부·공개범위는 의도적 제외(텍스트만), 대댓글 목록은 모달 밖 유지
-- **[랜딩페이지 폐기 결정 (2026-05-06)](./project_landing_page_deprecation.md)** — X/Threads 패턴 정합. `/`→비로그인 `/signup`/로그인 `/posts` redirect. 회사 소개형 랜딩 다시 만들지 않음, 베타 후 콘텐츠 미리보기 진입으로 전환 로드맵
-- **[회원가입 환영 모달 구현 (2026-05-06)](./project_welcome_modal_implementation.md)** — 가입 → /posts navigate + 모달이 피드 위 1회 노출. localStorage 신호 + 시안 카피 1곳 자체 교정
-- **[댓글 중복 POST 방어 (2026-05-11, PR #13)](./project_comment_duplicate_post_fix_2026_05_11.md)** — A 가드(in-flight)+B 가드(IME `isComposing`) develop 머지 `1ef340e`, 사용자 환경 재현 실패라 prod 로그 모니터링이 유일 검증
+- **[댓글 줄바꿈 정책 (2026-05-02)](./project_comment_linebreak_policy.md)** — textarea + `whitespace-pre-wrap`, 후속 backlog R-07
+- **[CH-09 답글 동선 — PC 모달 / 모바일 라우트 (2026-05-11)](./project_ch09_reply_modal_pc_decision_2026_05_11.md)** — `matchMedia(min-width:768px)` 분기
+- **[랜딩페이지 폐기 (2026-05-06)](./project_landing_page_deprecation.md)** — `/`→비로그인 `/signup`/로그인 `/posts`
+- **[회원가입 환영 모달 (2026-05-06)](./project_welcome_modal_implementation.md)** — /posts navigate + 모달 1회
+- **[댓글 중복 POST 방어 (2026-05-11, PR #13)](./project_comment_duplicate_post_fix_2026_05_11.md)** — in-flight + IME `isComposing` 가드
 
 ## 공통 컴포넌트
-- [UserAvatar 공통 컴포넌트 통합](./project_user_avatar_component.md) — 6곳 아바타 통합, PostDetail/CommentResponse 타입 확장
-- [MobilePageHeader rightAction slot 패턴 + 데스크탑 회귀 주의](./project_mobile_header_slot_pattern.md) — rightAction은 md:hidden이라 데스크탑에서 사라짐, hidden md:flex 래퍼 중복 렌더 필수 (※ 2026-05-08 PageHeader로 리네임 + PC/모바일 통일됨)
-- [모바일 프로필 헤더 구현](./project_mobile_profile_header.md) — ProfilePage ← 내 프로필 ⚙️, 톱니바퀴→로그아웃 임시 구현, 설정 메뉴 확장은 팀 논의 안건
-- **[Chrome 통일 정책 (2026-05-08)](./project_chrome_unification_policy.md)** — Layout 글로벌 헤더 폐기 + PageHeader 단일 + SideNav 6슬롯(케밥 포함) + BottomNav 5
-- **[UserMenu 컴포넌트 패턴](./project_user_menu_component.md)** — PC 케밥 + 모바일 햄버거 공유, side/align/sideOffset/className props로 위치·스타일 호출처 결정
-- **[ProfilePage 시그널 시안 정합 + 회원 탈퇴 MVP 제외 (2026-05-11)](./project_profile_page_signal_chrome_2026_05_11.md)** — 헤더 Search(UI only)+UserPen 단일 진입점, 본체 "프로필 수정"/"회원 탈퇴" 제거, 탭 시그널 메타포, 본문 max-w-[640px]
-- **[피그마 시안 아이콘 점진 교체 (2026-05-11~)](./project_figma_icon_migration.md)** — lucide-react→피그마 점진. 사이드바 5개 완료(HomeIcon/SearchIcon/WriteIcon/BellIcon/ProfileIcon), MoreHorizontal은 lucide 유지. `components/icons/` SVG path 인라인 + currentColor
-- **[프사/닉네임 변경 시 마이페이지 RQ 캐시 무효화 (2026-05-12)](./project_my_page_cache_invalidation_on_profile_edit.md)** — `setUser`만으론 PostCard 옛값 stale, `invalidateMyPageTabs()`로 myPosts·myComments·myScraps prefix 무효화. 옵션 A/B/C 비교 박제 (커밋 `ee07728`)
-
+- [UserAvatar 공통 컴포넌트](./project_user_avatar_component.md) — 6곳 통합
+- **[Chrome 통일 정책 (2026-05-08)](./project_chrome_unification_policy.md)** — Layout 헤더 폐기 + PageHeader 단일 + SideNav 6슬롯 + BottomNav 5
+- **[UserMenu 패턴](./project_user_menu_component.md)** — PC 케밥 + 모바일 햄버거 공유
+- **[ProfilePage 시그널 시안 정합 (2026-05-11)](./project_profile_page_signal_chrome_2026_05_11.md)** — 헤더 Search+UserPen, 회원 탈퇴 MVP 제외
+- **[피그마 아이콘 점진 교체 (2026-05-11~)](./project_figma_icon_migration.md)** — 사이드바 5개 완료, `components/icons/` SVG path 인라인
+- **[프사/닉네임 변경 시 마이페이지 RQ 캐시 무효화 (2026-05-12)](./project_my_page_cache_invalidation_on_profile_edit.md)** — `invalidateMyPageTabs()`, `ee07728`
 
 ## 게시글 첨부파일
-- [프론트 구현 완료 + 400 해결](./project_post_attachment_feature.md) — 백엔드 PDF만 허용, 이미지 허용 여부 미확인
-- [첨부파일 400 원인 확정 — MIME 불일치](./project_attachment_upload_400_bug.md) — 한컴 뷰어, Blob 강제 지정으로 해결
-- [이미지/PDF 엔드포인트 분리 대응](./project_post_attachment_endpoints_split.md) — 2026-04-21 Swagger 컨펌 + MSW GET/응답 수정, 실서버 테스트 남음
-- [게시글 이미지 presigned URL 도입 완료 (히스토리)](./project_post_image_presigned_url.md) — 2026-04-22 백엔드 결정 → 도입 완료, 후속 다운로드 fix는 별도 메모리
-- **[첨부 다운로드 fix prod 머지 완료 + S3 CORS 인프라 재조치 대기 (2026-05-02)](./project_post_attachment_download_s3_cors_pending.md)** — PR#8 rebase merge(b6deca5/a0d3c78), airo 동기화. dev/prod 양쪽 CORS 에러 잔존. dev 버킷=`melonne-therapists-bucket-dev`(ap-northeast-2), prod 버킷명 미확인. 이전 "prod 머지 의미 없음" 결론 정정됨
-- **[이미지 업로드 500 — FILE_STORAGE_ERROR](./project_image_upload_500_file_storage_error.md)** — 2026-04-29 발견, 백엔드 구조화 에러, multipart 500 3건 단일 root cause 추정, staging 재현으로 검증 예정
-- 게시글 이미지 미리보기 8층 학습 노트 + unwrap 버그(2026-04-30) → wiki `unwrap` (debugging) — fetchPostImages가 `{success, data}` 래퍼 미unwrap → `images.length` undefined → 첨부 영역 미렌더, 1줄 수정 후 status code로 인증/스토리지 가설 분기
-- 첨부 다운로드 "리다이렉트" 증상 3-layer 진단(2026-05-01) → wiki `presigned-url-axiosinstance-s3-cors-3-layer` (debugging) — `<a download>` cross-origin 무시 + axiosInstance AT 충돌 + S3 CORS 미설정, blob 다운로드 관용구 학습 노트 포함
+- [프론트 구현 완료](./project_post_attachment_feature.md) — 이미지/PDF 엔드포인트 분리 완료(04-21)
+- **[첨부 다운로드 fix + S3 CORS 인프라 대기 (2026-05-02)](./project_post_attachment_download_s3_cors_pending.md)** — PR#8 머지, dev/prod CORS 잔존
+- **[이미지 업로드 500 — FILE_STORAGE_ERROR](./project_image_upload_500_file_storage_error.md)** — 백엔드 구조화 에러, staging 재현 검증 예정
+- 8층 학습 노트 + unwrap 버그 → wiki `unwrap` (debugging)
+- 다운로드 3-layer 진단(presigned×axios×S3 CORS) → wiki `presigned-url-axiosinstance-s3-cors-3-layer` (debugging)
 
-## 게시글 리액션
-- [리액션 API 리네임 + 응답 확장 대응 완료](./project_post_reaction_api_rename.md) — 2026-04-21 커밋 3a84a04, 동시 배포/디자이너 추가 컨펌/실서버 테스트 잔여, PostSummary myReactionType 미포함 한계
-- [R-08 4단계 캐시 패치 옵션 검토 — A/B/C 비교 후 B 채택](./project_post_reaction_cache_patch_options.md) — 댓글 hook B 패턴과 일관성, A(hook 직접)·C(invalidate) 트레이드오프 박제
-
-## 댓글 리액션
-- **[댓글 리액션 3종 확정 — 백엔드 반영 완료 (2026-05-03)](./project_comment_reaction_3type_decision.md)** — LIKE/CURIOUS/USEFUL 3종 통일. 2026-05-04 갱신: 응답에 reaction 4필드 동봉 확인(N+1 회피), 프론트 hook B 패턴 채택. 잔여 작업은 backlog R-10
-- **[댓글 리액션 hook 설계 — B 패턴(페이지 레벨 단일 hook) + PUT 응답 reconcile](./project_comment_reaction_hook_b_pattern.md)** — 게시글 A 패턴과 갈린 이유(진실 단일화) + reconcile 도입 이유. 흐름 5단계 박제. 게시글 통일은 R-08
+## 리액션
+- [R-08 게시글 캐시 패치 옵션 A/B/C — B 채택](./project_post_reaction_cache_patch_options.md)
+- **[댓글 리액션 3종 확정 (2026-05-03)](./project_comment_reaction_3type_decision.md)** — LIKE/CURIOUS/USEFUL, 응답 4필드 동봉
+- **[댓글 리액션 hook B 패턴 + PUT reconcile](./project_comment_reaction_hook_b_pattern.md)** — 페이지 레벨 단일 hook
 
 ## 협업 프로세스
-- [백엔드 전달 전략 + 이슈 동기화](./project_backend_communication.md) — Swagger 공식, GitHub Issues, 멜로미↔아이로
-- **[백엔드 dev/prod 서버 분리 + Vercel 2브랜치 매핑](./project_backend_dev_prod_split.md)** — 2026-04-29, prod/staging 모두 HTTPS. main→prod / develop→staging 환경변수 분리, AWS 이전 없이 Vercel 기본으로 해결
-- **[분석 이벤트 설계 오너는 PM](./project_analytics_event_ownership.md)** — 설계 PM 담당, 프론트는 삽입만. 2026-04-27 PM 정식 스펙 24종(주요 7) 도착
-- **[GA4 이벤트 PM 정식 스펙 v1](./project_analytics_event_spec_pm_v1.md)** — 24종(자동4+인증5+콘텐츠11+탐색6+체류1), 주요 7개 ★, 북극성=post_created&comment_created 달성률
-- **[GA4 주요 7개 삽입 매핑 표 (B1 결과)](./project_analytics_b1_mapping.md)** — 트리거 위치/파라미터/기존 4종 리네임 매트릭스 + B2 의문점 4개 + 헬퍼 시그니처 초안. 다음 세션 B2 진입점
+- [백엔드 전달 전략](./project_backend_communication.md) — Swagger, GitHub Issues, 멜로미↔아이로
+- **[백엔드 dev/prod 분리 + Vercel 2브랜치](./project_backend_dev_prod_split.md)** — main→prod / develop→staging
+- **분석 이벤트 오너=PM, 프론트 삽입만** — [오너](./project_analytics_event_ownership.md) / [정식 스펙 v1 24종](./project_analytics_event_spec_pm_v1.md) / [B1 매핑](./project_analytics_b1_mapping.md)
 
 ## 진행 중 이슈
-- **[PostListPage ref 렌더 중 접근 이슈](./project_postlistpage_ref_render_issue.md)** — React 19 에러, useEffect 이전 방향 잡음, initialSnapshot 타이밍 문제 미해결 (내일 아침 이어서)
-- **[APP_BASE_URL staging 회귀 (2026-04-30)](./project_app_base_url_staging_regression.md)** — staging 백엔드에서 04-22 localhost 버그가 EC2 IP 형태로 재발, 백엔드 환경변수 누락. 사용자가 삭제 요청할 때까지 보존
-- [sticky offset 잔재 정리 — Chrome 통일 후속](./project_sticky_offset_legacy_cleanup.md) — SearchPage 정리(PR #11), ProfilePage:306 잔존. chrome 정책 변경 후 `(md:)?top-14` grep 권장
-- **[main↔develop 강제 동기화 (2026-05-11)](./project_main_develop_force_sync_2026_05_11.md)** — cherry-pick 중복 27개 흡수, main=develop=`dd9ed7d`. 백업 브랜치 `main-backup-2026-05-11` (origin/airo 양쪽), MVP 발표 후 삭제 예정. airo main SHA가 origin과 달랐던 발견
+- **[PostListPage ref 렌더 중 접근](./project_postlistpage_ref_render_issue.md)** — React 19 에러, initialSnapshot 타이밍 미해결 (MVP 후 재개)
+- [sticky offset 잔재 — ProfilePage:306](./project_sticky_offset_legacy_cleanup.md) — `(md:)?top-14` grep
+- **[main↔develop 강제 동기화 (2026-05-11)](./project_main_develop_force_sync_2026_05_11.md)** — 백업 `main-backup-2026-05-11`, MVP 후 삭제
 
-## 기능명세 / 아키텍처
-- [프론트 기능명세 체계](./project_feature_spec_frontend.md) — FNC-001~007 인증 완료
-- [CSV API 검토 현황](./project_csv_api_review_progress.md) — 27번부터 재개
-- [/home 엔드포인트 관심사 분리](./project_home_endpoint_redesign.md)
-- [PATCH /me 이미지 업로드 방식](./project_patch_me_image_discussion.md)
-- [프로필 편집 코드 리뷰 TODO](./project_profile_edit_cleanup.md) — 2026-04-21 T1/T2 + HIGH 가드 제거 완료, T3/로깅·토스트/타입·캐시 잔여
-
-## UI 설계
+## 기능명세
+- [프론트 기능명세 FNC-001~009](./project_feature_spec_frontend.md)
+- [프로필 편집 잔여 — 이미지 캐시 버스팅](./project_profile_edit_cleanup.md) — presigned URL 결정 대기
 - [UX 설계 논의 아카이브](./project_ux_design_decisions.md)
 
 ## 정책 결정 (Post-MVP)
-- 모바일 앱 확장 ADR (PWA/Capacitor 유저테스트 후 결정) → wiki `adr-pwa-vs-capacitor-2026-03-26` (decision)
-- Next.js 도입 보류 (53h 정량 + 5근거, 04-27 재평가) → wiki `next-js-2026-03-27-2026-04-27` (decision)
-- **SEO 옵션 2 — vite-prerender-plugin 구현 완료(04-27)** → wiki `seo-2-vite-prerender-plugin-2026-04-27` (decision) — `/`, `/privacy`, `/terms` 정적 HTML + 메타 단일 소스, 실측 1.5h
-- prerender 빌드 hang 해소(closeBundle + process.exit, 6d234cc) → wiki `vite-prerender-plugin-react-19-hang` (debugging)
-- 프로필 이미지 localhost 버그(백엔드 APP_BASE_URL 누락, 04-22 해소) → wiki `url-localhost-app-base-url-2026-04-22` (debugging)
+- 모바일 앱 ADR(PWA/Capacitor) → wiki `adr-pwa-vs-capacitor-2026-03-26` (decision)
+- Next.js 도입 보류 → wiki `next-js-2026-03-27-2026-04-27` (decision)
+- SEO 옵션 2 vite-prerender-plugin 완료 → wiki `seo-2-vite-prerender-plugin-2026-04-27` (decision)
+- prerender 빌드 hang 해소 → wiki `vite-prerender-plugin-react-19-hang` (debugging)
+- 프로필 이미지 localhost 버그(APP_BASE_URL) → wiki `url-localhost-app-base-url-2026-04-22` (debugging)
 - SSE 아키텍처(옵션B, fetch-event-source) → wiki `sse-b-zustand-fetch-event-source` (decision)
-- Google OAuth 삭제 내역(2026-03-25) → wiki `google-oauth-2026-03-25` (session-log)
+- Google OAuth 삭제 → wiki `google-oauth-2026-03-25` (session-log)
 
 ## 개발 규칙 / 피드백
-- **[최우선]** [직접 작성 모드 — AI 코드 생성은 데드라인 임박 시에만 unlock](./feedback_direct_coding_default.md) — `.claude/deadline-unlock` 4h TTL hook + 힌트/수도코드 기본 응답
-- **[최우선]** [pseudocode 의무화 + 막막함 대응 프로토콜](./feedback_pseudocode_first_protocol.md) — 코드 요청 전 3단계 설명 의무화, 막막함=피로→휴식/몰라서→질문으로 좁히기, 코드는 항상 마지막
-- **[최우선]** [큰 UI 변경 요청 시 이해 컨펌 후 실행](./feedback_confirm_understanding_before_implement.md) — 시안 매칭/모호 변경은 bullet+대조표로 정리해 사용자 OK 받은 뒤 코드 진입, pseudocode-first 앞 단계
-- **[최우선]** [코드 작업 전 트레이드오프 설명 필수](./feedback_tradeoff_before_code.md) / [클린 커밋 히스토리 관리](./feedback_clean_commit_history.md)
-- **[최우선]** [진단→이해→지시→조치 (과잉설명 금지)](./feedback_explain_before_act.md) — 레이블/경쟁가설/1분 검증/최소 정보 제시 5원칙
-- **[최우선]** [작업 가이드는 단계 단위로 잘게 끊어 제시](./feedback_step_by_step_guidance.md) — 큰 작업 전체 절차 한꺼번에 덤프 X, 한 단계 가이드 → 사용자 작성 → 검증 → 다음 단계 형태
-- **[최우선]** [workaround 추가 전 스펙/상태 재확인](./feedback_verify_spec_before_workaround.md) — 400/감싸기 판단 전에 Swagger·네트워크·실코드 재확인
-- **[최우선]** [단일 작업 집중 존중 — 곁가지 제안 덤핑 금지](./feedback_single_task_focus.md) — 작업 중 답변은 현재 맥락만, 새 아이디어는 notepad로 라우팅
-- **[최우선]** [기능 작업 중 번들러/인프라 설정 건드리지 말기](./feedback_scope_discipline_no_bundler_drift.md) — 빌드/CI 깨짐 발견해도 기능 브랜치 안에서 고치지 말고 별도 분리, 사용자 컨펌 후 수정
-- **[최우선]** [UI 통일 요청은 명시된 항목만 수정](./feedback_ui_unification_scope.md) — "통일/참고해서"라도 명시 컴포넌트만, 주변 UI 추론 확장 금지. 2026-05-11 PostEditPage 전체 리라이트 후 롤백 박제
-- [worktree 생성 시 base 브랜치 + gitignore 항목 확인 필수](./feedback_worktree_base_check.md) — EnterWorktree 기본 origin/main 분기 + .env 등 gitignore 항목은 메인 repo에서 따로 cp 필요
-- **[AI 직접 작성 코드 → 인지부채 HIGH 메모리 의무](./feedback_ai_written_code_cognitive_debt.md)** — Claude 위임 코드는 메커니즘 상세 기록, 04-15 P1이 첫 사례
-- [AI 작성 코드 학습용 주석 리뷰 워크플로우](./feedback_ai_code_learning_comments.md) — push 전 교육용 밀도 높은 주석 요청 → 리뷰 후 승인
-- **[AI 개입도 50%+ 작업 후 소크라테스식 Q&A](./feedback_learning_gap_socratic_checkin.md)** — 시작 시 모드 선언(A) + 종료 시 라인 비율 공유(C), 50% 넘으면 /wrap-up 전 6~8문항 Q&A 제안
-- **[AI 산문 패턴 체크리스트 — Claude 작성 장문 문서](./feedback_ai_prose_patterns.md)** — em-dash·3의법칙·불릿동일리듬·볼드콜론·h3과밀·자기격언화 등, wiki 작성 시 self-critique
-- **[이원 독자 문서는 파일 분리](./feedback_audience_split_docs.md)** — PM용/개발자용 하이브리드 X, `<topic>-pm.md`/`<topic>-dev.md` 분리 + 각 원칙
-- **[한국어 문서는 ~합니다 존댓말 통일](./feedback_korean_formal_tone_docs.md)** — 본인용도 포함, 인용부·의문형 예외
-- [MVP 코드 수정 기준](./feedback_mvp_fix_criteria.md) / [UI는 디자이너 확인 후 + 백엔드 변경의 디자인 영향도 개발 용어 빼고 디자이너 먼저 문의](./feedback_ui_designer_confirm.md)
-- [코드 수정 프로세스 — grep 선행](./feedback_code_change_process.md) / [코드 생성 승인 요청](./feedback_code_approval.md)
-- [MSW는 백엔드 권한 정책 시뮬레이션](./feedback_msw_simulates_backend_policy.md) — mock이 정책 우회 허용하면 프론트 회귀 숨겨짐
-- [섞인 커밋 분리 워크플로우](./feedback_mixed_commit_split_workflow.md) — reset --mixed + stash -u로 브랜치별 분리 재커밋
-- [단계별 체크포인트 마이그레이션 가이드](./feedback_phased_migration_checkpoints.md) — 큰 파일 변경은 단위별 쪼개 각 단계마다 앱 동작 유지
-- [노션 항목 번호 — fetch로 실제 상태 확인 후 결정](./feedback_notion_page_number_check.md)
-- [CSV 검토 시 그때그때 수정](./feedback_api_review_approach.md) / [navigate(-1) 금지](./feedback_navigate_back.md) / [모바일/데스크탑 UX 분기](./feedback_mobile_desktop_ux.md)
-- [질문 방식 — 객관식 vs 주관식](./feedback_question_style.md) / [불확실하면 질문](./feedback_ask_when_uncertain.md)
-- [/wrap-up으로 세션 마무리](./feedback_session_bridge_removed.md) / [집중력↓ 시 간결하게](./feedback_concise_when_tired.md) / [세션 중 notepad 자동 기록](./feedback_notepad_session_logging.md)
-- [피그마 공유 — 스크린샷+Export PNG 2x](./feedback_figma_sharing.md) / [figma 링크→메모리 저장](./feedback_figma_link_recognition.md)
-- [Figma React export는 의미 부여를 개발자가 한다](./feedback_figma_export_semantic_html.md) — div 떨굼, h2/p/button/role 4단계 변환
-- **[피그마 아이콘 SVG 추출 워크플로우 + MCP 한계](./feedback_figma_icon_export_workflow.md)** — MCP는 raster 분해라 사용자 직접 export. 트랩 4종(노드 깊이 24×24 vs 60×60 / on·off variant A·B / fill+stroke 혼합 / JSX camelCase)
-- [노션 업로드 워크플로우](./feedback_notion_upload_workflow.md) / [노션 날짜별 서브페이지](./feedback_notion_daily_pages.md) / [Notion 운영 방침](./project_notion_page_policy.md)
-- 노션 스킬 정리(2026-04-15, /report-notion 단일화) → wiki `2026-04-15-report-notion` (session-log)
-- [/report-notion 재질문 기준](./feedback_report_notion_requery_rule.md) — 날짜/분류/임팩트만, 기술 디테일은 소스코드에서
-- [노션 서브페이지 분리 전 양질 자기평가](./feedback_notion_subpage_quality_check.md) — 과포장 지양, 내용 약하면 TIL 1개 통합 + 강조 박스
-- **[pull-mello 후 노션 초안 존재 시 VSCode 우선 확인 요청](./feedback_notion_draft_on_pull.md)** — 초안 있으면 1순위로 VSCode 열어 알림
+- **[최우선]** [직접 작성 모드 — AI unlock은 데드라인 임박 시](./feedback_direct_coding_default.md) — `.claude/deadline-unlock` 4h TTL
+- **[최우선]** [pseudocode 의무화 + 막막함 프로토콜](./feedback_pseudocode_first_protocol.md)
+- **[최우선]** [큰 UI 변경 시 이해 컨펌 후 실행](./feedback_confirm_understanding_before_implement.md) — bullet+대조표
+- **[최우선]** [트레이드오프 설명 필수](./feedback_tradeoff_before_code.md) / [클린 커밋 히스토리](./feedback_clean_commit_history.md)
+- **[최우선]** [진단→이해→지시→조치 (과잉설명 금지)](./feedback_explain_before_act.md)
+- **[최우선]** [단계 단위 가이드 제시](./feedback_step_by_step_guidance.md)
+- **[최우선]** [workaround 전 스펙 재확인](./feedback_verify_spec_before_workaround.md)
+- **[최우선]** [단일 작업 집중 존중](./feedback_single_task_focus.md) — 곁가지는 notepad
+- **[최우선]** [기능 작업 중 번들러/인프라 미수정](./feedback_scope_discipline_no_bundler_drift.md)
+- **[최우선]** [UI 통일은 명시 항목만](./feedback_ui_unification_scope.md) — 주변 UI 추론 확장 금지
+- [worktree base + gitignore 확인](./feedback_worktree_base_check.md)
+- **[AI 작성 코드 → 인지부채 HIGH 메모리 의무](./feedback_ai_written_code_cognitive_debt.md)**
+- [AI 코드 학습용 주석 워크플로우](./feedback_ai_code_learning_comments.md)
+- **[AI 50%+ 작업 후 소크라테스식 Q&A](./feedback_learning_gap_socratic_checkin.md)**
+- **[AI 산문 패턴 체크리스트](./feedback_ai_prose_patterns.md)** — em-dash·3의법칙·볼드콜론 등
+- **[이원 독자 문서 파일 분리](./feedback_audience_split_docs.md)** — PM/개발자 하이브리드 X
+- **[한국어 ~합니다 통일](./feedback_korean_formal_tone_docs.md)**
+- [MVP 코드 수정 기준](./feedback_mvp_fix_criteria.md) / [UI 디자이너 컨펌](./feedback_ui_designer_confirm.md)
+- [grep 선행](./feedback_code_change_process.md) / [코드 생성 승인](./feedback_code_approval.md)
+- [MSW는 백엔드 권한 시뮬레이션](./feedback_msw_simulates_backend_policy.md)
+- **[Git 커밋 워크플로우 통합 — 한국어/서명금지/sync chore 금지/diff --stat/섞인 커밋 분리](./feedback_git_workflow.md)**
+- [단계별 체크포인트 마이그레이션](./feedback_phased_migration_checkpoints.md) / [CSV 그때그때 수정](./feedback_api_review_approach.md)
+- [navigate(-1) 금지](./feedback_navigate_back.md) / [모바일/데스크탑 UX 분기](./feedback_mobile_desktop_ux.md)
+- [질문 객관식 vs 주관식](./feedback_question_style.md) / [불확실하면 질문](./feedback_ask_when_uncertain.md)
+- [/wrap-up 세션 마무리](./feedback_session_bridge_removed.md) / [집중력↓ 간결](./feedback_concise_when_tired.md) / [notepad 자동 기록](./feedback_notepad_session_logging.md)
+- **[피그마 협업 워크플로우 통합 — 스크린샷·PNG 2x / 링크=요구사항 / React export semantic 변환 / 아이콘 SVG 추출+트랩 4종](./feedback_figma_workflow.md)**
+- **[노션 워크플로우 통합 — 업로드 승인·경로 / 날짜별 서브페이지 / 번호 fetch 확인 / 서브페이지 자기평가 / draft VSCode / /report-notion 재질문](./feedback_notion_workflow.md)** + [Notion 운영](./project_notion_page_policy.md)
+- 노션 스킬 정리 → wiki `2026-04-15-report-notion` (session-log)
 - [와이어프레임 색상 보수적](./feedback_wireframe_color.md) / [서버 에러 시 프론트 먼저](./feedback_backend_blame.md)
-- [compact/clear 타이밍](./feedback_compact_timing.md) / [TS 타입 체크 tsc -b](./feedback_ts_type_check.md)
-- [shadcn asChild 미지원](./feedback_shadcn_button_aschild.md) / [shadcn/ui 기본 사용 원칙](./feedback_shadcn_default.md)
-- [GitHub 토큰 채팅 금지](./feedback_github_token.md) / [브랜치 정책 — main(prod) + develop(staging)](./feedback_branch_preference.md) / [credentials 갱신 방법](./feedback_github_credentials_renewal.md)
+- [compact/clear 타이밍](./feedback_compact_timing.md) / [TS tsc -b](./feedback_ts_type_check.md)
+- [shadcn asChild 미지원](./feedback_shadcn_button_aschild.md) / [shadcn/ui 기본 사용](./feedback_shadcn_default.md)
+- [브랜치 main/develop](./feedback_branch_preference.md) / [credentials 갱신](./feedback_github_credentials_renewal.md)
 - [백엔드 이슈에 LLM 프롬프트](./feedback_backend_llm_prompt.md) / [슬래시 커맨드 스크립트 금지](./feedback_no_scripts_for_commands.md)
-- [외부 push 전 승인 필수](./feedback_push_requires_approval.md) / [push-airo reset --hard](./feedback_push_airo_claude_files.md)
-- **[force-push/reset --hard 안전 프로토콜](./feedback_force_push_safety_protocol.md)** — 백업 브랜치 생성→origin/airo 양쪽 push→본 작업→`--force-with-lease`, 롤백 명령 함께 제시. 2026-05-11 develop→main 동기화에서 검증
-- **[다른 세션이 만진 변경은 건드리지 말기](./feedback_dont_touch_other_session_changes.md)** — lint auto-fix가 박은 미사용 import 등 본인이 추가 안 한 변경은 그대로 두고 본인 작업분만 commit. 2026-05-11 PostDetailPage 작업 중 박제
-- [커밋 메시지 한국어 통일 (forward-only)](./feedback_commit_message_korean.md) — 과거 영어 커밋은 rewrite 없이 둠
-- [커밋 서명 줄 금지](./feedback_no_co_authored_by.md) — Co-Authored-By/자동 서명 줄 넣지 말 것
-- [sync 전용 chore 커밋 금지](./feedback_no_sync_only_commits.md) — 메모리/자동화용 별도 chore 커밋 만들지 말고 feat/fix 커밋에 자연스럽게 포함
-- [규칙은 근본 원인 확인 후 적용](./feedback_verify_rules_root_cause.md) — 저장된 규칙 맹목 적용 금지, 실제 실패 원인 확인 후 근본 수정
-- **[fix 검증 시 baseline 측정 우선](./feedback_verify_fix_with_baseline.md)** — before-state 재현 먼저 확보 후 after 측정, 비교 없는 after-only 검증 금지 (2026-05-11 댓글 중복 POST에서 박제)
-- **[권장/판단 전 사용자 컨디션부터 평가](./feedback_assess_user_state_before_rule.md)** — 메뉴얼 맹목 적용 금지, 피로도·집중력·우선순위 추정 후 권장. 같은 작업 체인은 곁가지 아님
-- **[보조 기능이 핵심 의존성 메이저 업을 끌고 오면 회피](./feedback_dependency_blast_radius.md)** — SEO/분석/UI 보조 도입을 위해 Vite·React·RR 등 핵심 의존성 메이저 업 강요하는 옵션 회피, blast radius 좁은 옵션 우선
-- [코드 리뷰 severity triage](./feedback_review_triage_workflow.md) — HIGH만 즉시 조치, Medium/Low는 project 메모리 + notepad priority("오늘 뭐하지")
-- [가드/임시대응 코드 주석 스타일](./feedback_guard_comment_style.md) — 레이스 가드·workaround에는 상세 한국어 WHY 주석 + 의존 관계 명시
-- **[vite plugin closeBundle 작업 전 wiki 우선 검토](./feedback_vite_plugin_closeBundle_check.md)** — Sentry 등 closeBundle 사용 plugin 추가 시 forceExit과의 순서 충돌 점검 필수, wiki 회복 트리거
-- **[브랜치별 스크립트 테스트 함정](./feedback_branch_aware_script_test.md)** — 2026-04-29 사고: 패치된 스크립트가 한 브랜치에만 있을 때 다른 브랜치 checkout 시 OLD로 회귀, force-push 회복 필요
-- [git 커밋 전 diff --stat](./feedback_git_diff_stat_check.md) / [커맨드 네이밍 — 범용 이름](./feedback_draft_notion_naming.md)
-- [에러 삼키지 말고 실패 표시](./feedback_error_handling_visible.md) / [API 에러 원인별 분기](./feedback_error_handling_by_cause.md)
-- [백엔드 필드 요청 전 기존 스펙 확인](./feedback_backend_field_request_check.md) / [Explore 결과 직접 검증](./feedback_explore_result_verification.md)
-- [GitHub Issues 기술부채 관리](./feedback_github_issues.md) / [이슈는 airo 레포에만](./feedback_airo_issues_only.md)
-- [토큰 사용량 최소화](./feedback_token_usage_awareness.md) / [취업 경험 Notion 정리](./feedback_career_documentation.md)
-- [Vercel SPA 라우팅](./feedback_vercel_spa_routing.md)
-- **[다른 직군 영향 작업 먼저](./feedback_cross_role_impact_priority.md)** — PM/디자이너/백엔드 검토·컨펌 필요한 것을 자기완결 작업보다 먼저, 상대 대기시간 병렬화
-- **[진행 상황은 backlog, memory엔 결정/Why만](./feedback_memory_vs_backlog_split.md)** — /wrap-up 저장 시 체크박스/남은 작업은 backlog로, memory엔 시간 불변 결정만 (stale 방지)
-- **[결정/구현 문서엔 한계점도 강점과 함께 박제](./feedback_document_limitations_with_benefits.md)** — 노션 결정문/회고에 "현재 조치의 한계점" 섹션 별도, 합리화로 가린 부수 효과까지 박제, 기능 동작 ≠ 도메인 효용 검증
-- **[블로그 작성 전략 — Velog 주 최소 1회 + Notion 재가공](./feedback_blog_writing_strategy.md)** — 자랑/보람 감정이 최우선 승격 트리거, 실패 안전장치로 꾸준함 유지 · 취업용일수록 더 주관적으로
-- [블로그 쓰기/편집 모드 분리](./feedback_blog_editing_mode.md) — 썼다 지웠다 루프 차단, 초안은 쭉 / 편집은 완성 후 한 번만 / 막히면 섹션 스킵
-- **[Jira 이슈 생성 전 프로젝트 목록 조회 필수](./feedback_jira_project_query_first.md)** — 프로젝트 키 미확인 시 `getVisibleJiraProjects` 먼저, 잘못된 프로젝트에 생성하는 실수 방지
+- [외부 push 전 승인](./feedback_push_requires_approval.md) / [push-airo reset --hard](./feedback_push_airo_claude_files.md)
+- **[force-push 안전 프로토콜](./feedback_force_push_safety_protocol.md)** — 백업→양쪽 push→`--force-with-lease`
+- **[다른 세션 변경은 건드리지 말기](./feedback_dont_touch_other_session_changes.md)**
+- [규칙은 근본 원인 확인 후](./feedback_verify_rules_root_cause.md)
+- **[fix 검증 시 baseline 측정 우선](./feedback_verify_fix_with_baseline.md)** — after-only 검증 금지
+- **[권장 전 사용자 컨디션 평가](./feedback_assess_user_state_before_rule.md)**
+- **[보조 기능이 핵심 의존성 메이저 업 끌면 회피](./feedback_dependency_blast_radius.md)**
+- [코드 리뷰 severity triage — HIGH만 즉시](./feedback_review_triage_workflow.md)
+- [가드/임시대응 주석 스타일](./feedback_guard_comment_style.md)
+- **[vite plugin closeBundle 작업 전 wiki 검토](./feedback_vite_plugin_closeBundle_check.md)**
+- **[브랜치별 스크립트 테스트 함정](./feedback_branch_aware_script_test.md)**
+- [커맨드 범용 네이밍](./feedback_draft_notion_naming.md)
+- **[API 에러 처리 통합 — 에러 삼키지 말기 + 원인별 분기(401 인터셉터/500/네트워크)](./feedback_error_handling.md)**
+- [백엔드 필드 요청 전 스펙 확인](./feedback_backend_field_request_check.md) / [Explore 결과 검증](./feedback_explore_result_verification.md)
+- [GitHub Issues 기술부채](./feedback_github_issues.md) / [이슈는 airo만](./feedback_airo_issues_only.md)
+- [취업 경험 Notion](./feedback_career_documentation.md) / [Vercel SPA 라우팅](./feedback_vercel_spa_routing.md)
+- **[다른 직군 영향 작업 먼저](./feedback_cross_role_impact_priority.md)**
+- **[진행 상황은 backlog, memory엔 결정만](./feedback_memory_vs_backlog_split.md)**
+- **[결정/구현 문서엔 한계점도 박제](./feedback_document_limitations_with_benefits.md)**
+- **[블로그 전략 — Velog 주1+ Notion 재가공](./feedback_blog_writing_strategy.md)** / [쓰기/편집 모드 분리](./feedback_blog_editing_mode.md)
+- **[Jira 이슈 생성 전 프로젝트 조회](./feedback_jira_project_query_first.md)**
 
 ## 공유 문서 / 레퍼런스
-- **[분석/검색 대시보드 (Search Console/GA4/Clarity)](./reference_analytics_dashboards.md)** — 대시보드 URL + 식별자 (GA4 `G-7VPMPFL76M`, Clarity `wg3vefhmgy`)
-- **[피그마 디자인 시스템 페이지](./reference_figma_design_system_page.md)** — 시안 컴포넌트+variant 모음 노드 `1321:5320` 진입점, nav 아이콘 노드 ID 매핑표, Education plan MCP rate limit 주의
-- **[Jira 프로젝트 구조 및 MEL 컨벤션](./reference_jira_project_structure.md)** — MEL=멜로미, BUR=burst!(별개), 이슈 생성 전 프로젝트 조회 필수
-- [팀 요구사항 Google Sheets](./reference_requirements_doc.md) / [Swagger UI](./reference_swagger_endpoint.md) — `api.melonnetherapists.com/swagger-ui/index.html`
-- [Swagger enum 전체 값 확인 정확한 방법](./reference_swagger_enum_verification.md) — Example Value 탭은 한 값만 표시, Schema 탭 또는 raw JSON `/v3/api-docs` 직접 확인 권장
-- [백엔드 Swagger OpenAPI 엔드포인트](./reference_backend_swagger.md) — `api.melonnetherapists.com/v3/api-docs`, API prefix `/api/v1`, 필요 시 WebFetch로 fresh 조회
-- [Notion TIL](./reference_notion_til.md) (18:30 KST) / [빌더스 리그 + 서브페이지 ID + 컨벤션](./reference_notion_builders_league.md) / [트러블슈팅](./reference_notion_troubleshooting.md)
+- **[분석 대시보드 (Search Console/GA4/Clarity)](./reference_analytics_dashboards.md)** — GA4 `G-7VPMPFL76M`, Clarity `wg3vefhmgy`
+- **[피그마 디자인 시스템 페이지](./reference_figma_design_system_page.md)** — 노드 `1321:5320`, Education plan MCP rate limit
+- **[Jira 프로젝트 — MEL=멜로미, BUR=burst!(별개)](./reference_jira_project_structure.md)**
+- [팀 요구사항 Sheets](./reference_requirements_doc.md) / [Swagger UI](./reference_swagger_endpoint.md)
+- [Swagger enum 전체 값 확인](./reference_swagger_enum_verification.md) / [백엔드 OpenAPI 엔드포인트](./reference_backend_swagger.md)
+- [Notion TIL](./reference_notion_til.md) / [빌더스 리그](./reference_notion_builders_league.md) / [트러블슈팅](./reference_notion_troubleshooting.md)
 
 ## 환경 / 도구
-- [Claude Code aliases](./project_bash_aliases.md) / [플러그인+hook 설정](./project_superpowers_plugin.md)
-- [airo remote](./project_airo_repo.md) / [백업 레포 URL](./reference_backup_repos.md) / [push-airo 스크립트](./project_push_airo_script.md)
-- [메모리 동기화](./project_memory_sync.md) — `/push-mello`, `/pull-mello` · 2026-04-20 사고 + 대량 삭제 가드(`FORCE_PUSH=1` 우회) 추가 · 2026-04-29 develop 브랜치 sync 전환 + 자동 브랜치 전환 헬퍼
-- [새 환경은 pull-mello 먼저](./feedback_new_env_pull_first.md) — SSD 포맷/새 머신에서 push-mello 먼저 돌리면 레포 메모리가 `rsync --delete`로 날아감 (2026-04-20 사고 교훈)
-- [포트폴리오 프로젝트](./project_portfolio_setup.md) — `~/portfolio`
-- [Vercel 환경변수](./project_env_vars.md) / [.env.docker 이름 변경](./project_env_docker_rename.md)
-- [로컬 CORS 허용 완료 (localhost:3000/5173)](./project_cors_local_suggestion.md) / [Vercel→AWS 이전 계획 + 프론트 담당 범위](./project_aws_migration_plan.md)
-- [gh CLI 설치 완료](./reference_gh_cli.md) — 계정 GPCJ
-- [MSW 래퍼 + axios 인터셉터](./project_msw_wrapper.md)
-- .git object 손상 복구 → wiki `git-object-push-mello` (debugging, push/HEAD 파싱 실패 비파괴 복구)
-- [Stop Hook — 터미널 벨](./hook_bell_on_stop.md) — 2026-04-20 WSL ~/.claude/settings.json에 답변 완료 시 벨 (user-global, Mac 미동기화)
+- [Claude Code aliases](./project_bash_aliases.md) / [플러그인+hook](./project_superpowers_plugin.md)
+- [airo remote](./project_airo_repo.md) / [백업 레포](./reference_backup_repos.md) / [push-airo 스크립트](./project_push_airo_script.md)
+- [메모리 동기화](./project_memory_sync.md) — `/push-mello`, `/pull-mello`, develop sync + 대량 삭제 가드
+- [새 환경은 pull-mello 먼저](./feedback_new_env_pull_first.md)
+- [포트폴리오](./project_portfolio_setup.md) / [Vercel 환경변수](./project_env_vars.md) / [.env.docker 이름](./project_env_docker_rename.md)
+- [로컬 CORS 허용](./project_cors_local_suggestion.md) / [Vercel→AWS 이전 계획](./project_aws_migration_plan.md)
+- [gh CLI 계정 GPCJ](./reference_gh_cli.md) / [MSW 래퍼](./project_msw_wrapper.md)
+- .git object 손상 복구 → wiki `git-object-push-mello` (debugging)
+- [Stop Hook 터미널 벨](./hook_bell_on_stop.md) — WSL, Mac 미동기화
 
 ## 학습 / 성장
-- 프론트엔드 코드 학습 19항목 → wiki `19` (reference) / [코딩 드릴 루틴](./project_coding_drill.md)
-- **[블로그 초기 글 4편 로드맵](./project_blog_first_series.md)** — 1번째: 바이브 코더 규칙 5가지(미니멀 확정, 순서 B) / 2번째: useInfiniteFeed requestIdRef / 3번째: RQ 마이그레이션 후기 / 4번째: AI 메모리 활용 (1번 글에서 분리)
-- GA4 + Clarity 설치 학습 노트(인지부채 HIGH, AI 전체 작성) → wiki `ga4-clarity-high-ai` (decision) — useGA4PageView 훅 메커니즘 + 재학습 체크리스트 / 원 계획 [여기](./project_future_analytics.md)
-- **[RQ 마이그레이션 구현 로그 — 인지부채 HIGH](./project_rq_migration_implementation.md)** — R-01a(완료, 직접) / R-01b(완료, 2026-04-29 회귀 통과) / R-05(미착수). 단계별 누적 적층, 작업 종료 후 일괄 복기 Q&A용
-- 유저 행동 데이터 수집 구현 맥락 — 개발자용 `ga4-clarity-dev` / PM용 `ga4-clarity-pm` (decision, 2026-04-24) · 원본 `ga4-clarity-4` 보존
-- **[GA4 user_id 부착 정책 — analyticsId 드롭](./project_analytics_user_id_decision.md)** — 2026-04-24 PM 결정. 익명 유지(client_id only), Looker Studio/Firebase 로우데이터로 유저 단위 분석. 1차 4종 cf7750e 완료, 2026-04-27 PM 정식 24종 스펙 도착 → 주요 7개 추가 삽입은 프론트 독립 즉시 가능(백엔드 의존성 0)
-- **[/privacy 라우트 설계 결정](./project_privacy_policy_page.md)** — Layout 밖 독립, 링크 동작(Signup 새탭/Login same-tab), 초안 배너 PM 검토 전 유지 · 진행 상황은 backlog P/PM 섹션
-- [회원가입 토큰 반환 요청](./project_signup_token.md) — MVP 이후
-- [README 작성 계획](./project_readme_plan.md) — MVP 완성 후
+- 프론트엔드 학습 19항목 → wiki `19` (reference) / [코딩 드릴](./project_coding_drill.md)
+- **[블로그 초기 글 4편 로드맵](./project_blog_first_series.md)** — 바이브 코더 5규칙 / requestIdRef / RQ / AI 메모리
+- GA4 + Clarity 학습 노트(인지부채 HIGH) → wiki `ga4-clarity-high-ai` (decision)
+- **[RQ 마이그레이션 구현 로그 — 인지부채 HIGH](./project_rq_migration_implementation.md)** — R-01a/b 완료, R-05 미착수
+- 유저 행동 수집 맥락 (개발자/PM) → wiki `ga4-clarity-dev` / `ga4-clarity-pm` (decision)
+- **[GA4 user_id 정책 — analyticsId 드롭](./project_analytics_user_id_decision.md)** — 익명 유지(client_id only)
+- **[/privacy 라우트 설계](./project_privacy_policy_page.md)** — Layout 밖 독립
+- [README MVP 후](./project_readme_plan.md)
 
-## 폴더 구조
-- [프론트 폴더 구조 리팩토링 04-07](./project_folder_restructure.md) — components/pages 도메인별 하위 폴더 재구성, import 경로 변경됨
-
-## 노션 초안
-- [업로드 대기 초안](./notion_draft.md) — `/pull-mello` 후 확인
-
-## Jira 초안
-- [업로드 대기 에픽/스토리 초안](./jira_draft.md) — 다른 계정 Jira MCP로 생성 예정, 프로젝트 키 `MEL` 재확인 필수
+## 폴더 / 초안
+- [프론트 폴더 구조 04-07](./project_folder_restructure.md) — components/pages 도메인별 하위
+- [노션 업로드 대기 초안](./notion_draft.md) — `/pull-mello` 후 확인
+- [Jira 에픽/스토리 초안](./jira_draft.md) — 프로젝트 키 `MEL` 재확인
 
 ## 메모리 관리
-- [최적화 프로세스 — 토큰 절약형](./feedback_memory_optimization_process.md) — 에이전트 전수조사 금지, 인덱스 기반 판단
-- [최근 push 시간은 git log로](./feedback_last_push_time.md) — sync_status.md 재생성 로직 제거됨
+- [최적화 프로세스 — 토큰 절약형](./feedback_memory_optimization_process.md)
+- [최근 push 시간은 git log로](./feedback_last_push_time.md)
 - 2026-03 월별 회고 → wiki `2026-3-mvp` (session-log)
-- **[장기 참고문서는 OMC wiki로, auto-memory는 hot index만](./feedback_wiki_for_longform.md)** — 50줄↑ reference/decision/debugging/session-log은 `wiki_ingest`, auto-memory는 hook+규약+활성 상태만. MEMORY.md에 `→ wiki <slug>` 표기 시 `wiki_query`로만 로드
+- **[장기 참고는 OMC wiki, auto-memory는 hot index만](./feedback_wiki_for_longform.md)** — `→ wiki <slug>` 표기 시 `wiki_query`로만 로드

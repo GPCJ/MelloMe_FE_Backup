@@ -1,9 +1,16 @@
 ---
-name: 댓글 중복 POST fix (2026-05-11)
-description: 백엔드 보고 20~30ms 간격 중복 POST를 in-flight 가드 + IME isComposing 차단으로 방어, develop 머지 완료, 사용자 환경 재현 실패라 prod 로그 모니터링이 유일 검증
+name: 댓글 중복 POST fix (2026-05-11, passive)
+description: 백엔드 보고 20~30ms 간격 중복 POST를 in-flight 가드 + IME isComposing 차단으로 방어. 2026-05-12 백엔드 "재현 어려움, 조치 인지, 문제 시 재알림" 응답으로 passive 상태 전환 — 능동 모니터링 항목 아님
 type: project
 originSessionId: 67b5e1ef-28b2-4f79-adf5-12683b0cb775
 ---
+
+## 2026-05-12 상태 업데이트 (passive)
+
+백엔드로부터 "재현 어려움, 조치된 점은 인지, 문제 발생 시 다시 알려주겠다" 응답을 받았습니다. 능동 prod 로그 모니터링 항목에서 빠지고, 백엔드 재알림이 올 때까지 passive 상태로 둡니다. top3 우선순위 후보에서 제외, backlog로만 유지합니다.
+
+---
+
 ## 결정
 
 2026-05-11 댓글 작성 POST 중복(동일 댓글이 20~30ms 간격으로 2건 도착) 방어 패치를 적용했습니다. PR #13 → develop tip `1ef340e` (rebase merge, fast-forward), 3파일 +11/-1.
