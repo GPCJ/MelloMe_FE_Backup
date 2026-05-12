@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Camera, Pencil, Search, UserPen } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Camera, Pencil, Search } from 'lucide-react';
+import { ProfileEditIcon } from '@/components/icons/ProfileEditIcon';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import PageHeader from '@/components/common/PageHeader';
 import PostCard from '../../components/post/PostCard';
@@ -169,7 +170,7 @@ export default function ProfilePage() {
               aria-label="프로필 수정"
               className="text-gray-900 hover:text-gray-600 transition-colors"
             >
-              <UserPen size={24} />
+              <ProfileEditIcon size={24} />
             </button>
           </>
         }
@@ -277,7 +278,7 @@ export default function ProfilePage() {
       </div>
 
       {/* 탭 */}
-      <div className="sticky top-14 z-40 bg-white border-b border-gray-200">
+      <div className="sticky top-0 z-40 bg-white border-b border-gray-200">
         <div className="flex">
           {TABS.map(({ key, label }) => (
             <button

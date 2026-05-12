@@ -6,3 +6,4 @@ export { SearchIcon } from './SearchIcon';
 export { WriteIcon } from './WriteIcon';
 export { BellIcon } from './BellIcon';
 export { ProfileIcon } from './ProfileIcon';
+export { ProfileEditIcon } from './ProfileEditIcon';
