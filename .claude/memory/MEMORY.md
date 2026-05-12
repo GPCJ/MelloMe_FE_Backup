@@ -46,6 +46,7 @@
 - **[UserMenu 컴포넌트 패턴](./project_user_menu_component.md)** — PC 케밥 + 모바일 햄버거 공유, side/align/sideOffset/className props로 위치·스타일 호출처 결정
 - **[ProfilePage 시그널 시안 정합 + 회원 탈퇴 MVP 제외 (2026-05-11)](./project_profile_page_signal_chrome_2026_05_11.md)** — 헤더 Search(UI only)+UserPen 단일 진입점, 본체 "프로필 수정"/"회원 탈퇴" 제거, 탭 시그널 메타포, 본문 max-w-[640px]
 - **[피그마 시안 아이콘 점진 교체 (2026-05-11~)](./project_figma_icon_migration.md)** — lucide-react→피그마 점진. 사이드바 5개 완료(HomeIcon/SearchIcon/WriteIcon/BellIcon/ProfileIcon), MoreHorizontal은 lucide 유지. `components/icons/` SVG path 인라인 + currentColor
+- **[프사/닉네임 변경 시 마이페이지 RQ 캐시 무효화 (2026-05-12)](./project_my_page_cache_invalidation_on_profile_edit.md)** — `setUser`만으론 PostCard 옛값 stale, `invalidateMyPageTabs()`로 myPosts·myComments·myScraps prefix 무효화. 옵션 A/B/C 비교 박제 (커밋 `ee07728`)
 
 
 ## 게시글 첨부파일
