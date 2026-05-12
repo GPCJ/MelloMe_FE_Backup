@@ -107,7 +107,9 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
             <p className="text-sm text-gray-600 leading-5 line-clamp-3 mb-2.5 whitespace-pre-wrap">
               {post.contentPreview}
             </p>
-            {post.hasAttachment && <p className="text-[10px] text-gray-900 mb-2.5">첨부파일 있음</p>}
+            {post.hasAttachment && (
+              <p className="text-[10px] text-gray-900 mb-2.5">첨부파일 있음</p>
+            )}
           </>
         )}
 
