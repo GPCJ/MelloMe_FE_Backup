@@ -16,9 +16,11 @@ import CommentWritePage from './pages/post/CommentWritePage';
 import CommentDetailPage from './pages/post/CommentDetailPage';
 import SearchPage from './pages/search/SearchPage';
 import ProfilePage from './pages/profile/ProfilePage';
+import NotificationPage from './pages/notification/NotificationPage';
 import TherapistVerificationPage from './pages/auth/TherapistVerificationPage';
 import VerificationCompletePage from './pages/auth/VerificationCompletePage';
 import { useGA4PageView } from './hooks/useGA4PageView';
+import { useNotificationSSE } from './hooks/useNotificationSSE';
 
 /**
  * SPA 라우트 변경 시마다 GA4에 page_view 이벤트를 발송하는 트래커.
@@ -32,10 +34,17 @@ function AnalyticsTracker() {
   return null;
 }
 
+/** 로그인 상태일 때 SSE 알림 연결을 관리. UI 없이 사이드이펙트만 수행. */
+function NotificationManager() {
+  useNotificationSSE();
+  return null;
+}
+
 function App() {
   return (
     <BrowserRouter>
       <AnalyticsTracker />
+      <NotificationManager />
       <Routes>
         <Route path="/" element={<RootRedirect />} />
         {/* 정책 페이지 — 비로그인/로그인 모두 접근, Layout 밖 독립 렌더 */}
@@ -68,6 +77,7 @@ function App() {
             <Route path="/posts/new" element={<PostCreatePage />} />
             <Route path="/posts/:postId/edit" element={<PostEditPage />} />
             <Route path="/search" element={<SearchPage />} />
+            <Route path="/notifications" element={<NotificationPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
 

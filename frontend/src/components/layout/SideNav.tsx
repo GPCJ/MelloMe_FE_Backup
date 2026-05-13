@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { MoreHorizontal } from 'lucide-react';
 import { HomeIcon, SearchIcon, WriteIcon, BellIcon, ProfileIcon } from '@/components/icons';
 import { useAuthStore } from '../../stores/useAuthStore';
+import { useNotificationStore } from '../../stores/useNotificationStore';
 import { usePostWriteModalStore } from '../../stores/postWriteModalStore';
 import UserMenu from './UserMenu';
 
@@ -16,6 +17,7 @@ const NAV_ITEMS: { to: string; icon: typeof HomeIcon; label: string }[] = [
 export default function SideNav() {
   const location = useLocation();
   const user = useAuthStore((s) => s.user);
+  const unreadCount = useNotificationStore((s) => s.unreadCount);
   const openWriteModal = usePostWriteModalStore((s) => s.openModal);
 
   const isActive = (path: string) => {
@@ -60,17 +62,23 @@ export default function SideNav() {
       {NAV_ITEMS.slice(2).map(({ to, icon: Icon, label }) => {
         const active = isActive(to);
         const href = to === '/profile' && !user ? '/login' : to;
+        const showBadge = to === '/notifications' && unreadCount > 0;
         return (
           <Link
             key={to}
             to={href}
-            className={`p-2 rounded-xl transition-colors ${
+            className={`relative p-2 rounded-xl transition-colors ${
               active ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'
             }`}
             aria-label={label}
             title={label}
           >
             <Icon size={24} />
+            {showBadge && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold leading-none px-1">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
           </Link>
         );
       })}
