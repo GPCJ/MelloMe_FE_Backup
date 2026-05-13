@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Trash2 } from 'lucide-react';
-import MobilePageHeader from '../../components/common/MobilePageHeader';
+import PageHeader from '../../components/common/PageHeader';
 import Pagination from '../../components/common/Pagination';
 import { useNotificationStore } from '../../stores/useNotificationStore';
 import {
@@ -34,7 +34,7 @@ export default function NotificationPage() {
     try {
       const data = await fetchNotifications(p - 1, 20);
       setNotifications(data.items);
-      setTotalPages(Math.max(1, Math.ceil(data.totalElements / data.pageSize)));
+      setTotalPages(Math.max(1, data.totalPages ?? Math.ceil(data.totalElements / data.size)));
     } catch {
       // 조회 실패 시 빈 목록 유지
     } finally {
@@ -52,7 +52,7 @@ export default function NotificationPage() {
       );
       markNotificationAsRead(n.id).catch(() => {});
     }
-    const route = getNotificationRoute(n.type, n.postId);
+    const route = getNotificationRoute(n.type, n.referenceId);
     navigate(route);
   }
 
@@ -66,40 +66,27 @@ export default function NotificationPage() {
 
   async function handleDelete(e: React.MouseEvent, n: NotificationResponse) {
     e.stopPropagation();
-    storeRemove(n.id);
+    storeRemove(n.id, !n.read);
     setNotifications((prev) => prev.filter((item) => item.id !== n.id));
     deleteNotification(n.id).catch(() => {});
   }
 
   return (
     <div className="pb-20 md:pb-0">
-      <MobilePageHeader
+      <PageHeader
         title="알림"
         backTo="/posts"
         rightAction={
           unreadCount > 0 ? (
             <button
               onClick={handleMarkAllRead}
-              className="text-sm text-blue-500 hover:text-blue-700 pr-2"
+              className="text-sm text-blue-500 hover:text-blue-700"
             >
               모두 읽음
             </button>
           ) : undefined
         }
       />
-
-      {/* 데스크탑 헤더 */}
-      <div className="hidden md:flex items-center justify-between px-4 py-6 max-w-2xl mx-auto">
-        <h1 className="text-xl font-bold text-gray-900">알림</h1>
-        {unreadCount > 0 && (
-          <button
-            onClick={handleMarkAllRead}
-            className="text-sm text-blue-500 hover:text-blue-700"
-          >
-            모두 읽음
-          </button>
-        )}
-      </div>
 
       <div className="max-w-2xl mx-auto">
         {loading ? (
@@ -141,11 +128,7 @@ export default function NotificationPage() {
             </ul>
 
             {totalPages > 1 && (
-              <Pagination
-                currentPage={page}
-                totalPages={totalPages}
-                onPageChange={setPage}
-              />
+              <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
             )}
           </>
         )}
