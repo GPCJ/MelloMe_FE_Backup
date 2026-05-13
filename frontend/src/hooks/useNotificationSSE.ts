@@ -102,8 +102,8 @@ export function useNotificationSSE() {
             const notification = JSON.parse(event.data) as NotificationResponse;
             store.getState().addNotification(notification);
             toast(notification.content, { duration: 4000 });
-          } catch {
-            // 파싱 실패 무시
+          } catch (err) {
+            console.warn('알림 이벤트 파싱 실패:', err);
           }
         }
       },
@@ -143,8 +143,9 @@ export function useNotificationSSE() {
     try {
       const { count } = await fetchUnreadCount();
       store.getState().setUnreadCount(count);
-    } catch {
-      // 조회 실패 무시
+    } catch (err) {
+      // 401은 axios 인터셉터가 refresh로 흡수합니다. 그 외 일시 장애는 토스트 없이 로깅만 합니다.
+      console.warn('unreadCount 동기화 실패:', err);
     }
   }
 }
