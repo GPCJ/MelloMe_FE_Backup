@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import {
@@ -45,38 +45,7 @@ import PageHeader from '@/components/common/PageHeader';
 import { trackReaction } from '../../lib/analytics';
 import axios from 'axios';
 import { useCommentReactionToggle } from '../../hooks/useCommentReactionToggle';
-
-// 가로 드래그 스크롤 — 작성 모달(PostWriteForm)과 동일 패턴.
-// mousedown에서 시작점(scrollLeft+pageX) 캡쳐 → mousemove에서 그 차이만큼 scrollLeft 갱신.
-// state.current.moved는 다음 click 흡수 가드용 — 드래그 거리 > 5px면 우연한 클릭(다운로드 등) 무시.
-function useDragScroll() {
-  const ref = useRef<HTMLDivElement>(null);
-  const state = useRef({ active: false, startX: 0, startScroll: 0, moved: 0 });
-  const handlers = {
-    onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => {
-      const el = ref.current;
-      if (!el) return;
-      state.current = { active: true, startX: e.pageX, startScroll: el.scrollLeft, moved: 0 };
-      el.style.cursor = 'grabbing';
-    },
-    onMouseMove: (e: React.MouseEvent<HTMLDivElement>) => {
-      const el = ref.current;
-      if (!el || !state.current.active) return;
-      const dx = e.pageX - state.current.startX;
-      el.scrollLeft = state.current.startScroll - dx;
-      state.current.moved = Math.abs(dx);
-    },
-    onMouseUp: () => {
-      if (ref.current) ref.current.style.cursor = '';
-      state.current.active = false;
-    },
-    onMouseLeave: () => {
-      if (ref.current) ref.current.style.cursor = '';
-      state.current.active = false;
-    },
-  };
-  return { ref, state, handlers };
-}
+import { useDragScroll } from '../../hooks/useDragScroll';
 
 function PostDetailSkeleton() {
   return (

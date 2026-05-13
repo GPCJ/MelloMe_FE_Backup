@@ -19,6 +19,7 @@ import {
 } from '../../constants/post';
 import { fetchMyPosts } from '../../api/mypage';
 import { trackEvent } from '../../lib/analytics';
+import { useDragScroll } from '../../hooks/useDragScroll';
 
 const MAX_LENGTH = 2000;
 // 시안 1373:8834(PC 모달) — 짧은 한 줄.
@@ -31,37 +32,6 @@ const PLACEHOLDER_PAGE = `궁금한 점이나 나누고 싶은 이야기를 자�
 - 교구 및 활동지 추천 요청
 - 일상적인 치료 경험 공유
 - 감정 노동에 대한 이야기`;
-
-// 가로 드래그 스크롤 — 칩/이미지 미리보기 양쪽에서 동일 패턴이라 공통화.
-// 반환값: ref(컨테이너 div에 부착), handlers(div에 spread), draggedRef(클릭 흡수 가드용 — moved>5px면 클릭 무시).
-function useDragScroll() {
-  const ref = useRef<HTMLDivElement>(null);
-  const state = useRef({ active: false, startX: 0, startScroll: 0, moved: 0 });
-  const handlers = {
-    onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => {
-      const el = ref.current;
-      if (!el) return;
-      state.current = { active: true, startX: e.pageX, startScroll: el.scrollLeft, moved: 0 };
-      el.style.cursor = 'grabbing';
-    },
-    onMouseMove: (e: React.MouseEvent<HTMLDivElement>) => {
-      const el = ref.current;
-      if (!el || !state.current.active) return;
-      const dx = e.pageX - state.current.startX;
-      el.scrollLeft = state.current.startScroll - dx;
-      state.current.moved = Math.abs(dx);
-    },
-    onMouseUp: () => {
-      if (ref.current) ref.current.style.cursor = '';
-      state.current.active = false;
-    },
-    onMouseLeave: () => {
-      if (ref.current) ref.current.style.cursor = '';
-      state.current.active = false;
-    },
-  };
-  return { ref, state, handlers };
-}
 
 interface PostWriteFormProps {
   // 'modal'은 PC 모달 컨테이너 안에서, 'page'는 모바일 단독 페이지에서 사용.
