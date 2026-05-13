@@ -1,5 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  keepPreviousData,
+} from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { Trash2 } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import Pagination from '../../components/common/Pagination';
@@ -11,64 +18,129 @@ import {
   deleteNotification,
 } from '../../api/notifications';
 import { getNotificationRoute } from '../../utils/notificationRoute';
-import type { NotificationResponse } from '../../types/notification';
+import type {
+  NotificationResponse,
+  PaginatedNotifications,
+} from '../../types/notification';
+
+const PAGE_SIZE = 20;
 
 export default function NotificationPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const storeMarkAsRead = useNotificationStore((s) => s.markAsRead);
   const storeMarkAllAsRead = useNotificationStore((s) => s.markAllAsRead);
   const storeRemove = useNotificationStore((s) => s.removeNotification);
   const unreadCount = useNotificationStore((s) => s.unreadCount);
 
-  const [notifications, setNotifications] = useState<NotificationResponse[]>([]);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const queryKey = ['notifications', page - 1] as const;
 
-  useEffect(() => {
-    loadPage(page);
-  }, [page]);
+  const notificationsQuery = useQuery({
+    queryKey,
+    queryFn: () => fetchNotifications(page - 1, PAGE_SIZE),
+    staleTime: 30_000,
+    placeholderData: keepPreviousData,
+  });
 
-  async function loadPage(p: number) {
-    setLoading(true);
-    try {
-      const data = await fetchNotifications(p - 1, 20);
-      setNotifications(data.items);
-      setTotalPages(Math.max(1, data.totalPages ?? Math.ceil(data.totalElements / data.size)));
-    } catch {
-      // 조회 실패 시 빈 목록 유지
-    } finally {
-      setLoading(false);
-    }
-  }
+  const data = notificationsQuery.data;
+  const notifications = data?.items ?? [];
+  const totalPages = data
+    ? Math.max(1, data.totalPages ?? Math.ceil(data.totalElements / data.size))
+    : 1;
+  const loading = notificationsQuery.isLoading;
+
+  // 옵티미스틱 업데이트는 RQ 캐시(현재 페이지)와 store(unreadCount 동기화) 둘 다 갱신합니다.
+  // 실패 시 캐시는 롤백되지만 store unreadCount는 다음 SSE/페이지 전환 시 자연 보정에 맡깁니다.
+  const markAsReadMutation = useMutation({
+    mutationFn: markNotificationAsRead,
+    onMutate: (id: number) => {
+      storeMarkAsRead(id);
+      const previous = queryClient.getQueryData<PaginatedNotifications>(queryKey);
+      queryClient.setQueryData<PaginatedNotifications>(queryKey, (old) =>
+        old
+          ? {
+              ...old,
+              items: old.items.map((n) =>
+                n.id === id ? { ...n, read: true, readAt: new Date().toISOString() } : n,
+              ),
+            }
+          : old,
+      );
+      return { previous };
+    },
+    onError: (err, _id, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(queryKey, context.previous);
+      }
+      console.error('알림 읽음 처리 실패:', err);
+      toast.error('알림을 읽음 처리하지 못했습니다.');
+    },
+  });
+
+  const markAllAsReadMutation = useMutation({
+    mutationFn: markAllNotificationsAsRead,
+    onMutate: () => {
+      storeMarkAllAsRead();
+      const previous = queryClient.getQueryData<PaginatedNotifications>(queryKey);
+      queryClient.setQueryData<PaginatedNotifications>(queryKey, (old) =>
+        old
+          ? {
+              ...old,
+              items: old.items.map((n) => ({
+                ...n,
+                read: true,
+                readAt: n.readAt ?? new Date().toISOString(),
+              })),
+            }
+          : old,
+      );
+      return { previous };
+    },
+    onError: (err, _v, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(queryKey, context.previous);
+      }
+      console.error('모두 읽음 처리 실패:', err);
+      toast.error('모두 읽음 처리하지 못했습니다.');
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (vars: { id: number; wasUnread: boolean }) =>
+      deleteNotification(vars.id),
+    onMutate: ({ id, wasUnread }) => {
+      storeRemove(id, wasUnread);
+      const previous = queryClient.getQueryData<PaginatedNotifications>(queryKey);
+      queryClient.setQueryData<PaginatedNotifications>(queryKey, (old) =>
+        old ? { ...old, items: old.items.filter((n) => n.id !== id) } : old,
+      );
+      return { previous };
+    },
+    onError: (err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(queryKey, context.previous);
+      }
+      console.error('알림 삭제 실패:', err);
+      toast.error('알림을 삭제하지 못했습니다.');
+    },
+  });
 
   function handleClick(n: NotificationResponse) {
     if (!n.read) {
-      storeMarkAsRead(n.id);
-      setNotifications((prev) =>
-        prev.map((item) =>
-          item.id === n.id ? { ...item, read: true, readAt: new Date().toISOString() } : item,
-        ),
-      );
-      markNotificationAsRead(n.id).catch(() => {});
+      markAsReadMutation.mutate(n.id);
     }
     const route = getNotificationRoute(n.type, n.referenceId);
     navigate(route);
   }
 
-  async function handleMarkAllRead() {
-    storeMarkAllAsRead();
-    setNotifications((prev) =>
-      prev.map((n) => ({ ...n, read: true, readAt: n.readAt ?? new Date().toISOString() })),
-    );
-    markAllNotificationsAsRead().catch(() => {});
+  function handleMarkAllRead() {
+    markAllAsReadMutation.mutate();
   }
 
-  async function handleDelete(e: React.MouseEvent, n: NotificationResponse) {
+  function handleDelete(e: React.MouseEvent, n: NotificationResponse) {
     e.stopPropagation();
-    storeRemove(n.id, !n.read);
-    setNotifications((prev) => prev.filter((item) => item.id !== n.id));
-    deleteNotification(n.id).catch(() => {});
+    deleteMutation.mutate({ id: n.id, wasUnread: !n.read });
   }
 
   return (
