@@ -1,7 +1,13 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, Home, PlusCircle, Search, User } from 'lucide-react';
 import { useAuthStore } from '../../stores/useAuthStore';
+import { useNotificationStore } from '../../stores/useNotificationStore';
 import { logout } from '../../api/auth';
+import {
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+} from '../../api/notifications';
+import { getNotificationRoute } from '../../utils/notificationRoute';
 import UserAvatar from '../common/UserAvatar';
 import { buttonVariants } from '@/components/shadcn-ui/button';
 import {
@@ -23,6 +29,27 @@ export default function Layout() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
+  const notifications = useNotificationStore((s) => s.notifications);
+  const unreadCount = useNotificationStore((s) => s.unreadCount);
+  const storeMarkAsRead = useNotificationStore((s) => s.markAsRead);
+  const storeMarkAllAsRead = useNotificationStore((s) => s.markAllAsRead);
+
+  const recentNotifications = notifications.slice(0, 5);
+
+  function handleNotificationClick(n: (typeof notifications)[number]) {
+    if (!n.read) {
+      storeMarkAsRead(n.id);
+      markNotificationAsRead(n.id).catch(() => {});
+    }
+    const route = getNotificationRoute(n.type, n.postId);
+    navigate(route);
+  }
+
+  function handleMarkAllRead() {
+    storeMarkAllAsRead();
+    markAllNotificationsAsRead().catch(() => {});
+  }
+
   function handleLogout() {
     clearAuth();
     navigate('/login');
@@ -84,9 +111,59 @@ export default function Layout() {
             <DropdownMenu>
               <DropdownMenuTrigger className="relative p-2 text-gray-500 hover:text-gray-900 rounded-md transition-colors">
                 <Bell size={20} />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
+                {unreadCount > 0 ? (
+                  <span className="absolute top-1 right-1 min-w-[16px] h-[16px] flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold leading-none px-0.5">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                ) : (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
+                )}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80 p-0">
+                {/* 알림 섹션 */}
+                <div className="px-4 py-3 border-b flex items-center justify-between">
+                  <span className="font-bold text-base">알림</span>
+                  {unreadCount > 0 && (
+                    <button
+                      onClick={handleMarkAllRead}
+                      className="text-xs text-blue-500 hover:text-blue-700"
+                    >
+                      모두 읽음
+                    </button>
+                  )}
+                </div>
+                {recentNotifications.length > 0 ? (
+                  <>
+                    {recentNotifications.map((n) => (
+                      <div
+                        key={n.id}
+                        onClick={() => handleNotificationClick(n)}
+                        className={`px-4 py-3 border-b cursor-pointer transition-colors ${
+                          n.read ? 'hover:bg-gray-50' : 'bg-blue-50/50 hover:bg-blue-50'
+                        }`}
+                      >
+                        <p className={`text-sm ${n.read ? 'text-gray-600' : 'font-medium text-gray-900'}`}>
+                          {n.content}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {new Date(n.createdAt).toLocaleString('ko-KR')}
+                        </p>
+                      </div>
+                    ))}
+                    <Link
+                      to="/notifications"
+                      className="block px-4 py-3 text-center text-sm text-blue-500 hover:text-blue-700 hover:bg-gray-50"
+                    >
+                      전체 보기
+                    </Link>
+                  </>
+                ) : (
+                  <div className="px-4 py-3 border-b text-center text-sm text-gray-400">
+                    새로운 알림이 없습니다
+                  </div>
+                )}
+
+                {/* 기존 공지사항 섹션 */}
                 <div className="px-4 py-3 border-b">
                   <span className="font-bold text-base">공지사항</span>
                 </div>
