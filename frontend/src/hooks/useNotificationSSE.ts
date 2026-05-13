@@ -5,7 +5,6 @@ import { useNotificationStore } from '../stores/useNotificationStore';
 import { fetchUnreadCount } from '../api/notifications';
 import { connectSSE, type SseConnection } from '../lib/sseClient';
 import type { NotificationResponse } from '../types/notification';
-import axiosInstance from '../api/axiosInstance';
 
 const SSE_URL = `${import.meta.env.VITE_API_BASE_URL}/notifications/subscribe`;
 
@@ -25,7 +24,6 @@ const BACKOFF_MULTIPLIER = 2;
  */
 export function useNotificationSSE() {
   const tokens = useAuthStore((s) => s.tokens);
-  const clearAuth = useAuthStore((s) => s.clearAuth);
 
   const store = useNotificationStore;
   const connectionRef = useRef<SseConnection | null>(null);
@@ -114,9 +112,11 @@ export function useNotificationSSE() {
 
         if (!isActiveRef.current) return;
 
-        // 401 → 토큰 갱신 시도
+        // 401 → 일반 REST 호출로 axios 인터셉터의 refresh 사이클을 트리거합니다.
+        // 인터셉터가 토큰을 갱신하면 useAuthStore.tokens가 바뀌고, useEffect가 재실행되어 재연결됩니다.
+        // 실패 시에는 인터셉터가 clearAuth를 호출하므로 여기서는 따로 처리하지 않습니다.
         if (error.message === 'SSE_HTTP_401') {
-          handleTokenRefresh(accessToken);
+          syncUnreadCount(accessToken);
           return;
         }
 
@@ -125,17 +125,6 @@ export function useNotificationSSE() {
       },
       lastEventId,
     );
-  }
-
-  async function handleTokenRefresh(_expiredToken: string) {
-    try {
-      const { data } = await axiosInstance.post('/auth/refresh');
-      const newToken: string = data.accessToken;
-      useAuthStore.getState().setTokens({ accessToken: newToken });
-      // useEffect가 tokens 변경을 감지하여 재연결함
-    } catch {
-      clearAuth();
-    }
   }
 
   function scheduleReconnect(accessToken: string) {
