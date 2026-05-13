@@ -8,6 +8,7 @@
 - [지식 흡수 — 이미지/구조 떠올라야 흡수](./user_comprehension_criterion.md)
 - [작업 집중 — 싱글태스크 + 스쳐가는 생각 캡처](./user_work_focus_pattern.md)
 - [코드 추적 — outside-in (호출부→선언부)](./user_code_navigation_style.md)
+- [학습 막힘 포인트 — 의미 모르는 파라미터](./user_learning_blocker_unknown_params.md)
 - [Zustand/RQ 학습 — 단편 규칙 누적](./user_reactivity_libs_learning.md)
 - [AI 의존 불안 패턴 — 주기적 재출현, 4프레임 응답](./user_ai_dependency_anxiety.md)
 - 문서화 역량 면접 Q&A 7항목 → wiki `q-a-7` (reference)
@@ -15,6 +16,7 @@
 ## 작업 관리
 - **[MVP 발표일 2026-05-15](./project_mvp_launch_2026_05_15.md)** — D-3, 안정화 최우선, blast radius 큰 변경 회피
 - **[프론트 작업 백로그](./backlog.md)** — 데일리 태스크 선택용 단일 참조
+- **[★ PR #19 RQ 학습 진행 중 (4/5)](./project_rq_learning_pr19.md)** — 다음=옵티미스틱 B. 재개 트리거 「RQ 학습 이어가자」
 
 ## 프로젝트
 멜로미 — 발달장애 아동 치료사 커뮤니티 (MVP)
@@ -40,13 +42,15 @@
 - **[Chrome 통일 정책 (2026-05-08)](./project_chrome_unification_policy.md)** — Layout 헤더 폐기 + PageHeader 단일 + SideNav 6슬롯 + BottomNav 5
 - **[UserMenu 패턴](./project_user_menu_component.md)** — PC 케밥 + 모바일 햄버거 공유
 - **[ProfilePage 시그널 시안 정합 (2026-05-11)](./project_profile_page_signal_chrome_2026_05_11.md)** — 헤더 Search+UserPen, 회원 탈퇴 MVP 제외
-- **[피그마 아이콘 점진 교체 (2026-05-11~)](./project_figma_icon_migration.md)** — 사이드바 5개 완료, `components/icons/` SVG path 인라인
+- **[피그마 아이콘 점진 교체 (2026-05-11~)](./project_figma_icon_migration.md)** — 사이드바 + 모바일 BottomNav 완료, `components/icons/` SVG path 인라인
 - **[프사/닉네임 변경 시 마이페이지 RQ 캐시 무효화 (2026-05-12)](./project_my_page_cache_invalidation_on_profile_edit.md)** — `invalidateMyPageTabs()`, `ee07728`
+- **[PostCard 이미지 캐러셀 + useDragScroll 추출 (2026-05-12)](./project_postcard_image_carousel_2026_05_12.md)** — `imageUrls`, 3곳 통합, `<Link draggable={false}>` 함정 해소, wiki 2건
+- **[알림 기능 통합 (2026-05-13)](./project_notification_integration_2026_05_13.md)** — feat/notification cherry-pick + Swagger 정합 fix 4건 + store/페이지 분리 버그 fix, B-10 백엔드 대기
 
 ## 게시글 첨부파일
 - [프론트 구현 완료](./project_post_attachment_feature.md) — 이미지/PDF 엔드포인트 분리 완료(04-21)
-- **[첨부 다운로드 fix + S3 CORS 인프라 대기 (2026-05-02)](./project_post_attachment_download_s3_cors_pending.md)** — PR#8 머지, dev/prod CORS 잔존
-- **[이미지 업로드 500 — FILE_STORAGE_ERROR](./project_image_upload_500_file_storage_error.md)** — 백엔드 구조화 에러, staging 재현 검증 예정
+- **[첨부 다운로드 — S3 CORS 해소 (2026-05-13)](./project_post_attachment_download_s3_cors_pending.md)** — dev/prod 브라우저 정상 작동 확인
+- **[이미지 업로드 500 — 해소 (2026-05-13)](./project_image_upload_500_file_storage_error.md)** — dev/prod 브라우저 정상 작동 확인
 - 8층 학습 노트 + unwrap 버그 → wiki `unwrap` (debugging)
 - 다운로드 3-layer 진단(presigned×axios×S3 CORS) → wiki `presigned-url-axiosinstance-s3-cors-3-layer` (debugging)
 
@@ -64,6 +68,8 @@
 - **[PostListPage ref 렌더 중 접근](./project_postlistpage_ref_render_issue.md)** — React 19 에러, initialSnapshot 타이밍 미해결 (MVP 후 재개)
 - [sticky offset 잔재 — ProfilePage:306](./project_sticky_offset_legacy_cleanup.md) — `(md:)?top-14` grep
 - **[main↔develop 강제 동기화 (2026-05-11)](./project_main_develop_force_sync_2026_05_11.md)** — 백업 `main-backup-2026-05-11`, MVP 후 삭제
+- **[PostCard 첨부 개수/파일명 — 목록 API attachments 필드 대기 (2026-05-12)](./project_postcard_attachment_chip_pending.md)** — 머지 즉시 프론트 후속
+- **[알림 HIGH 3 SSE 라이브러리 결정 미완 (2026-05-13)](./project_notification_high3_sse_library_pending.md)** — wiki(fetch-event-source) ↔ 실 자가 파서 어긋남, 별도 세션 결정
 
 ## 기능명세
 - [프론트 기능명세 FNC-001~009](./project_feature_spec_frontend.md)
@@ -92,6 +98,7 @@
 - **[최우선]** [UI 통일은 명시 항목만](./feedback_ui_unification_scope.md) — 주변 UI 추론 확장 금지
 - [worktree base + gitignore 확인](./feedback_worktree_base_check.md)
 - **[AI 작성 코드 → 인지부채 HIGH 메모리 의무](./feedback_ai_written_code_cognitive_debt.md)**
+- **[AI/사용자 작성 attribution은 메모리로 추적, 커밋 메시지엔 박지 않음](./feedback_attribution_in_memory_not_commit.md)** — 커밋은 변경 단위, 작업 분담표는 인지부채 메모리에
 - [AI 코드 학습용 주석 워크플로우](./feedback_ai_code_learning_comments.md)
 - **[AI 50%+ 작업 후 소크라테스식 Q&A](./feedback_learning_gap_socratic_checkin.md)**
 - **[AI 산문 패턴 체크리스트](./feedback_ai_prose_patterns.md)** — em-dash·3의법칙·볼드콜론 등
@@ -105,6 +112,7 @@
 - [navigate(-1) 금지](./feedback_navigate_back.md) / [모바일/데스크탑 UX 분기](./feedback_mobile_desktop_ux.md)
 - [질문 객관식 vs 주관식](./feedback_question_style.md) / [불확실하면 질문](./feedback_ask_when_uncertain.md)
 - [/wrap-up 세션 마무리](./feedback_session_bridge_removed.md) / [집중력↓ 간결](./feedback_concise_when_tired.md) / [notepad 자동 기록](./feedback_notepad_session_logging.md)
+- **[긴 학습/작업 분할 워크플로우 — 커리큘럼 메모리 + notepad 트리거](./feedback_learning_session_split_workflow.md)**
 - **[피그마 협업 워크플로우 통합 — 스크린샷·PNG 2x / 링크=요구사항 / React export semantic 변환 / 아이콘 SVG 추출+트랩 4종](./feedback_figma_workflow.md)**
 - **[노션 워크플로우 통합 — 업로드 승인·경로 / 날짜별 서브페이지 / 번호 fetch 확인 / 서브페이지 자기평가 / draft VSCode / /report-notion 재질문](./feedback_notion_workflow.md)** + [Notion 운영](./project_notion_page_policy.md)
 - 노션 스킬 정리 → wiki `2026-04-15-report-notion` (session-log)
@@ -127,10 +135,12 @@
 - [커맨드 범용 네이밍](./feedback_draft_notion_naming.md)
 - **[API 에러 처리 통합 — 에러 삼키지 말기 + 원인별 분기(401 인터셉터/500/네트워크)](./feedback_error_handling.md)**
 - [백엔드 필드 요청 전 스펙 확인](./feedback_backend_field_request_check.md) / [Explore 결과 검증](./feedback_explore_result_verification.md)
+- **[check-* 리포트 출력 전 코드 검증](./feedback_check_backend_verify_code_first.md)** — 메모리 stale 항목 자체 거름
 - [GitHub Issues 기술부채](./feedback_github_issues.md) / [이슈는 airo만](./feedback_airo_issues_only.md)
 - [취업 경험 Notion](./feedback_career_documentation.md) / [Vercel SPA 라우팅](./feedback_vercel_spa_routing.md)
 - **[다른 직군 영향 작업 먼저](./feedback_cross_role_impact_priority.md)**
 - **[진행 상황은 backlog, memory엔 결정만](./feedback_memory_vs_backlog_split.md)**
+- **[메모리/노트 제목은 스캔 가능하게 + 백엔드 대기는 priority_list 등재](./feedback_memory_title_scannability.md)** — WHERE+WHAT+BLOCKER 한 줄
 - **[결정/구현 문서엔 한계점도 박제](./feedback_document_limitations_with_benefits.md)**
 - **[블로그 전략 — Velog 주1+ Notion 재가공](./feedback_blog_writing_strategy.md)** / [쓰기/편집 모드 분리](./feedback_blog_editing_mode.md)
 - **[Jira 이슈 생성 전 프로젝트 조회](./feedback_jira_project_query_first.md)**
@@ -141,6 +151,7 @@
 - **[Jira 프로젝트 — MEL=멜로미, BUR=burst!(별개)](./reference_jira_project_structure.md)**
 - [팀 요구사항 Sheets](./reference_requirements_doc.md) / [Swagger UI](./reference_swagger_endpoint.md)
 - [Swagger enum 전체 값 확인](./reference_swagger_enum_verification.md) / [백엔드 OpenAPI 엔드포인트](./reference_backend_swagger.md)
+- **[staging Swagger UI + JSON spec](./reference_swagger_staging.md)** — 로컬 `openapi-local.json` drift 시 정답지
 - [Notion TIL](./reference_notion_til.md) / [빌더스 리그](./reference_notion_builders_league.md) / [트러블슈팅](./reference_notion_troubleshooting.md)
 
 ## 환경 / 도구

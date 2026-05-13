@@ -1,11 +1,16 @@
 ---
-name: 이미지 업로드 500 - FILE_STORAGE_ERROR
-description: POST /posts/{id}/images 500 응답 패턴 — 백엔드 파일 저장 인프라 추정 + #2/#3과 단일 root cause 가능성
+name: 이미지 업로드 500 - FILE_STORAGE_ERROR (해소 2026-05-13)
+description: POST /posts/{id}/images 500 — 백엔드 파일 저장 인프라 회귀. dev/prod 모두 정상 작동 확인 (사용자 검증).
 type: project
 created: 2026-04-29
+updated: 2026-05-13
 originSessionId: 471e1311-e0e3-4555-81b6-38f3f73186b6
 ---
-## 발견 (2026-04-29)
+## 해소 완료 (2026-05-13 사용자 검증)
+
+dev/prod 브라우저에서 이미지 업로드 정상 작동 확인. 백엔드 측 수정이 조용히 적용됨 (시점 미상, 2026-04-29 이후~2026-05-13 사이). `POST /therapist-verifications`, `POST /me/profile-image` multipart 500도 함께 해소된 것으로 추정 — 별건 발생 시 재확인.
+
+## 이전 발견 (2026-04-29, 참고용)
 
 ```
 POST https://api.melonnetherapists.com/api/v1/posts/28/images → 500

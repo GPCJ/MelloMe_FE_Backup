@@ -1,7 +1,10 @@
 ---
-name: 디자이너 협업 — 대기 항목 + 워크플로우
+name: ""
 description: 디자이너 확인/공유 후 구현 가능한 UI 항목 목록 + 협업 방식 + 모바일 퍼스트 정책
-type: project
+metadata: 
+  node_type: memory
+  type: project
+  originSessionId: f47fa414-3a3a-44f8-b2c5-506a39a424fe
 ---
 
 디자이너와 상의 없이 임의 구현 금지. 확정 후 구현 진행.
@@ -22,17 +25,17 @@ type: project
 
 ## 대기 중
 
-- **첨부파일 UI** — `PostDetailPage` 내 위치/디자인 미확정 (타입 정의는 완료)
-- **치료영역 배지** (FNC-025) — 인증된 치료사 닉네임 옆 태그/배지 디자인 미확정. 백엔드 완료, 디자인 확정 후 즉시 구현 가능
-- **3종 리액션 UI** — 좋아요·공감이에요·도움이에요 버튼 디자인 확정 필요. 백엔드 구현 완료 (`GET /posts/{postId}/reaction` → empathyCount/appreciateCount/helpfulCount + myReactionType 반환). 디자인 확정 후 프론트 즉시 구현 가능.
-- **인증 전용 게시글 블러 UI** — 미인증 회원이 볼 때 제목·내용 블러 처리 디자인 (REQ-003)
-- **팔로우/언팔로우 버튼** — 프로필 페이지 및 게시글 작성자 영역 위치·디자인 (REQ-005, REQ-011)
-- **마이페이지 프로필 화면** — 포스트 수·닉네임·인증여부·팔로워·팔로잉 레이아웃 (REQ-011)
-- **마이페이지 아카이빙 탭** — 내가 쓴 글·답변·스크랩 3탭 UI (REQ-012)
-- **스크랩 버튼** — 게시글 내 위치·디자인 (REQ-010)
-- **데스크탑 헤더 글쓰기 버튼** — PC 환경에서 글쓰기 진입점 필요, 알림 아이콘 왼쪽 제안 → 디자이너 답변 대기 (2026-04-01)
-- **VerificationCompletePage** — PENDING(신청 접수) / APPROVED(승인 완료) 두 상태 화면 디자인 (현재 임시 텍스트로 분기 처리 중)
-- **치료사 인증 상세 정보 UI** — TherapistVerificationPage에서 거절 사유, 신청 일시, 심사 일시 등 표시 디자인 필요 (GET /therapist-verifications/me 연동 예정)
+- **치료영역 배지** (FNC-025) — 인증된 치료사 닉네임 옆 태그/배지 디자인 미확정. 백엔드 완료, 디자인 확정 후 즉시 구현 가능. `PostCard`는 현재 `VerifiedBadge`(상태 배지)만 노출.
+- **팔로우/언팔로우 버튼** — 프로필 페이지 및 게시글 작성자 영역 위치·디자인 (REQ-005, REQ-011). notepad 1순위 "타인 프로필 열람 Jira 티켓"에 묶여 백엔드 API + DM/팔로우 진입점 함께 대기.
 
-## 완료
-(없음)
+## 완료 (2026-05-13 검증)
+
+- **첨부파일 UI** — `PostDetailPage` 칩 패턴 시안 정합 완료 (`PostDetailPage.tsx:371-468`, 1387:12297). PostCard 첨부 칩만 백엔드 `attachments` 필드 머지 대기 (`project_postcard_attachment_chip_pending`).
+- **3종 리액션 UI** — `ReactionBar.tsx`에 LIKE(좋아요·Heart)/CURIOUS(궁금해요·Star)/USEFUL(유용해요·Lightbulb) 구현 완료. [[project_comment_reaction_3type_decision]] 정합.
+- **인증 전용 게시글 블러 UI** — `PostCard.tsx:92-95` `blur-[5.8px] opacity-50` + 안내 오버레이 완료. URL 직접 진입은 `PostDetailPage.tsx:158` 인증 페이지로 redirect.
+- **마이페이지 프로필 화면** — `ProfilePage.tsx` 완료. [[project_profile_page_signal_chrome_2026_05_11]] 시안 정합 적용.
+- **마이페이지 아카이빙 탭** — `posts | commented | scrapped` 3탭 + RQ 캐시 무효화 (`ProfilePage.tsx:21-148`).
+- **스크랩 버튼** — 게시글/마이페이지 스크랩 탭 + handlers 완료 (`scrap.handlers.ts`, mypage API).
+- **데스크탑 헤더 글쓰기 버튼** — `SideNav.tsx:48-53` 글쓰기 버튼 + `Layout.tsx:23,47-50` PC 게시글 작성 모달 진입점 (store 토글).
+- **VerificationCompletePage** — PENDING/APPROVED/REJECTED 3분기 + 거절 사유 표시 완료 (`VerificationCompletePage.tsx:50-95`).
+- **치료사 인증 상세 정보 UI** — `TherapistVerificationPage.tsx:129-148` 거절 사유 + 심사일 표시 완료.

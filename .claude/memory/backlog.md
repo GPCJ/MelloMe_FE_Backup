@@ -2,7 +2,7 @@
 name: 프론트엔드 작업 백로그
 description: 데일리 태스크 선택용 단일 참조 파일 — 할 수 있는 것 / 블로킹 대기 / 검증 방법 포함
 type: project
-updated: 2026-05-12
+updated: 2026-05-13
 originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 ---
 # 프론트엔드 작업 백로그
@@ -145,7 +145,15 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - **부수 발견 (후속 backlog 후보)**: UserMenu 시안 1332:6580에서 메뉴 bundle 구분선 있음 — 현재 평면 3개
 - [ ] **CH-03** 카드 액션바 4종 리액션 — 백엔드 스펙 확인 필요, 별 PR 후보
 - [ ] **CH-04** PostListPage PC 검색바 제거 — 큰 UI 수정 시 묶어서
-- [ ] **CH-05** 알림 페이지 구현 — 현재 `/notifications` → `NotFoundPage`
+- [x] **CH-05** 알림 페이지 구현 — 완료 (2026-05-13, `feat/notification-integration` 브랜치)
+  - 전략: `origin/feat/notification`이 4월 말 base에서 35커밋 + develop 78커밋 추가로 14파일 충돌 발생 → 알림 외 작업이 develop에 별도 머지된 상태라 알림 코어 9파일 cherry-pick + Swagger 정합 fix + 통합 4파일 수정으로 분리
+  - Swagger 정합 fix 4건: `VERIFICATION_SUBMITTED` enum 추가 / `PaginatedNotifications` `pageNumber→page,pageSize→size,totalPages` / `NotificationResponse.postId` 제거 (백엔드 미동봉) / `getNotificationRoute` `referenceId` 기반 시그니처
+  - 통합 4파일: `App.tsx`(라우트+`useNotificationSSE`), `SideNav.tsx`/`Layout.tsx`(알림 슬롯 뱃지), `mocks/handlers/index.ts`
+  - 부수 버그 fix: `useNotificationStore.removeNotification(id, wasUnread?)` 시그니처 확장 — store/페이지 알림 배열 분리 구조에서 페이지가 fetch한 알림 삭제 시 `unreadCount` 미감소 버그
+  - tsc / build / MSW 모드 검증 통과 (2026-05-13)
+  - 미해결: B-10 (댓글 계열 라우팅 — 백엔드 `postId` 동봉 대기)
+  - LIVE staging 검증 + 커밋 대기 (사용자가 추가 디버깅 후 진행)
+  - 상세: `project_notification_integration_2026_05_13.md`
 - [ ] **CH-06** 인증완료 모달 구현 — 시안 1321:5251 (현재는 `VerificationCompletePage` 페이지)
 - [ ] **CH-07** 게시글 작성 모달/페이지 임시저장(Draft) — 2026-05-10 PR #12 작업 중 후순위 결정
   - **트리거**: 모달 닫힘(ESC/배경/← back) 또는 모바일 페이지 이탈 시 본문/카테고리/공개범위 localStorage 보관, 다음 진입 시 복원
@@ -262,6 +270,11 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 검증: Swagger `/v3/api-docs` 재조회 → `PostImageResponse.imageUrl`이 서명 쿼리 포함 절대 URL인지
   - 상세: `project_post_image_presigned_url.md`
 - [-] ~~**B-08** 유저 행동 분석용 `analyticsId` 필드 추가~~ → **드롭 (2026-04-24)** PM 결정: GA4 유저 단위 추적 안 함, Looker Studio/Firebase 로우데이터로 대체. 이벤트 4종은 프론트 독립 착수로 이동.
+- [ ] **B-10** 알림 응답에 `postId` 동봉 (P2, MVP 후) — 확인일: 2026-05-13
+  - **현황**: 2026-05-13 feat/notification 통합 시 staging Swagger 재조회 결과, `NotificationResponse.referenceId`는 알림 대상 리소스 ID(댓글 계열은 댓글 ID). 댓글 계열 알림(`NEW_COMMENT`, `NEW_REPLY`, `NEW_COMMENT_REACTION`) 클릭 시 게시글 상세로 못 감 → 안전 fallback으로 `/posts` 목록 이동
+  - **요청**: `NotificationResponse`에 `postId?: number` 필드 추가 (댓글 계열 알림만 필수). 또는 응답 스키마 정리로 `commentId` / `postId` 분리 동봉
+  - **검증**: staging Swagger 재조회로 `NotificationResponse.postId` 확인 → `frontend/src/utils/notificationRoute.ts` 댓글 계열 분기 1줄 수정 (`return postId ? \`/posts/${postId}\` : '/posts'`)
+  - **연관**: CH-05 (완료), `project_notification_integration_2026_05_13.md`
 - [ ] **B-09** 타인 프로필 조회 API (P1, MVP 후) — 확인일: 2026-05-12 (staging Swagger 기준 부재)
   - **현황**: staging Swagger에 `/me` 계열만 있고 `GET /users/{id}` 류 부재 확정. 타인 프로필 카드 채울 데이터 소스 없음
   - **요청 엔드포인트 2종**:

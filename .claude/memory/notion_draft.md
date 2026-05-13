@@ -2,8 +2,59 @@
 name: 업로드 대기 초안
 description: 노션에 작성할 초안. /report-notion으로 업로드 가능.
 type: draft
-updated: 2026-05-10
+updated: 2026-05-12
 originSessionId: e1edc8fc-ae80-43c0-add1-b97ceec7982e
+---
+
+# 2026-05-12 PostCard 이미지 캐러셀 + useDragScroll 공용 훅 추출
+
+## TIL — useDragScroll을 hooks/로 빼낸 사연
+
+5/10 게시글 작성 모달 작업 때 `PostWriteForm` 안에 작은 helper 함수로 `useDragScroll`을 만들었습니다. 칩 가로 스크롤과 이미지 미리보기 양쪽에서 같은 패턴이 필요했기 때문입니다. 같은 패턴을 PostDetailPage의 첨부 이미지 영역에서도 또 써야 했고, 그때는 또 인라인으로 복제해 뒀습니다. 같은 35줄 코드가 두 파일에 그대로 박혀있는 상태였습니다.
+
+이번에 PostCard에 이미지 캐러셀을 붙이면서 같은 훅이 세 번째로 필요해졌습니다. 그제서야 `hooks/useDragScroll.ts`로 빼내고 세 곳에서 import해서 쓰는 구조로 정리했습니다. "한 번이면 둔다, 두 번이면 메모해둔다, 세 번이면 추출한다"는 일반적인 규칙을 이번에 그대로 따랐는데, 두 번째 복제 때 미리 뺐어도 됐겠다는 후회가 약간 남습니다. 두 번째 복제할 때는 "어차피 작은 함수니까 다시 복사하면 되지" 싶었는데, 추출은 5분이고 추후 변경할 때 두 곳 동기화 누락 위험이 훨씬 컸습니다.
+
+리팩터링 자체는 동작 변화 0인 순수 추출이라 별도 검증이 필요 없었습니다. import 경로만 정리하고 PostDetailPage에서 더 이상 안 쓰게 된 `useRef` import도 같이 정리했습니다.
+
+## TIL — PostCard에 이미지 캐러셀 추가
+
+목록 응답(`PostSummary`)에 `imageUrls: string[]` 필드가 들어오기 시작해서, 카드에 가로 스크롤 캐러셀로 이미지를 노출했습니다. 시안은 카드 본문 아래에 240×240 썸네일이 좌우로 끌리는 형태입니다. 첨부가 없는 카드에서는 영역 자체를 렌더하지 않도록 `imageUrls && imageUrls.length > 0` 가드를 뒀습니다.
+
+훅이 이미 있어 캐러셀 본체는 짧습니다. `useDragScroll`을 호출해 받은 `ref`/`handlers`를 컨테이너 div에 붙이고, 안에 `<img>` 리스트를 가로로 늘어놓는 게 전부입니다. `crossOrigin="anonymous"`는 S3 응답을 그릴 때 캔버스 오염을 막기 위한 표준 옵션이고, `draggable={false}`는 다음 트러블슈팅에서 다룰 dragstart 버블링 차단의 한 축입니다.
+
+## 트러블슈팅 — `<Link>` 안의 캐러셀이 dragstart bubbling으로 끌려갔습니다
+
+처음 캐러셀을 붙였더니 이미지를 끌면 카드 전체가 따라 움직이는 현상이 보였습니다. 캐러셀 div에는 `onMouseDown/Move/Up`만 붙였지 `onDragStart`는 막지 않은 상태였습니다.
+
+원인은 HTML5 dragstart 이벤트의 버블링이었습니다. `<img>` 위에서 mousedown + move가 일정 거리 이상 진행되면 브라우저가 자동으로 dragstart를 발화시키고, 이 이벤트가 부모로 버블링됩니다. PostCard는 전체가 `<Link>`로 감싸여 있어서 `<a>` 태그가 기본 draggable인데, 그 위에서 dragstart가 잡히니 브라우저는 "이 링크를 드래그하려는 의도"로 해석해 링크 자체를 끌리는 객체로 만들어 버립니다. 시각적으로는 카드 자체가 마우스를 따라가는 그림자처럼 보입니다.
+
+방어는 세 겹입니다.
+
+- `<Link draggable={false}>` — 링크가 드래그 가능한 요소가 되지 않도록 끕니다. 가장 근본 차단입니다.
+- 캐러셀 컨테이너 `onDragStart={e => e.preventDefault()}` — 혹시 빠져나간 dragstart도 컨테이너 레벨에서 끊습니다.
+- 캐러셀 `<img draggable={false}>` — 이미지 단위로도 끕니다.
+
+겹쳐 두는 게 과해 보일 수 있지만, 어느 한 층이 깨지더라도(예: 미래에 누가 `<Link draggable>` 디폴트로 되돌리는 경우) 나머지가 막아주는 구조입니다.
+
+또 하나 같이 둔 가드는 5px 흡수 가드입니다. 드래그가 끝날 때 mouseup이 click으로 이어지고, 그 click이 부모 `<Link>`로 버블링되면 의도치 않은 게시글 상세 진입이 발생합니다. 캐러셀 컨테이너 `onClickCapture`에서 `useDragScroll`이 노출하는 `state.current.moved`(드래그 누적 거리)를 보고, 5px 이상이면 `preventDefault + stopPropagation`로 클릭을 흡수합니다. 5px이라는 숫자는 작성 모달 칩에서도 같은 패턴을 쓰던 임계값입니다.
+
+## 인지부채 — 캐러셀 본체 코드는 아직 머릿속에 안 박혔습니다
+
+캐러셀 구현 부분은 사실 5/10 작성 모달의 칩/미리보기 코드를 거의 복붙한 결과입니다. mousedown에서 시작점을 캡쳐하고 mousemove에서 그 차이만큼 scrollLeft를 갱신하는 흐름까지는 머리로 그릴 수 있는데, 그 뒤로 이어지는 cursor 토글, leave 시 상태 정리, `state.current.moved`로 클릭 흡수까지의 전체 그림은 한 번에 머릿속에 떠오르지 않습니다. PostCard.tsx의 캐러셀 블록에 그 점을 정직하게 코멘트로 남겨뒀습니다("코드 복붙으로 작성한 코드라서 어떻게 돌아가는 코드인지 모름").
+
+학습 우선순위 후보입니다. 백로그에 "useDragScroll 내부 동작 직접 그려보기 — wiki `usedragscroll-onclickcapture-5px-high`"로 메모할 예정입니다.
+
+## 한계점
+
+- 캐러셀은 마우스 드래그 + 네이티브 터치 스크롤 조합입니다. 키보드/스크롤 휠 좌우 이동은 명시적으로 지원하지 않습니다. 접근성 측면에서 보면 키보드 사용자가 캐러셀 안 이미지를 탐색할 길이 없는데, MVP 범위에서는 후순위로 미뤘습니다.
+- 이미지 클릭 시 라이트박스/원본 보기 같은 동작은 없습니다. 5px 흡수 가드 때문에 정적 클릭은 부모 `<Link>`로 흘러가 상세 진입이 됩니다. 의도된 동작이지만 "이미지만 크게 보고 싶다"는 사용자 요구가 들어오면 별도 라이트박스가 필요합니다.
+- 백엔드 응답의 `imageUrls` 순서/개수에 정렬이나 limit이 없어 보입니다. 글 하나에 이미지가 10장 넘게 첨부되면 카드 본문이 한 카드만으로 화면 폭 이상을 차지하게 됩니다. 시안에 max 개수가 명시돼 있지 않아 그대로 갔는데, 디자이너 컨펌 후 limit 결정 필요.
+
+## 부수 메모
+
+- 이번 두 커밋은 develop에 직접 올렸습니다(PR 분리 안 함). 5/10 작성 모달 분리 때 다른 세션 변경과 worktree base가 어긋나 7커밋이 빠지는 사고가 났던 기억 때문에 이번엔 "리팩터링이 들어가는 PR과 기능 PR을 분리하되, 둘 다 develop 위에 직접 atomic 커밋으로" 가는 길을 택했습니다. blast radius가 작고 같은 파일(PostCard/PostWriteForm/PostDetailPage)이 다른 세션과 동시 작업 중인 영역이라 PR 단위로 묶어두는 의미가 옅었습니다.
+- `<Link draggable={false}>`는 React 19/Tailwind 환경에서 정상 동작합니다. 일부 라이브러리(예: shadcn의 Slot)가 그 위에 또 다른 wrapper를 두면 prop이 끝까지 전달 안 될 수도 있는데, 이번 자리에서는 react-router-dom의 `<Link>` 직접 사용이라 무관했습니다.
+
 ---
 
 # 2026-05-10 CH-02 비인증 차단 카드 + 재로그인 캐시 fix

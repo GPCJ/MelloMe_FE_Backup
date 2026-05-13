@@ -1,6 +1,6 @@
 ---
 name: 피그마 시안 아이콘 점진 교체
-description: lucide-react → 피그마 시안 아이콘 점진 교체 결정 + 사이드바 1차 진행 결과 (2026-05-11)
+description: lucide-react → 피그마 시안 아이콘 점진 교체 결정 + 사이드바·모바일 BottomNav 진행 결과 (2026-05-11~12)
 type: project
 originSessionId: a595a01c-bbfb-4ba3-94cc-d340da6e58c4
 ---
@@ -23,6 +23,17 @@ originSessionId: a595a01c-bbfb-4ba3-94cc-d340da6e58c4
 `SideNav.tsx`에서 lucide의 Home/Search/SquarePen/Bell/User 5개 import 제거, 새 컴포넌트로 교체. JSX 구조·active 색 로직·UserMenu(케밥)는 그대로.
 
 `MoreHorizontal`만 lucide 유지. 이유: 사용자가 받은 more.svg가 60×60 슬롯 박스 통째로 export돼 시안 정합 어려움. 추후 `IconNavOption`(노드 `1498:25756`) 24×24만 정확히 export 받으면 교체 가능.
+
+## 2차 — 모바일 BottomNav 5개 완료 (2026-05-12, 커밋 `bd8da18`)
+
+`Layout.tsx`의 BottomNav에서 lucide의 Home/Search/PlusCircle/Bell/User 5개를 PC SideNav와 동일한 시안 컴포넌트(`HomeIcon/SearchIcon/WriteIcon/BellIcon/ProfileIcon`)로 교체. 새 컴포넌트 생성 없이 기존 5종 재사용.
+
+부수 정리:
+- 텍스트 라벨 `<span>` 5개 제거 → PC SideNav가 라벨 없으므로 시각 통일
+- `flex-col gap-1` → `flex items-center`로 단순화 (라벨 제거로 의미 소실)
+- `aria-label` 5개 추가(프로필은 `user ? '프로필' : '로그인'` 분기). PC는 `aria-label`+`title` 둘 다, 모바일은 hover 없어 `title` 생략
+
+동작은 PC(글쓰기 모달 토글)와 모바일(`/posts/new` 라우트 이동)이 의도적으로 다름 — **아이콘만 통일, 동작은 그대로** (사용자 명시 결정).
 
 ## 검증 / 학습 부채
 

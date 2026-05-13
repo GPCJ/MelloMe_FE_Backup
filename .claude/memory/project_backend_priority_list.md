@@ -8,7 +8,7 @@ originSessionId: f42617ce-54f8-4206-adaf-71ad712d80bc
 
 ## P0 — 이게 없으면 데모 불가
 1. ~~`GET /posts?therapyArea=` 옵셔널 파라미터 추가~~ ✅ 해소 (04-03 Swagger 확인)
-2. `title` 필드 optional 변경 (프론트 빈 문자열 전송 중) ❌ 여전히 required
+2. ~~`title` 필드 optional 변경~~ ✅ 해소 (2026-05-13 코드 검증) — `PostCreateRequest`/`PostUpdateRequest` 타입에 title 자체 없음. PostWriteForm `{content, therapyArea, visibility}`만 전송하며 prod/dev 정상 작동.
 3. ~~치료사 인증 즉시 승인 로직~~ ✅ 해소 — 신청 즉시 THERAPIST 승격 반영됨
 4. **프로필 이미지 URL localhost 저장 버그** ❌ 신규 (2026-04-14) — `GET /me`의 `profileImageUrl`이 `http://localhost:8080/api/v1/me/profile-image/profile-images/xxx.jpg`로 내려옴. DB 저장값 + 이중 경로 문제. 상세: `project_profile_image_localhost_bug.md`
 
@@ -21,7 +21,9 @@ originSessionId: f42617ce-54f8-4206-adaf-71ad712d80bc
 ## P2 — MVP 범위지만 후순위
 8. ~~파일 업로드 API~~ ✅ 해소 — 업로드/다운로드/삭제 지원됨
 9. 회원가입 응답에 토큰 포함 ❓ 확인 필요 (서버 현재 `{id, email}`만 반환, 프론트 AuthResponse 기대 → 타입 불일치 확정)
+   - 비고(2026-05-13): 별도 항목이었던 "로그인 응답 isNewUser 정상화"는 폐기 — 환영 모달이 SignupPage `localStorage('mello:welcome-pending')` 플래그 방식으로 우회됨(useWelcomeModal). `isNewUser` 프론트 의존 없음.
 10. ~~답글 단 글 API~~ ✅ 해소 — `GET /me/comments` 확정 (04-04 Swagger 확인)
+11. **PostCard 첨부 개수/파일명 — 목록 API attachments 필드** ❌ 대기 (2026-05-12) — `TherapyPostSummaryResponse`에 `attachments: AttachmentResponse[]` 추가 요청. 스키마는 `PostDetail.attachments`와 동일 권장. 프론트는 `.length` + `[0].originalFilename`만 사용. 상세: `project_postcard_attachment_chip_pending.md` (notepad 2순위)
 
 ## 마이페이지 추가 확정 (04-04)
 - `DELETE /me` ✅ 존재 — 회원 탈퇴

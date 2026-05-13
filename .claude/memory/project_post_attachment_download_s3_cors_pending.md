@@ -1,10 +1,14 @@
 ---
-name: 첨부파일 다운로드 prod 머지 완료 + S3 CORS 인프라 재조치 대기
-description: 다운로드 fix prod까지 적용(PR#8, b6deca5). dev/prod 양쪽 CORS 에러 잔존 → 인프라 개발자 재조치 대기. 이전 "prod 머지 의미 없음" 결론 정정.
+name: 첨부파일 다운로드 — S3 CORS 해소 (사용자 검증 2026-05-13)
+description: 다운로드 fix prod 머지(PR#8, b6deca5) + S3 CORS 인프라 조치 완료. dev/prod 브라우저에서 정상 작동 확인.
 type: project
 originSessionId: d4577431-d681-4be7-aac5-ba2ac130d677
 ---
-## 현재 상태 (2026-05-02)
+## 해소 완료 (2026-05-13 사용자 검증)
+
+dev/prod 브라우저에서 첨부 다운로드 정상 작동 확인. S3 CORS 인프라 조치가 조용히 적용된 것으로 보임 (시점 미상, 2026-05-02 이후~2026-05-13 사이). 추가 액션 불필요.
+
+## 이전 상태 (2026-05-02, 참고용)
 
 게시글 첨부파일 다운로드 fix가 develop → main 머지로 prod에도 적용 완료. 그러나 staging/prod 양쪽에서 CORS 에러가 동일하게 잔존 → S3 버킷 CORS 인프라 작업이 미완료(또는 잘못 적용)된 상태.
 

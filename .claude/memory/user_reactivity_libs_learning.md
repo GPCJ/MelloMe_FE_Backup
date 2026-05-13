@@ -17,3 +17,14 @@ originSessionId: ae7aa7da-b987-4cb5-af3d-71635929aad2
 - 직접 작성 모드에서도 동일 — 한 규칙씩 가이드한 뒤 사용자가 적용·확인하면 다음 단편으로.
 - 사용자가 "이건 됐고 다음" 식으로 진행하면 그 흐름 존중. 한 단편씩 누적이 사용자가 선언한 학습 방식.
 - 큰 그림(reactivity 모델 전체, 캐시 키 정책 등)을 한 번에 정리하려는 시도는 사용자 인지부채만 키움.
+
+---
+
+**누적 단편 규칙 (날짜순)**
+
+- **2026-05-13 — Zustand: store 함수가 데이터 속성으로 분기할 땐, 그 데이터가 store에 실제로 있는지 먼저 확인.**
+  - 사례: `useNotificationStore.removeNotification`이 store `notifications` 배열에서 `find`로 `read` 여부를 검사하는데, `NotificationPage`가 fetch한 알림은 로컬 `useState`에만 있고 store 배열엔 없음 → `target = undefined` → 분기 실패 → unreadCount 미감소.
+  - 해결: 시그니처에 옵셔널 인자(`wasUnread?`) 추가, 호출자가 명시 전달. fallback은 유지 (다른 호출처가 store 배열을 쓸 수도 있음).
+  - 메타 규칙: **"store가 알아야 하는 정보를 호출자가 더 잘 안다면, 인자로 넘기는 게 정답."**
+  - 자매 함수와의 대비가 진단의 핵심 — `markAsRead`/`markAllAsRead`는 `read` 분기 없이 무조건 카운트만 변경하므로 같은 버그 없음. "왜 이 함수만?"이 단서.
+  - 관련: [[project-notification-integration-2026-05-13]]
