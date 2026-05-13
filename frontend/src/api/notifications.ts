@@ -9,12 +9,12 @@ export async function fetchNotifications(
   size = 20,
 ): Promise<PaginatedNotifications> {
   const res = await axiosInstance.get('/notifications', { params: { page, size } });
-  return res.data;
+  return res.data?.data ?? res.data;
 }
 
 export async function fetchUnreadCount(): Promise<UnreadCountResponse> {
   const res = await axiosInstance.get('/notifications/unread-count');
-  return res.data;
+  return res.data?.data ?? res.data;
 }
 
 export async function markNotificationAsRead(notificationId: number): Promise<void> {
