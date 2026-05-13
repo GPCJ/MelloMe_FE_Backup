@@ -55,6 +55,7 @@ export interface PostSummary {
   hasAttachment?: boolean;
   // 백엔드가 인증 전용 글을 USER에게 전달할 때 true로 내려오며 contentPreview는 "비공개 글입니다"로 마스킹, imageUrls=[], 카운트=0
   accessLocked?: boolean;
+  imageUrls?: string[];
   createdAt: string;
   scrapped?: boolean;
 }

@@ -6,8 +6,10 @@ import { formatRelativeTime } from '../../utils/formatDate';
 import { scrapPost, unscrapPost } from '../../api/posts';
 import VerifiedBadge from './VerifiedBadge';
 import { useReactionToggle } from '../../hooks/useReactionToggle';
+import { useDragScroll } from '../../hooks/useDragScroll';
 import UserAvatar from '../common/UserAvatar';
 import { trackReaction } from '../../lib/analytics';
+import { resolveImageUrl } from '../../utils/resolveImageUrl';
 
 interface PostCardProps {
   post: PostSummary;
@@ -55,9 +57,12 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
     onReactionUpdated,
   );
 
+  const imagesScroll = useDragScroll();
+
   return (
     <Link
       to={post.accessLocked ? '/therapist-verifications' : `/posts/${post.id}`}
+      draggable={false}
       className="block"
     >
       <div className="px-6 py-5 border-b border-gray-200">
@@ -107,6 +112,34 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
             <p className="text-sm text-gray-600 leading-5 line-clamp-3 mb-2.5 whitespace-pre-wrap">
               {post.contentPreview}
             </p>
+            {/* 첨부 이미지 캐러셀 — staging 응답의 imageUrls 사용. 가드: 있을 때만 렌더. */}
+            {/* 코드 복붙으로 작성한 코드라서 140줄까지 어떻게 돌아가는 코드인지 모름. 그냥 케러셀 좌우 드래근 스크롤 구현하는 코드라는 것만 알고 있음 */}
+            {post.imageUrls && post.imageUrls.length > 0 && (
+              <div
+                ref={imagesScroll.ref}
+                {...imagesScroll.handlers}
+                onDragStart={(e) => e.preventDefault()}
+                // 드래그 종료 시 click이 부모 Link로 버블링되어 상세 진입되는 현상 흡수.
+                onClickCapture={(e) => {
+                  if (imagesScroll.state.current.moved > 5) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }
+                }}
+                className="flex gap-2 overflow-x-auto -mx-6 px-6 mb-2.5 cursor-grab select-none"
+              >
+                {post.imageUrls.map((url, i) => (
+                  <img
+                    key={`${post.id}-img-${i}`}
+                    crossOrigin="anonymous"
+                    src={resolveImageUrl(url) ?? ''}
+                    alt=""
+                    draggable={false}
+                    className="shrink-0 w-60 h-60 rounded-lg object-cover bg-gray-100"
+                  />
+                ))}
+              </div>
+            )}
             {post.hasAttachment && (
               <p className="text-[10px] text-gray-900 mb-2.5">첨부파일 있음</p>
             )}
