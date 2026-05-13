@@ -12,7 +12,7 @@ interface NotificationState {
   setUnreadCount: (count: number) => void;
   markAsRead: (id: number) => void;
   markAllAsRead: () => void;
-  removeNotification: (id: number) => void;
+  removeNotification: (id: number, wasUnread?: boolean) => void;
   setConnected: (connected: boolean) => void;
   setLastEventId: (id: string) => void;
   clear: () => void;
@@ -52,14 +52,16 @@ export const useNotificationStore = create<NotificationState>((set) => ({
       unreadCount: 0,
     })),
 
-  removeNotification: (id) =>
+  removeNotification: (id, wasUnread) =>
     set((state) => {
-      const target = state.notifications.find((n) => n.id === id);
+      // wasUnread 명시 시 그 값을, 아니면 store 배열에서 검사 (SSE로 도착한 알림 대비 fallback 유지)
+      const inUnread =
+        wasUnread !== undefined
+          ? wasUnread
+          : state.notifications.some((n) => n.id === id && !n.read);
       return {
         notifications: state.notifications.filter((n) => n.id !== id),
-        unreadCount: target && !target.read
-          ? Math.max(0, state.unreadCount - 1)
-          : state.unreadCount,
+        unreadCount: inUnread ? Math.max(0, state.unreadCount - 1) : state.unreadCount,
       };
     }),
 

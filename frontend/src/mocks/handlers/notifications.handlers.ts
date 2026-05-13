@@ -20,9 +20,10 @@ export const notificationsHandlers = [
       success: true,
       data: {
         items,
-        pageNumber: page,
-        pageSize: size,
+        page,
+        size,
         totalElements: notifications.length,
+        totalPages: Math.max(1, Math.ceil(notifications.length / size)),
         hasNext: start + size < notifications.length,
       },
     });
