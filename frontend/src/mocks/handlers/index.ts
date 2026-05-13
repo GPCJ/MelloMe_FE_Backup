@@ -8,6 +8,7 @@ import { commentsHandlers } from './comments.handlers';
 import { reactionsHandlers } from './reactions.handlers';
 import { profileHandlers } from './profile.handlers';
 import { scrapHandlers } from './scrap.handlers';
+import { notificationsHandlers } from './notifications.handlers';
 
 export const handlers = [
   ...authHandlers,
@@ -19,4 +20,5 @@ export const handlers = [
   ...reactionsHandlers,
   ...profileHandlers,
   ...scrapHandlers,
+  ...notificationsHandlers,
 ];
