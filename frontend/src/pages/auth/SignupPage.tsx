@@ -84,14 +84,14 @@ export default function SignupPage() {
     */
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-[640px] text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">mellty</h1>
-        <p className="mt-2 text-sm text-gray-500">치료사들의 따뜻한 성장 공간 멜티</p>
+        <h1 className="text-3xl font-bold text-gray-900">Mellti</h1>
+        <p className="mt-2 text-sm text-gray-500">치료사들의 따뜻한 성장 공간 Mellti</p>
       </div>
 
       <Card className="w-full max-w-[640px] rounded-[14px]">
         <CardHeader>
           <CardTitle className="text-2xl">회원가입</CardTitle>
-          <CardDescription className="text-base">멜티와 함께 성장해요 :D</CardDescription>
+          <CardDescription className="text-base">Mellti와 함께 성장해요 :D</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

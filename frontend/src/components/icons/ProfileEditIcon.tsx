@@ -1,6 +1,6 @@
 import type { SVGProps } from 'react';
 
-// 멜로미 디자인 시안 아이콘 (피그마 icon_h_Edit).
+// Mellti 디자인 시안 아이콘 (피그마 icon_h_Edit).
 // 색·크기 제어 방식은 HomeIcon 주석 참고.
 type IconProps = SVGProps<SVGSVGElement> & {
   size?: number;

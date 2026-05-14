@@ -65,15 +65,15 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
       {/* 상단 타이틀 */}
       <div className="w-full max-w-[640px] text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">mellty</h1>
-        <p className="mt-2 text-sm text-gray-500">치료사들의 따뜻한 성장의 바다 멜티</p>
+        <h1 className="text-3xl font-bold text-gray-900">Mellti</h1>
+        <p className="mt-2 text-sm text-gray-500">치료사들의 따뜻한 성장의 바다 Mellti</p>
       </div>
 
       {/* 카드 */}
       <Card className="w-full max-w-[480px] rounded-[14px]">
         <CardHeader>
           <CardTitle className="text-2xl">로그인</CardTitle>
-          <CardDescription className="text-base">멜티에 오신것을 환영합니다.</CardDescription>
+          <CardDescription className="text-base">Mellti에 오신것을 환영합니다.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleEmailLogin} className="space-y-4">

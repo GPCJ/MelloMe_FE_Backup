@@ -7,7 +7,7 @@ export default function PrivacyPage() {
       <header className="border-b border-gray-200 bg-white">
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="text-xl font-bold text-gray-900">
-            멜로미
+            Mellti
           </Link>
           <span className="text-xs text-gray-400">시행일 2026-05-04</span>
         </div>
@@ -19,7 +19,7 @@ export default function PrivacyPage() {
       </main>
 
       <footer className="border-t border-gray-200 py-6">
-        <div className="max-w-3xl mx-auto px-6 text-center text-sm text-gray-400">© 2026 멜로미</div>
+        <div className="max-w-3xl mx-auto px-6 text-center text-sm text-gray-400">© 2026 Mellti</div>
       </footer>
     </div>
   );

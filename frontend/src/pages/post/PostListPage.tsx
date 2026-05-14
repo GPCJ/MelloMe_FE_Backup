@@ -224,7 +224,7 @@ export default function PostListPage() {
       <WelcomeModal open={welcome.open} onClose={welcome.onClose} onVerify={welcome.onVerify} />
       {/* 모바일 상단 헤더 */}
       <PageHeader
-        title={<span className="text-2xl font-bold text-gray-900">mellty</span>}
+        title={<span className="text-2xl font-bold text-gray-900">Mellti</span>}
         leftAction={
           <div className="md:hidden">
             <UserMenu
