@@ -23,20 +23,35 @@ const META_BY_URL: Record<string, PageMeta> = {
 };
 
 /**
- * 랜딩페이지 폐기 결정(2026-05-06)으로 `/`에 prerender할 콘텐츠가 없음.
- * 다만 vitePrerenderPlugin이 default entry `/`를 자동 prerender 시도하기 때문에
- * ROUTES 매핑이 비어 있으면 아래 prerender 함수가 throw로 빌드 실패함.
+ * 랜딩페이지 폐기(2026-05-06) 후 `/`은 hydrate 시 RootRedirect가 즉시 /signup·/posts로
+ * navigate. description meta만으로는 Googlebot이 본문(/signup) 자동 추출을 우선해서
+ * 검색 결과 부연설명에 회원가입 폼 텍스트가 잡히는 문제 확인(2026-05-15).
  *
- * 빈 컴포넌트로 매핑해서 prerender 산출물은 빈 div + 메타(title/description)만 유지함.
- * 브랜드 검색 SEO는 메타로 충족되고, 실제 진입은 클라이언트 hydrate
- * 후 RootRedirect가 비로그인→/signup, 로그인→/posts로 즉시 navigate함.
+ * 그래서 sr-only 본문에 PM SEO 키워드(핵심5·영역10·정보성11)를 자연어로 박아
+ * prerender HTML에 콘텐츠 시그널을 주입함. 사용자 화면에는 안 보이므로 UX 영향 0,
+ * hydrate 직후 RootRedirect로 정상 이동.
  */
-function EmptyRoot() {
-  return null;
+function SeoRoot() {
+  return (
+    <div className="sr-only">
+      <h1>Mellti — 발달재활 치료사 커뮤니티</h1>
+      <p>
+        언어치료사·작업치료사·물리치료사·놀이치료사·특수교사를 비롯한 발달재활 치료사를 위한 커뮤니티
+        Mellti. 활동지 공유, 보수교육 정보, 발달센터·병원·부설센터·사회복지관·장애인복지관 구인구직을 한
+        곳에서 나눕니다.
+      </p>
+      <p>
+        미술치료사·행동치료사·인지치료사·감각통합 전문가·임상심리사까지 다양한 직군의 발달재활 치료사들이
+        무료 활동지 다운로드와 언어치료 교안 공유, 작업치료 인지 활동지, 감각통합 프로그램 추천을 함께
+        모읍니다. 치료사 추천 논문과 최신 재활 기술 동향, 사례별 중재 전략, 발달장애 관련 뉴스를 정리하고,
+        센터별 급여 정보와 번아웃·프리랜서 고민까지 발달재활 치료사들의 일상에 필요한 이야기를 나눕니다.
+      </p>
+    </div>
+  );
 }
 
 const ROUTES: Record<string, ComponentType> = {
-  '/': EmptyRoot,
+  '/': SeoRoot,
   '/privacy': PrivacyPage,
   '/terms': TermsPage,
 };
