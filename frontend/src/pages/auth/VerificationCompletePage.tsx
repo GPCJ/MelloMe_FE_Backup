@@ -51,7 +51,7 @@ export default function VerificationCompletePage() {
           <div className="text-5xl mb-6">✅</div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">치료사 인증이 완료되었습니다!</h1>
           <p className="text-sm text-gray-500 mb-8">
-            이제 멜로미 커뮤니티에서 자유롭게 활동할 수 있어요.
+            이제 Mellti 커뮤니티에서 자유롭게 활동할 수 있어요.
           </p>
           <Button
             onClick={() => navigate('/posts')}

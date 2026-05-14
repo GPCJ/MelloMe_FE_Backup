@@ -25,7 +25,7 @@ export default function WelcomeModal({ open, onClose, onVerify }: WelcomeModalPr
         </header>
         <div className="self-stretch flex flex-col items-center gap-3.5">
           <p className="self-stretch text-center text-gray-600 text-base font-normal font-['Pretendard'] leading-6">
-            멜티는 치료사들을 위한
+            Mellti는 치료사들을 위한
             <br />
             믿을 수 있는 커뮤니티 입니다.
             <br />

@@ -1,6 +1,6 @@
 import type { SVGProps } from 'react';
 
-// 멜로미 디자인 시안 아이콘 (피그마 IconNavPost — 글쓰기).
+// Mellti 디자인 시안 아이콘 (피그마 IconNavPost — 글쓰기).
 // path 3개: 펜촉 본체 + 잉크 자국 2개. 모두 stroke="currentColor"라 한 색으로 합쳐짐.
 type IconProps = SVGProps<SVGSVGElement> & {
   size?: number;

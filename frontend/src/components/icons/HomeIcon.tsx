@@ -1,6 +1,6 @@
 import type { SVGProps } from 'react';
 
-// 멜로미 디자인 시안 아이콘 (피그마 IconNavHome).
+// Mellti 디자인 시안 아이콘 (피그마 IconNavHome).
 // 색은 stroke="currentColor"로 위임 — 부모 요소의 text-* 색을 그대로 따라감.
 //   예) <div className="text-gray-900"><HomeIcon /></div> → 검정
 //       <div className="text-gray-400"><HomeIcon /></div> → 회색

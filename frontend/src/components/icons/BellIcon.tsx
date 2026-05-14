@@ -1,6 +1,6 @@
 import type { SVGProps } from 'react';
 
-// 멜로미 디자인 시안 아이콘 (피그마 IconNavBell — 알림).
+// Mellti 디자인 시안 아이콘 (피그마 IconNavBell — 알림).
 type IconProps = SVGProps<SVGSVGElement> & {
   size?: number;
 };

@@ -8,16 +8,16 @@ type PageMeta = { title: string; description: string };
 
 const META_BY_URL: Record<string, PageMeta> = {
   '/': {
-    title: '멜로미 - 치료사 커뮤니티',
-    description: '발달장애 아동 치료사를 위한 커뮤니티 멜로미.',
+    title: 'Mellti - 치료사 커뮤니티',
+    description: '발달장애 아동 치료사를 위한 커뮤니티 Mellti.',
   },
   '/privacy': {
-    title: '개인정보처리방침 - 멜로미',
-    description: '멜로미 개인정보처리방침. 수집하는 정보, 이용 목적, 보관 기간을 안내합니다.',
+    title: '개인정보처리방침 - Mellti',
+    description: 'Mellti 개인정보처리방침. 수집하는 정보, 이용 목적, 보관 기간을 안내합니다.',
   },
   '/terms': {
-    title: '이용약관 - 멜로미',
-    description: '멜로미 서비스 이용약관. 서비스 이용 조건과 회원 권리·의무를 안내합니다.',
+    title: '이용약관 - Mellti',
+    description: 'Mellti 서비스 이용약관. 서비스 이용 조건과 회원 권리·의무를 안내합니다.',
   },
 };
 

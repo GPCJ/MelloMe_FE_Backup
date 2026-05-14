@@ -1,6 +1,6 @@
 import type { SVGProps } from 'react';
 
-// 멜로미 디자인 시안 아이콘 (피그마 IconNavMy — 프로필, 마스코트형).
+// Mellti 디자인 시안 아이콘 (피그마 IconNavMy — 프로필, 마스코트형).
 // 다른 아이콘과 달리 fill 영역(코·눈)과 stroke 영역(입 곡선 2개)이 섞여 있음.
 // 둘 다 currentColor로 통일해서 부모 text-* 한 색으로 합쳐짐.
 // svg 루트의 fill="none"은 유지 — 안 그러면 viewBox 전체가 채워짐.
