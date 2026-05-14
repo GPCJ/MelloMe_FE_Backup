@@ -8,8 +8,9 @@ type PageMeta = { title: string; description: string };
 
 const META_BY_URL: Record<string, PageMeta> = {
   '/': {
-    title: 'Mellti - 치료사 커뮤니티',
-    description: '발달장애 아동 치료사를 위한 커뮤니티 Mellti.',
+    title: 'Mellti - 발달재활 치료사 커뮤니티 · 활동지 공유 · 보수교육',
+    description:
+      '언어치료사·작업치료사·놀이치료사·특수교사 등 발달재활 치료사를 위한 활동지 공유, 보수교육 정보, 구인구직 커뮤니티 Mellti.',
   },
   '/privacy': {
     title: '개인정보처리방침 - Mellti',
