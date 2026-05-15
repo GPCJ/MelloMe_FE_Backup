@@ -230,6 +230,31 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 해결: 자체 vite 플러그인 `closeBundle` 훅에서 `process.exit(0)` 호출 + `apply: 'build'` + `enforce: 'post'`
   - 검증: 로컬 9초 종료 / Vercel 14초 배포 완료 / prerender 3개 산출물 정상
   - 상세: wiki `vite-prerender-plugin-react-19-hang` (debugging)
+- [x] **S-02** PM SEO 키워드 / 메타·sr-only 본문 적용 (2026-05-15 완료, 커밋 `774f43e` A, `caa98f3` B)
+  - 배경: 검색 결과 부연설명에 `/signup` 회원가입 폼 텍스트가 자동 추출되는 문제 확인
+  - A: `META_BY_URL['/']` title/description에 핵심5 + 영역4 반영
+  - B: `EmptyRoot` → `SeoRoot`, sr-only 2문단(영역10·정보성11·핵심5) 주입
+  - GSC 색인 재요청 완료
+  - **Naver Search Advisor 등록 완료 (2026-05-15)** — non-www(`a232f6a`) + www(`82d3196`) 둘 다 등록, 사이트맵 제출 + 웹페이지 수집 요청 완료. 도메인 미스매치 이슈는 양쪽 등록으로 해소
+  - **Vercel non-www → www 308 redirect 활성화 (2026-05-15)** — Dashboard → Settings → Domains. canonical(www)으로 트래픽 일원화
+  - 상세: `project_pm_seo_keywords_2026_05_14.md` 끝 섹션, `reference_seo_consoles.md` Naver 섹션
+- [?] **S-03** 1주 후(2026-05-22~) 검색 결과 부연설명 변경 확인
+  - 시나리오: ① meta description 채택 / ② sr-only 본문 자동 추출 — 둘 다 PM 키워드 노출이라 OK
+  - 효과 미달(여전히 /signup 본문) 시: S-05 구조적 해결(랜딩 부활/redirect 정책) 검토 필요
+  - 확인 방법: `site:melonnetherapists.com` 구글 검색 + URL 검사 → 마지막 크롤링 일자 확인
+- [x] **S-04** Naver Search Advisor 사이트맵 처리 결과 모니터링 — **해소 (2026-05-15)**
+  - 원래 우려: 등록 도메인 non-www ↔ sitemap URL www 미스매치로 색인 단계 거부 가능성
+  - 해소: 2026-05-15 www 도메인 별도 등록 + 사이트맵 제출까지 통과. non-www는 Vercel 308 redirect로 trivial
+- [ ] **S-05** `/` SPA redirect로 description 오발췌 — **MVP 후 검토 (보류, 2026-05-15)**
+  - 증상: "Mellti" 단일 검색 시 description으로 회원가입 폼 본문(`Mellti와 함께 성장해요 :D` 등) 발췌. "Mellti 발달재활" 등 키워드 조합에선 정상
+  - 구조적 원인: 비로그인 봇이 `/` 접근 → SPA hydrate 후 `/signup`으로 navigate → Googlebot이 본 final DOM = SignupPage. prerender sr-only 본문은 hydrate 후 사라짐
+  - 보류 이유: MVP D-3, blast radius 큰 변경 회피. 단기엔 색인 캐시 갱신 대기(S-03)로 확률적 개선 기대
+  - 옵션 후보(MVP 후):
+    - A) `/` redirect 끊기 + 랜딩 부활 — 근본 해결, 디자이너 시안 + 폐기 결정 뒤집기 필요
+    - B) `/signup` noindex — 보조 효과, 보장 X
+    - C) `/`에 BottomNav/SideNav만 렌더 + visible 본문 — 차선
+  - 함정: 봇 UA 분기는 cloaking, 채택 X / sr-only 강화만으론 효과 X (hydrate 후 사라짐)
+  - 상세 컨텍스트: wiki `seo-description-spa-redirect-signuppage-hydrate-final-state-2026` (debugging)
 
 ### 정책 페이지
 - [x] **P-01** 개인정보처리방침 페이지 `/privacy` + Signup/LandingFooter/LoginPage 링크 (2026-04-24 완료)

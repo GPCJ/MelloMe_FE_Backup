@@ -14,12 +14,13 @@
 - 문서화 역량 면접 Q&A 7항목 → wiki `q-a-7` (reference)
 
 ## 작업 관리
+- **[★ 이력서 작성 — 구름 컨설팅 5/20 마감](./project_resume_consulting_2026_05.md)** — Google Docs, Mellti 후보 4-5개 선택 직전. 재개 트리거 「이력서 컨설팅 이어가자」
 - **[MVP 발표일 2026-05-15](./project_mvp_launch_2026_05_15.md)** — D-3, 안정화 최우선, blast radius 큰 변경 회피
 - **[프론트 작업 백로그](./backlog.md)** — 데일리 태스크 선택용 단일 참조
 - **[★ PR #19 RQ 학습 진행 중 (4/5)](./project_rq_learning_pr19.md)** — 다음=옵티미스틱 B. 재개 트리거 「RQ 학습 이어가자」
 
 ## 프로젝트
-멜로미 — 발달장애 아동 치료사 커뮤니티 (MVP)
+**[Mellti](./project_service_name_mellti.md)** (구 MelloMe/멜로미, 확정 2026-05-14, commit `7c391f0`) — 발달장애 아동 치료사 커뮤니티 (MVP)
 - Frontend: React 19, TypeScript, Vite, Tailwind, shadcn/ui, Zustand, React Router, MSW
 - Backend: Spring Boot, JWT + Google OAuth2 / DB: PostgreSQL 16 / Docker Compose
 - 배포: Vercel(프론트) + EC2(백엔드) / 프론트 `www.melonnetherapists.com` / 백엔드 `api.melonnetherapists.com`
@@ -63,6 +64,7 @@
 - [백엔드 전달 전략](./project_backend_communication.md) — Swagger, GitHub Issues, 멜로미↔아이로
 - **[백엔드 dev/prod 분리 + Vercel 2브랜치](./project_backend_dev_prod_split.md)** — main→prod / develop→staging
 - **분석 이벤트 오너=PM, 프론트 삽입만** — [오너](./project_analytics_event_ownership.md) / [정식 스펙 v1 24종](./project_analytics_event_spec_pm_v1.md) / [B1 매핑](./project_analytics_b1_mapping.md)
+- **[PM SEO 키워드 카탈로그 (2026-05-14, 26종)](./project_pm_seo_keywords_2026_05_14.md)** — 핵심 5 + 영역 10 + 정보성 11, 2026-05-15 적용 시작 (notepad 1순위)
 
 ## 진행 중 이슈
 - **[PostListPage ref 렌더 중 접근](./project_postlistpage_ref_render_issue.md)** — React 19 에러, initialSnapshot 타이밍 미해결 (MVP 후 재개)
@@ -84,6 +86,7 @@
 - 프로필 이미지 localhost 버그(APP_BASE_URL) → wiki `url-localhost-app-base-url-2026-04-22` (debugging)
 - SSE 아키텍처(옵션B, fetch-event-source) → wiki `sse-b-zustand-fetch-event-source` (decision)
 - Google OAuth 삭제 → wiki `google-oauth-2026-03-25` (session-log)
+- **[SEO 보류] `/` SPA redirect로 SignupPage 본문이 description 오발췌 — MVP 후 랜딩 부활/redirect 정책 재검토** → wiki `seo-description-spa-redirect-signuppage-hydrate-final-state-2026` (debugging)
 
 ## 개발 규칙 / 피드백
 - **[최우선]** [직접 작성 모드 — AI unlock은 데드라인 임박 시](./feedback_direct_coding_default.md) — `.claude/deadline-unlock` 4h TTL
@@ -147,6 +150,7 @@
 
 ## 공유 문서 / 레퍼런스
 - **[분석 대시보드 (Search Console/GA4/Clarity)](./reference_analytics_dashboards.md)** — GA4 `G-7VPMPFL76M`, Clarity `wg3vefhmgy`
+- **[SEO 콘솔 (Google Search Console + Naver Search Advisor)](./reference_seo_consoles.md)** — 색인 모니터링·재요청 동선, Naver 등록 필요
 - **[피그마 디자인 시스템 페이지](./reference_figma_design_system_page.md)** — 노드 `1321:5320`, Education plan MCP rate limit
 - **[Jira 프로젝트 — MEL=멜로미, BUR=burst!(별개)](./reference_jira_project_structure.md)**
 - [팀 요구사항 Sheets](./reference_requirements_doc.md) / [Swagger UI](./reference_swagger_endpoint.md)

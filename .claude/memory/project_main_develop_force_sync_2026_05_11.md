@@ -26,3 +26,21 @@ originSessionId: b9d46f86-253d-482e-b83c-6e026306947d
 - 백업 브랜치 삭제는 MVP 발표 후 안정화 확인 시점에 결정.
 - 향후 push-airo로 main 동기화 시 SHA drift 가능성 인지 — cherry-pick 동기화는 양쪽 SHA를 어긋나게 만듦.
 - 롤백 시: `git checkout main && git reset --hard main-backup-2026-05-11 && git push --force-with-lease origin main && git push --force-with-lease airo main`.
+
+## 후속 발견 (2026-05-14): cherry-pick 잔재 → no-ff merge 필요
+
+2026-05-14 `fix/notification-review-followup` 브랜치를 main에 머지 시도 시 **fast-forward 불가** 발생. diverge 원인:
+
+- fix 브랜치의 commit 11개 + main의 commit 11개가 **같은 변경의 다른 sha** (cherry-pick 흔적)
+- 강제 동기화 이전(0770f00)의 cherry-pick 작업이 main 히스토리에 SHA로 남아 있어, 그 후 develop 기반의 새 작업은 fast-forward 못 함
+
+**해결**: `git merge --no-ff fix/notification-review-followup -m "..."`
+- ort 머지 전략이 같은 변경의 중복 SHA를 자동 정리 (16 파일 27 라인만 실변경)
+- merge commit 1개 추가 (`aaefd01`)
+- **force-push 회피** — `feedback_force_push_safety_protocol` 룰 준수
+- 진행 절차: stash(다른 세션 작업) → main checkout → pull --ff-only → merge --no-ff → push → 원래 브랜치 복귀 → stash pop (한 chain)
+
+**향후 cherry-pick 동기화 사이드 이펙트 대응**:
+- fast-forward 안 되는 게 자연스러운 현상 (강제 동기화 후 새 작업의 정상 패턴)
+- no-ff 머지가 정공법. rebase는 force-push 필요해서 회피
+- 백업 브랜치 `main-backup-2026-05-11` 활용 가치 잔존 (MVP 후 삭제 결정 보류)
