@@ -1,11 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  keepPreviousData,
-} from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Trash2 } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
@@ -18,10 +13,7 @@ import {
   deleteNotification,
 } from '../../api/notifications';
 import { getNotificationRoute } from '../../utils/notificationRoute';
-import type {
-  NotificationResponse,
-  PaginatedNotifications,
-} from '../../types/notification';
+import type { NotificationResponse, PaginatedNotifications } from '../../types/notification';
 
 const PAGE_SIZE = 20;
 
@@ -50,7 +42,7 @@ export default function NotificationPage() {
     : 1;
   const loading = notificationsQuery.isLoading;
 
-  // 옵티미스틱 업데이트는 RQ 캐시(현재 페이지)와 store(unreadCount 동기화) 둘 다 갱신합니다.
+  // 낙관 업데이트는 RQ 캐시(현재 페이지)와 store(unreadCount 동기화) 둘 다 갱신합니다.
   // 실패 시 캐시는 롤백되지만 store unreadCount는 다음 SSE/페이지 전환 시 자연 보정에 맡깁니다.
   const markAsReadMutation = useMutation({
     mutationFn: markNotificationAsRead,
@@ -107,8 +99,7 @@ export default function NotificationPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (vars: { id: number; wasUnread: boolean }) =>
-      deleteNotification(vars.id),
+    mutationFn: (vars: { id: number; wasUnread: boolean }) => deleteNotification(vars.id),
     onMutate: ({ id, wasUnread }) => {
       storeRemove(id, wasUnread);
       const previous = queryClient.getQueryData<PaginatedNotifications>(queryKey);

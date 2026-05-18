@@ -28,6 +28,7 @@ import {
   toApiVisibility,
   fromApiVisibility,
 } from '../../constants/post';
+import { useQueryClient } from '@tanstack/react-query';
 
 // 공개 범위 chip + popover — PostWriteForm 푸터와 동일 패턴.
 // 모바일/데스크탑 두 곳에서 재사용하므로 로컬 헬퍼로 분리(각 인스턴스가 자체 open/ref 보유 → 외부 클릭 가드 단순).
@@ -54,7 +55,7 @@ function VisibilityPicker({
 
   const current = isPublicOnly
     ? VISIBILITY_OPTIONS[0]
-    : VISIBILITY_OPTIONS.find((o) => o.value === visibility) ?? VISIBILITY_OPTIONS[0];
+    : (VISIBILITY_OPTIONS.find((o) => o.value === visibility) ?? VISIBILITY_OPTIONS[0]);
 
   return (
     <div className="relative" ref={ref}>
@@ -109,6 +110,7 @@ function VisibilityPicker({
 }
 
 export default function PostEditPage() {
+  const qc = useQueryClient();
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
@@ -209,8 +211,7 @@ export default function PostEditPage() {
         visibility: toApiVisibility(visibility),
       });
 
-      const totalOps =
-        removedAttachmentIds.length + removedImageIds.length + pendingFiles.length;
+      const totalOps = removedAttachmentIds.length + removedImageIds.length + pendingFiles.length;
       let failedCount = 0;
       if (totalOps > 0) {
         let done = 0;
@@ -262,6 +263,7 @@ export default function PostEditPage() {
       if (failedCount > 0) {
         alert(`게시글은 수정되었지만 ${failedCount}개 첨부파일 처리에 실패했습니다.`);
       }
+      qc.invalidateQueries({ queryKey: ['feed'] });
       navigate(`/posts/${postId}`);
     } catch {
       setError('게시글 수정에 실패했습니다. 다시 시도해주세요.');

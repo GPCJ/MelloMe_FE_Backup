@@ -5,6 +5,7 @@ import App from './App.tsx';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/queryClient';
 import { Toaster } from 'sonner';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 // MSW를 App보다 먼저 켜야 초기 API 요청을 가로챌 수 있어서
 // async 함수로 감싸 순서를 보장한 뒤 React 앱을 렌더링함
@@ -19,6 +20,7 @@ const bootstrap = async () => {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <App />
+        <ReactQueryDevtools initialIsOpen={false} />
         <Toaster position="top-center" richColors />
       </QueryClientProvider>
     </StrictMode>,

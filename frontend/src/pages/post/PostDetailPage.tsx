@@ -46,6 +46,7 @@ import { trackReaction } from '../../lib/analytics';
 import axios from 'axios';
 import { useCommentReactionToggle } from '../../hooks/useCommentReactionToggle';
 import { useDragScroll } from '../../hooks/useDragScroll';
+import { useQueryClient } from '@tanstack/react-query';
 
 function PostDetailSkeleton() {
   return (
@@ -72,6 +73,8 @@ function PostDetailSkeleton() {
 }
 
 export default function PostDetailPage() {
+  const qc = useQueryClient();
+
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
 
@@ -169,6 +172,7 @@ export default function PostDetailPage() {
     if (!post || !confirm('게시글을 삭제할까요?')) return;
     try {
       await deletePost(post.id);
+      qc.invalidateQueries({ queryKey: ['feed'] });
       navigate('/posts');
     } catch {
       alert('게시글 삭제에 실패했습니다. 다시 시도해주세요.');
@@ -370,8 +374,7 @@ export default function PostDetailPage() {
 
           {/* 첨부파일 + 이미지 — 시안 정합(1387:12297).
               "첨부파일 (N)" 헤더 제거: 칩 자체가 카운트/진입점 역할. */}
-          {(images.length > 0 ||
-            (post.attachments && post.attachments.length > 0)) && (
+          {(images.length > 0 || (post.attachments && post.attachments.length > 0)) && (
             <div className="flex flex-col gap-3">
               {/* 이미지: 가로 드래그 캐러셀 — 시안 정합(작성 모달과 동일 패턴).
                   -mx-4 px-4: 카드 좌우 패딩(p-4)을 무시하고 가장자리까지 스크롤 영역 확장. */}
@@ -400,9 +403,7 @@ export default function PostDetailPage() {
                   - 미리보기 파일명은 파일 우선(첫 비이미지 파일), 없으면 첫 이미지로 폴백. */}
               {(() => {
                 const files =
-                  post.attachments?.filter(
-                    (att) => !att.contentType.startsWith('image/'),
-                  ) ?? [];
+                  post.attachments?.filter((att) => !att.contentType.startsWith('image/')) ?? [];
                 const triggerDownload = (downloadUrl: string, filename: string) => {
                   trackReaction('download', { postId: post.id });
                   void downloadAsBlob(downloadUrl, filename);
@@ -453,9 +454,7 @@ export default function PostDetailPage() {
                     {!usePanel ? (
                       <button
                         type="button"
-                        onClick={() =>
-                          triggerDownload(panelItems[0].url, panelItems[0].filename)
-                        }
+                        onClick={() => triggerDownload(panelItems[0].url, panelItems[0].filename)}
                         className={chipClass}
                         aria-label={`${panelItems[0].filename} 다운로드`}
                       >
