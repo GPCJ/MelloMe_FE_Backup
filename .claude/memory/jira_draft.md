@@ -2,13 +2,80 @@
 name: Jira 업로드 대기 초안
 description: 다른 계정에서 Jira MCP로 생성할 에픽/스토리/태스크 초안 모음. 최상단이 가장 최근.
 type: project
-updated: 2026-04-29
+updated: 2026-05-19
 originSessionId: f611174e-26dc-4189-9e23-de39c771cab9
 ---
 # Jira 업로드 대기 초안
 
 > 다른 계정에서 Jira MCP 접근 후 생성 예정
 > 프로젝트 키: **MEL** (멜로미) — 생성 전 `getVisibleJiraProjects`로 재확인 필수
+
+---
+
+## [업로드 대기 2026-05-19] 피드 `contentPreview`에 줄바꿈(`\n`) 보존 (Task)
+
+- **타입:** Task
+- **담당:** 백엔드
+- **우선순위:** Medium (피드 가독성, X 스타일 더보기 UX 기반)
+- **라벨:** `backend`, `feed`, `ux`
+
+### Summary
+피드 응답의 `PostSummary.contentPreview`에 원본 본문의 줄바꿈(`\n`)을 보존해서 내려주기
+
+### Description
+
+#### 현상
+- 피드(`GET /api/v1/posts` 등) 응답의 `PostSummary.contentPreview`에 줄바꿈이 모두 사라져 한 덩어리 텍스트로 내려옴
+- 상세(`GET /api/v1/posts/{id}`)의 `PostDetail.content`는 줄바꿈이 정상 보존됨
+- 결과: 피드 카드 본문에서 라벨/값이 한 줄에 붙어 가독성이 무너짐 (예: "모집대상: ... 모집기간: 5/18~5/29 모집규모: 12팀 행사일: 7/10 ...")
+
+#### 증거 (id=19, 2026-05-19 staging 응답)
+```json
+"contentPreview": "예술적 감각과 ... 창구가 되길 모집대상: 발달장애인 당사자 및 포함한 단체 모집기간: 5/18~5/29 모집규모: 12팀 행사일: 7/10 ..."
+```
+원본(상세):
+```
+... 창구가 되길
+
+모집대상: 발달장애인 당사자 및 포함한 단체
+모집기간: 5/18~5/29
+모집규모: 12팀
+...
+```
+
+#### 프론트 요청
+- `contentPreview` 생성 시 `\n` 그대로 유지 (현재처럼 길이만 자르기)
+- 추정 원인: `content.replaceAll("\n", " ")` 또는 유사 normalize 후 substring → normalize 단계 제거
+
+#### 확인할 것
+- preview 생성 로직 위치 (PostService/Mapper)
+- 길이 자르기 기준이 글자수인지 byte인지 (글자수면 `\n`도 1자 카운트)
+- 자르는 길이 (현재 200~300자 추정), 변경 의도 없음 — 줄바꿈 보존만
+
+### Acceptance Criteria
+- [ ] `GET /api/v1/posts` 응답의 `contentPreview`에 `\n`이 보존되어 내려옴
+- [ ] 길이 자르기는 그대로 (회귀 없음)
+- [ ] 본문 첫 글자가 `\n`이거나 끝이 `\n`인 경우에도 안전 (트림 정책 합의 필요)
+
+### 백엔드 LLM 참고용 프롬프트
+```
+프론트가 게시글 피드를 표시할 때 PostSummary.contentPreview를 그대로 렌더한다 (CSS: whitespace-pre-wrap, line-clamp-3).
+
+현재 contentPreview는 원본 content의 줄바꿈(\n)을 모두 제거하고 길이만 잘라서 내려준다. 그래서 피드에서 본문이 한 덩어리로 보인다.
+
+수정 요청: contentPreview 생성 시 \n을 보존해라. 길이 자르기 기준/방식은 그대로 두고, normalize 단계만 제거하면 된다.
+
+대상: PostSummary를 만드는 매퍼/서비스 (PostService.toSummary 같은 메서드)
+
+확인할 것:
+1. preview 생성 시 replaceAll("\n", " ") 또는 strip() 호출 위치
+2. 길이 자르기가 \n 포함 카운트인지 확인 (포함이면 변경 없음, 미포함이면 \n 보존해도 안전한지 확인)
+3. PostgreSQL 저장 시점에 이미 \n이 보존돼 있는지 (저장 시점에 strip되고 있으면 그쪽도 수정)
+```
+
+### 비고
+- 프론트는 이 백엔드 fix 머지 전까지 MSW로 시뮬레이션(`contentPreview = content`)해서 X 스타일 "더 보기" 인라인 펼침 기능을 선구현(commit `2d854a8`). 백엔드 머지 즉시 적용 가능.
+- 프론트 환원 포인트: `frontend/src/mocks/handlers/posts.handlers.ts:68` 의 `p.content` → `p.contentPreview`
 
 ---
 
@@ -24,6 +91,55 @@ originSessionId: f611174e-26dc-4189-9e23-de39c771cab9
   - `PostCreatePage.tsx` — 성공 후 → `first_post_created` (`/me.postCount === 0` 프론트 단독 판별)
 - **Acceptance:** GA4 실시간 리포트에서 4종 이벤트 집계 확인
 - **비고:** 백엔드 의존성 없음, 즉시 착수 가능
+
+---
+
+## [업로드 대기] Google OAuth 로그인 재도입 (Story)
+
+- **타입:** Story
+- **담당:** 백엔드
+- **우선순위:** Medium
+- **Summary:** Google OAuth 로그인 엔드포인트 재구현 + 신규 유저 약관 자동 저장
+
+### 현황
+
+- 2026-03-25 커밋 `2f90593`에서 백엔드 OAuth 엔드포인트 일괄 제거됨
+- staging Swagger(`https://api-staging.melonnetherapists.com/v3/api-docs`) `oauth`/`google` 키워드 0건 확인 (2026-05-19)
+- 프론트도 함께 정리됨 (`api/auth.ts`, `LoginPage.tsx`, `App.tsx` OAuth 흔적 없음)
+- 삭제 이후 회원가입 약관 정책 추가됨: `/auth/signup` body에 `agreements: [{ SERVICE_TERMS v1.0 }, { PRIVACY_POLICY v1.0 }]` 필수
+- 프론트 측 설계 합의: **옵션 D — Google 버튼 클릭 = 약관 동의 간주, 백엔드가 자동 저장**
+
+### 할 일
+
+1. Google Cloud Console에 OAuth 클라이언트 등록 (Client ID/Secret 발급)
+2. 환경별 redirect_uri 설정 (dev/staging/prod)
+3. 엔드포인트 2개 구현
+   - `GET /auth/oauth/google/start`
+     - Google 동의화면 URL 생성, state(CSRF 방지) 저장, 302 redirect
+   - `POST /auth/oauth/google/exchange`
+     - Request body: `{ code: string }`
+     - 처리: Google에 code → access_token 교환 → userinfo 조회 → 이메일로 DB 분기
+4. DB 분기 로직
+   - **있음 (기존 유저)**: 그대로 로그인 처리, `isNewUser: false` 반환
+   - **없음 (신규 유저)**: 새 유저 생성하면서 `SERVICE_TERMS v1.0` / `PRIVACY_POLICY v1.0` 자동 `agreed: true` 저장, `isNewUser: true` 반환
+5. 응답 스키마: `{ user, tokens, isNewUser: boolean }` (기존 LoginResponse + `isNewUser` 추가)
+6. state 위변조 검증
+7. Swagger 스키마 반영
+
+### 완료 조건
+
+- [ ] staging Swagger에 `/auth/oauth/google/start`, `/auth/oauth/google/exchange` 두 엔드포인트 노출
+- [ ] redirect 흐름 정상 동작 (start → Google → BE callback → 프론트 `/auth/callback?code=...`)
+- [ ] 신규 가입 시 응답에 `isNewUser: true` + DB에 `SERVICE_TERMS`/`PRIVACY_POLICY` `agreed: true` 저장 확인
+- [ ] 기존 유저 OAuth 로그인 시 `isNewUser: false` 응답
+- [ ] state 위변조/누락 시 거절
+
+### 비고
+
+- 프론트 측 후속 작업(라우트, `OAuthCallbackPage`, `exchangeOAuthCode` API, LoginPage 버튼)은 본 Story 완료 후 착수
+- LoginPage Google 버튼 디자인은 별도 디자인 영역, 별개 Story로 분리 필요
+- 옛 인터페이스 참고: `git show 2f90593^:frontend/src/api/auth.ts` (`exchangeOAuthCode`), `git show 2f90593^:frontend/src/pages/LoginPage.tsx` (`handleGoogleLogin`)
+- 약관 v1 → v2 개정 시 OAuth 유저 명시 재동의 화면은 없음 (한국 약관규제법 표준 패턴인 "고지 + 계속 이용 동의 간주"로 대응 — 이메일 유저와 동일)
 
 ---
 

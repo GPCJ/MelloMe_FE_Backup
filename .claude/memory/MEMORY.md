@@ -10,11 +10,13 @@
 - [코드 추적 — outside-in (호출부→선언부)](./user_code_navigation_style.md)
 - [Zustand/RQ 학습 — 단편 규칙 누적](./user_reactivity_libs_learning.md)
 - [AI 의존 불안 패턴 — 주기적 재출현, 4프레임 응답](./user_ai_dependency_anxiety.md)
+- **[React 내부 모델 학습 (2026-05-19)](./user_react_internals_learning.md)** — useLayoutEffect/렌더 4단계/bailout 잡힘, Element/Instance 흐릿
 - 문서화 역량 면접 Q&A 7항목 → wiki `q-a-7` (reference)
 
 ## 작업 관리
 - **[MVP 발표일 2026-05-15](./project_mvp_launch_2026_05_15.md)** — D-3, 안정화 최우선, blast radius 큰 변경 회피
 - **[프론트 작업 백로그](./backlog.md)** — 데일리 태스크 선택용 단일 참조
+- **[★ Google OAuth 재도입 (옵션 D 합의, 백엔드 대기, 2026-05-19)](./project_google_oauth_reimplementation.md)** — Jira Story 박제 완료, 재개 트리거 「구글 OAuth 이어가자」
 
 ## 프로젝트
 멜로미 — 발달장애 아동 치료사 커뮤니티 (MVP)
@@ -61,6 +63,7 @@
 - **분석 이벤트 오너=PM, 프론트 삽입만** — [오너](./project_analytics_event_ownership.md) / [정식 스펙 v1 24종](./project_analytics_event_spec_pm_v1.md) / [B1 매핑](./project_analytics_b1_mapping.md)
 
 ## 진행 중 이슈
+- **[피드 contentPreview 줄바꿈 보존 — Jira 백엔드 대기 (2026-05-19)](./project_post_content_preview_newline_pending.md)** — MSW 시뮬레이션 + 더보기 펼침 선구현(commit `2d854a8`), 머지 후 `posts.handlers.ts:68` 환원
 - **[PostListPage ref 렌더 중 접근](./project_postlistpage_ref_render_issue.md)** — React 19 에러, initialSnapshot 타이밍 미해결 (MVP 후 재개)
 - [sticky offset 잔재 — ProfilePage:306](./project_sticky_offset_legacy_cleanup.md) — `(md:)?top-14` grep
 - **[main↔develop 강제 동기화 (2026-05-11)](./project_main_develop_force_sync_2026_05_11.md)** — 백업 `main-backup-2026-05-11`, MVP 후 삭제
@@ -95,6 +98,7 @@
 - [AI 코드 학습용 주석 워크플로우](./feedback_ai_code_learning_comments.md)
 - **[AI 50%+ 작업 후 소크라테스식 Q&A](./feedback_learning_gap_socratic_checkin.md)**
 - **[소크라테스 체크 형식 — 구체 API는 코드 발췌+키워드+변형 질문, React 모델은 추상 설명](./feedback_socratic_code_excerpt_pattern.md)**
+- **[학습 중에는 산출물보다 본인 이해 우선](./feedback_learning_mode_understanding_over_drafts.md)** — "잘 안 들어온다" 신호 시 줄 단위 검증+비유로 전환
 - **[AI 산문 패턴 체크리스트](./feedback_ai_prose_patterns.md)** — em-dash·3의법칙·볼드콜론 등
 - **[이원 독자 문서 파일 분리](./feedback_audience_split_docs.md)** — PM/개발자 하이브리드 X
 - **[한국어 ~합니다 통일](./feedback_korean_formal_tone_docs.md)**
@@ -128,7 +132,7 @@
 - [커맨드 범용 네이밍](./feedback_draft_notion_naming.md)
 - **[API 에러 처리 통합 — 에러 삼키지 말기 + 원인별 분기(401 인터셉터/500/네트워크)](./feedback_error_handling.md)**
 - [백엔드 필드 요청 전 스펙 확인](./feedback_backend_field_request_check.md) / [Explore 결과 검증](./feedback_explore_result_verification.md)
-- [GitHub Issues 기술부채](./feedback_github_issues.md) / [이슈는 airo만](./feedback_airo_issues_only.md)
+- [GitHub Issues 기술부채](./feedback_github_issues.md) / **[이슈 채널 Jira로 전환 (구 airo GitHub 이슈)](./feedback_airo_issues_only.md)** — 2026-05-19~
 - [취업 경험 Notion](./feedback_career_documentation.md) / [Vercel SPA 라우팅](./feedback_vercel_spa_routing.md)
 - **[다른 직군 영향 작업 먼저](./feedback_cross_role_impact_priority.md)**
 - **[진행 상황은 backlog, memory엔 결정만](./feedback_memory_vs_backlog_split.md)**

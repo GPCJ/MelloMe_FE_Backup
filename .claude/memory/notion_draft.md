@@ -160,5 +160,141 @@ navigate(`/posts/${postId}`);
 - "MVP 발표 D-3 ~ D+4 구간에서 SEO 인프라(Google/Naver 색인, prerender PM 키워드 26종) 일괄 구축 + 브랜드 표기 4종 → 단일화로 검색 색인 일관성 확보"
 - "React Query 캐시 무효화 누락으로 발생한 게시글 mutation UX 회귀(삭제/수정 후 목록 stale)를 mutation 핸들러 패턴 정비 + devtools 도입으로 해소, 후속 회귀 진단 비용도 동시 절감"
 - "SEO description 자동 추출 이슈에 대해 옵션 4종 trade-off 평가 후 MVP D-3 blast radius를 고려해 의식적 보류(옵션 E) 결정 + backlog 재개 트리거 박제"
+- "백엔드 줄바꿈 stripping 이슈에 대해 Jira Task 머지를 기다리지 않고 MSW handler에서 보존 응답을 시뮬레이션해 프론트 작업(피드 더보기 인라인 펼침)을 unblock — 백엔드 머지 후 mock도 자연 환원"
+
+---
+
+## 💡 TIL — 2026-05-19 useLayoutEffect로 DOM 측정 + ResizeObserver 재측정 패턴
+
+**분류**: React 훅 / 레이아웃 측정
+
+### 오늘 한 것
+
+피드 카드 본문이 `line-clamp-3`에 잘릴 때만 "더 보기" 버튼을 노출하는 X 스타일 인라인 펼침을 구현했습니다. 핵심은 "잘렸는지 여부"를 정확하게 판정하는 것입니다. CSS는 잘려 보이게만 해주지 "잘렸다"는 사실을 JS에 알려주지 않으므로, 직접 DOM을 측정해야 합니다.
+
+측정 로직은 `scrollHeight > clientHeight + 1`. `scrollHeight`는 내용물이 전부 펼쳐졌을 때 차지하는 높이, `clientHeight`는 컨테이너에 실제로 보이는 높이. 둘이 다르면 잘려 있다는 뜻이고, `+1`은 subpixel 반올림 오차 방어용입니다.
+
+측정 타이밍은 `useLayoutEffect`. 그리고 폰트/이미지 로딩이나 뷰포트 변경으로 레이아웃이 바뀔 때마다 다시 측정하도록 `ResizeObserver`로 감쌌습니다.
+
+```tsx
+// (A) ref 부착한 본문 단락
+const contentRef = useRef<HTMLParagraphElement>(null);
+const [expanded, setExpanded] = useState(false);
+const [truncated, setTruncated] = useState(false);
+
+// (B) 축약 상태일 때만 truncated 측정
+useLayoutEffect(() => {
+  if (expanded) return;
+  const el = contentRef.current;
+  if (!el) return;
+  // (C) +1: subpixel 반올림 오차 가드
+  const measure = () => setTruncated(el.scrollHeight > el.clientHeight + 1);
+  measure();
+  // (D) 폰트/이미지 로딩·뷰포트 변경 시 재측정
+  const ro = new ResizeObserver(measure);
+  ro.observe(el);
+  return () => ro.disconnect();
+}, [post.contentPreview, expanded]);
+```
+
+### 배운 것 / 인사이트
+
+**`useLayoutEffect` vs `useEffect`**가 가장 기억에 남습니다.
+
+| 항목 | `useEffect` | `useLayoutEffect` |
+|---|---|---|
+| 실행 타이밍 | 브라우저가 화면을 그린 **뒤** | 브라우저가 화면을 그리기 **직전**(commit 후 paint 전) |
+| 동기 여부 | 비동기 (idle 시 실행) | 동기 (React가 paint를 막고 기다림) |
+| 사용자에게 보이는 영향 | "1프레임 깜빡임" 가능 | 깜빡임 없음 (보이기 전에 끝남) |
+| 비용 | 가벼움 | paint 차단이라 무거우면 끊김 |
+
+`useEffect`로 측정하면 흐름이 이렇게 됩니다:
+
+1. React가 DOM 커밋
+2. 브라우저가 첫 paint — `truncated=false` 기본값 상태로 화면 노출
+3. 그 후 `useEffect`가 실행되어 measure → `truncated=true`로 업데이트
+4. 리렌더 후 두 번째 paint — "더 보기" 버튼이 등장
+
+사용자 입장에서는 "더 보기"가 한 프레임 늦게 깜빡 나타나는 게 보입니다. 본문이 잘려 있는데 더보기 버튼이 늦게 뜨면, "어 잘렸나? 어 버튼 생겼네" 같은 시각적 노이즈가 됩니다.
+
+`useLayoutEffect`는 이 흐름의 2단계 paint를 막고, measure → state update → 리렌더 → 그 다음에 paint를 합니다. 사용자는 처음부터 "더 보기"가 같이 박힌 화면을 봅니다. 깜빡임 0.
+
+**왜 `useLayoutEffect`를 썼는가 — 정리**:
+- DOM 측정 결과가 화면에 즉시 반영되어야 깜빡임이 없음
+- `scrollHeight`/`clientHeight`는 브라우저가 layout을 끝낸 commit 직후에야 정확한 값. `useLayoutEffect`는 그 시점에 동기로 실행됨
+- 측정 비용 자체가 가벼움(`el.scrollHeight` 한 번 읽기) → paint 차단 부담 없음. 무거운 작업이었다면 `useEffect`로 바꾸고 깜빡임을 다른 방법으로 가렸을 것
+
+**`ResizeObserver`로 감싼 이유**:
+- 초기 measure 한 번만으로는 부족. 폰트가 늦게 로드되거나 옆 이미지가 늦게 도착하면 본문의 line height/width가 바뀌어 truncated 판정이 뒤집힐 수 있음
+- 뷰포트 폭이 바뀌어도(모바일 회전, 윈도우 리사이즈) line-clamp-3 결과가 달라짐
+- `ro.disconnect()`를 cleanup에 박아야 메모리/이벤트 누수 없음
+
+**의존성 배열의 의미**:
+- `[post.contentPreview, expanded]`: 본문이 바뀌면 측정 다시. expanded 상태가 바뀌면 측정 다시(축약→펼침은 측정 불필요, 펼침→축약은 다시 필요)
+- `if (expanded) return`: 펼침 상태면 측정 자체를 스킵 → 펼친 상태의 scrollHeight=clientHeight라 truncated=false로 잘못 잡힐 위험 차단
+
+### 포트폴리오 어필 포인트
+
+- "CSS `line-clamp`로 잘리는 본문에서 '더 보기' 버튼 노출 여부를 정확히 판정"이라는 흔한 문제를 한 번에 갈피 잡고 푸는 흐름. `useEffect`로 만들고 깜빡임을 발견 → `useLayoutEffect`로 전환은 React 훅의 차이를 이해해야 가능
+- `ResizeObserver`로 폰트/이미지 로딩·뷰포트 변경까지 커버 → 단순 측정이 아니라 "측정 결과를 stale하지 않게 유지하는 메커니즘" 설계
+- 비용 trade-off까지 설명 가능 — `useLayoutEffect`는 paint 차단이라 무거우면 끊김. 이 경우는 측정 한 번이라 가벼움. 무거웠다면 다른 전략(`useEffect` + 깜빡임 가림용 placeholder 등)을 골랐을 것
+
+---
+
+## 🔧 트러블슈팅 — #NNN+1 백엔드 줄바꿈 stripping을 MSW 선조치로 unblock
+
+**날짜**: 2026-05-19
+**분류**: MSW / 백엔드 정책 시뮬레이션 / UX 회귀 방어
+**난이도**: 중
+
+### 문제 상황
+
+피드 카드 본문(`contentPreview`)에 "더 보기" 인라인 펼침을 도입하려는데, 검증 단계에서 두 가지가 동시에 막혔습니다.
+
+1. **백엔드 응답의 `contentPreview`에 `\n`이 strip되어 있음**: 작성 시점에 사용자가 친 줄바꿈이 응답에서는 사라져 한 줄로 옴. 줄바꿈 정책(`whitespace-pre-wrap`)은 5/2에 표시단을 정비했지만 `contentPreview` 필드는 별도 sanitize 경로를 타는 것으로 추정. Jira에 백엔드 Task로 박혀 있고 머지 대기 중.
+2. **mock 데이터도 한 줄**: `mockFeedItems`의 `contentPreview`가 `"[목업 ${id}] 무한 스크롤 검증용 게시글입니다. 스크롤하면..."` 한 줄짜리라 line-clamp-3에 잘릴 일이 없음 → "더 보기" 버튼 동작 자체를 검증 못 함.
+
+즉 백엔드 머지를 기다리면 프론트 작업(더보기 펼침)도 같이 멈추는 구조였습니다.
+
+### 원인 분석
+
+이 코드베이스에 이미 박혀 있는 정책: **"MSW 핸들러는 단순 fixture가 아니라 백엔드 정책의 시뮬레이션"** (메모리 `feedback_msw_simulates_backend_policy`). 이전엔 USER 롤 `visibility=PRIVATE` 차단 같은 거부 정책 시뮬레이션 사례가 있었습니다.
+
+이번 케이스는 거부가 아니라 **"백엔드가 곧 fix할 예정인 응답 shape"을 mock이 미리 가정**하는 변형입니다. 머지 전까지 mock이 미래의 백엔드를 흉내내면, 프론트는 머지를 기다리지 않고 작업 가능.
+
+### 해결 과정
+
+1. **mock 데이터 멀티라인 보강** — `mockFeedItems`의 `contentPreview`에 `\n\n` 박은 6줄짜리 markdown-ish 본문으로 교체. line-clamp-3 발동 + "더 보기" 펼침까지 시각적으로 검증 가능.
+
+2. **목록 응답 mock의 필드 매핑 변경** — `GET /posts` 응답에서 `contentPreview: p.contentPreview` → `contentPreview: p.content`로 교체. mock 데이터엔 `content`(원본 본문, `\n` 보존)와 `contentPreview`(요약, `\n` strip)가 따로 있는데, 백엔드 fix 후엔 `contentPreview`도 `\n` 보존된 채로 올 예정이므로 미리 `content`로 가정.
+
+3. **백엔드 머지 후 환원 동선 박제** — 핸들러 주석에 *"백엔드 fix(Jira: contentPreview에 \n 보존) 시뮬레이션 — 머지 후엔 `p.contentPreview`로 환원 가능"* 한 줄. 다음 작업자가 환원 시점에 헤매지 않게.
+
+```ts
+// posts.handlers.ts (mockFeedItems)
+// 백엔드 contentPreview에 \n 보존되는 형태(Jira 백엔드 Task 머지 후)를 가정한 mock.
+// 더보기 인라인 펼침(line-clamp-3 이상 시 노출) 검증용으로 길이/줄수 충분히.
+contentPreview: `[목업 ${id}] 무한 스크롤 검증용 게시글입니다.\n\n스크롤하면 다음 페이지가 자동으로 로드됩니다.\n\n- 항목 A: 첫 번째 줄\n- 항목 B: 두 번째 줄\n- 항목 C: 세 번째 줄\n\n자세한 내용은 본문에서 확인해주세요.`,
+
+// posts.handlers.ts (GET /posts 응답 매핑)
+// 백엔드 fix(Jira: contentPreview에 \n 보존) 시뮬레이션 — 머지 후엔 p.contentPreview로 환원 가능.
+contentPreview: blurred ? '' : p.content,
+```
+
+추가로 **공백 없는 단일 토큰 침범 버그**도 같이 잡았습니다. `@`이 100개 같은 본문이 들어오면 `whitespace-pre-wrap`만으론 카드 폭을 침범. 표시단에 `break-words` 클래스 + 전역 `.post-content`에 `overflow-wrap: anywhere` 추가로 차단.
+
+커밋: `2d854a8`
+
+### 핵심 개념
+
+- **MSW handler = 정책 시뮬레이션 레이어**: 단순 fixture가 아니라 백엔드의 거부/포맷/지연을 흉내내는 곳. 프론트 회귀를 mock 단계에서 발견 가능.
+- **백엔드 머지 전 "미래 응답 가정 mock"**: 백엔드와 동기 신호가 명확하면(여기선 Jira Task) mock이 미래를 흉내내 프론트 작업 unblock 가능. 단, 환원 동선(주석)을 박제해야 stale mock 위험 없음.
+- **`break-words` vs `whitespace-pre-wrap`**: 둘은 직교. `whitespace-pre-wrap`은 사용자가 친 `\n`/연속 공백 보존. `break-words` (= `overflow-wrap: break-word`)는 공백 없는 긴 토큰을 강제 줄바꿈. 본문 표시는 보통 둘 다 필요.
+
+### 면접 포인트
+
+- "백엔드 머지를 기다리지 않고 프론트가 어떻게 unblock하는가" — MSW가 미래 응답 shape을 가정. 머지 후 환원 주석으로 stale 위험 차단.
+- "MSW를 단순 fixture로 쓰지 않는 이유" — 권한 거부·응답 포맷 변경 같은 정책 변화를 mock 단계에서 시뮬레이션해야 프론트 회귀를 일찍 발견.
+- "`break-words`와 `whitespace-pre-wrap`을 같이 쓰는 이유" — 한 쌍이 아니라 직교. 사용자 줄바꿈 보존(전자) + 긴 토큰 강제 줄바꿈(후자)을 둘 다 충족해야 카드 영역 침범 0.
 
 ---
