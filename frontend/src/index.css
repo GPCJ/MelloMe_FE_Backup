@@ -146,6 +146,8 @@
   line-height: 1.7;
   color: #374151;
   white-space: pre-wrap;
+  /* 공백/줄바꿈 없는 긴 토큰(@@@... 등) 영역 침범 방지 */
+  overflow-wrap: anywhere;
 }
 .post-content p {
   margin-bottom: 0.5rem;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Bookmark, MessageCircle, Heart, Lock } from 'lucide-react';
 import type { PostSummary, PostReaction } from '../../types/post';
@@ -17,9 +17,6 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
-  // TODO: 자신의 게시물에 스크랩 못하도록 차단
-  // - PostSummary에 authorId 추가 백엔드 요청 필요
-  // - authorId === currentUserId이면 스크랩 버튼 숨김 처리
   const [scrapped, setScrapped] = useState(post.scrapped ?? false);
   const [scrapLoading, setScrapLoading] = useState(false);
 
@@ -58,6 +55,24 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
   );
 
   const imagesScroll = useDragScroll();
+
+  // X 스타일 더보기: line-clamp-3으로 잘리는 경우에만 버튼 노출.
+  // truncated 측정은 축약 상태 기준이라야 의미가 있어 expanded=false일 때만 수행.
+  // ResizeObserver로 감싸 폰트/이미지 로딩·뷰포트 변경에 따른 레이아웃 변동도 재측정.
+  const contentRef = useRef<HTMLParagraphElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [truncated, setTruncated] = useState(false);
+  useLayoutEffect(() => {
+    if (expanded) return;
+    const el = contentRef.current;
+    if (!el) return;
+    // +1: subpixel 반올림 오차 가드
+    const measure = () => setTruncated(el.scrollHeight > el.clientHeight + 1);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [post.contentPreview, expanded]);
 
   return (
     <Link
@@ -109,11 +124,29 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
           </div>
         ) : (
           <>
-            <p className="text-sm text-gray-600 leading-5 line-clamp-3 mb-2.5 whitespace-pre-wrap">
+            <p
+              ref={contentRef}
+              className={`text-sm text-gray-600 leading-5 whitespace-pre-wrap break-words mb-2.5 ${
+                expanded ? '' : 'line-clamp-3'
+              }`}
+            >
               {post.contentPreview}
             </p>
+            {truncated && !expanded && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  // 카드 전체가 Link라 펼침 클릭이 라우팅으로 새지 않도록 차단.
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setExpanded(true);
+                }}
+                className="-mt-1 mb-2.5 text-xs text-gray-500 hover:text-gray-700"
+              >
+                더 보기
+              </button>
+            )}
             {/* 첨부 이미지 캐러셀 — staging 응답의 imageUrls 사용. 가드: 있을 때만 렌더. */}
-            {/* 코드 복붙으로 작성한 코드라서 140줄까지 어떻게 돌아가는 코드인지 모름. 그냥 케러셀 좌우 드래근 스크롤 구현하는 코드라는 것만 알고 있음 */}
             {post.imageUrls && post.imageUrls.length > 0 && (
               <div
                 ref={imagesScroll.ref}
@@ -168,7 +201,6 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
             }`}
           >
             <Heart size={16} fill={reaction?.myReactionType === 'LIKE' ? 'currentColor' : 'none'} />
-            {/* 디자이너 결정(2026-04-21): 카운트가 0이면 아이콘만 표시 */}
             {(reaction?.likeCount ?? 0) > 0 && (
               <span className="text-xs">{reaction?.likeCount}</span>
             )}
