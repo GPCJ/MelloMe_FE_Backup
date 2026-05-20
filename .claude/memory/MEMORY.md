@@ -10,7 +10,7 @@
 - [코드 추적 — outside-in (호출부→선언부)](./user_code_navigation_style.md)
 - [Zustand/RQ 학습 — 단편 규칙 누적](./user_reactivity_libs_learning.md)
 - [AI 의존 불안 패턴 — 주기적 재출현, 4프레임 응답](./user_ai_dependency_anxiety.md)
-- **[React 내부 모델 학습 (2026-05-19)](./user_react_internals_learning.md)** — useLayoutEffect/렌더 4단계/bailout 잡힘, Element/Instance 흐릿
+- **[React 내부 모델 학습 (2026-05-19~20)](./user_react_internals_learning.md)** — 렌더 4단계/fiber=인스턴스/StrictMode 가짜언마운트/useEffect=동기화/race 도달성 잡힘, Component·Element 층 미정리
 - 문서화 역량 면접 Q&A 7항목 → wiki `q-a-7` (reference)
 
 ## 작업 관리
@@ -63,7 +63,8 @@
 - **분석 이벤트 오너=PM, 프론트 삽입만** — [오너](./project_analytics_event_ownership.md) / [정식 스펙 v1 24종](./project_analytics_event_spec_pm_v1.md) / [B1 매핑](./project_analytics_b1_mapping.md)
 
 ## 진행 중 이슈
-- **[피드 contentPreview 줄바꿈 보존 — Jira 백엔드 대기 (2026-05-19)](./project_post_content_preview_newline_pending.md)** — MSW 시뮬레이션 + 더보기 펼침 선구현(commit `2d854a8`), 머지 후 `posts.handlers.ts:68` 환원
+- **[피드 contentPreview 줄바꿈 보존 — ✅ 해소 (2026-05-20)](./project_post_content_preview_newline_pending.md)** — 백엔드 \n 보존 확인 + develop 배포 정상. MSW 환원은 선택(무해)
+- **[더보기 버튼 임시 파란색 (2026-05-20)](./project_more_button_color_temp.md)** — 본문 회색과 구분용 placeholder, 디자이너 시안 나오면 교체 (`PostCard.tsx:144`, 줄바꿈 작업 시 재검토)
 - **[PostListPage ref 렌더 중 접근](./project_postlistpage_ref_render_issue.md)** — React 19 에러, initialSnapshot 타이밍 미해결 (MVP 후 재개)
 - [sticky offset 잔재 — ProfilePage:306](./project_sticky_offset_legacy_cleanup.md) — `(md:)?top-14` grep
 - **[main↔develop 강제 동기화 (2026-05-11)](./project_main_develop_force_sync_2026_05_11.md)** — 백업 `main-backup-2026-05-11`, MVP 후 삭제
@@ -98,6 +99,7 @@
 - [AI 코드 학습용 주석 워크플로우](./feedback_ai_code_learning_comments.md)
 - **[AI 50%+ 작업 후 소크라테스식 Q&A](./feedback_learning_gap_socratic_checkin.md)**
 - **[소크라테스 체크 형식 — 구체 API는 코드 발췌+키워드+변형 질문, React 모델은 추상 설명](./feedback_socratic_code_excerpt_pattern.md)**
+- **[React 개념 = 단일 비유 체계 누적 확장](./feedback_react_concept_layered_analogy.md)** — 집/우편함/메모/거주자 한 체계로 fiber·effect 전반, 재진술로 닫기
 - **[학습 중에는 산출물보다 본인 이해 우선](./feedback_learning_mode_understanding_over_drafts.md)** — "잘 안 들어온다" 신호 시 줄 단위 검증+비유로 전환
 - **[AI 산문 패턴 체크리스트](./feedback_ai_prose_patterns.md)** — em-dash·3의법칙·볼드콜론 등
 - **[이원 독자 문서 파일 분리](./feedback_audience_split_docs.md)** — PM/개발자 하이브리드 X

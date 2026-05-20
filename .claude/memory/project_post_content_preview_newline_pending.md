@@ -1,11 +1,20 @@
 ---
 name: contentpreview-jira
-description: "PostSummary.contentPreview에 \\n 미보존 (staging id:19 검증 2026-05-19). MSW 시뮬레이션 + 더보기 펼침 선구현, 백엔드 머지 후 환원 필요."
+description: "PostSummary.contentPreview에 \\n 보존 백엔드 조치 완료 (응답 확인 2026-05-20, develop 배포 정상). MSW 환원은 선택(무해)."
 metadata: 
   node_type: memory
   type: project
   originSessionId: 6a4255e6-1481-4e7d-96e5-4c6e8f2479e2
 ---
+
+## ✅ 해소 (2026-05-20)
+
+백엔드가 `contentPreview`에 `\n`을 보존해 응답함을 실제 확인 (예: `"줄바꿈-수정\n\n줄바꿈\n\n줄바꿈"`). develop 배포 환경 정상 작동 확인. 렌더링은 PostCard `whitespace-pre-wrap` + 상세 `.post-content { white-space: pre-wrap }`로 이미 대응돼 그대로 표시됨.
+
+**남은 청소(선택, 필수 아님):** MSW 핸들러 `posts.handlers.ts:71`의 `p.content` 시뮬레이션은 이제 중복. 환원하려면 `p.contentPreview`로 바꾸되 mockPosts의 `contentPreview` 샘플도 `\n` 포함하도록 같이 손봐야 로컬에서 멀티라인 유지됨. MSW는 dev 전용이라 staging/prod엔 영향 없음 → 안 건드려도 무해.
+
+---
+(이하 원래 진단 기록)
 
 **WHERE:** 백엔드 PostService(또는 매퍼) preview 생성 로직
 **WHAT:** `GET /api/v1/posts` 응답의 `PostSummary.contentPreview`에 `\n`이 모두 strip돼서 한 덩어리 텍스트로 내려옴. 상세 `PostDetail.content`는 `\n` 보존 정상.

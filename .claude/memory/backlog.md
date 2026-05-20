@@ -2,7 +2,7 @@
 name: 프론트엔드 작업 백로그
 description: 데일리 태스크 선택용 단일 참조 파일 — 할 수 있는 것 / 블로킹 대기 / 검증 방법 포함
 type: project
-updated: 2026-05-12
+updated: 2026-05-20
 originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 ---
 # 프론트엔드 작업 백로그
@@ -17,10 +17,7 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 ## 1. 바로 할 수 있는 것 (프론트 독립)
 
 ### ★ 내일 1순위 (2026-05-11)
-- [ ] **CH-09** 게시글 상세 댓글/대댓글 시안 정합 — 옵션 A(메인 통합 + 카드 룩 재설계) — **사용자 직접 코딩** (인지부채 학습 목표)
-  - 현황: 이번 세션에서 옵션 A로 합의(2026-05-11). 단순 스타일 X, 로직 변경 多 → AI 위임 보류
-  - 진입점: `PostDetailPage.tsx` 댓글 리스트 렌더 로직 + `CommentCard.tsx` 재설계
-  - 상세는 아래 Chrome 통일 후속 섹션 CH-09 참조
+- [x] **CH-09** 게시글 상세 댓글/대댓글 시안 정합 — 완료 (2026-05-20 브라우저 검증 통과). 상세는 아래 Chrome 통일 후속 섹션 CH-09 참조
 - [ ] **MEL-47** 피드 정렬 전환 UI 추가 (최신순/인기순)
   - Jira: MEL-47 / 담당: 진서현(나) / 상태: 해야 할 일
   - 현황: 정렬 API 스펙 확인 필요 (Swagger `GET /posts?sort=LATEST|POPULAR` 파라미터 여부)
@@ -54,8 +51,19 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
     - [x] 필터 칩 변경 시 깜빡임 없음
     - [x] 에러 시 P1 fallback 전환
   - 상세: `project_rq_migration_implementation.md`
-- [ ] **R-02** AbortController 일괄 적용 (PostListPage, PostDetailPage)
-  - 검증: `grep "AbortController" frontend/src/pages` → 적용 여부
+- [ ] **R-02** stale-response(race) 가드 — **보류 (2026-05-20)**
+  - **원안 정정**: "AbortController 일괄 적용"은 R-01b(RQ 마이그레이션) 이전 표현. RQ 도입으로 지형 바뀜
+  - **현재 3개 fetch 지점 상태**:
+    1. PostListPage 무한스크롤(`useInfiniteFeed`, Hot Path) — RQ `signal` 자동 가드 ✅ 해소
+    2. PostListPage 필터/페이지 fetch (`PostListPage.tsx:120` `fetchPosts().then(setData)`) — plain, 가드 없음 ❌
+    3. PostDetailPage 상세 fetch (`PostDetailPage.tsx:152` `Promise.all([fetchPost,fetchComments,fetchPostImages]).then()`) — plain, 가드 없음 ❌
+  - **남은 작업 = #2, #3 두 곳만** (둘 다 프론트 단독 가능)
+    - #2: `fetchPosts`는 axios라 `{signal}`만 넘기면 됨
+    - #3: `fetchPost/fetchComments/fetchPostImages`가 `signal` 미수신 → (a) 세 함수에 signal 추가(진짜 취소) / (b) `let ignore=false` 플래그(setState만 차단, api 무변경, ~3줄)
+  - **보류 근거 (정확히)**: MVP 안정화 우선 + Hot Path 회귀 위험 회피 + 저빈도 **잠재결함(latent)**. ⚠️ "응답이 빨라 체감 안 됨"은 보류 근거로 부적절 — race는 **느린 네트워크(모바일 3G)에서 터짐**, dev 환경 미재현 ≠ 안 터짐 (댓글 중복 POST 교훈 동일)
+  - **재개 트리거**: ① 모바일/느린 네트워크에서 "필터 바꿨는데 이전 결과 보임" 또는 "다른 글 눌렀는데 이전 글 잠깐 뜸" 리포트 / ② PostDetailPage를 RQ로 리팩토링 착수 시 #3 공짜 동반
+  - **별개 BE 블로킹 항목**: 필터칩을 무한스크롤로 통일하려면 `/posts/feed`(cursor)에 `therapyArea`(+`keyword`/`postType`) query param 추가 필요 → 현재 `/posts/feed`는 `cursor/size/sort`만 받음. 필터는 `GET /posts`(offset)로 분리돼 있어 BE 양식 변경 전엔 통일 불가
+  - 검증: `grep -n "signal\|ignore" frontend/src/pages/post/PostListPage.tsx frontend/src/pages/post/PostDetailPage.tsx` → #2/#3 가드 적용 여부
 - [ ] **R-03** refresh plain axios 분리
   - 검증: `grep "import axios" frontend/src/api/axiosInstance.ts` → plain axios import 유무
   - 참고: F-01과 연관, 백엔드 연결 후 401 통합 테스트 시점에 처리
@@ -159,7 +167,8 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - **우선순위**: 낮음 — 시각적 차이가 미세하고 lucide도 디자인 일관성에 큰 해는 안 됨. 디자이너가 아이콘 셋 export 일괄 제공 시점에 일괄 교체가 효율적
   - **확장 적용 범위**: PostCard 헤더, PostListPage 빈 상태 +, BottomNav, SideNav 등 lucide 사용 전 화면 전체
   - **검증**: `grep -r "from 'lucide-react'" frontend/src` 0건 또는 의도적 잔존 명시
-- [ ] **CH-09** ★ 게시글 상세 댓글/대댓글 시안 정합 — 옵션 A (메인 통합 + 카드 룩 재설계)
+- [x] **CH-09** ★ 게시글 상세 댓글/대댓글 시안 정합 — 옵션 A (메인 통합 + 카드 룩 재설계) — **완료 (2026-05-20)**
+  - **완료 요약**: 8개 작업 + PC 답글 모달 모두 구현 (커밋 d587fe4 통합 렌더 / cf6194c 카드 룩 / a6bbca3 답글 모달). 2026-05-20 브라우저 검증 통과(top+자식 N, 자식 없는 top, 삭제 부모+살아있는 자식, 편집 입력 보존, PC 모달/모바일 라우트 분기). 작업 8(스켈레톤 시안 룩)만 보류 — 로딩이 빨라 스켈레톤 거의 미노출, `PostDetailPage.tsx:51` 위 보류 주석 박제. 댓글 북마크는 백엔드 API 부재로 생략 확정
   - **사용자 직접 코딩 결정 (2026-05-11)**: 단순 스타일 변경이 아니라 데이터 렌더 로직·컴포넌트 재설계가 동반됨 → AI 위임 X, 학습 목표 정합
   - **시안 출처**: PC `1387:13250` (Reply_list), Mobile `1321:3821` 댓글 영역
   - **데이터 모델**: 이미 준비됨 — `comments`(flat 배열), `getReplies(parentId)`, `topComments` 헬퍼 존재. 추가 API 호출 / 모델 변경 X
