@@ -51,3 +51,12 @@ originSessionId: b6f844ce-ccb5-4c47-a5ba-95c70db3b21d
 ### 다른 기기 첫 셋업
 - `git clone` 후 `git checkout develop` 한 번 필요 (default branch는 여전히 main)
 - pull-mello 첫 실행 시 `ensure_on_develop`이 자동 처리하지만, 명시적 checkout이 더 안전
+
+## auto-memory가 유일한 원본 (2026-05-20 박제 — notion_draft 2개 관리 혼란 해소)
+
+**규칙: 모든 메모리 파일(notion_draft.md 포함)은 auto-memory(`MEMORY_SRC`)에서만 편집한다. 레포 사본(`$PROJECT_REPO/.claude/memory/`)은 생성물이므로 직접 손대지 말 것.**
+
+- **Why**: push-mello는 `rsync -a --delete MEMORY_SRC/ → 레포` 단방향 미러링(스크립트 99-101행). **auto-memory가 항상 이긴다.** 레포 사본을 편집하면 다음 push 때 auto-memory 버전으로 덮어써져 편집이 날아가거나, 의도한 변경이 push되지 않는다.
+- **사고 사례 (2026-05-20)**: notion_draft를 레포 사본(`MelloMe_FE_Backup/.claude/memory/`)에서 편집 → push-mello가 stale한 auto-memory 버전을 push → 편집분이 main 워킹트리에만 uncommitted로 남고 누락. auto-memory로 복사 후 재push로 해소.
+- **혼란 원인**: 사람이 자연스럽게 여는 곳(VSCode, `/post-notion-draft`)이 레포 사본이라, 거기서 편집하기 쉬움. 하지만 sync 원본은 auto-memory.
+- **How to apply**: ① 메모리/노션초안 편집은 `MEMORY_SRC`(`/home/jin24/.claude/projects/-home-jin24-MelloMe-FE-Backup/memory/`) 경로 파일을 직접 수정 ② VSCode로 열 때도 auto-memory 경로를 열기 ③ 레포 사본이 워킹트리에 modified로 떠도 그건 미러일 뿐, 진실은 auto-memory ④ 코드 변경(.tsx 등)은 이 규칙과 무관, 일반 git 커밋 흐름. [[feedback_branch_aware_script_test]] 참조.
