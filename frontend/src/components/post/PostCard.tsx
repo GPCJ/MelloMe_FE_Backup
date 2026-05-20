@@ -141,9 +141,9 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
                   e.stopPropagation();
                   setExpanded(true);
                 }}
-                className="-mt-1 mb-2.5 text-xs text-gray-500 hover:text-gray-700"
+                className="-mt-1 mb-2.5 text-xs text-blue-600 hover:text-blue-700 hover:font-semibold transition-all"
               >
-                더 보기
+                더보기
               </button>
             )}
             {/* 첨부 이미지 캐러셀 — staging 응답의 imageUrls 사용. 가드: 있을 때만 렌더. */}
