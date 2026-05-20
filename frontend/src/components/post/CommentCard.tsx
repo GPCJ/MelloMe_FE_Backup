@@ -16,8 +16,7 @@ interface CommentCardProps {
   comment: CommentResponse;
   replyCount?: number;
   replyToNickname?: string;
-  // 시안 정합용 플래그(다음 UI 커밋에서 좌측 컬럼 세로선/꺾인 선 prefix 분기에 사용).
-  // 이 커밋에선 PostDetailPage가 값만 흘려보내고, CommentCard 렌더에는 아직 영향 X.
+  // 시안 정합 플래그 — 좌측 프로필 컬럼의 세로선(hasReplies)/╰ 꺾인 선(isReply) 분기에 사용.
   isReply?: boolean;
   hasReplies?: boolean;
   onMessageClick?: () => void;

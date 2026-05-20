@@ -48,6 +48,11 @@ import { useCommentReactionToggle } from '../../hooks/useCommentReactionToggle';
 import { useDragScroll } from '../../hooks/useDragScroll';
 import { useQueryClient } from '@tanstack/react-query';
 
+/* 
+CH-09 작업 8(스켈레톤 시안 룩 반영) 보류 — 현재 로딩이 충분히 빨라 스켈레톤이
+거의 노출되지 않아 우선순위 낮음. 시안의 댓글 카드 스켈레톤은 미반영(게시글 본문 영역만).
+체감 로딩이 느려지거나 댓글 영역 LCP가 문제될 때 재착수. 
+*/
 function PostDetailSkeleton() {
   return (
     <div className="max-w-3xl mx-auto pb-20 md:pb-8">
