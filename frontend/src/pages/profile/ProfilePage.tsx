@@ -302,7 +302,7 @@ export default function ProfilePage() {
             {loadingPosts && <TabSkeleton />}
             {errorPosts && <TabError onRetry={() => postsQuery.refetch()} />}
             {!loadingPosts && !errorPosts && postsData?.items.length === 0 && (
-              <TabEmpty message="작성한 글이 없어요." />
+              <TabEmpty message="첫 시그널을 보내세요!" />
             )}
             {!loadingPosts &&
               postsData?.items.map((post) => <PostCard key={post.id} post={post} />)}
@@ -346,7 +346,7 @@ export default function ProfilePage() {
             {loadingComments && <TabSkeleton />}
             {errorComments && <TabError onRetry={() => commentsQuery.refetch()} />}
             {!loadingComments && !errorComments && commentsData?.items.length === 0 && (
-              <TabEmpty message="답글 단 글이 없어요." />
+              <TabEmpty message="시그널을 이어보세요!" />
             )}
             {!loadingComments &&
               commentsData?.items.map((comment) => (
@@ -392,7 +392,7 @@ export default function ProfilePage() {
             {loadingScraps && <TabSkeleton />}
             {errorScraps && <TabError onRetry={() => scrapsQuery.refetch()} />}
             {!loadingScraps && !errorScraps && scrapsData?.items.length === 0 && (
-              <TabEmpty message="스크랩한 글이 없어요." />
+              <TabEmpty message="시그널을 수집해보세요!" />
             )}
             {!loadingScraps &&
               scrapsData?.items.map((scrap) => (
