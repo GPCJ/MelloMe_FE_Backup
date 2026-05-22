@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import {
   MessageSquare,
@@ -163,6 +163,10 @@ export default function PostDetailPage() {
           navigate('/therapist-verifications', { replace: true });
           return;
         }
+        if(axios.isAxiosError(err) && err.response?.status === 404){
+          setError('게시글을 찾을 수 없어요.');
+          return;
+        }
         setError('게시글을 불러오는 데 실패했습니다.');
       })
       .finally(() => setLoading(false));
@@ -266,7 +270,15 @@ export default function PostDetailPage() {
   if (loading) return <PostDetailSkeleton />;
   if (error || !post)
     return (
-      <p className="text-center text-destructive py-20">{error ?? '게시글을 찾을 수 없어요.'}</p>
+      <div className='flex flex-col items-center justify-center'>
+        <p className="text-center text-destructive pt-20">{error ?? '게시글을 찾을 수 없어요.'}</p>
+        <Link
+          to="/posts"
+          className="mt-6 px-5 py-2 bg-gray-900 text-white rounded-lg text-sm hover:bg-gray-800"
+        >
+          홈으로 돌아가기
+        </Link>
+      </div>
     );
 
   const therapyLabel =
