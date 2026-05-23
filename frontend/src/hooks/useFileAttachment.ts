@@ -57,7 +57,7 @@ export function useFileAttachment(existingImageCount = 0, existingAttachmentCoun
     };
   }, []);
 
-  function addFiles(files: FileList | null) {
+  async function addFiles(files: FileList | null) {
     if (!files) return;
     const newFiles: PendingFile[] = [];
 
@@ -100,9 +100,24 @@ export function useFileAttachment(existingImageCount = 0, existingAttachmentCoun
         }
       }
 
-      const previewUrl = isImage ? URL.createObjectURL(file) : null;
-      if (previewUrl) pendingUrlsRef.current.push(previewUrl);
-      newFiles.push({ file, previewUrl, kind: isImage ? 'IMAGE' : 'ATTACHMENT' });
+      if (isAttachment && !isImage) {
+        newFiles.push({ file, previewUrl: null, kind: 'ATTACHMENT' });
+        continue;
+      }
+
+      const previewUrl = URL.createObjectURL(file);
+      try {
+        const img = new Image();
+        img.src = previewUrl;
+        await img.decode();
+      } catch {
+        URL.revokeObjectURL(previewUrl);
+        setFileError(`${file.name}: 다른 사진을 선택하거나 다시 시도해 주세요.`);
+        continue;
+      }
+
+      pendingUrlsRef.current.push(previewUrl);
+      newFiles.push({ file, previewUrl, kind: 'IMAGE' });
     }
 
     setPendingFiles((prev) => [...prev, ...newFiles]);
