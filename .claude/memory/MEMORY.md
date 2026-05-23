@@ -41,6 +41,7 @@
 - [UserAvatar 공통 컴포넌트](./project_user_avatar_component.md) — 6곳 통합
 - **[Chrome 통일 정책 (2026-05-08)](./project_chrome_unification_policy.md)** — Layout 헤더 폐기 + PageHeader 단일 + SideNav 6슬롯 + BottomNav 5
 - **[UserMenu 패턴](./project_user_menu_component.md)** — PC 케밥 + 모바일 햄버거 공유
+- **[FilterChips 드래그 스크롤 — 인지부채 HIGH (2026-05-21)](./project_filterchips_drag_scroll_cognitive_debt.md)** — AI 작성·이해 미완 커밋 `ec36f5f`, 회복 후 손재작성 학습과제
 - **[ProfilePage 시그널 시안 정합 (2026-05-11)](./project_profile_page_signal_chrome_2026_05_11.md)** — 헤더 Search+UserPen, 회원 탈퇴 MVP 제외
 - **[피그마 아이콘 점진 교체 (2026-05-11~)](./project_figma_icon_migration.md)** — 사이드바 5개 완료, `components/icons/` SVG path 인라인
 - **[프사/닉네임 변경 시 마이페이지 RQ 캐시 무효화 (2026-05-12)](./project_my_page_cache_invalidation_on_profile_edit.md)** — `invalidateMyPageTabs()`, `ee07728`
@@ -61,10 +62,12 @@
 - [백엔드 전달 전략](./project_backend_communication.md) — Swagger, GitHub Issues, 멜로미↔아이로
 - **[백엔드 dev/prod 분리 + Vercel 2브랜치](./project_backend_dev_prod_split.md)** — main→prod / develop→staging
 - **분석 이벤트 오너=PM, 프론트 삽입만** — [오너](./project_analytics_event_ownership.md) / [정식 스펙 v1 24종](./project_analytics_event_spec_pm_v1.md) / [B1 매핑](./project_analytics_b1_mapping.md)
+- **⚠️ 디자이너 부재 (2026-05-22~)** — [기존 대기 항목 전체 자체 결정 전환](./project_designer_pending.md) / [UI 결정 정책](./feedback_ui_designer_confirm.md)
 
 ## 진행 중 이슈
+- **[이미지 첨부 누락 — 디코드 가드 추가, 원인 미확정 관측 중 (2026-05-23)](./project_image_attach_decode_guard_2026_05_23.md)** — 모바일 빈 File 추정, `img.decode()` 가드(`14ac498`/`026f302`), 백엔드 confirm 영속화 트랙 별개
 - **[피드 contentPreview 줄바꿈 보존 — ✅ 해소 (2026-05-20)](./project_post_content_preview_newline_pending.md)** — 백엔드 \n 보존 확인 + develop 배포 정상. MSW 환원은 선택(무해)
-- **[더보기 버튼 임시 파란색 (2026-05-20)](./project_more_button_color_temp.md)** — 본문 회색과 구분용 placeholder, 디자이너 시안 나오면 교체 (`PostCard.tsx:144`, 줄바꿈 작업 시 재검토)
+- **[더보기 버튼 임시 파란색 (2026-05-20)](./project_more_button_color_temp.md)** — 본문 회색과 구분용 placeholder, 자체 결정 예정 (`PostCard.tsx:144`)
 - **[PostListPage ref 렌더 중 접근](./project_postlistpage_ref_render_issue.md)** — React 19 에러, initialSnapshot 타이밍 미해결 (MVP 후 재개)
 - [sticky offset 잔재 — ProfilePage:306](./project_sticky_offset_legacy_cleanup.md) — `(md:)?top-14` grep
 - **[main↔develop 강제 동기화 (2026-05-11)](./project_main_develop_force_sync_2026_05_11.md)** — 백업 `main-backup-2026-05-11`, MVP 후 삭제
@@ -104,7 +107,7 @@
 - **[AI 산문 패턴 체크리스트](./feedback_ai_prose_patterns.md)** — em-dash·3의법칙·볼드콜론 등
 - **[이원 독자 문서 파일 분리](./feedback_audience_split_docs.md)** — PM/개발자 하이브리드 X
 - **[한국어 ~합니다 통일](./feedback_korean_formal_tone_docs.md)**
-- [MVP 코드 수정 기준](./feedback_mvp_fix_criteria.md) / [UI 디자이너 컨펌](./feedback_ui_designer_confirm.md)
+- [MVP 코드 수정 기준](./feedback_mvp_fix_criteria.md) / [UI 자체 결정 정책 — 디자이너 부재 (2026-05-22)](./feedback_ui_designer_confirm.md)
 - [grep 선행](./feedback_code_change_process.md) / [코드 생성 승인](./feedback_code_approval.md)
 - [MSW는 백엔드 권한 시뮬레이션](./feedback_msw_simulates_backend_policy.md)
 - **[Git 커밋 워크플로우 통합 — 한국어/서명금지/sync chore 금지/diff --stat/섞인 커밋 분리](./feedback_git_workflow.md)**
