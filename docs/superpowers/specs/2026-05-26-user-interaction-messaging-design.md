@@ -113,8 +113,6 @@ PagedResponseMessageResponse { items[], page, size, totalElements, totalPages, h
 | `types/message.ts` | DTO 타입 4종 | `types/notification.ts` |
 | `api/messages.ts` | 6개 엔드포인트 호출 함수 | `api/notifications.ts` |
 | `stores/useMessageStore.ts` | `unreadCount` + 액션(`setUnreadCount`, `increment`, `decrement`, `clear`) | `useNotificationStore`의 unreadCount 부분 |
-| `mocks/handlers/messages.handlers.ts` | 6 엔드포인트 mock (받은/보낸 목록, 발송, 상세, 삭제, unread-count) | `mocks/handlers/notifications.handlers.ts` |
-| `mocks/data/messages.ts` | mock 시드 데이터 | 알림 mock 데이터 |
 | `components/common/UserActionDropdown.tsx` | 진입 허브 드롭다운(프로필/팔로우/쪽지). 트리거=프사, 본인 미노출 | `CommentCard`의 DropdownMenu, `UserMenu.tsx` |
 | `components/message/MessageComposeModal.tsx` | PC 작성 모달 | `PostWriteModal`, `CommentReplyModal` |
 | `components/message/MessageUnreadBadge.tsx` | 말풍선 옆 숫자 뱃지 | `SideNav`의 뱃지 JSX |
@@ -128,7 +126,6 @@ PagedResponseMessageResponse { items[], page, size, totalElements, totalPages, h
 |---|---|
 | `types/notification.ts` | `NotificationType`에 `'NEW_MESSAGE'` 추가 (슬라이스 0) |
 | `utils/notificationRoute.ts` | `case 'NEW_MESSAGE'` 추가 → `referenceId ? '/messages/${referenceId}' : '/messages'` (슬라이스 0, Q1 확인 후 확정) |
-| `mocks/handlers/index.ts` | messages 핸들러 등록 |
 | `App.tsx` | `/messages`, `/messages/:messageId`, `/messages/new` 라우트 추가(AuthRoute + Layout 안). `/messages/new`를 `/messages/:messageId`보다 먼저 배치 |
 | `hooks/useNotificationSSE.ts` | 쪽지 unread 초기/탭복귀 동기화 추가, `notification` 이벤트가 `NEW_MESSAGE`면 `useMessageStore.increment()` |
 | `ProfilePage.tsx` 헤더 | 돋보기 왼쪽에 말풍선 아이콘 + `MessageUnreadBadge`, 클릭 시 `/messages` 이동 |
@@ -147,16 +144,15 @@ PagedResponseMessageResponse { items[], page, size, totalElements, totalPages, h
 ### 슬라이스 1: 쪽지 보내기 (최소 end-to-end)
 1. `types/message.ts` 작성 (정답지: `types/notification.ts`)
 2. `api/messages.ts`에 `sendMessage`만 먼저 (정답지: `api/notifications.ts`)
-3. `mocks/handlers/messages.handlers.ts`에 POST `/messages` mock + index 등록 (체크포인트가 MSW에서 돌아가도록)
-4. `UserActionDropdown.tsx` 작성 (3항목, 쪽지만 동작, 프로필/팔로우는 토스트, 본인 미노출)
-5. `MessageComposeModal` + 모바일 `MessageComposePage` (content 2000자/빈값 가드, 발송 에러 분기)
-6. 진입점 연결 (`PostDetailPage`, `CommentCard` 작성자 프사를 드롭다운으로 감쌈)
-7. 라우트 `/messages/new` 추가
+3. `UserActionDropdown.tsx` 작성 (3항목, 쪽지만 동작, 프로필/팔로우는 토스트, 본인 미노출)
+4. `MessageComposeModal` + 모바일 `MessageComposePage` (content 2000자/빈값 가드, 발송 에러 분기)
+5. 진입점 연결 (`PostDetailPage`, `CommentCard` 작성자 프사를 드롭다운으로 감쌈)
+6. 라우트 `/messages/new` 추가
 
-체크포인트: 게시글 상세에서 작성자 프사 클릭 → 쪽지 → 전송 → 토스트 확인 (MSW 모드)
+체크포인트: 게시글 상세에서 작성자 프사 클릭 → 쪽지 → 전송 → 토스트 확인 (staging, 로그인 상태)
 
 ### 슬라이스 2: 쪽지함
-1. `api/messages.ts` 확장 (received/sent/detail/delete) + MSW 핸들러 확장
+1. `api/messages.ts` 확장 (received/sent/detail/delete)
 2. `MessageBoxPage` (받은/보낸 2탭, 목록=React Query)
 3. `MessageDetailPage` (전문 + 삭제 + 읽음 낙관 감소)
 4. 라우트 `/messages`, `/messages/:messageId` 추가
@@ -170,7 +166,7 @@ PagedResponseMessageResponse { items[], page, size, totalElements, totalPages, h
 3. `useNotificationSSE.ts` 수정 (초기/탭복귀 `/me/messages/unread-count` 동기화, `notification` 이벤트가 `NEW_MESSAGE`면 `increment()`)
 4. 상세 진입 시 read 반영 (`decrement()`, 성공 응답 후에만)
 
-체크포인트: 다른 계정으로 쪽지 발송 시 알림 뱃지·쪽지 뱃지 둘 다 +1, 쪽지 읽으면 쪽지 뱃지 -1. **MSW 모드에서는 SSE가 꺼지므로 실시간 +1은 검증 불가, REST 동기화(초기/탭복귀)만 확인 가능.**
+체크포인트: 다른 계정으로 쪽지 발송 시 알림 뱃지·쪽지 뱃지 둘 다 +1, 쪽지 읽으면 쪽지 뱃지 -1. staging에서 SSE가 실제 동작하므로 실시간 +1까지 검증 가능.
 
 ## 7. 백엔드 확인 항목 (착수 전 차단성 질문)
 
@@ -185,7 +181,7 @@ PagedResponseMessageResponse { items[], page, size, totalElements, totalPages, h
 - 읽음 처리를 별도 API 없이 상세 조회의 부수효과로 가정합니다(Q2). 동작이 다르면 슬라이스 3의 낙관 감소 로직을 조정합니다. 신뢰 소스는 초기/탭복귀 동기화이고, 낙관 감소는 표시 지연을 줄이는 보조 수단입니다.
 - 쪽지는 스레드형이 아니라 단발 메일함 모델이므로, "대화 잇기" 같은 UX는 제공하지 않습니다.
 - 안읽음 뱃지를 알림 SSE에 얹기 때문에, SSE가 끊긴 동안 도착한 쪽지는 다음 초기/탭복귀 동기화 시점에 반영됩니다.
-- MSW 모드에서는 SSE가 비활성화되어 실시간 +1을 검증할 수 없습니다. MSW에서는 REST 동기화 경로만 검증하고, 실시간 동작은 staging 백엔드로 검증합니다.
+- 개발/테스트는 staging 백엔드로 직접 합니다(`.env*`가 `VITE_MSW_ENABLED=false`, staging/prod URL). 따라서 쪽지는 MSW 핸들러를 만들지 않습니다(만들어도 실행되지 않는 죽은 코드). 누군가 `VITE_MSW_ENABLED=true`로 돌리면 쪽지 엔드포인트만 404가 나지만, 현재 워크플로우에선 무해하고 필요 시 후속으로 추가합니다.
 
 ## 9. 범위 밖 (Out of scope)
 
