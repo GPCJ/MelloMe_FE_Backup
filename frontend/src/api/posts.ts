@@ -20,6 +20,7 @@ import type {
   UploadConfirmRequest,
   UploadConfirmResponse,
 } from '../types/post';
+import { resolveUploadContentType, type PendingFile } from '@/hooks/useFileAttachment';
 
 export async function fetchPosts(params: {
   therapyArea?: TherapyArea;
@@ -175,4 +176,43 @@ export async function uploadToS3(uploadUrl: string, file: File, contentType: str
 export async function confirmUpload(postId: number, req: UploadConfirmRequest): Promise<UploadConfirmResponse> {
   const res = await axiosInstance.post(`/posts/${postId}/uploads/confirm`, req);
   return res.data?.data ?? res.data;
+}
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)); 
+
+export async function uploadOneAttachment(
+  postId: number,
+  pf: PendingFile,
+  { maxAttempts = 3 }: { maxAttempts?: number } = {},
+): Promise<void>{
+  const contentType = resolveUploadContentType(pf.file);
+
+  const { uploadUrl, storedKey } = await initUpload(postId, {
+    kind: pf.kind,
+    originalFilename: pf.file.name,
+    contentType,
+    sizeBytes: pf.file.size,
+  });
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++){
+    try {
+    await uploadToS3(uploadUrl, pf.file, contentType);
+    await confirmUpload(postId, {
+      kind: pf.kind,
+      storedKey,
+      originalFilename: pf.file.name,
+    });
+    return;
+    } catch(err) {
+      if(attempt === maxAttempts) throw err
+      console.warn('[upload] 재시도', {
+        fileName: pf.file.name,
+        kind: pf.kind,
+        sizeBytes: pf.file.size,
+        attempt,
+        err,
+      });
+      await delay(attempt === 1 ? 500 : 1000) ;
+    }
+  }
 }

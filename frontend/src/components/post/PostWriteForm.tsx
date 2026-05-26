@@ -3,12 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Image, Lock, LockOpen, Paperclip, PencilLine, X } from 'lucide-react';
 import VerifiedBadge from './VerifiedBadge';
 import UserAvatar from '../common/UserAvatar';
-import { createPost, initUpload, uploadToS3, confirmUpload } from '../../api/posts';
+import { createPost, uploadOneAttachment } from '../../api/posts';
 import {
   useFileAttachment,
   IMAGE_ACCEPT,
   FILE_ACCEPT,
-  resolveUploadContentType,
 } from '../../hooks/useFileAttachment';
 import { useAuthStore } from '../../stores/useAuthStore';
 import type { TherapyArea, UIVisibility } from '../../types/post';
@@ -115,20 +114,8 @@ export default function PostWriteForm({ variant, onClose, onSuccess }: PostWrite
         for (let i = 0; i < pendingFiles.length; i++) {
           setUploadProgress(`첨부파일 업로드 중... (${i + 1}/${pendingFiles.length})`);
           const pf = pendingFiles[i];
-          const contentType = resolveUploadContentType(pf.file);
           try {
-            const { uploadUrl, storedKey } = await initUpload(post.id, {
-              kind: pf.kind,
-              originalFilename: pf.file.name,
-              contentType,
-              sizeBytes: pf.file.size,
-            });
-            await uploadToS3(uploadUrl, pf.file, contentType);
-            await confirmUpload(post.id, {
-              kind: pf.kind,
-              storedKey,
-              originalFilename: pf.file.name,
-            });
+            await uploadOneAttachment(post.id, pf, { maxAttempts: 3 })
           } catch {
             failedCount++;
           }

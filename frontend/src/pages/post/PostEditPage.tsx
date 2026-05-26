@@ -8,17 +8,14 @@ import {
   fetchPost,
   fetchPostImages,
   updatePost,
-  initUpload,
-  uploadToS3,
-  confirmUpload,
   deletePostAttachment,
   deletePostImage,
+  uploadOneAttachment,
 } from '../../api/posts';
 import {
   useFileAttachment,
   IMAGE_ACCEPT,
   FILE_ACCEPT,
-  resolveUploadContentType,
 } from '../../hooks/useFileAttachment';
 import { useAuthStore } from '../../stores/useAuthStore';
 import type { Attachment, PostImage, TherapyArea, UIVisibility } from '../../types/post';
@@ -240,20 +237,8 @@ export default function PostEditPage() {
         for (const pf of pendingFiles) {
           done++;
           setUploadProgress(`첨부파일 업로드 중... (${done}/${totalOps})`);
-          const contentType = resolveUploadContentType(pf.file);
           try {
-            const { uploadUrl, storedKey } = await initUpload(pid, {
-              kind: pf.kind,
-              originalFilename: pf.file.name,
-              contentType,
-              sizeBytes: pf.file.size,
-            });
-            await uploadToS3(uploadUrl, pf.file, contentType);
-            await confirmUpload(pid, {
-              kind: pf.kind,
-              storedKey,
-              originalFilename: pf.file.name,
-            });
+            await uploadOneAttachment(pid, pf, {maxAttempts: 3})
           } catch {
             failedCount++;
           }
