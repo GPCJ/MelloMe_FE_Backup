@@ -36,24 +36,30 @@
 ```
 Concern {
   worry: string             // 고민(본문) · 필수
-  ageGroup: AgeGroup        // 연령대 · 필수 · 단일 선택
+  ageGroup: AgeGroup        // 연령대 · 필수 · 단일 선택 (기존 enum 재사용)
   therapyArea: TherapyArea  // 치료영역 · 필수 · 단일 선택 (기존 enum 재사용)
   diagnoses: string[]       // 진단명 · 필수(1개 이상) · 자유 문자열 배열
   note?: string             // 기타 · 선택
 }
-
-AgeGroup =
-  | INFANT      // 영아기
-  | TODDLER     // 유아기
-  | CHILD       // 아동기
-  | ADOLESCENT  // 청소년기
-  | ADULT       // 성년기
-  | SENIOR      // 노령기
 ```
+
+`AgeGroup`은 **이미 `types/post.ts`에 정의된 enum을 재사용**합니다(현재 미사용 휴면 타입,
+백엔드 스펙 미러링용으로 추정). 사용자가 고른 6단계와 1:1 매칭됩니다:
+
+| enum 값 | 라벨 |
+| --- | --- |
+| `AGE_0_2` | 영아기 |
+| `AGE_3_5` | 유아기 |
+| `AGE_6_12` | 아동기 |
+| `AGE_13_18` | 청소년기 |
+| `AGE_19_64` | 성년기 |
+| `AGE_65_PLUS` | 노령기 |
+
+(`UNSPECIFIED`는 고민 카드 작성 칩에서는 노출하지 않습니다.) 라벨 매핑 상수는 신설합니다.
 
 설계 결정:
 - `postType`에 `CONCERN` 추가. 기존 값은 `COMMUNITY | RESOURCE`.
-- `therapyArea`는 기존 `TherapyArea` enum 재사용(피드 필터칩과 동일 라벨).
+- `ageGroup`은 기존 `AgeGroup` enum 재사용. `therapyArea`는 기존 `TherapyArea` enum 재사용(피드 필터칩과 동일 라벨).
 - 진단명은 **자유 문자열 배열**로 저장. 백엔드는 enum/화이트리스트 검증을 하지 않습니다.
   목록은 프론트 전용 시드 상수로만 두고, 추후 빈도 분석 후 enum화를 검토합니다.
 - 읽기(피드/상세)는 Post 형태(`postType=CONCERN` + `concern`)로 응답합니다.
