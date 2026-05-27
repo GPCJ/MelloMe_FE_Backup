@@ -24,6 +24,10 @@ export function getNotificationRoute(
     case 'VERIFICATION_REJECTED':
       return '/profile';
 
+    case 'NEW_MESSAGE':
+      // 임시: Q1(referenceId=messageId) 확인 + 슬라이스 2(상세 페이지) 후 `/messages/${referenceId}`로 승격
+      return `/messages`;
+
     default:
       return '/posts';
   }
