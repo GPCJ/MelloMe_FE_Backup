@@ -47,6 +47,7 @@ import axios from 'axios';
 import { useCommentReactionToggle } from '../../hooks/useCommentReactionToggle';
 import { useDragScroll } from '../../hooks/useDragScroll';
 import { useQueryClient } from '@tanstack/react-query';
+import ConcernCard from '@/components/post/ConcernCard';
 
 function PostDetailSkeleton() {
   return (
@@ -359,7 +360,7 @@ export default function PostDetailPage() {
           </div>
 
           {/* 해시태그 */}
-          {therapyLabel && (
+          {therapyLabel && post.postType !== 'CONCERN_CARD' && (
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 rounded-full bg-gray-100 text-sm text-gray-700">
                 #{therapyLabel}
@@ -376,13 +377,22 @@ export default function PostDetailPage() {
               </p>
             </div>
           ) : (
+            post.postType === 'CONCERN_CARD' ? (
+              <ConcernCard
+                ageGroup={post.ageGroup}
+                therapyArea={post.therapyArea}
+                diagnoses={post.diagnoses}
+                otherNotes={post.otherNotes}
+                body={post.content}
+              />
+            ) : (
             <div
               className="post-content"
               dangerouslySetInnerHTML={{
                 __html: DOMPurify.sanitize(post.content),
               }}
             />
-          )}
+          ))}
 
           {/* 첨부파일 + 이미지 — 시안 정합(1387:12297).
               "첨부파일 (N)" 헤더 제거: 칩 자체가 카운트/진입점 역할. */}
