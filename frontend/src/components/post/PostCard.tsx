@@ -141,13 +141,13 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
                   e.stopPropagation();
                   setExpanded(true);
                 }}
-                // 한손 조작 도달성 개선: 가로 전체 탭 밴드 + 상단 구분선 + 가운데 정렬로 어포던스 명시.
-                // -mx-6 px-6: 카드 좌우 padding을 가로질러 카드 끝까지 탭 가능. py-2: 위아래 8px 탭 패딩.
-                // bg-gray-50 + border-t: 평소에도 "여기가 다른 영역"임을 옅게 표시. hover:bg-gray-100: 누름 피드백.
-                // gray 단계는 50/100만 사용 — 200 이상은 카드 미니멀 톤을 해침.
-                // w-[calc(100%+3rem)]: w-full + -mx-6 조합은 너비식 불일치로 우측에 ~48px 잔여가 생김.
-                // 부모 padding(24px*2 = 3rem)을 너비에 더해 음수 마진과 균형 맞추면 카드 우측 끝까지 닿음.
-                className="w-[calc(100%+3rem)] -mx-6 px-6 py-2 mb-2.5 flex items-center justify-center gap-1 text-xs text-blue-600 bg-gray-50 border-t border-gray-100 hover:bg-gray-100 transition-colors"
+                // 한손 조작 도달성 개선: 충분히 넓은 탭 밴드 + 가운데 정렬 + 둥근 모서리로 어포던스 명시.
+                // -mx-3 px-6: 카드 padding 안쪽으로 양쪽 12px 흰 여백을 남겨 띠가 "정의된 pill"로 보이게.
+                // py-2: 위아래 8px 탭 패딩. rounded-md: 둥근 양끝이 body 흰색과의 시각 종단을 만듦.
+                // bg-gray-50, border-gray-100: 미니멀 톤 유지(흰색 대비 옅은 회색 + hairline).
+                // w-[calc(100%+1.5rem)]: w-full + -mx-3 조합의 너비식 불일치 보정 — 음수 마진 합(1.5rem=24px)
+                // 만큼 너비에 더해야 카드 좌·우 12px 여백이 균형 잡힘.
+                className="w-[calc(100%+1.5rem)] -mx-3 px-6 py-2 mb-2.5 flex items-center justify-center gap-1 text-xs text-blue-600 bg-gray-50 border-t border-gray-100 hover:bg-gray-100 rounded-md transition-colors"
               >
                 더보기
                 <ChevronDown size={14} />
