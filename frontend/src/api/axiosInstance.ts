@@ -48,6 +48,26 @@ axiosInstance.interceptors.response.use(
       originalRequest.url?.startsWith('/auth/signup');
 
     if (error.response?.status !== 401 || originalRequest._retry || isAuthRequest) {
+      // 4xx/5xx 또는 네트워크 에러 공통 로깅. 401 자동 갱신 케이스는 위 조건에서 빠져 여기 안 옴.
+      if (error.response) {
+        const data = error.response.data as
+          | { code?: string; message?: string; fieldErrors?: unknown }
+          | undefined;
+        console.error('[api-error]', {
+          status: error.response.status,
+          method: originalRequest.method?.toUpperCase(),
+          url: originalRequest.url,
+          code: data?.code,
+          message: data?.message,
+          fieldErrors: data?.fieldErrors,
+        });
+      } else {
+        console.error('[api-error] network/no-response', {
+          method: originalRequest.method?.toUpperCase(),
+          url: originalRequest.url,
+          message: error.message,
+        });
+      }
       return Promise.reject(error);
     }
 

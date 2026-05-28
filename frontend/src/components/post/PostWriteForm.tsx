@@ -116,8 +116,14 @@ export default function PostWriteForm({ variant, onClose, onSuccess }: PostWrite
           const pf = pendingFiles[i];
           try {
             await uploadOneAttachment(post.id, pf, { maxAttempts: 3 })
-          } catch {
+          } catch (err) {
             failedCount++;
+            console.error('[image-attach] uploadOneAttachment 호출부 실패(PostWriteForm)', {
+              postId: post.id,
+              fileName: pf.file.name,
+              kind: pf.kind,
+              err,
+            });
           }
         }
       }
@@ -128,7 +134,11 @@ export default function PostWriteForm({ variant, onClose, onSuccess }: PostWrite
       trackEvent('post_created');
       if (wasFirstPost) trackEvent('first_post_created');
       onSuccess?.(post.id);
-    } catch {
+    } catch (err) {
+      console.error('[image-attach] 게시글 작성 흐름 실패(PostWriteForm)', {
+        createdPostId,
+        err,
+      });
       if (createdPostId) {
         alert('첨부파일 업로드에 실패했습니다. 게시글 상세로 이동합니다.');
         navigate(`/posts/${createdPostId}`);

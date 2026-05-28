@@ -219,8 +219,13 @@ export default function PostEditPage() {
           setUploadProgress(`첨부파일 처리 중... (${done}/${totalOps})`);
           try {
             await deletePostAttachment(pid, attachmentId);
-          } catch {
+          } catch (err) {
             failedCount++;
+            console.error('[image-attach] deletePostAttachment 호출부 실패(PostEditPage)', {
+              postId: pid,
+              attachmentId,
+              err,
+            });
           }
         }
 
@@ -229,8 +234,13 @@ export default function PostEditPage() {
           setUploadProgress(`첨부파일 처리 중... (${done}/${totalOps})`);
           try {
             await deletePostImage(pid, imageId);
-          } catch {
+          } catch (err) {
             failedCount++;
+            console.error('[image-attach] deletePostImage 호출부 실패(PostEditPage)', {
+              postId: pid,
+              imageId,
+              err,
+            });
           }
         }
 
@@ -239,8 +249,14 @@ export default function PostEditPage() {
           setUploadProgress(`첨부파일 업로드 중... (${done}/${totalOps})`);
           try {
             await uploadOneAttachment(pid, pf, {maxAttempts: 3})
-          } catch {
+          } catch (err) {
             failedCount++;
+            console.error('[image-attach] uploadOneAttachment 호출부 실패(PostEditPage)', {
+              postId: pid,
+              fileName: pf.file.name,
+              kind: pf.kind,
+              err,
+            });
           }
         }
       }
@@ -250,7 +266,8 @@ export default function PostEditPage() {
       }
       qc.invalidateQueries({ queryKey: ['feed'] });
       navigate(`/posts/${postId}`);
-    } catch {
+    } catch (err) {
+      console.error('[image-attach] 게시글 수정 흐름 실패(PostEditPage)', { err });
       setError('게시글 수정에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setSubmitting(false);

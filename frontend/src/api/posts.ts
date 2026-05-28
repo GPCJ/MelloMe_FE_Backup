@@ -187,12 +187,31 @@ export async function uploadOneAttachment(
 ): Promise<void>{
   const contentType = resolveUploadContentType(pf.file);
 
-  const { uploadUrl, storedKey } = await initUpload(postId, {
-    kind: pf.kind,
-    originalFilename: pf.file.name,
-    contentType,
-    sizeBytes: pf.file.size,
-  });
+  let uploadUrl: string;
+  let storedKey: string;
+  try {
+    const initRes = await initUpload(postId, {
+      kind: pf.kind,
+      originalFilename: pf.file.name,
+      contentType,
+      sizeBytes: pf.file.size,
+    });
+    uploadUrl = initRes.uploadUrl;
+    storedKey = initRes.storedKey;
+  } catch (err) {
+    const e = err as { response?: { status?: number; data?: { code?: string; message?: string } } };
+    console.error('[image-attach] init 실패', {
+      postId,
+      kind: pf.kind,
+      fileName: pf.file.name,
+      contentType,
+      sizeBytes: pf.file.size,
+      status: e?.response?.status,
+      code: e?.response?.data?.code,
+      message: e?.response?.data?.message,
+    });
+    throw err;
+  }
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++){
     try {
@@ -204,7 +223,20 @@ export async function uploadOneAttachment(
     });
     return;
     } catch(err) {
-      if(attempt === maxAttempts) throw err
+      if(attempt === maxAttempts) {
+        const e = err as { response?: { status?: number; data?: { code?: string; message?: string } } };
+        console.error('[image-attach] 재시도 소진(S3 PUT/confirm)', {
+          postId,
+          kind: pf.kind,
+          fileName: pf.file.name,
+          sizeBytes: pf.file.size,
+          attempt,
+          status: e?.response?.status,
+          code: e?.response?.data?.code,
+          message: e?.response?.data?.message,
+        });
+        throw err;
+      }
       console.warn('[upload] 재시도', {
         fileName: pf.file.name,
         kind: pf.kind,
