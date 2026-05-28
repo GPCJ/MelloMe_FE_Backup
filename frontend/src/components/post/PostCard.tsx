@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, MessageCircle, Heart, Lock } from 'lucide-react';
+import { Bookmark, MessageCircle, Heart, Lock, ChevronDown } from 'lucide-react';
 import type { PostSummary, PostReaction } from '../../types/post';
 import { formatRelativeTime } from '../../utils/formatDate';
 import { scrapPost, unscrapPost } from '../../api/posts';
@@ -141,9 +141,16 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
                   e.stopPropagation();
                   setExpanded(true);
                 }}
-                className="-mt-1 mb-2.5 text-xs text-blue-600 hover:text-blue-700 hover:font-semibold transition-all"
+                // 한손 조작 도달성 개선: 가로 전체 탭 밴드 + 상단 구분선 + 가운데 정렬로 어포던스 명시.
+                // -mx-6 px-6: 카드 좌우 padding을 가로질러 카드 끝까지 탭 가능. py-2: 위아래 8px 탭 패딩.
+                // bg-gray-50 + border-t: 평소에도 "여기가 다른 영역"임을 옅게 표시. hover:bg-gray-100: 누름 피드백.
+                // gray 단계는 50/100만 사용 — 200 이상은 카드 미니멀 톤을 해침.
+                // w-[calc(100%+3rem)]: w-full + -mx-6 조합은 너비식 불일치로 우측에 ~48px 잔여가 생김.
+                // 부모 padding(24px*2 = 3rem)을 너비에 더해 음수 마진과 균형 맞추면 카드 우측 끝까지 닿음.
+                className="w-[calc(100%+3rem)] -mx-6 px-6 py-2 mb-2.5 flex items-center justify-center gap-1 text-xs text-blue-600 bg-gray-50 border-t border-gray-100 hover:bg-gray-100 transition-colors"
               >
                 더보기
+                <ChevronDown size={14} />
               </button>
             )}
             {/* 첨부 이미지 캐러셀 — staging 응답의 imageUrls 사용. 가드: 있을 때만 렌더. */}
