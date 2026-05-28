@@ -2,45 +2,54 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **2026-05-28 정정**: 백엔드 명세 확정(MEL-55)에 맞춰 **flat 구조로 전면 정정**했습니다.
+> 구 가정(중첩 `concern` 객체 + `CONCERN` + FE 뷰모델/변환 어댑터)을 폐기하고, 고민 카드 필드를
+> Post 타입에 flat하게 추가하는 방식으로 변경했습니다. 권한 마스킹·진단명 시드(22종)·배열
+> 제약(최대 10·각 100자)이 반영됐습니다.
+
 **Goal:** 치료사가 임상 고민을 구조화된 카드로 작성하고, 피드/상세에서 일반 게시글과 함께 노출하는 프로토타입 기능을 구현한다.
 
-**Architecture:** 고민 카드는 `postType: 'CONCERN'`인 특수 게시글이며 구조화된 `concern` 객체를 동반한다. 기존 피드/상세/댓글/리액션 파이프라인을 그대로 재사용하고, 작성 폼·표시 카드·진단명 태그 입력만 신규로 추가한다. 백엔드 계약은 제작 중이므로 API 매핑을 `api/concerns.ts` 어댑터 한 곳에 격리해, 계약 확정 시 호출부를 건드리지 않고 어댑터만 수정한다.
+**Architecture:** 고민 카드는 `postType: 'CONCERN_CARD'`인 게시글이며, 구조화 필드(`ageGroup`/`diagnoses`/`otherNotes`)가 Post 최상위에 **flat**하게 실린다. 고민 본문은 기존 `content`를 그대로 쓴다. 백엔드 계약이 Post 모양과 1:1이라 **변환 어댑터/뷰모델 없이** 타입에 필드만 추가하면 작성(`createPost`)·읽기(`fetchFeed`/`fetchPost`)가 그대로 흐른다. 작성 폼·표시 카드·진단명 태그 입력·타입 토글만 신규로 추가하고, 나머지(댓글/리액션/스크랩)는 기존 파이프라인을 재사용한다.
 
 **Tech Stack:** React 19 + TypeScript, Vite, Tailwind CSS, lucide-react, React Query(기존 피드 invalidate), Zustand(기존 모달 store).
 
 **Spec:** `docs/superpowers/specs/2026-05-27-concern-card-design.md`
+
+**백엔드 계약:** Jira MEL-55 (백엔드 MEL-54 구현 완료, 현재 staging/prod 미배포 추정).
 
 ---
 
 ## 코딩 정책 / 검증 방식 (필독)
 
 - **하이브리드 작성 분담** (메모리 `feedback_direct_coding_default`):
-  - **기계적(AI 작성 + 리뷰 가능)**: Task 1(타입), Task 2(상수), Task 3(API 어댑터), Task 4(ConcernCard 표시), Task 5(분기 배선), Task 8 WriteTypeToggle.
+  - **기계적(AI 작성 + 리뷰 가능)**: Task 1(타입), Task 2(상수), Task 3(작성 헬퍼), Task 4(ConcernCard 표시), Task 5(분기 배선), Task 8 WriteTypeToggle.
   - **새 로직(본인 작성 대상)**: Task 6(DiagnosisTagInput), Task 7(ConcernForm). 이 계획의 코드는 **정답이 아니라 참조 가이드**입니다. pseudocode부터 본인 작성한 뒤 대조용으로만 보세요.
 - **테스트 러너 없음**: 이 프로젝트는 vitest/jest가 없습니다. 검증은 `npx tsc -b`(타입) + `npm run lint` + `npm run dev` 시각 확인으로 합니다. 테스트 러너 신규 도입은 범위 밖(인프라 드리프트).
 - 모든 명령은 `frontend/` 디렉터리에서 실행합니다.
 - 커밋 메시지는 한국어, 서명 없이(메모리 `feedback_git_workflow`).
-- 작성(create) 경로의 실제 동작은 백엔드 엔드포인트 완성 후 staging에서 검증합니다(MSW=false 환경). 그 전까지는 타입/린트 통과 + 시각 확인까지가 완료 기준입니다.
+- 작성/읽기 경로의 실제 동작은 백엔드 배포 후 staging에서 검증합니다(MSW=false 환경). 그 전까지는 타입/린트 통과 + 목 데이터 시각 확인까지가 완료 기준입니다(Task 1~9). Task 10은 배포 후.
 
 ---
 
 ## File Structure
 
 생성:
-- `frontend/src/constants/concern.ts` — 연령대 칩/라벨, 진단명 시드 목록
-- `frontend/src/api/concerns.ts` — 고민 카드 작성 API 어댑터(계약 격리)
+- `frontend/src/constants/concern.ts` — 연령대 칩/라벨, 진단명 시드 목록(aliases 포함)
+- `frontend/src/api/concerns.ts` — 고민 카드 작성 헬퍼(flat PostCreateRequest 조립 → createPost)
 - `frontend/src/components/post/WriteTypeToggle.tsx` — 일반 글/고민 카드 토글
 - `frontend/src/components/post/DiagnosisTagInput.tsx` — 진단명 자동완성 + 자유 입력 태그
 - `frontend/src/components/post/ConcernCard.tsx` — 피드/상세 공용 표시 카드(B안)
 - `frontend/src/components/post/ConcernForm.tsx` — 고민 카드 작성 폼
 
 수정:
-- `frontend/src/types/post.ts` — `CONCERN` postType, `Concern`, `concern?` 필드, 작성 요청 타입
+- `frontend/src/types/post.ts` — `CONCERN_CARD` postType, Post 타입에 flat 필드, 작성/수정 요청 타입 확장
 - `frontend/src/components/post/PostWriteForm.tsx` — 헤더에 토글 슬롯(옵셔널 props)
 - `frontend/src/components/post/PostWriteModal.tsx` — 모드 상태 + 폼 스왑
 - `frontend/src/pages/post/PostCreatePage.tsx` — 모드 상태 + 폼 스왑(모바일)
-- `frontend/src/components/post/PostCard.tsx` — CONCERN이면 ConcernCard 렌더
-- `frontend/src/pages/post/PostDetailPage.tsx` — CONCERN이면 ConcernCard 렌더
+- `frontend/src/components/post/PostCard.tsx` — CONCERN_CARD이면 ConcernCard 렌더
+- `frontend/src/pages/post/PostDetailPage.tsx` — CONCERN_CARD이면 ConcernCard 렌더
+
+> 코드 위치는 grep으로 먼저 확인한 뒤 수정합니다(메모리 `feedback_code_change_process`). 아래 라인 번호는 참고치이며, 드리프트 가능.
 
 ---
 
@@ -49,62 +58,77 @@
 **Files:**
 - Modify: `frontend/src/types/post.ts`
 
-- [ ] **Step 1: `PostType`에 `CONCERN` 추가**
+- [ ] **Step 1: `PostType`에 `CONCERN_CARD` 추가**
 
 `frontend/src/types/post.ts:2` 를 다음으로 교체:
 
 ```ts
-export type PostType = 'COMMUNITY' | 'RESOURCE' | 'CONCERN';
+export type PostType = 'COMMUNITY' | 'RESOURCE' | 'CONCERN_CARD';
 ```
 
-- [ ] **Step 2: `Concern` 인터페이스와 작성 요청 타입 추가**
+- [ ] **Step 2: `PostSummary`에 flat 필드 추가**
 
-`AgeGroup` 타입 정의(현재 `frontend/src/types/post.ts:32-39`) 바로 아래에 추가:
+`PostSummary`의 `scrapped?: boolean;` 바로 위에 추가(`therapyArea`는 이미 존재):
 
 ```ts
-// 고민 카드 — postType==='CONCERN'인 게시글에 동반되는 구조화 데이터.
-// ageGroup/therapyArea는 기존 enum 재사용, diagnoses는 자유 문자열 배열(백엔드 enum 검증 X).
-export interface Concern {
-  worry: string; // 고민(본문)
-  ageGroup: AgeGroup;
-  therapyArea: TherapyArea;
-  diagnoses: string[];
-  note?: string; // 기타(선택)
-}
+  // 고민 카드(postType==='CONCERN_CARD')일 때만 의미. flat 동봉(MEL-55).
+  ageGroup?: AgeGroup;
+  // USER 롤은 권한 마스킹으로 null이 내려옴(스펙 3.4) → 진단명 영역 "치료사 인증 후 확인 가능" 처리.
+  diagnoses?: string[] | null;
+  otherNotes?: string | null;
+```
 
-// 작성 요청. 작성 엔드포인트 형태는 백엔드 확정 대기 → api/concerns.ts 어댑터에서 흡수.
-export interface ConcernCreateRequest {
-  concern: Concern;
+- [ ] **Step 3: `PostDetail`에 flat 필드 추가**
+
+`PostDetail`의 `scrapped?: boolean;` 바로 위에 동일하게 추가:
+
+```ts
+  // 고민 카드일 때만 의미. flat 동봉(MEL-55). diagnoses/otherNotes는 USER 롤에서 null(마스킹).
+  ageGroup?: AgeGroup;
+  diagnoses?: string[] | null;
+  otherNotes?: string | null;
+```
+
+- [ ] **Step 4: 작성/수정 요청 타입 확장**
+
+`PostCreateRequest`(현재 `:124-128`)를 다음으로 교체:
+
+```ts
+export interface PostCreateRequest {
+  content: string;
+  therapyArea?: TherapyArea;
   visibility?: Visibility;
+  // 고민 카드 작성 시에만 채움. postType 생략/null이면 백엔드가 COMMUNITY로 생성.
+  postType?: PostType;
+  ageGroup?: AgeGroup;
+  diagnoses?: string[];
+  otherNotes?: string;
 }
 ```
 
-- [ ] **Step 3: `PostSummary`와 `PostDetail`에 `concern` 필드 추가**
-
-`PostSummary`(현재 `:41-61`) 의 `scrapped?: boolean;` 바로 위에 추가:
+`PostUpdateRequest`(현재 `:130-134`)에도 동일 필드 추가(`postType` 제외 — 수정 시 타입 변경 불가):
 
 ```ts
-  // postType==='CONCERN'일 때만 존재. 피드 응답 동봉 여부는 백엔드 확정 대기(스펙 Q2).
-  concern?: Concern;
+export interface PostUpdateRequest {
+  content: string;
+  therapyArea?: TherapyArea;
+  visibility?: Visibility;
+  ageGroup?: AgeGroup;
+  diagnoses?: string[];
+  otherNotes?: string;
+}
 ```
 
-`PostDetail`(현재 `:81-106`) 의 `scrapped?: boolean;` 바로 위에 동일하게 추가:
-
-```ts
-  // postType==='CONCERN'일 때만 존재.
-  concern?: Concern;
-```
-
-- [ ] **Step 4: 타입 체크**
+- [ ] **Step 5: 타입 체크**
 
 Run: `cd frontend && npx tsc -b`
-Expected: 에러 없음(기존 코드는 `concern`을 아직 안 쓰므로 영향 없음).
+Expected: 에러 없음(기존 코드는 새 필드를 아직 안 쓰므로 영향 없음).
 
-- [ ] **Step 5: 커밋**
+- [ ] **Step 6: 커밋**
 
 ```bash
 git add frontend/src/types/post.ts
-git commit -m "feat(concern): 고민 카드 타입 추가 — postType CONCERN, Concern, concern 필드"
+git commit -m "feat(concern): 고민 카드 타입 추가 — CONCERN_CARD, flat 필드(ageGroup/diagnoses/otherNotes)"
 ```
 
 ---
@@ -115,6 +139,8 @@ git commit -m "feat(concern): 고민 카드 타입 추가 — postType CONCERN, 
 - Create: `frontend/src/constants/concern.ts`
 
 - [ ] **Step 1: 상수 파일 생성**
+
+진단명 시드는 **PM 22종**을 한글 저장값 + 검색용 aliases(영문·이칭) 구조로 둡니다. 저장값은 한글명.
 
 `frontend/src/constants/concern.ts`:
 
@@ -141,23 +167,40 @@ export const AGE_GROUP_LABELS: Record<string, string> = {
   AGE_65_PLUS: '노령기',
 };
 
-// 진단명 자동완성 시드. PM 제공 목록으로 추후 교체/확장.
-// 목록 내 진단명 = 표기 통일(정제 불필요), 목록 외 자유 입력 = 별도 정제 대상.
-export const SEED_DIAGNOSES: string[] = [
-  '자폐스펙트럼장애(ASD)',
-  '주의력결핍 과잉행동장애(ADHD)',
-  '지적장애',
-  '발달지연',
-  '언어발달지연',
-  '의사소통장애',
-  '학습장애',
-  '뇌성마비',
-  '발달성협응장애(DCD)',
-  '다운증후군',
-  '틱장애',
-  '감각처리장애(SPD)',
-  '청각장애',
-  '시각장애',
+// 진단명 배열 제약(MEL-55).
+export const DIAGNOSIS_MAX_COUNT = 10;
+export const DIAGNOSIS_MAX_LENGTH = 100;
+export const OTHER_NOTES_MAX_LENGTH = 200;
+
+// 진단명 시드(PM 제공 22종, 2026-05-27). name=저장값(한글), aliases=검색 인덱스(영문·이칭).
+export interface DiagnosisSeed {
+  name: string;
+  aliases?: string[];
+}
+
+export const SEED_DIAGNOSES: DiagnosisSeed[] = [
+  { name: '자폐스펙트럼장애', aliases: ['ASD', '오티즘', 'autism', '자폐증', '자폐성장애', '자폐'] },
+  { name: '주의력결핍과잉행동장애', aliases: ['ADHD', 'AD'] },
+  { name: '학습장애', aliases: ['LD'] },
+  { name: '뇌병변장애', aliases: ['CP', '뇌성마비', '뇌병변'] },
+  { name: '발달지연', aliases: ['DD'] },
+  { name: '언어지연' },
+  { name: '언어장애', aliases: ['SLD', 'SD'] },
+  { name: '지적장애', aliases: ['ID', 'MR'] },
+  { name: '경계선 지능', aliases: ['BIF', '경계선', '느린 학습자'] },
+  { name: '틱 장애', aliases: ['tic disorder', '틱'] },
+  { name: '뚜렛 증후군', aliases: ['tourette syndrome'] },
+  { name: '뇌전증', aliases: ['epilepsy', '간질'] },
+  { name: '다운증후군', aliases: ['down syndrome'] },
+  { name: '사시', aliases: ['strabismus'] },
+  { name: '취약 X 증후군', aliases: ['fragile X syndrome'] },
+  { name: '레트 증후군', aliases: ['rett syndrome'] },
+  { name: '윌리엄스 증후군', aliases: ['williams syndrome'] },
+  { name: '엔젤만 증후군', aliases: ['angelman syndrome'] },
+  { name: '선택적 함구증', aliases: ['selective mutism'] },
+  { name: '연하장애', aliases: ['dysphagia', '삼킴장애'] },
+  { name: '난독증', aliases: ['dyslexia', '난독'] },
+  { name: '사회적 의사소통장애', aliases: ['SPCD', '사회성 떨어짐', '사회성 안좋음'] },
 ];
 ```
 
@@ -170,35 +213,47 @@ Expected: 에러 없음.
 
 ```bash
 git add frontend/src/constants/concern.ts
-git commit -m "feat(concern): 연령대 칩·라벨 매핑·진단명 시드 상수 추가"
+git commit -m "feat(concern): 연령대 칩·라벨·진단명 시드 22종(aliases)·배열 제약 상수 추가"
 ```
 
 ---
 
-## Task 3: API 어댑터 (계약 격리) (기계적)
+## Task 3: 작성 헬퍼 (기계적)
 
 **Files:**
 - Create: `frontend/src/api/concerns.ts`
 
-- [ ] **Step 1: 작성 어댑터 생성**
+> 변환 어댑터가 아니라 **flat PostCreateRequest를 조립해 createPost를 호출하는 얇은 의미 래퍼**입니다. 호출부(ConcernForm)는 `createConcern` 시그니처에만 의존합니다.
+
+- [ ] **Step 1: 작성 헬퍼 생성**
 
 `frontend/src/api/concerns.ts`:
 
 ```ts
-import axiosInstance from './axiosInstance';
-import type { ConcernCreateRequest, PostDetail } from '../types/post';
+import { createPost } from './posts';
+import type { AgeGroup, PostDetail, TherapyArea, Visibility } from '../types/post';
 
-// 백엔드 계약 대기(스펙 3절 Q1): 작성 엔드포인트 형태 미확정.
-// 현재 가정 = 기존 게시글 작성에 postType=CONCERN + concern을 실어 보냄.
-// 엔드포인트가 별도(POST /concerns 등)로 확정되면 이 함수 본문만 수정한다.
-// 호출부(ConcernForm)는 createConcern 시그니처에만 의존하므로 영향받지 않는다.
-export async function createConcern(req: ConcernCreateRequest): Promise<PostDetail> {
-  const res = await axiosInstance.post('/posts', {
-    postType: 'CONCERN',
-    visibility: req.visibility ?? 'PUBLIC',
-    concern: req.concern,
+// ConcernForm이 넘기는 입력. 고민 본문은 content로 전송된다.
+export interface CreateConcernInput {
+  content: string;
+  therapyArea: TherapyArea;
+  ageGroup: AgeGroup;
+  diagnoses: string[];
+  otherNotes?: string;
+  visibility?: Visibility;
+}
+
+// flat PostCreateRequest 조립 → 기존 createPost. 백엔드 계약(MEL-55)이 Post와 1:1이라 변환 없음.
+export async function createConcern(input: CreateConcernInput): Promise<PostDetail> {
+  return createPost({
+    content: input.content,
+    postType: 'CONCERN_CARD',
+    therapyArea: input.therapyArea,
+    ageGroup: input.ageGroup,
+    diagnoses: input.diagnoses,
+    otherNotes: input.otherNotes?.trim() || undefined,
+    visibility: input.visibility ?? 'PUBLIC',
   });
-  return res.data;
 }
 ```
 
@@ -211,7 +266,7 @@ Expected: 에러 없음.
 
 ```bash
 git add frontend/src/api/concerns.ts
-git commit -m "feat(concern): 작성 API 어댑터 추가 — 백엔드 계약 격리"
+git commit -m "feat(concern): 작성 헬퍼 추가 — flat PostCreateRequest 조립"
 ```
 
 ---
@@ -221,24 +276,35 @@ git commit -m "feat(concern): 작성 API 어댑터 추가 — 백엔드 계약 �
 **Files:**
 - Create: `frontend/src/components/post/ConcernCard.tsx`
 
-- [ ] **Step 1: 컴포넌트 생성**
+> Post 필드를 직독합니다. 피드는 `contentPreview`, 상세는 `content`로 본문이 다르므로 `body` prop으로 받습니다. 마스킹: `diagnoses === null`이면 "치료사 인증 후 확인 가능", `otherNotes === null`이면 숨김(스펙 3.4).
 
-B안 순서(메타 → 구분선 → 고민지점 → 기타). `clamp`로 피드(true)/상세(false) 분기.
+- [ ] **Step 1: 컴포넌트 생성**
 
 `frontend/src/components/post/ConcernCard.tsx`:
 
 ```tsx
-import type { Concern } from '../../types/post';
+import type { AgeGroup, TherapyArea } from '../../types/post';
 import { AGE_GROUP_LABELS } from '../../constants/concern';
 import { THERAPY_AREA_LABELS } from '../../constants/post';
 
 interface ConcernCardProps {
-  concern: Concern;
-  // 피드=true(line-clamp-3), 상세=false(전체 노출)
-  clamp?: boolean;
+  ageGroup?: AgeGroup;
+  therapyArea?: TherapyArea;
+  diagnoses?: string[] | null; // null = USER 마스킹
+  otherNotes?: string | null;  // null = USER 마스킹
+  body?: string;               // 고민 본문(피드=contentPreview, 상세=content)
+  clamp?: boolean;             // 피드=true(line-clamp-3), 상세=false
 }
 
-export default function ConcernCard({ concern, clamp = false }: ConcernCardProps) {
+export default function ConcernCard({
+  ageGroup,
+  therapyArea,
+  diagnoses,
+  otherNotes,
+  body,
+  clamp = false,
+}: ConcernCardProps) {
+  const masked = diagnoses === null;
   return (
     <div className="rounded-xl border border-gray-200 overflow-hidden mb-2.5">
       <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-50 border-b border-gray-100">
@@ -249,22 +315,30 @@ export default function ConcernCard({ concern, clamp = false }: ConcernCardProps
       </div>
       <div className="px-3 py-2.5">
         <dl className="space-y-1.5 text-sm">
-          <div className="flex">
-            <dt className="w-16 shrink-0 font-semibold text-gray-600">연령대</dt>
-            <dd className="text-gray-700">{AGE_GROUP_LABELS[concern.ageGroup] ?? '-'}</dd>
-          </div>
-          <div className="flex">
-            <dt className="w-16 shrink-0 font-semibold text-gray-600">치료영역</dt>
-            <dd className="text-gray-700">{THERAPY_AREA_LABELS[concern.therapyArea] ?? '-'}</dd>
-          </div>
+          {ageGroup && (
+            <div className="flex">
+              <dt className="w-16 shrink-0 font-semibold text-gray-600">연령대</dt>
+              <dd className="text-gray-700">{AGE_GROUP_LABELS[ageGroup] ?? '-'}</dd>
+            </div>
+          )}
+          {therapyArea && (
+            <div className="flex">
+              <dt className="w-16 shrink-0 font-semibold text-gray-600">치료영역</dt>
+              <dd className="text-gray-700">{THERAPY_AREA_LABELS[therapyArea] ?? '-'}</dd>
+            </div>
+          )}
           <div className="flex">
             <dt className="w-16 shrink-0 font-semibold text-gray-600">진단명</dt>
             <dd className="flex flex-wrap gap-1">
-              {concern.diagnoses.map((d) => (
-                <span key={d} className="bg-gray-100 text-gray-700 text-xs rounded-full px-2 py-0.5">
-                  {d}
-                </span>
-              ))}
+              {masked ? (
+                <span className="text-xs text-gray-400">치료사 인증 후 확인 가능</span>
+              ) : (
+                (diagnoses ?? []).map((d) => (
+                  <span key={d} className="bg-gray-100 text-gray-700 text-xs rounded-full px-2 py-0.5">
+                    {d}
+                  </span>
+                ))
+              )}
             </dd>
           </div>
         </dl>
@@ -276,12 +350,12 @@ export default function ConcernCard({ concern, clamp = false }: ConcernCardProps
               clamp ? 'line-clamp-3' : ''
             }`}
           >
-            {concern.worry}
+            {body}
           </p>
         </div>
-        {concern.note && (
+        {otherNotes && (
           <p className="mt-2 text-xs text-gray-500 whitespace-pre-wrap break-words">
-            {concern.note}
+            {otherNotes}
           </p>
         )}
       </div>
@@ -299,7 +373,7 @@ Expected: 에러 없음.
 
 ```bash
 git add frontend/src/components/post/ConcernCard.tsx
-git commit -m "feat(concern): 고민 카드 표시 컴포넌트 추가 — B안 레이아웃"
+git commit -m "feat(concern): 고민 카드 표시 컴포넌트 추가 — B안 + 마스킹 분기"
 ```
 
 ---
@@ -310,138 +384,86 @@ git commit -m "feat(concern): 고민 카드 표시 컴포넌트 추가 — B안 
 - Modify: `frontend/src/components/post/PostCard.tsx`
 - Modify: `frontend/src/pages/post/PostDetailPage.tsx`
 
-- [ ] **Step 1: PostCard에 import 추가**
+> 먼저 grep으로 본문 렌더 분기 위치를 확인합니다. CONCERN_CARD 분기는 `accessLocked`(차단) 분기 **다음**, 일반 본문 분기 **앞**에 둡니다.
 
-`frontend/src/components/post/PostCard.tsx:10` (`import UserAvatar ...`) 아래에 추가:
+- [ ] **Step 1: PostCard에 import + 본문 분기**
+
+`PostCard`의 본문 렌더에서 `accessLocked` 차단 분기 뒤에 CONCERN_CARD 분기를 추가:
 
 ```tsx
 import ConcernCard from './ConcernCard';
 ```
 
-- [ ] **Step 2: PostCard 본문 분기**
-
-`frontend/src/components/post/PostCard.tsx` 의 비차단(`: (`) 분기 내부, 현재 `<>` 직후의 본문 `<p ref={contentRef} ...>` 블록을 CONCERN 분기로 감싼다. 현재 `125-180` 구간의 `) : (` 부터 `</>` 까지를 다음 구조로 교체:
-
 ```tsx
-        ) : post.postType === 'CONCERN' && post.concern ? (
-          <ConcernCard concern={post.concern} clamp />
+        ) : post.postType === 'CONCERN_CARD' ? (
+          <ConcernCard
+            ageGroup={post.ageGroup}
+            therapyArea={post.therapyArea}
+            diagnoses={post.diagnoses}
+            otherNotes={post.otherNotes}
+            body={post.contentPreview}
+            clamp
+          />
         ) : (
           <>
-            <p
-              ref={contentRef}
-              className={`text-sm text-gray-600 leading-5 whitespace-pre-wrap break-words mb-2.5 ${
-                expanded ? '' : 'line-clamp-3'
-              }`}
-            >
-              {post.contentPreview}
-            </p>
-            {truncated && !expanded && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setExpanded(true);
-                }}
-                className="-mt-1 mb-2.5 text-xs text-blue-600 hover:text-blue-700 hover:font-semibold transition-all"
-              >
-                더보기
-              </button>
-            )}
-            {post.imageUrls && post.imageUrls.length > 0 && (
-              <div
-                ref={imagesScroll.ref}
-                {...imagesScroll.handlers}
-                onDragStart={(e) => e.preventDefault()}
-                onClickCapture={(e) => {
-                  if (imagesScroll.state.current.moved > 5) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }
-                }}
-                className="flex gap-2 overflow-x-auto -mx-6 px-6 mb-2.5 cursor-grab select-none"
-              >
-                {post.imageUrls.map((url, i) => (
-                  <img
-                    key={`${post.id}-img-${i}`}
-                    crossOrigin="anonymous"
-                    src={resolveImageUrl(url) ?? ''}
-                    alt=""
-                    draggable={false}
-                    className="shrink-0 w-60 h-60 rounded-lg object-cover bg-gray-100"
-                  />
-                ))}
-              </div>
-            )}
-            {post.hasAttachment && (
-              <p className="text-[10px] text-gray-900 mb-2.5">첨부파일 있음</p>
-            )}
+            {/* 기존 일반 본문(contentPreview + 더보기 + 이미지 + 첨부) 그대로 */}
           </>
         )}
 ```
 
-(주: `accessLocked` 분기는 그대로 둔다. CONCERN 분기는 비차단 케이스 안에서만 동작.)
+(주: 기존 일반 본문 블록은 그대로 유지. CONCERN_CARD 분기만 그 앞에 삽입.)
 
-- [ ] **Step 3: PostDetailPage에 import 추가**
+- [ ] **Step 2: PostDetailPage에 import + 본문 분기**
 
-`frontend/src/pages/post/PostDetailPage.tsx` 상단 import 묶음에 추가(다른 컴포넌트 import 옆):
+`PostDetailPage`의 본문 삼항에서 `accessLocked` 분기 뒤에 추가:
 
 ```tsx
 import ConcernCard from '../../components/post/ConcernCard';
 ```
 
-- [ ] **Step 4: PostDetailPage 본문 분기**
-
-`frontend/src/pages/post/PostDetailPage.tsx:372-385` 의 본문 삼항을 다음으로 교체:
-
 ```tsx
-          {post.accessLocked ? (
-            <div className="bg-stone-50 rounded-lg py-12 px-4">
-              <p className="text-center text-gray-600 text-sm">
-                인증된 회원에게만 공개된 게시물입니다.
-              </p>
-            </div>
-          ) : post.postType === 'CONCERN' && post.concern ? (
-            <ConcernCard concern={post.concern} />
-          ) : (
-            <div
-              className="post-content"
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(post.content),
-              }}
+          ) : post.postType === 'CONCERN_CARD' ? (
+            <ConcernCard
+              ageGroup={post.ageGroup}
+              therapyArea={post.therapyArea}
+              diagnoses={post.diagnoses}
+              otherNotes={post.otherNotes}
+              body={post.content}
             />
+          ) : (
+            {/* 기존 일반 content 렌더 그대로 */}
           )}
 ```
 
-- [ ] **Step 5: 해시태그 중복 숨김 (CONCERN은 카드 안에 치료영역 표시)**
+- [ ] **Step 3: 상세 메타 중복 숨김 (CONCERN_CARD는 카드 안에 치료영역 표시)**
 
-`frontend/src/pages/post/PostDetailPage.tsx:362` 의 `{therapyLabel && (` 를 다음으로 교체:
+PostDetailPage에서 치료영역 라벨을 본문 위에 따로 표시하는 부분이 있으면, CONCERN_CARD일 때 숨깁니다(카드 메타와 중복 방지). grep `therapyLabel` 또는 치료영역 표시 위치 확인 후:
 
 ```tsx
-          {therapyLabel && post.postType !== 'CONCERN' && (
+          {therapyLabel && post.postType !== 'CONCERN_CARD' && (
 ```
 
-- [ ] **Step 6: 타입 체크 + 린트**
+- [ ] **Step 4: 타입 체크 + 린트**
 
 Run: `cd frontend && npx tsc -b && npm run lint`
 Expected: 에러 없음.
 
-- [ ] **Step 7: 시각 확인(목 데이터)**
+- [ ] **Step 5: 시각 확인(목 데이터)**
 
-`npm run dev` 후, 임시로 한 게시글 객체에 `postType: 'CONCERN'` 과 `concern` 목 데이터를 넣어 피드/상세에서 ConcernCard가 렌더되는지 확인(확인 후 임시 목 데이터 제거). 백엔드 미완 상태에서는 이 시각 확인까지가 한계.
+`npm run dev` 후, 임시로 한 게시글 객체에 `postType: 'CONCERN_CARD'` 와 `ageGroup`/`diagnoses`/`otherNotes` 목 데이터를 넣어 피드/상세에서 ConcernCard가 렌더되는지, `diagnoses: null`일 때 마스킹 문구가 뜨는지 확인(확인 후 임시 목 데이터 제거). 백엔드 미배포 상태에서는 이 시각 확인까지가 한계.
 
-- [ ] **Step 8: 커밋**
+- [ ] **Step 6: 커밋**
 
 ```bash
 git add frontend/src/components/post/PostCard.tsx frontend/src/pages/post/PostDetailPage.tsx
-git commit -m "feat(concern): 피드/상세에서 CONCERN 게시글을 ConcernCard로 렌더"
+git commit -m "feat(concern): 피드/상세에서 CONCERN_CARD를 ConcernCard로 렌더"
 ```
 
 ---
 
 ## Task 6: DiagnosisTagInput (자동완성 태그) — 새 로직(본인 작성)
 
-> 이 컴포넌트는 새 로직입니다. 아래 코드는 **참조 가이드**입니다. 먼저 pseudocode로 동작(입력→필터→후보 클릭/Enter 추가→✕ 제거→중복·최대개수 가드)을 직접 설계한 뒤, 본인 구현과 대조하세요.
+> 이 컴포넌트는 새 로직입니다. 아래 코드는 **참조 가이드**입니다. 먼저 pseudocode로 동작(입력→필터→후보 클릭/Enter 추가→✕ 제거→중복·최대개수·길이 가드)을 직접 설계한 뒤, 본인 구현과 대조하세요.
 
 **Files:**
 - Create: `frontend/src/components/post/DiagnosisTagInput.tsx`
@@ -449,8 +471,8 @@ git commit -m "feat(concern): 피드/상세에서 CONCERN 게시글을 ConcernCa
 - [ ] **Step 1: pseudocode 작성(본인)**
 
 입력 상태 `input`, 부모가 소유한 `value: string[]`. 동작:
-- `suggestions` = `input` 비어있지 않으면 `SEED_DIAGNOSES` 중 `input` 포함 && `value`에 없는 것 상위 6개.
-- `addTag(raw)`: trim, 빈 값 무시, 이미 있으면 무시, `value.length >= maxCount`면 무시, 아니면 `onChange([...value, tag])` + 입력 비움.
+- `suggestions` = `input` 비어있지 않으면 `SEED_DIAGNOSES` 중 (name 또는 aliases가 `input` 포함) && name이 `value`에 없는 것 상위 6개. 표시·추가값은 **name(한글)**.
+- `addTag(raw)`: trim, 빈 값 무시, 100자 초과 무시, 이미 있으면 무시, `value.length >= 10`이면 무시, 아니면 `onChange([...value, tag])` + 입력 비움.
 - `removeTag(tag)`: `onChange(value.filter(t => t !== tag))`.
 - Enter → addTag(input) + preventDefault. Backspace + 빈 입력 → 마지막 태그 제거.
 
@@ -459,7 +481,11 @@ git commit -m "feat(concern): 피드/상세에서 CONCERN 게시글을 ConcernCa
 ```tsx
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import { SEED_DIAGNOSES } from '../../constants/concern';
+import {
+  SEED_DIAGNOSES,
+  DIAGNOSIS_MAX_COUNT,
+  DIAGNOSIS_MAX_LENGTH,
+} from '../../constants/concern';
 
 interface DiagnosisTagInputProps {
   value: string[];
@@ -470,17 +496,30 @@ interface DiagnosisTagInputProps {
 export default function DiagnosisTagInput({
   value,
   onChange,
-  maxCount = 5,
+  maxCount = DIAGNOSIS_MAX_COUNT,
 }: DiagnosisTagInputProps) {
   const [input, setInput] = useState('');
 
-  const suggestions = input.trim()
-    ? SEED_DIAGNOSES.filter((d) => d.includes(input.trim()) && !value.includes(d)).slice(0, 6)
+  const q = input.trim().toLowerCase();
+  const suggestions = q
+    ? SEED_DIAGNOSES.filter(
+        (d) =>
+          !value.includes(d.name) &&
+          (d.name.toLowerCase().includes(q) ||
+            (d.aliases ?? []).some((a) => a.toLowerCase().includes(q))),
+      )
+        .map((d) => d.name)
+        .slice(0, 6)
     : [];
 
   function addTag(raw: string) {
     const tag = raw.trim();
-    if (!tag || value.includes(tag) || value.length >= maxCount) {
+    if (
+      !tag ||
+      tag.length > DIAGNOSIS_MAX_LENGTH ||
+      value.includes(tag) ||
+      value.length >= maxCount
+    ) {
       setInput('');
       return;
     }
@@ -516,6 +555,7 @@ export default function DiagnosisTagInput({
         <input
           type="text"
           value={input}
+          maxLength={DIAGNOSIS_MAX_LENGTH}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -525,7 +565,7 @@ export default function DiagnosisTagInput({
               removeTag(value[value.length - 1]);
             }
           }}
-          placeholder={atMax ? '최대 개수에 도달했습니다' : '진단명 입력 후 Enter'}
+          placeholder={atMax ? '최대 10개까지 입력 가능' : '진단명 입력 후 Enter'}
           disabled={atMax}
           className="flex-1 min-w-[100px] text-sm focus:outline-none py-1 disabled:bg-transparent"
         />
@@ -559,23 +599,23 @@ Expected: 에러 없음.
 
 ```bash
 git add frontend/src/components/post/DiagnosisTagInput.tsx
-git commit -m "feat(concern): 진단명 자동완성+자유입력 태그 컴포넌트 추가"
+git commit -m "feat(concern): 진단명 자동완성+자유입력 태그 — aliases 검색, 최대 10개·100자 가드"
 ```
 
 ---
 
 ## Task 7: ConcernForm (작성 폼) — 새 로직(본인 작성)
 
-> 새 로직입니다. 아래는 **참조 가이드**. PostWriteForm(`frontend/src/components/post/PostWriteForm.tsx`)의 헤더/푸터(공개범위) 구조를 그대로 본떠, 본문만 고민 카드 필드로 바꾼 형태입니다. 제출 시 `createConcern` 호출. pseudocode(필수 검증: worry/ageGroup/therapyArea/diagnoses≥1)부터 본인 설계 후 대조하세요.
+> 새 로직입니다. 아래는 **참조 가이드**. PostWriteForm(`frontend/src/components/post/PostWriteForm.tsx`)의 헤더/푸터(공개범위) 구조를 그대로 본떠, 본문만 고민 카드 필드로 바꾼 형태입니다. 제출 시 `createConcern` 호출. pseudocode(필수 검증: content/ageGroup/therapyArea/diagnoses≥1)부터 본인 설계 후 대조하세요.
 
 **Files:**
 - Create: `frontend/src/components/post/ConcernForm.tsx`
 
 - [ ] **Step 1: pseudocode 작성(본인)**
 
-상태: `worry`, `ageGroup: AgeGroup | null`, `therapyArea: TherapyArea | null`, `diagnoses: string[]`, `note`, `visibility`, `submitting`, `error`.
-- `canSubmit` = worry.trim() 있음 && ageGroup && therapyArea && diagnoses.length>0 && !submitting.
-- `handleSubmit`: createConcern({ concern: { worry, ageGroup, therapyArea, diagnoses, note: note||undefined }, visibility: toApiVisibility(visibility) }) → onSuccess(post.id).
+상태: `content`, `ageGroup: AgeGroup | null`, `therapyArea: TherapyArea | null`, `diagnoses: string[]`, `otherNotes`, `visibility`, `submitting`, `error`.
+- `canSubmit` = content.trim() 있음 && ageGroup && therapyArea && diagnoses.length>0 && !submitting.
+- `handleSubmit`: createConcern({ content, therapyArea, ageGroup, diagnoses, otherNotes: otherNotes||undefined, visibility: toApiVisibility(visibility) }) → trackEvent('post_created') → onSuccess(post.id).
 - 헤더 중앙: `onModeChange` 있으면 `<WriteTypeToggle>`, 없으면 제목.
 
 - [ ] **Step 2: 구현(참조 가이드)**
@@ -590,7 +630,7 @@ import DiagnosisTagInput from './DiagnosisTagInput';
 import { createConcern } from '../../api/concerns';
 import { useAuthStore } from '../../stores/useAuthStore';
 import type { AgeGroup, TherapyArea, UIVisibility } from '../../types/post';
-import { AGE_GROUP_CHIPS } from '../../constants/concern';
+import { AGE_GROUP_CHIPS, OTHER_NOTES_MAX_LENGTH } from '../../constants/concern';
 import { THERAPY_CHIPS, toApiVisibility } from '../../constants/post';
 import { trackEvent } from '../../lib/analytics';
 
@@ -611,17 +651,17 @@ export default function ConcernForm({
 }: ConcernFormProps) {
   const user = useAuthStore((s) => s.user);
 
-  const [worry, setWorry] = useState('');
+  const [content, setContent] = useState('');
   const [ageGroup, setAgeGroup] = useState<AgeGroup | null>(null);
   const [therapyArea, setTherapyArea] = useState<TherapyArea | null>(null);
   const [diagnoses, setDiagnoses] = useState<string[]>([]);
-  const [note, setNote] = useState('');
+  const [otherNotes, setOtherNotes] = useState('');
   const [visibility] = useState<UIVisibility>('PUBLIC');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const canSubmit =
-    worry.trim().length > 0 &&
+    content.trim().length > 0 &&
     !!ageGroup &&
     !!therapyArea &&
     diagnoses.length > 0 &&
@@ -633,7 +673,11 @@ export default function ConcernForm({
     setError(null);
     try {
       const post = await createConcern({
-        concern: { worry, ageGroup, therapyArea, diagnoses, note: note.trim() || undefined },
+        content,
+        therapyArea,
+        ageGroup,
+        diagnoses,
+        otherNotes: otherNotes.trim() || undefined,
         visibility: toApiVisibility(visibility),
       });
       trackEvent('post_created');
@@ -684,12 +728,12 @@ export default function ConcernForm({
           </div>
         )}
 
-        {/* 고민(본문) */}
+        {/* 고민(본문) → content */}
         <div className="flex flex-col gap-1.5">
           <span className="text-xs font-semibold text-gray-600">고민</span>
           <textarea
-            value={worry}
-            onChange={(e) => setWorry(e.target.value)}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
             rows={4}
             placeholder="어떤 점이 고민인가요? 동료에게 묻고 싶은 내용을 적어주세요."
             className="w-full resize-none rounded-lg border border-gray-200 text-sm px-3 py-2 focus:outline-none focus:ring-1 focus:ring-gray-400"
@@ -736,15 +780,16 @@ export default function ConcernForm({
           <DiagnosisTagInput value={diagnoses} onChange={setDiagnoses} />
         </div>
 
-        {/* 기타 — 선택 */}
+        {/* 기타 — 선택, 200자 */}
         <div className="flex flex-col gap-1.5">
           <span className="text-xs font-semibold text-gray-600">
             기타 <span className="text-[10px] text-gray-400">선택</span>
           </span>
           <textarea
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
+            value={otherNotes}
+            onChange={(e) => setOtherNotes(e.target.value)}
             rows={2}
+            maxLength={OTHER_NOTES_MAX_LENGTH}
             placeholder="배경, 시도해 본 방법 등 추가로 공유할 내용"
             className="w-full resize-none rounded-lg border border-gray-200 text-sm px-3 py-2 focus:outline-none focus:ring-1 focus:ring-gray-400"
           />
@@ -766,7 +811,7 @@ Expected: 에러 없음. (WriteTypeToggle은 Task 8에서 생성되므로, Task 
 
 ```bash
 git add frontend/src/components/post/ConcernForm.tsx
-git commit -m "feat(concern): 고민 카드 작성 폼 추가 — 필수 검증, 무채색 칩"
+git commit -m "feat(concern): 고민 카드 작성 폼 추가 — 필수 검증, 무채색 칩, 기타 200자"
 ```
 
 ---
@@ -817,13 +862,11 @@ export default function WriteTypeToggle({ mode, onChange }: WriteTypeToggleProps
 
 - [ ] **Step 2: PostWriteForm에 옵셔널 props 추가**
 
-`frontend/src/components/post/PostWriteForm.tsx:3` import 줄에 `WriteTypeToggle` import 추가:
+`PostWriteForm.tsx`에 `WriteTypeToggle` import 추가, `PostWriteFormProps`(현재 `:35-42`)에 옵셔널 props 추가:
 
 ```tsx
 import WriteTypeToggle from './WriteTypeToggle';
 ```
-
-`PostWriteFormProps`(현재 `:35-42`)에 옵셔널 props 추가:
 
 ```tsx
 interface PostWriteFormProps {
@@ -844,7 +887,7 @@ export default function PostWriteForm({ variant, onClose, onSuccess, mode, onMod
 
 - [ ] **Step 3: 헤더 제목을 토글로 교체**
 
-`frontend/src/components/post/PostWriteForm.tsx:164` 의 `<h1 ...>새 시그널</h1>` 를 다음으로 교체:
+`PostWriteForm.tsx:164` 의 `<h1 ...>새 시그널</h1>` 를 다음으로 교체:
 
 ```tsx
         {onModeChange ? (
@@ -876,25 +919,18 @@ git commit -m "feat(concern): 작성 타입 토글 추가 + PostWriteForm 헤더
 
 - [ ] **Step 1: PostWriteModal — 모드 상태 + 폼 스왑**
 
-`frontend/src/components/post/PostWriteModal.tsx:1` 의 `import { useEffect } from 'react';` 를 다음으로 교체:
+`useState` import, `ConcernForm` import 추가, 컴포넌트 상단에 모드 상태 추가:
 
 ```tsx
 import { useEffect, useState } from 'react';
-```
-
-`import PostWriteForm from './PostWriteForm';`(현재 `:3`) 아래에 추가:
-
-```tsx
 import ConcernForm from './ConcernForm';
 ```
-
-컴포넌트 본문 상단(현재 `:9` `const qc = ...` 아래)에 모드 상태 추가:
 
 ```tsx
   const [mode, setMode] = useState<'post' | 'concern'>('post');
 ```
 
-`<PostWriteForm variant="modal" onClose={closeModal} onSuccess={handleSuccess} />`(현재 `:49`) 를 다음으로 교체:
+`<PostWriteForm variant="modal" onClose={closeModal} onSuccess={handleSuccess} />` 를 다음으로 교체:
 
 ```tsx
         {mode === 'post' ? (
@@ -918,7 +954,7 @@ import ConcernForm from './ConcernForm';
 
 - [ ] **Step 2: PostCreatePage — 모드 상태 + 폼 스왑(모바일)**
 
-`frontend/src/pages/post/PostCreatePage.tsx` 전체를 다음으로 교체:
+`frontend/src/pages/post/PostCreatePage.tsx` 전체를 다음으로 교체(현재 useScreenExit/navigate 구조 유지 확인 후):
 
 ```tsx
 import { useState } from 'react';
@@ -954,7 +990,7 @@ Expected: 에러 없음.
 - [ ] **Step 4: 시각 확인**
 
 `npm run dev` 후:
-- PC: 글쓰기 모달에서 헤더 토글로 "고민 카드" 전환 → 폼 필드(고민/연령대/치료영역/진단명/기타) 표시, 칩 무채색, 진단명 자동완성 동작 확인.
+- PC: 글쓰기 모달에서 헤더 토글로 "고민 카드" 전환 → 폼 필드(고민/연령대/치료영역/진단명/기타) 표시, 칩 무채색, 진단명 자동완성(한글·영문·이칭 검색) 동작 확인.
 - 모바일 뷰포트: `/posts/create` 페이지에서 동일 확인.
 - 필수 미입력 시 작성 아이콘(✏️) 비활성 확인.
 
@@ -967,38 +1003,41 @@ git commit -m "feat(concern): 작성 모달/페이지에 일반·고민 카드 �
 
 ---
 
-## Task 10: 백엔드 연동 검증 (staging) — 백엔드 엔드포인트 완성 후
+## Task 10: 백엔드 연동 검증 (staging) — 백엔드 배포 후
 
-> 백엔드 계약(스펙 3절 Q1·Q2·Q3) 확정 전에는 수행 불가. 확정 시 진행.
+> 백엔드 배포(MEL-54 main 머지) 전에는 수행 불가. 배포 시 진행.
 
-- [ ] **Step 1: 어댑터를 확정 계약에 맞춤**
+- [ ] **Step 1: 작성 왕복 확인**
 
-`frontend/src/api/concerns.ts` 의 `createConcern` 본문(엔드포인트 경로/바디 형태)을 백엔드 확정 계약에 맞게 수정. 호출부(ConcernForm)는 수정 불필요.
+고민 카드 작성 → staging 응답이 `postType: 'CONCERN_CARD'` + flat 필드로 내려오는지, `createConcern`이 그대로 통하는지 확인. (변환 어댑터 없음 — 실패 시 `api/concerns.ts`에서 흡수)
 
 - [ ] **Step 2: 읽기 응답 형태 확인**
 
-피드(`/posts/feed`)·상세(`/posts/:id`) 응답에 `postType: 'CONCERN'` 과 `concern` 객체가 스펙대로 내려오는지 staging에서 확인. 형태가 다르면 `fetchFeed`/`fetchPost` 응답을 정규화하는 매핑을 `api/concerns.ts`에 추가하고 해당 API 함수에서 적용.
+피드(`/posts/feed`)·상세(`/posts/:id`) 응답에 `ageGroup`/`diagnoses`/`otherNotes`가 스펙대로 내려오는지, USER 롤에서 `diagnoses`/`otherNotes`가 `null`로 마스킹되는지 staging에서 확인. `content` 평문/HTML 여부 + 상세 렌더 정합 확인.
 
 - [ ] **Step 3: E2E 체크리스트(staging)**
 
 - [ ] 고민 카드 작성 → 저장 성공
 - [ ] 홈피드에 일반 글과 함께 카드로 노출(고민 line-clamp)
 - [ ] 카드 클릭 → 상세 진입, 고민 전체 노출
+- [ ] THERAPIST 계정: 진단명/기타 정상 노출
+- [ ] USER 계정: 진단명 "치료사 인증 후 확인 가능" + 기타 숨김
 - [ ] 댓글/리액션/스크랩 기존대로 동작
 - [ ] 진단명 자동완성(목록) + 자유 입력 모두 저장 확인
 
-- [ ] **Step 4: 커밋**
+- [ ] **Step 4: 커밋(필요 시)**
 
 ```bash
 git add frontend/src/api/concerns.ts
-git commit -m "fix(concern): 백엔드 확정 계약에 맞춰 작성/읽기 매핑 조정"
+git commit -m "fix(concern): 백엔드 배포 응답에 맞춰 작성/읽기 매핑 보정"
 ```
 
 ---
 
-## Self-Review 결과
+## Self-Review 결과 (2026-05-28 정정본)
 
-- **Spec coverage**: 데이터 모델(Task 1), 진단명 시드/자동완성(Task 2·6), 작성 모달/토글/필드(Task 7·8·9), 표시 B안(Task 4·5), 어댑터 격리(Task 3·10) — 스펙 각 절에 대응 태스크 존재.
-- **Placeholder scan**: SEED_DIAGNOSES는 실제 값 제공 + "PM 목록으로 교체" 주석(플레이스홀더 아님). 그 외 TODO/TBD 없음.
-- **Type consistency**: `Concern`/`AgeGroup`/`TherapyArea` 필드명, `createConcern(req: ConcernCreateRequest)`, `ConcernCard({concern, clamp})`, `WriteTypeToggle({mode, onChange})`, 폼 props(`mode`/`onModeChange`)가 태스크 전반에서 일치.
-- **알려진 미결**: 백엔드 계약 3개(Task 10에서 흡수), 진단명 시드 실제 목록은 PM 확정본으로 교체 예정.
+- **Spec coverage**: 데이터 모델 flat(Task 1), 진단명 시드 22종/자동완성(Task 2·6), 작성 모달/토글/필드(Task 7·8·9), 표시 B안+마스킹(Task 4·5), 작성 헬퍼(Task 3), staging 검증+마스킹(Task 10) — 스펙 각 절 대응.
+- **아키텍처 일관성**: flat 직결. `Concern` 중첩 타입/변환 어댑터 없음. ConcernCard는 Post 필드 직독(`ageGroup`/`diagnoses`/`otherNotes`/`body`), 마스킹은 `diagnoses === null`로 판정.
+- **Type consistency**: `PostType`에 `CONCERN_CARD`, `PostCreateRequest`/`PostUpdateRequest`/`PostSummary`/`PostDetail` flat 필드, `createConcern(input: CreateConcernInput)`, `DiagnosisTagInput({value,onChange,maxCount})`, `WriteTypeToggle({mode,onChange})`, 폼 props(`mode`/`onModeChange`) 일치.
+- **제약 반영**: 진단명 최대 10·각 100자, 기타 200자, UNSPECIFIED 제외.
+- **알려진 미결**: 백엔드 배포 시점(Task 10 게이트), `content` 평문/HTML 정합(Task 10 Step 2), 피드 `postType` 필터 탭은 후속 백로그.
