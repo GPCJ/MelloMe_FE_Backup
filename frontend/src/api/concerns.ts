@@ -13,7 +13,7 @@ export interface CreateConcernInput {
 export async function createConcern(input: CreateConcernInput): Promise<PostDetail> {
   return createPost({
     postType: 'CONCERN_CARD',
-    content: input.content,
+    content: input.content.trim(),
     therapyArea: input.therapyArea,
     ageGroup: input.ageGroup,
     diagnoses: input.diagnoses,

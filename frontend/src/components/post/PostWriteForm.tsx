@@ -1,8 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Image, Lock, LockOpen, Paperclip, PencilLine, X } from 'lucide-react';
+import { toast } from 'sonner';
+import { Image, Paperclip, X } from 'lucide-react';
 import VerifiedBadge from './VerifiedBadge';
 import UserAvatar from '../common/UserAvatar';
+import WriteFormHeader from './WriteFormHeader';
+import VisibilityPicker from './VisibilityPicker';
 import { createPost, uploadOneAttachment } from '../../api/posts';
 import {
   useFileAttachment,
@@ -11,11 +14,7 @@ import {
 } from '../../hooks/useFileAttachment';
 import { useAuthStore } from '../../stores/useAuthStore';
 import type { TherapyArea, UIVisibility } from '../../types/post';
-import {
-  THERAPY_CHIPS,
-  VISIBILITY_OPTIONS,
-  toApiVisibility,
-} from '../../constants/post';
+import { THERAPY_CHIPS, toApiVisibility } from '../../constants/post';
 import { fetchMyPosts } from '../../api/mypage';
 import { trackEvent } from '../../lib/analytics';
 import { useDragScroll } from '../../hooks/useDragScroll';
@@ -39,9 +38,12 @@ interface PostWriteFormProps {
   onClose: () => void;
   // 작성 성공 후 호출. 모달은 보통 close + 피드 invalidate, 페이지는 detail로 navigate.
   onSuccess?: (postId: number) => void;
+  // 작성 타입 토글 — 컨테이너가 모드를 소유, 폼은 헤더에 토글을 렌더.
+  mode: 'post' | 'concern';
+  onModeChange: (m: 'post' | 'concern') => void;
 }
 
-export default function PostWriteForm({ variant, onClose, onSuccess }: PostWriteFormProps) {
+export default function PostWriteForm({ variant, onClose, onSuccess, mode, onModeChange }: PostWriteFormProps) {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   // 미인증(USER) 사용자는 비공개/인증치료사 전용 작성 불가 — UI 칩 비활성.
@@ -50,7 +52,6 @@ export default function PostWriteForm({ variant, onClose, onSuccess }: PostWrite
   const [content, setContent] = useState('');
   const [therapyArea, setTherapyArea] = useState<TherapyArea>('UNSPECIFIED');
   const [visibility, setVisibility] = useState<UIVisibility>('PUBLIC');
-  const [visibilityOpen, setVisibilityOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
@@ -67,6 +68,39 @@ export default function PostWriteForm({ variant, onClose, onSuccess }: PostWrite
 
   const canSubmit = content.trim().length > 0 && !submitting;
 
+  // 사용자가 한 줄이라도 작성/첨부/세팅했으면 dirty — mode 토글 시 confirm으로 손실 방지.
+  const isDirty =
+    content.trim().length > 0 ||
+    pendingFiles.length > 0 ||
+    therapyArea !== 'UNSPECIFIED' ||
+    visibility !== 'PUBLIC';
+
+  const handleModeChange = (next: 'post' | 'concern') => {
+    if (next === mode) return;
+    // USER 권한은 고민카드 작성 불가(백엔드 400). 토스트로 안내 + 인증 페이지 진입 동선 제공.
+    // 텍스트 위, 버튼 아래로 세로 정렬 — sonner 기본 가로 action 대신 message에 ReactNode 직접 전달.
+    if (next === 'concern' && isPublicOnly) {
+      toast.error(
+        <div className="flex flex-col items-start gap-2">
+          <span>이 기능은 치료사 인증이 필요한 기능입니다.</span>
+          <button
+            type="button"
+            onClick={() => {
+              toast.dismiss();
+              navigate('/therapist-verifications');
+            }}
+            className="self-center rounded-md bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-black"
+          >
+            치료사 인증하러 가기
+          </button>
+        </div>
+      );
+      return;
+    }
+    if (isDirty && !window.confirm('작성 중인 내용이 사라집니다. 전환할까요?')) return;
+    onModeChange(next);
+  };
+
   // 첫 게시글 여부 (가입→첫글 전환 KPI). 실패 시 조용히 무시.
   const [wasFirstPost, setWasFirstPost] = useState(false);
   useEffect(() => {
@@ -75,24 +109,19 @@ export default function PostWriteForm({ variant, onClose, onSuccess }: PostWrite
       .catch(() => {});
   }, []);
 
-  // 공개범위 popover 외부 클릭 시 닫기.
-  const visibilityRef = useRef<HTMLDivElement>(null);
+  // 폼 unmount 시(라우트 이동·모달 닫기 등) 띄워둔 토스트도 함께 dismiss — 컨텍스트 사라진 토스트가 잔존하지 않게.
+  useEffect(() => {
+    return () => {
+      toast.dismiss();
+    };
+  }, []);
 
   // 가로 드래그 스크롤 헬퍼 — 카테고리 칩, 이미지 미리보기에서 공유.
   const chipsScroll = useDragScroll();
   const imagesScroll = useDragScroll();
-  useEffect(() => {
-    if (!visibilityOpen) return;
-    function onDocClick(e: MouseEvent) {
-      if (visibilityRef.current && !visibilityRef.current.contains(e.target as Node)) {
-        setVisibilityOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', onDocClick);
-    return () => document.removeEventListener('mousedown', onDocClick);
-  }, [visibilityOpen]);
 
   async function handleSubmit() {
+    if (submitting) return;
     if (!canSubmit) return;
     setSubmitting(true);
     setError(null);
@@ -151,37 +180,21 @@ export default function PostWriteForm({ variant, onClose, onSuccess }: PostWrite
     }
   }
 
-  // USER는 PUBLIC만 가능 — VISIBILITY_OPTIONS 첫 항목 강제.
-  const currentVisibility = isPublicOnly
-    ? VISIBILITY_OPTIONS[0]
-    : VISIBILITY_OPTIONS.find((o) => o.value === visibility) ?? VISIBILITY_OPTIONS[0];
-
   // 컨테이너 패딩: 페이지 variant는 자체 여백 필요, 모달은 모달 카드 안에서 렌더되므로 0.
-  const containerCls = variant === 'page' ? 'flex flex-col h-[100dvh] bg-white' : 'flex flex-col';
+  // 모달 모드: 부모(PostWriteModal)가 max-h-[90vh] flex-col이므로 flex-1 min-h-0으로 채워
+  // 내부 body의 overflow-y-auto가 발동(스크롤)되도록 한다. (ConcernForm과 동일 패턴)
+  const containerCls =
+    variant === 'page' ? 'flex flex-col h-[100dvh] bg-white' : 'flex flex-col flex-1 min-h-0';
 
   return (
     <div className={containerCls}>
-      {/* 헤더: ← 새 시그널 ✏️(submit) */}
-      <header className="flex items-center justify-between px-4 py-3 border-b border-gray-100 shrink-0">
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="닫기"
-          className="p-1 -ml-1 text-gray-700 hover:text-gray-900 transition-colors"
-        >
-          <ArrowLeft size={20} />
-        </button>
-        <h1 className="text-base font-semibold text-gray-900">새 시그널</h1>
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={!canSubmit}
-          aria-label="게시하기"
-          className="p-1 -mr-1 text-gray-900 hover:text-black transition-colors disabled:text-gray-300 disabled:cursor-not-allowed"
-        >
-          <PencilLine size={20} />
-        </button>
-      </header>
+      <WriteFormHeader
+        onClose={onClose}
+        onSubmit={handleSubmit}
+        canSubmit={canSubmit}
+        mode={mode}
+        onModeChange={handleModeChange}
+      />
 
       {/* 본문 스크롤 영역 */}
       <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4">
@@ -342,7 +355,7 @@ export default function PostWriteForm({ variant, onClose, onSuccess }: PostWrite
         {uploadProgress && <p className="text-sm text-blue-600">{uploadProgress}</p>}
       </div>
 
-      {/* 하단 툴바: 🖼️ 📎 | 공개범위 칩 + 자물쇠 */}
+      {/* 하단 툴바: 🖼️ 📎 | 공개범위 — 모바일(page)·PC(modal) 동일 위치 (기존 동작 유지). */}
       <footer className="border-t border-gray-100 px-4 py-2.5 flex items-center gap-2 shrink-0">
         <button
           type="button"
@@ -362,63 +375,12 @@ export default function PostWriteForm({ variant, onClose, onSuccess }: PostWrite
         >
           <Paperclip size={20} />
         </button>
-
         <div className="flex-1" />
-
-        {/* 공개범위 트리거 + popover */}
-        <div className="relative" ref={visibilityRef}>
-          <button
-            type="button"
-            onClick={() => !isPublicOnly && setVisibilityOpen((v) => !v)}
-            disabled={isPublicOnly}
-            aria-haspopup="menu"
-            aria-expanded={visibilityOpen}
-            title={isPublicOnly ? '치료사 인증 후 공개 범위 설정 가능' : undefined}
-            className={`flex items-center gap-1.5 text-xs ${
-              isPublicOnly
-                ? 'text-gray-400 cursor-not-allowed'
-                : 'text-gray-700 hover:text-gray-900 cursor-pointer'
-            }`}
-          >
-            <span>{currentVisibility.chipLabel}</span>
-            {currentVisibility.value === 'PUBLIC' ? (
-              <LockOpen size={14} />
-            ) : (
-              <Lock size={14} />
-            )}
-          </button>
-
-          {visibilityOpen && (
-            <div
-              role="menu"
-              className="absolute bottom-full right-0 mb-2 w-64 bg-white rounded-xl shadow-[0px_4px_10px_0px_rgba(136,136,136,0.20)] border border-gray-100 py-2 z-10"
-            >
-              {VISIBILITY_OPTIONS.map((opt) => {
-                const selected = visibility === opt.value;
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    role="menuitemradio"
-                    aria-checked={selected}
-                    onClick={() => setVisibility(opt.value)}
-                    className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 transition-colors"
-                  >
-                    <span className="text-sm text-gray-900">{opt.label}</span>
-                    {/* 토글 — 시안 1367:6227: 흰 배경 pill + 검은 점이 좌/우 이동. */}
-                    <span className="relative inline-flex w-9 h-5 rounded-full bg-white border border-gray-200">
-                      <span
-                        className={`absolute top-0.5 w-4 h-4 rounded-full bg-gray-900 transition-transform ${
-                          selected ? 'translate-x-4' : 'translate-x-0.5'
-                        }`}
-                      />
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
+        <VisibilityPicker
+          visibility={visibility}
+          onChange={setVisibility}
+          isPublicOnly={isPublicOnly}
+        />
       </footer>
     </div>
   );

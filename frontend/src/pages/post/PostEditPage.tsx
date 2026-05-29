@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Image, Lock, LockOpen, Paperclip, PencilLine } from 'lucide-react';
+import { ArrowLeft, Image, Paperclip, PencilLine } from 'lucide-react';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import SimpleTextEditor from '../../components/post/SimpleTextEditor';
 import FilePreviewGrid from '../../components/post/FilePreviewGrid';
+import VisibilityPicker from '../../components/post/VisibilityPicker';
 import {
   fetchPost,
   fetchPostImages,
@@ -18,93 +19,14 @@ import {
   FILE_ACCEPT,
 } from '../../hooks/useFileAttachment';
 import { useAuthStore } from '../../stores/useAuthStore';
-import type { Attachment, PostImage, TherapyArea, UIVisibility } from '../../types/post';
+import ConcernEditForm from '../../components/post/ConcernEditForm';
+import type { Attachment, PostDetail, PostImage, TherapyArea, UIVisibility } from '../../types/post';
 import {
   THERAPY_CHIPS,
-  VISIBILITY_OPTIONS,
   toApiVisibility,
   fromApiVisibility,
 } from '../../constants/post';
 import { useQueryClient } from '@tanstack/react-query';
-
-// 공개 범위 chip + popover — PostWriteForm 푸터와 동일 패턴.
-// 모바일/데스크탑 두 곳에서 재사용하므로 로컬 헬퍼로 분리(각 인스턴스가 자체 open/ref 보유 → 외부 클릭 가드 단순).
-function VisibilityPicker({
-  visibility,
-  onChange,
-  isPublicOnly,
-}: {
-  visibility: UIVisibility;
-  onChange: (v: UIVisibility) => void;
-  isPublicOnly: boolean;
-}) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    function onDocClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    }
-    document.addEventListener('mousedown', onDocClick);
-    return () => document.removeEventListener('mousedown', onDocClick);
-  }, [open]);
-
-  const current = isPublicOnly
-    ? VISIBILITY_OPTIONS[0]
-    : (VISIBILITY_OPTIONS.find((o) => o.value === visibility) ?? VISIBILITY_OPTIONS[0]);
-
-  return (
-    <div className="relative" ref={ref}>
-      <button
-        type="button"
-        onClick={() => !isPublicOnly && setOpen((v) => !v)}
-        disabled={isPublicOnly}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        title={isPublicOnly ? '치료사 인증 후 공개 범위 설정 가능' : undefined}
-        className={`flex items-center gap-1.5 text-xs ${
-          isPublicOnly
-            ? 'text-gray-400 cursor-not-allowed'
-            : 'text-gray-700 hover:text-gray-900 cursor-pointer'
-        }`}
-      >
-        <span>{current.chipLabel}</span>
-        {current.value === 'PUBLIC' ? <LockOpen size={14} /> : <Lock size={14} />}
-      </button>
-
-      {open && (
-        <div
-          role="menu"
-          className="absolute bottom-full right-0 mb-2 w-64 bg-white rounded-xl shadow-[0px_4px_10px_0px_rgba(136,136,136,0.20)] border border-gray-100 py-2 z-10"
-        >
-          {VISIBILITY_OPTIONS.map((opt) => {
-            const selected = visibility === opt.value;
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                role="menuitemradio"
-                aria-checked={selected}
-                onClick={() => onChange(opt.value)}
-                className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 transition-colors"
-              >
-                <span className="text-sm text-gray-900">{opt.label}</span>
-                <span className="relative inline-flex w-9 h-5 rounded-full bg-white border border-gray-200">
-                  <span
-                    className={`absolute top-0.5 w-4 h-4 rounded-full bg-gray-900 transition-transform ${
-                      selected ? 'translate-x-4' : 'translate-x-0.5'
-                    }`}
-                  />
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default function PostEditPage() {
   const qc = useQueryClient();
@@ -112,6 +34,10 @@ export default function PostEditPage() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const isPublicOnly = user?.role === 'USER';
+
+  // 고민카드 수정 분기 — fetchPost 결과 postType === 'CONCERN_CARD'면 ConcernEditForm로 위임.
+  // 일반 글(COMMUNITY/RESOURCE) state는 그대로 유지(분기 후 미사용이지만 초기값으로 무해).
+  const [concernPost, setConcernPost] = useState<PostDetail | null>(null);
 
   const [content, setContent] = useState('');
   const [initialContent, setInitialContent] = useState('');
@@ -169,6 +95,11 @@ export default function PostEditPage() {
       .then(([post, imagesData]) => {
         if (!post.canEdit) {
           setError('수정 권한이 없습니다.');
+          return;
+        }
+        // 고민카드는 별도 폼으로 분기 — 첨부 미지원이라 imagesData 무시.
+        if (post.postType === 'CONCERN_CARD') {
+          setConcernPost(post);
           return;
         }
         setContent(post.content);
@@ -276,6 +207,29 @@ export default function PostEditPage() {
   }
 
   if (!loading && error) return <p className="text-center text-destructive py-20">{error}</p>;
+
+  // 고민카드 수정 분기 — postType이 CONCERN_CARD면 전용 폼으로 위임.
+  if (!loading && concernPost) {
+    const pid = Number(postId);
+    return (
+      <ConcernEditForm
+        postId={pid}
+        initial={{
+          content: concernPost.content,
+          ageGroup: concernPost.ageGroup ?? 'UNSPECIFIED',
+          therapyArea: concernPost.therapyArea ?? 'UNSPECIFIED',
+          diagnoses: concernPost.diagnoses ?? [],
+          otherNotes: concernPost.otherNotes ?? '',
+          visibility: concernPost.visibility ?? 'PUBLIC',
+        }}
+        onClose={() => navigate(`/posts/${pid}`)}
+        onSuccess={() => {
+          qc.invalidateQueries({ queryKey: ['feed'] });
+          navigate(`/posts/${pid}`);
+        }}
+      />
+    );
+  }
 
   if (loading) {
     return (
