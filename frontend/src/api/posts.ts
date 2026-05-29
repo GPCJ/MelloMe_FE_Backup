@@ -223,8 +223,8 @@ export async function uploadOneAttachment(
     });
     return;
     } catch(err) {
+      const e = err as { response?: { status?: number; data?: { code?: string; message?: string } } };
       if(attempt === maxAttempts) {
-        const e = err as { response?: { status?: number; data?: { code?: string; message?: string } } };
         console.error('[image-attach] 재시도 소진(S3 PUT/confirm)', {
           postId,
           kind: pf.kind,
