@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import {
   MessageSquare,
@@ -47,6 +47,7 @@ import axios from 'axios';
 import { useCommentReactionToggle } from '../../hooks/useCommentReactionToggle';
 import { useDragScroll } from '../../hooks/useDragScroll';
 import { useQueryClient } from '@tanstack/react-query';
+import ConcernCard from '@/components/post/ConcernCard';
 
 /* 
 CH-09 작업 8(스켈레톤 시안 룩 반영) 보류 — 현재 로딩이 충분히 빨라 스켈레톤이
@@ -168,6 +169,10 @@ export default function PostDetailPage() {
           navigate('/therapist-verifications', { replace: true });
           return;
         }
+        if(axios.isAxiosError(err) && err.response?.status === 404){
+          setError('게시글을 찾을 수 없어요.');
+          return;
+        }
         setError('게시글을 불러오는 데 실패했습니다.');
       })
       .finally(() => setLoading(false));
@@ -271,7 +276,15 @@ export default function PostDetailPage() {
   if (loading) return <PostDetailSkeleton />;
   if (error || !post)
     return (
-      <p className="text-center text-destructive py-20">{error ?? '게시글을 찾을 수 없어요.'}</p>
+      <div className='flex flex-col items-center justify-center'>
+        <p className="text-center text-destructive pt-20">{error ?? '게시글을 찾을 수 없어요.'}</p>
+        <Link
+          to="/posts"
+          className="mt-6 px-5 py-2 bg-gray-900 text-white rounded-lg text-sm hover:bg-gray-800"
+        >
+          홈으로 돌아가기
+        </Link>
+      </div>
     );
 
   const therapyLabel =
@@ -352,7 +365,7 @@ export default function PostDetailPage() {
           </div>
 
           {/* 해시태그 */}
-          {therapyLabel && (
+          {therapyLabel && post.postType !== 'CONCERN_CARD' && (
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 rounded-full bg-gray-100 text-sm text-gray-700">
                 #{therapyLabel}
@@ -369,13 +382,22 @@ export default function PostDetailPage() {
               </p>
             </div>
           ) : (
+            post.postType === 'CONCERN_CARD' ? (
+              <ConcernCard
+                ageGroup={post.ageGroup}
+                therapyArea={post.therapyArea}
+                diagnoses={post.diagnoses}
+                otherNotes={post.otherNotes}
+                body={post.content}
+              />
+            ) : (
             <div
               className="post-content"
               dangerouslySetInnerHTML={{
                 __html: DOMPurify.sanitize(post.content),
               }}
             />
-          )}
+          ))}
 
           {/* 첨부파일 + 이미지 — 시안 정합(1387:12297).
               "첨부파일 (N)" 헤더 제거: 칩 자체가 카운트/진입점 역할. */}

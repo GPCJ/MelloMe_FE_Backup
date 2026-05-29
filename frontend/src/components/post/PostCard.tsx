@@ -10,6 +10,7 @@ import { useDragScroll } from '../../hooks/useDragScroll';
 import UserAvatar from '../common/UserAvatar';
 import { trackReaction } from '../../lib/analytics';
 import { resolveImageUrl } from '../../utils/resolveImageUrl';
+import ConcernCard from './ConcernCard';
 
 interface PostCardProps {
   post: PostSummary;
@@ -123,6 +124,16 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
             </div>
           </div>
         ) : (
+          post.postType === 'CONCERN_CARD' ? (
+            <ConcernCard
+              ageGroup={post.ageGroup}
+              therapyArea={post.therapyArea}
+              diagnoses={post.diagnoses}
+              otherNotes={post.otherNotes}
+              body={post.contentPreview}
+              clamp={true}
+            />
+          ) : (
           <>
             <p
               ref={contentRef}
@@ -184,7 +195,7 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
               <p className="text-[10px] text-gray-900 mb-2.5">첨부파일 있음</p>
             )}
           </>
-        )}
+        ))}
 
         {/* 4행: 댓글 수 + 공감 */}
         <div className="flex items-center gap-3 text-gray-400">

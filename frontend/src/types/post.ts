@@ -1,5 +1,5 @@
 export type PostSort = 'LATEST' | 'MOST_VIEWED';
-export type PostType = 'COMMUNITY' | 'RESOURCE';
+export type PostType = 'COMMUNITY' | 'RESOURCE' | 'CONCERN_CARD';
 export type Visibility = 'PUBLIC' | 'PRIVATE';
 
 // UI 3-옵션 공개 범위. 백엔드 API는 PUBLIC/PRIVATE 2-옵션만 지원 — 작성/수정 시 toApiVisibility 거쳐 매핑.
@@ -58,6 +58,9 @@ export interface PostSummary {
   imageUrls?: string[];
   createdAt: string;
   scrapped?: boolean;
+  ageGroup?: AgeGroup;
+  diagnoses?: string[] | null;
+  otherNotes?: string | null;
 }
 
 export interface Attachment {
@@ -103,6 +106,9 @@ export interface PostDetail {
   // 백엔드가 인증 전용 글을 USER에게 전달할 때 true로 내려오며 GET /posts/:id 직접 진입은 4xx로 차단됨
   accessLocked?: boolean;
   scrapped?: boolean;
+  ageGroup?: AgeGroup;
+  diagnoses?: string[] | null;
+  otherNotes?: string | null;
 }
 
 export interface PaginatedPosts {
@@ -125,12 +131,19 @@ export interface PostCreateRequest {
   content: string;
   therapyArea?: TherapyArea;
   visibility?: Visibility;
+  postType?: PostType;
+  ageGroup?: AgeGroup;
+  diagnoses?: string[];
+  otherNotes?: string;
 }
 
 export interface PostUpdateRequest {
   content: string;
   therapyArea?: TherapyArea;
   visibility?: Visibility;
+  ageGroup?: AgeGroup;
+  diagnoses?: string[];
+  otherNotes?: string;
 }
 
 export interface CommentResponse {

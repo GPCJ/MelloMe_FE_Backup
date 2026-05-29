@@ -22,12 +22,15 @@
         dataLayer.push(arguments);
       }
       gtag('js', new Date());
-      // 'config'로 측정 ID 등록 → 이 시점에 자동으로 page_view 1회 발송됨
-      gtag('config', 'G-7VPMPFL76M');
+      // staging/localhost 이벤트가 prod GA4 속성에 섞이지 않도록 prod 도메인에서만 등록
+      if(location.hostname === 'www.melonnetherapists.com') {
+        gtag('config', 'G-7VPMPFL76M');
+      }
     </script>
 
     <!-- Microsoft Clarity: 히트맵 + 세션 녹화 (SPA 라우트 자동 감지) -->
     <script type="text/javascript">
+      if (location.hostname === 'www.melonnetherapists.com') {
       (function (c, l, a, r, i, t, y) {
         c[a] =
           c[a] ||
@@ -40,6 +43,7 @@
         y = l.getElementsByTagName(r)[0];
         y.parentNode.insertBefore(t, y);
       })(window, document, 'clarity', 'script', 'wg3vefhmgy');
+    }
     </script>
 
     <!--

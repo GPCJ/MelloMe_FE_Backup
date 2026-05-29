@@ -4,7 +4,7 @@ description: CommentReplyModal 신규 — PC 모달 + 모바일 기존 라우트
 type: project
 originSessionId: 2cffd4f0-2c2e-46a8-ac47-b28072449871
 ---
-CH-09 backlog의 "답글 동선 ⓐ/ⓑ 결정 미완료" 항목을 해소한 결정입니다. 2026-05-11 develop `a6bbca3` 머지+push 완료, Vercel preview 브라우저 검증 대기.
+CH-09 backlog의 "답글 동선 ⓐ/ⓑ 결정 미완료" 항목을 해소한 결정입니다. 2026-05-11 develop `a6bbca3` 머지+push 완료, 2026-05-20 브라우저 검증 통과 (CH-09 전체 완료, backlog `[x]`).
 
 **결정 사항:**
 

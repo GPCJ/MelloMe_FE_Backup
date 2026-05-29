@@ -267,7 +267,7 @@ export default function PostListPage() {
       </div>
 
       {/* 필터 칩 */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 bg-white border-b border-gray-200">
         <FilterChips value={therapyArea} onChange={handleFilterClick} />
       </div>
 

@@ -2,7 +2,7 @@
 name: 프론트엔드 작업 백로그
 description: 데일리 태스크 선택용 단일 참조 파일 — 할 수 있는 것 / 블로킹 대기 / 검증 방법 포함
 type: project
-updated: 2026-05-12
+updated: 2026-05-20
 originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 ---
 # 프론트엔드 작업 백로그
@@ -17,14 +17,11 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 ## 1. 바로 할 수 있는 것 (프론트 독립)
 
 ### ★ 내일 1순위 (2026-05-11)
-- [ ] **CH-09** 게시글 상세 댓글/대댓글 시안 정합 — 옵션 A(메인 통합 + 카드 룩 재설계) — **사용자 직접 코딩** (인지부채 학습 목표)
-  - 현황: 이번 세션에서 옵션 A로 합의(2026-05-11). 단순 스타일 X, 로직 변경 多 → AI 위임 보류
-  - 진입점: `PostDetailPage.tsx` 댓글 리스트 렌더 로직 + `CommentCard.tsx` 재설계
-  - 상세는 아래 Chrome 통일 후속 섹션 CH-09 참조
+- [x] **CH-09** 게시글 상세 댓글/대댓글 시안 정합 — 완료 (2026-05-20 브라우저 검증 통과). 상세는 아래 Chrome 통일 후속 섹션 CH-09 참조
 - [ ] **MEL-47** 피드 정렬 전환 UI 추가 (최신순/인기순)
   - Jira: MEL-47 / 담당: 진서현(나) / 상태: 해야 할 일
   - 현황: 정렬 API 스펙 확인 필요 (Swagger `GET /posts?sort=LATEST|POPULAR` 파라미터 여부)
-  - 연관: D-01 (디자이너 시안 대기 중) — 시안 없으면 임시 UI로 선착수 가능
+  - 연관: D-01 — 디자이너 부재(2026-05-22)로 자체 결정 후 선착수 가능
   - 검증: 최신순 ↔ 인기순 전환 시 피드 재요청 + 탭 상태 유지 확인
 
 ### 임시 조치 / 버그
@@ -43,6 +40,16 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - [ ] main(prod) 머지 결정 — MVP D-4 핫픽스로 prod까지 올릴지 사용자 결정
   - [ ] airo 동기화 — `/push-airo` 트리거 시 같이 반영
   - 상세: `project_comment_duplicate_post_fix_2026_05_11.md`
+- [x] **F-06** PostDetailPage 리소스 404 처리 개선 — 완료 (2026-05-22, develop `4281ead`, 사용자 직접 구현). catch에 `status === 404` 분기 추가 → "게시글을 찾을 수 없어요." + `<Link to="/posts">` 목록 링크. 403(redirect)과 분리
+  - **현황**: 삭제됐거나 없는 게시글(`/posts/:id` → BE 404)도 `catch`가 403만 분기하고 나머지는 전부 `setError('게시글을 불러오는 데 실패했습니다.')`로 뭉침 (`PostDetailPage.tsx:159-167` catch / `266-270` 렌더)
+  - **문제 2가지**:
+    1. 404(영구적 없음)와 500·네트워크(일시적 실패)를 같은 문구로 표시 → 없는 글인데 사용자가 새로고침 반복
+    2. 복구 동선 없음 — 빨간 텍스트 한 줄뿐, "목록으로/홈으로" 링크 없음 (정작 NotFoundPage엔 홈 버튼 있음)
+  - **대비**: 라우트 미스(`path="*"` → NotFoundPage)는 친절한데, 더 흔한 리소스 404가 더 빈약한 역전 상태
+  - **최소 변경안 (권장)**: catch에서 `err.response?.status === 404`만 추가 분기 → "삭제됐거나 없는 게시글이에요" + 목록 링크. 전용 화면 vs 인라인 메시지는 착수 시 결정
+  - **blast radius**: 작음 (catch 분기 1개 + 렌더 1곳). Hot Path지만 정상 흐름 미변경
+  - 검증: `/posts/99999`(없는 ID) 직접 진입 시 404 전용 메시지 + 빠져나갈 링크 노출 확인
+  - 연관: `feedback_error_handling`(에러 원인별 분기 정책)
 
 ### 리팩토링 / 마이그레이션 (미검증)
 - [x] **R-01a** ProfilePage 3탭 RQ 마이그레이션 완료 (2026-04-23, 커밋 924d55e + 0ba0523)
@@ -54,8 +61,19 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
     - [x] 필터 칩 변경 시 깜빡임 없음
     - [x] 에러 시 P1 fallback 전환
   - 상세: `project_rq_migration_implementation.md`
-- [ ] **R-02** AbortController 일괄 적용 (PostListPage, PostDetailPage)
-  - 검증: `grep "AbortController" frontend/src/pages` → 적용 여부
+- [ ] **R-02** stale-response(race) 가드 — **보류 (2026-05-20)**
+  - **원안 정정**: "AbortController 일괄 적용"은 R-01b(RQ 마이그레이션) 이전 표현. RQ 도입으로 지형 바뀜
+  - **현재 3개 fetch 지점 상태**:
+    1. PostListPage 무한스크롤(`useInfiniteFeed`, Hot Path) — RQ `signal` 자동 가드 ✅ 해소
+    2. PostListPage 필터/페이지 fetch (`PostListPage.tsx:120` `fetchPosts().then(setData)`) — plain, 가드 없음 ❌
+    3. PostDetailPage 상세 fetch (`PostDetailPage.tsx:152` `Promise.all([fetchPost,fetchComments,fetchPostImages]).then()`) — plain, 가드 없음 ❌
+  - **남은 작업 = #2, #3 두 곳만** (둘 다 프론트 단독 가능)
+    - #2: `fetchPosts`는 axios라 `{signal}`만 넘기면 됨
+    - #3: `fetchPost/fetchComments/fetchPostImages`가 `signal` 미수신 → (a) 세 함수에 signal 추가(진짜 취소) / (b) `let ignore=false` 플래그(setState만 차단, api 무변경, ~3줄)
+  - **보류 근거 (정확히)**: MVP 안정화 우선 + Hot Path 회귀 위험 회피 + 저빈도 **잠재결함(latent)**. ⚠️ "응답이 빨라 체감 안 됨"은 보류 근거로 부적절 — race는 **느린 네트워크(모바일 3G)에서 터짐**, dev 환경 미재현 ≠ 안 터짐 (댓글 중복 POST 교훈 동일)
+  - **재개 트리거**: ① 모바일/느린 네트워크에서 "필터 바꿨는데 이전 결과 보임" 또는 "다른 글 눌렀는데 이전 글 잠깐 뜸" 리포트 / ② PostDetailPage를 RQ로 리팩토링 착수 시 #3 공짜 동반
+  - **별개 BE 블로킹 항목**: 필터칩을 무한스크롤로 통일하려면 `/posts/feed`(cursor)에 `therapyArea`(+`keyword`/`postType`) query param 추가 필요 → 현재 `/posts/feed`는 `cursor/size/sort`만 받음. 필터는 `GET /posts`(offset)로 분리돼 있어 BE 양식 변경 전엔 통일 불가
+  - 검증: `grep -n "signal\|ignore" frontend/src/pages/post/PostListPage.tsx frontend/src/pages/post/PostDetailPage.tsx` → #2/#3 가드 적용 여부
 - [ ] **R-03** refresh plain axios 분리
   - 검증: `grep "import axios" frontend/src/api/axiosInstance.ts` → plain axios import 유무
   - 참고: F-01과 연관, 백엔드 연결 후 401 통합 테스트 시점에 처리
@@ -152,14 +170,15 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - **clear 시점**: 작성 성공 직후, 또는 N일(예: 7일) 만료
   - **고려 사항**: 멀티 유저 시 user ID 키링 (예: `mello:post-draft:${userId}`), 첨부 파일은 File 객체 직렬화 불가라 메타데이터만 저장(파일 자체는 미보존)
   - **검증**: 작성 중 새로고침 → 본문/공개범위 복원 / 작성 성공 → localStorage 키 삭제 / 다른 유저 로그인 → 이전 유저 draft 안 보임
-  - **PM/디자이너 컨펌**: 시안에 임시저장 명시 없음 — 도입 전 컨펌 필요 (자동 저장 vs 명시적 저장 등)
+  - **PM 컨펌**: 시안에 임시저장 명시 없음 — 도입 전 PM 컨펌 필요 (자동 저장 vs 명시적 저장 등). 디자인 결정은 자체 판단.
 - [ ] **CH-08** 시안 아이콘 컴포넌트 적용 (현재 lucide-react 라이브러리 사용 중)
   - **현황**: 작성 모달/페이지 헤더(←, ✏️), 본문 툴바(🖼️ 📎), 공개범위 자물쇠(🔒/🔓), 첨부 X 등 모두 lucide-react 아이콘 임시 사용
   - **목표**: figma 라이브러리에 정의된 멜로미 전용 아이콘 컴포넌트로 교체 (디자이너 export 또는 SVG 직접 사용)
-  - **우선순위**: 낮음 — 시각적 차이가 미세하고 lucide도 디자인 일관성에 큰 해는 안 됨. 디자이너가 아이콘 셋 export 일괄 제공 시점에 일괄 교체가 효율적
+  - **우선순위**: 낮음 — 시각적 차이가 미세하고 lucide도 디자인 일관성에 큰 해는 안 됨. 디자이너 부재로 Figma에서 직접 export하거나 lucide 계속 사용 (일괄 교체 시점 자체 결정)
   - **확장 적용 범위**: PostCard 헤더, PostListPage 빈 상태 +, BottomNav, SideNav 등 lucide 사용 전 화면 전체
   - **검증**: `grep -r "from 'lucide-react'" frontend/src` 0건 또는 의도적 잔존 명시
-- [ ] **CH-09** ★ 게시글 상세 댓글/대댓글 시안 정합 — 옵션 A (메인 통합 + 카드 룩 재설계)
+- [x] **CH-09** ★ 게시글 상세 댓글/대댓글 시안 정합 — 옵션 A (메인 통합 + 카드 룩 재설계) — **완료 (2026-05-20)**
+  - **완료 요약**: 8개 작업 + PC 답글 모달 모두 구현 (커밋 d587fe4 통합 렌더 / cf6194c 카드 룩 / a6bbca3 답글 모달). 2026-05-20 브라우저 검증 통과(top+자식 N, 자식 없는 top, 삭제 부모+살아있는 자식, 편집 입력 보존, PC 모달/모바일 라우트 분기). 작업 8(스켈레톤 시안 룩)만 보류 — 로딩이 빨라 스켈레톤 거의 미노출, `PostDetailPage.tsx:51` 위 보류 주석 박제. 댓글 북마크는 백엔드 API 부재로 생략 확정
   - **사용자 직접 코딩 결정 (2026-05-11)**: 단순 스타일 변경이 아니라 데이터 렌더 로직·컴포넌트 재설계가 동반됨 → AI 위임 X, 학습 목표 정합
   - **시안 출처**: PC `1387:13250` (Reply_list), Mobile `1321:3821` 댓글 영역
   - **데이터 모델**: 이미 준비됨 — `comments`(flat 배열), `getReplies(parentId)`, `topComments` 헬퍼 존재. 추가 API 호출 / 모델 변경 X
@@ -178,12 +197,23 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - **유지 사항**: `CommentDetailPage` 자체는 변경 X (메시지 아이콘 진입점만 유지), `@replyToNickname` 멘션 표시 그대로, `flat 2레벨` 정책(메모리) 유지
   - **검증**: top 댓글 1+자식 N 케이스 / 자식 없는 top 댓글 / 삭제된 부모+살아있는 자식 케이스 / 모바일·PC 양쪽 시각 확인 / 카드 클릭 navigate 제거 회귀(편집 모드 입력 보존 등)
   - **함정**: 외부 래퍼 div의 `cursor-pointer + onClick`이 편집 중인 textarea 입력 보존 가드 역할 했음 → onClick 제거 시 편집 모드 가드 흐름 재검토 필요
-- [ ] **CH-10** ProfilePage 빈 상태 카피 시안 정합 후속
+- [x] **CH-10** ProfilePage 빈 상태 카피 시안 정합 후속 — 완료 (2026-05-22, develop `8e32da8`, 사용자 직접 구현). `TabEmpty message` 3곳 시그널 카피로 교체
   - 현황: 2026-05-11 헤더/탭 라벨/본문 폭 시안 정합 완료. 빈 상태 메시지는 이번 범위 밖이라 그대로 둠
   - 시안 카피: `내 시그널` → "첫 시그널을 보내세요!" / `이어진 시그널` → "시그널을 이어보세요!" / `수집한 시그널` → "시그널을 수집해보세요!"
   - 위치: `ProfilePage.tsx` `TabEmpty message=...` 호출 3곳
   - 검증: 각 탭에서 빈 상태 시각 확인 + 메시지 문구 정확 매칭
   - 상세: `project_profile_page_signal_chrome_2026_05_11.md`
+
+### UI 자체 결정 후 구현 가능 (디자이너 부재 2026-05-22 — 블로킹 해소)
+- [ ] **D-02** fallback 안내 메시지 문구 — 자체 결정
+- [ ] **D-03** 모바일/PC 상단 헤더 — `project_mobile_header_refactor.md` 참조, 자체 결정
+- [ ] **D-04** 첨부파일 UI (PostDetailPage) — Figma 잔존 시안 확인 또는 자체 결정
+- [ ] **D-05** 치료영역 배지 (인증 치료사 닉네임 옆) — 백엔드 완료. 스타일 자체 결정
+- [ ] **D-06** 3종 리액션 UI (좋아요·궁금해요·유용해요) — 백엔드 완료. 아이콘+카운트 자체 결정
+- [-] ~~**D-07** 블러 UI~~ → CH-02 구현 완료(2026-05-10)로 해소
+- [ ] **D-09** 데스크탑 헤더 글쓰기 버튼 — 알림 아이콘 왼쪽 자체 결정
+- [ ] **D-10** VerificationCompletePage PENDING/APPROVED — Figma 시안 `1321:5251` 참조
+- [ ] **D-11** 치료사 인증 상세 정보 UI — 자체 결정
 
 ### 인지부채 (코드 아닌 학습)
 - [x] **L-01** `useInfiniteFeed` + P1 fallback 메커니즘 복습 (04-17 대략적 로직 + controller 이해 완료, 더 깊이 파는 것은 RQ 도입 후 불필요)
@@ -249,6 +279,7 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 후속: CH-02 디자인 도착 시 블러 + 🔒 + VerificationRequiredModal 구현
 - [ ] **B-04** 팔로우 시스템 API (P1) — 확인일: 04-16
   - 현황: 미구현
+  - UI(D-08): 팔로우/언팔로우 버튼 UI는 이 API 해소 후 자체 결정으로 구현
   - 검증: Swagger에서 `/follow` 엔드포인트 존재 여부
 - [?] **B-05** 스크랩 `scrapped` 필드 초기값 연동 (P1) — 확인일: 04-16
   - 현황: 합의 완료 + 구현 가능성. 프론트는 `useState(false)` 고정 중
@@ -282,7 +313,7 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
     - ⋯ 메뉴 → **링크복사만 노출** (clipboard 1줄), 차단/신고는 백엔드 미확인 → MVP 후
     - "이어진 시그널" 탭 → **UI-only + NotFound** (`아직 이어진 시그널이 없어요`), 데이터 fetch 없음
   - **컴포넌트 전략**: 기존 `ProfilePage`(본인, 탭 3종 구현 완료) **건드리지 않음**. `UserProfilePage`만 신규. 공통 추출(`ProfileView`)은 신규 페이지 동작 후 별도 작업으로 분리 (premature abstraction 회피)
-  - **MVP 발표(05-15) 후 진행**: 백엔드 의존 + 디자인 결정 미해소(차단/신고/연결) → MVP 안정화 우선
+  - **MVP 발표(05-15) 후 진행**: 백엔드 의존 + 차단/신고/연결 기능 미결정 → MVP 안정화 우선
   - 검증: staging Swagger 재조회로 엔드포인트 등재 확인, 응답 스키마 필드 매핑
 
 ### 해소됨
@@ -294,18 +325,6 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 검증: `grep "검토 중인 초안" frontend/src/pages/PrivacyPage.tsx` → 제거 여부
 - [ ] **PM-02** 개인정보 보호책임자 연락처 확정 → `melonnebuilders@gmail.com` 플레이스홀더 교체
 
-### 디자이너 [디자인]
-- [ ] **D-01** 정렬 토글 UI (LATEST/POPULAR) 시안
-- [ ] **D-02** fallback 안내 메시지 문구 확인
-- [ ] **D-03** 모바일/PC 상단 헤더 별도 디자인 — 상세: `project_mobile_header_refactor.md`
-- [ ] **D-04** 첨부파일 UI 위치/디자인 (PostDetailPage)
-- [ ] **D-05** 치료영역 배지 디자인 (인증 치료사 닉네임 옆) — 백엔드 완료
-- [ ] **D-06** 3종 리액션 UI 디자인 (좋아요·공감·도움) — 백엔드 완료
-- [ ] **D-07** 블러 UI 디자인 (미인증 회원 열람 시)
-- [ ] **D-08** 팔로우/언팔로우 버튼 위치/디자인
-- [ ] **D-09** 데스크탑 헤더 글쓰기 버튼
-- [ ] **D-10** VerificationCompletePage PENDING/APPROVED 화면 디자인
-- [ ] **D-11** 치료사 인증 상세 정보 UI 디자인
 
 ---
 
