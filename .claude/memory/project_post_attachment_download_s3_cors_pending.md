@@ -4,6 +4,9 @@ description: 다운로드 fix prod까지 적용(PR#8, b6deca5). dev/prod 양쪽 
 type: project
 originSessionId: d4577431-d681-4be7-aac5-ba2ac130d677
 ---
+## ✅ 해결됨 (2026-05-26, 사용자 확인)
+dev/prod S3 CORS 인프라 조치 완료. 다운로드 정상 동작. 아래는 진단/요청 이력 보존용.
+
 ## 현재 상태 (2026-05-02)
 
 게시글 첨부파일 다운로드 fix가 develop → main 머지로 prod에도 적용 완료. 그러나 staging/prod 양쪽에서 CORS 에러가 동일하게 잔존 → S3 버킷 CORS 인프라 작업이 미완료(또는 잘못 적용)된 상태.

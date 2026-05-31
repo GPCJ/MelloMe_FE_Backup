@@ -204,20 +204,42 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 검증: 각 탭에서 빈 상태 시각 확인 + 메시지 문구 정확 매칭
   - 상세: `project_profile_page_signal_chrome_2026_05_11.md`
 
-### UI 자체 결정 후 구현 가능 (디자이너 부재 2026-05-22 — 블로킹 해소)
+### 디자이너 부재(2026-05-22) 후 정리 — 내일 단일 참조 (2026-05-25 검증)
+> 디자이너 퇴팀으로 "디자인 대기"가 풀린 항목 정리. 단 일부는 **디자이너 무관·백엔드 의존**이라 안 풀림. 착수 순서 = 위→아래(쉬운 독립 항목부터).
+> 2026-05-25 코드/Swagger 검증: D-04/D-06은 이미 구현됨 / DM·타인프로필·팔로우는 Swagger 엔드포인트 부재 확정 / 알림(CH-05)은 백엔드 ready.
+
+#### ✅ 확인 결과 이미 해소 (재착수 불필요)
+- [x] **D-04** 첨부파일 UI — `PostDetailPage.tsx:387~432` 시안 정합(`1387:12297`)으로 이미지 캐러셀+첨부 칩+다운로드 구현 완료 (2026-05-25 확인)
+- [x] **D-06** 3종 리액션 UI — `ReactionBar.tsx`(LIKE/CURIOUS/USEFUL) 완성, 댓글·게시글 상세(`PostDetailPage.tsx:544`) 적용. 피드 카드 `PostCard`만 LIKE 단독 노출(의도) → 잔존은 CH-03뿐
+- [-] ~~**D-07** 블러 UI~~ → CH-02 구현 완료(2026-05-10)로 해소
+
+#### 🟢 바로 가능 — 프론트 단독 + 자체 결정 (시안 없음)
 - [ ] **D-02** fallback 안내 메시지 문구 — 자체 결정
 - [ ] **D-03** 모바일/PC 상단 헤더 — `project_mobile_header_refactor.md` 참조, 자체 결정
-- [ ] **D-04** 첨부파일 UI (PostDetailPage) — Figma 잔존 시안 확인 또는 자체 결정
-- [ ] **D-05** 치료영역 배지 (인증 치료사 닉네임 옆) — 백엔드 완료. 스타일 자체 결정
-- [ ] **D-06** 3종 리액션 UI (좋아요·궁금해요·유용해요) — 백엔드 완료. 아이콘+카운트 자체 결정
-- [-] ~~**D-07** 블러 UI~~ → CH-02 구현 완료(2026-05-10)로 해소
 - [ ] **D-09** 데스크탑 헤더 글쓰기 버튼 — 알림 아이콘 왼쪽 자체 결정
-- [ ] **D-10** VerificationCompletePage PENDING/APPROVED — Figma 시안 `1321:5251` 참조
-- [ ] **D-11** 치료사 인증 상세 정보 UI — 자체 결정
+- [ ] **MEL-47** 정렬 토글 UI(최신/인기) — 선행 1스텝: `GET /posts` sort 파라미터 Swagger 확인 (§1 ★ 항목과 동일)
+- [ ] **D-05** 치료영역 배지(인증 치료사 닉네임 옆) — 백엔드 완료. 배지 스타일 자체 결정
+- [ ] **CH-03** 피드 카드(`PostCard`)에 3종 리액션 노출할지 — 현재 LIKE만. 노출 결정 시 기존 `ReactionBar` 재사용
+
+#### 🟢 바로 가능 — 시안 있음 (Figma 참조)
+- [ ] **D-10 / CH-06** VerificationCompletePage(PENDING/APPROVED) + 인증완료 모달 — 시안 `1321:5251` (한 묶음 검토)
+- [ ] 치료사 인증 페이지(`TherapistVerificationPage`) — 기존 Figma 시안 확인 후 구현
+- [ ] **D-11** 치료사 인증 상세 정보(거절 사유/신청 일시) UI — 자체 결정
+
+#### 🔴 디자이너 무관 — 백엔드 블로킹 ("풀린 거 아님", 내일 착수 불가)
+- [~] **🔔 쪽지(DM)** — ⚠️ **정정(2026-05-26): API 존재함** (05-25 "부재 확정"은 오확인, 백엔드가 추가). 착수 진행 중. 설계 스펙 `docs/superpowers/specs/2026-05-26-user-interaction-messaging-design.md`, 메모리 [[project_messaging_feature]].
+  - 진행: 하이브리드 방식. **slice 0 + slice 1 step1~3 완료·커밋**(2026-05-27, slice0=`59a528e`/slice1=`a45ab65`): 알림 `NEW_MESSAGE` 타입+라우팅 / message 타입 / sendMessage API / UserActionDropdown(이해+커밋 완료). **다음 = slice 1 step 4**(`MessageComposeModal` + 모바일 `MessageComposePage` — PC모달/모바일라우트 CH-09, content 2000자·빈값 가드, 발송 에러 분기. 정답지 `PostWriteModal`/`CommentReplyModal`). 이후 step5(진입점 연결)·step6(라우트), slice 2(쪽지함)·3(뱃지/실시간) 대기.
+  - **백엔드 대기:** Q1 `NEW_MESSAGE.referenceId`=messageId? / Q2 `GET /messages/{id}` read 처리 여부 — slice 3 의존.
+- [ ] **B-09** 타인 프로필 — `GET /users/{id}` 부재 재확인. 상세 스펙/시안(`1444:24270`)은 §2 B-09
+- [ ] **B-04** 팔로우/언팔로우 — `/follow` 엔드포인트 부재. UI는 API 해소 후 자체 결정
+
+#### 💡 검증 중 발견 — 디자이너 무관, 백엔드 ready (바로 가능)
+- [ ] **CH-05** 알림 페이지 — `/api/v1/notifications`(+`/subscribe` SSE) 백엔드 **존재** 확인(2026-05-25). 현재 `/notifications`→NotFoundPage. 프론트 단독 가능. SSE 설계 → wiki `sse-b-zustand-fetch-event-source`
 
 ### 인지부채 (코드 아닌 학습)
 - [x] **L-01** `useInfiniteFeed` + P1 fallback 메커니즘 복습 (04-17 대략적 로직 + controller 이해 완료, 더 깊이 파는 것은 RQ 도입 후 불필요)
   - 상세: wiki `p1-feed-pagination-auto-fallback-high`
+- [ ] **L-02** base-ui vs Radix/shadcn `asChild` 구분 재복습 — 이 프로젝트 dropdown은 폴더명만 shadcn이고 실토대는 `@base-ui/react`라 `asChild` 없음(감싸기가 정답). 2026-05-27 쪽지 작업 중 미체화 자각. 상세: `feedback_shadcn_button_aschild.md` 플래그
 - [ ] **L-02** multipart/form-data 연결 과정 이해
 - [ ] **L-03** 리액션 API 리팩토링 흐름 이해
 - [x] **L-04** 마이페이지 3탭 데이터 흐름 이해 (04-17 완료)
