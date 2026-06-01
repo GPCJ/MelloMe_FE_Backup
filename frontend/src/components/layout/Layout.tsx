@@ -4,6 +4,7 @@ import { useAuthStore } from '../../stores/useAuthStore';
 import { useNotificationStore } from '../../stores/useNotificationStore';
 import SideNav from './SideNav';
 import PostWriteModal from '../post/PostWriteModal';
+import MessageComposeModal from '../message/MessageComposeModal';
 
 export default function Layout() {
   const location = useLocation();
@@ -24,6 +25,9 @@ export default function Layout() {
 
       {/* PC 게시글 작성 모달 — 진입점(SideNav, PostListPage 글쓰기 버튼)에서 store로 토글 */}
       <PostWriteModal />
+
+      {/* PC 쪽지 작성 모달 — 진입점(작성자 프사 드롭다운)에서 messageComposeStore로 토글 */}
+      <MessageComposeModal />
 
       {/* Bottom Navigation (Mobile) */}
       {!hideBottomNav && (

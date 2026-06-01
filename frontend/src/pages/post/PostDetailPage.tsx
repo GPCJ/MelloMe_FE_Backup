@@ -40,7 +40,8 @@ import type { PostDetail, CommentResponse, PostImage } from '../../types/post';
 import { THERAPY_AREA_LABELS } from '../../constants/post';
 import { formatRelativeTime } from '../../utils/formatDate';
 import { resolveImageUrl } from '../../utils/resolveImageUrl';
-import UserAvatar from '../../components/common/UserAvatar';
+import UserActionDropdown from '../../components/common/UserActionDropdown';
+import { useOpenMessageCompose } from '../../hooks/useOpenMessageCompose';
 import PageHeader from '@/components/common/PageHeader';
 import { trackReaction } from '../../lib/analytics';
 import axios from 'axios';
@@ -78,6 +79,7 @@ export default function PostDetailPage() {
 
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
+  const openMessageCompose = useOpenMessageCompose();
 
   const [post, setPost] = useState<PostDetail | null>(null);
   const [comments, setComments] = useState<CommentResponse[]>([]);
@@ -307,10 +309,14 @@ export default function PostDetailPage() {
         <div className="bg-white p-4 flex flex-col gap-4">
           {/* 작성자 정보 */}
           <div className="flex items-center gap-3">
-            <UserAvatar
+            <UserActionDropdown
+              targetUserId={post.authorId}
               nickname={post.authorNickname}
               imageUrl={post.authorProfileImageUrl}
               size="md"
+              onMessageClick={() =>
+                openMessageCompose({ id: post.authorId, nickname: post.authorNickname })
+              }
             />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
