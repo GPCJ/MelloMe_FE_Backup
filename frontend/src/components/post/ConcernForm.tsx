@@ -235,14 +235,24 @@ export default function ConcernForm({
                 {error && <p role="alert" className="text-sm text-red-500">{error}</p>}
             </div>
 
-            {/* 하단 푸터 — 공개범위만 (고민카드는 첨부 미지원이라 image/file 버튼 없음). */}
+            {/* 하단 푸터 — 공개범위 + 작성 완료 (고민카드는 첨부 미지원이라 image/file 버튼 없음).
+                푸터는 shrink-0라 스크롤과 무관하게 항상 노출 → 모바일에서 다 쓰고 내려온 종점에 완료 버튼 배치.
+                aria-disabled 채택: 헤더 버튼과 동일하게 click을 막지 않아 handleSubmit이 누락 필드 토스트를 띄울 수 있게. */}
             <footer className="border-t border-gray-100 px-4 py-2.5 flex items-center shrink-0">
-                <div className="flex-1" />
                 <VisibilityPicker
                     visibility={visibility}
                     onChange={setVisibility}
                     isPublicOnly={isPublicOnly}
                 />
+                <div className="flex-1" />
+                <button
+                    type="button"
+                    onClick={handleSubmit}
+                    aria-disabled={!canSubmit}
+                    className="rounded-md border border-gray-900 bg-gray-900 px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-black aria-disabled:border-gray-200 aria-disabled:bg-white aria-disabled:text-gray-300 aria-disabled:hover:bg-white aria-disabled:cursor-not-allowed"
+                >
+                    작성 완료
+                </button>
             </footer>
         </div>
     )
