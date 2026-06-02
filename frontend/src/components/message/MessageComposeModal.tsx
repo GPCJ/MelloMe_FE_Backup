@@ -3,11 +3,11 @@ import { ArrowLeft, PencilLine } from 'lucide-react';
 import { useMessageComposeStore } from '../../stores/messageComposeStore';
 import { useSendMessage, MESSAGE_MAX_LENGTH } from '../../hooks/useSendMessage';
 
-// PC 전용 쪽지 작성 모달. 루트(Layout)에 항상 마운트되어 store의 open으로 토글.
+// PC 전용 쪽지 작성 모달. MessageComposeModalGate가 open일 때만 마운트하므로
+// 이 컴포넌트는 "열린 상태"만 그린다. 닫히면 게이트가 언마운트시켜 content 등 로컬 state가 자동 청소된다.
 // 모바일은 /messages/new?to=:id 라우트(MessageComposePage)로 분기하므로 이 모달과 무관.
 // 정답지: CommentReplyModal(chrome/IME 가드) + PostWriteModal(store 토글/스크롤 잠금).
 export default function MessageComposeModal() {
-  const open = useMessageComposeStore((s) => s.open);
   const receiverId = useMessageComposeStore((s) => s.receiverId);
   const receiverNickname = useMessageComposeStore((s) => s.receiverNickname);
   const closeCompose = useMessageComposeStore((s) => s.closeCompose);
@@ -15,15 +15,8 @@ export default function MessageComposeModal() {
   const [content, setContent] = useState('');
   const { submitting, send } = useSendMessage({ onSuccess: closeCompose });
 
-  // 닫힐 때 입력값 리셋 — 항상 마운트된 모달이라 content가 살아남는다.
-  // 외부 closeCompose() 직접 호출도 일관 커버하도록 open=false를 트리거로 비운다.
+  // ESC로 닫기 + body 스크롤 잠금. 마운트=열린 상태이므로 가드 없이 항상 설치한다.
   useEffect(() => {
-    if (!open) setContent('');
-  }, [open]);
-
-  // ESC로 닫기 + body 스크롤 잠금 (열려있는 동안만).
-  useEffect(() => {
-    if (!open) return;
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') closeCompose();
     }
@@ -34,9 +27,9 @@ export default function MessageComposeModal() {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = prevOverflow;
     };
-  }, [open, closeCompose]);
+  }, [closeCompose]);
 
-  if (!open || receiverId == null) return null;
+  if (receiverId == null) return null;
 
   const canSubmit = content.trim().length > 0 && !submitting;
 
