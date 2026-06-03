@@ -1,9 +1,12 @@
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { HomeIcon, SearchIcon, WriteIcon, BellIcon, ProfileIcon } from '@/components/icons';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useNotificationStore } from '../../stores/useNotificationStore';
 import SideNav from './SideNav';
 import PostWriteModal from '../post/PostWriteModal';
+import MessageComposeModalGate from '../message/MessageComposeModalGate';
 
 export default function Layout() {
   const location = useLocation();
@@ -13,6 +16,11 @@ export default function Layout() {
 
   // 모바일 글쓰기 페이지(/posts/new)는 풀스크린 시안 — BottomNav가 하단 툴바를 가리지 않도록 숨김.
   const hideBottomNav = location.pathname === '/posts/new';
+
+  // 라우트 변경 시 토스트 닫기
+  useEffect(() => {
+    toast.dismiss();
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -24,6 +32,9 @@ export default function Layout() {
 
       {/* PC 게시글 작성 모달 — 진입점(SideNav, PostListPage 글쓰기 버튼)에서 store로 토글 */}
       <PostWriteModal />
+
+      {/* PC 쪽지 작성 모달 — 게이트가 open일 때만 조건부 마운트(닫히면 언마운트→state 자동 청소) */}
+      <MessageComposeModalGate />
 
       {/* Bottom Navigation (Mobile) */}
       {!hideBottomNav && (

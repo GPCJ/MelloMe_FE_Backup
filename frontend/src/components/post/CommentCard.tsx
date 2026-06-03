@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { MessageSquare, MoreHorizontal } from 'lucide-react';
 import type { CommentResponse, ReactionType } from '../../types/post';
 import { formatRelativeTime } from '../../utils/formatDate';
-import UserAvatar from '../common/UserAvatar';
+import UserActionDropdown from '../common/UserActionDropdown';
+import { useOpenMessageCompose } from '../../hooks/useOpenMessageCompose';
 import VerifiedBadge from './VerifiedBadge';
 import {
   DropdownMenu,
@@ -50,6 +51,9 @@ export default function CommentCard({
   onToggleReaction,
   toggling,
 }: CommentCardProps) {
+  // 작성자 프사 드롭다운 → 쪽지 진입. 기존 onMessageClick prop(💬 답글 아이콘)과는 별개.
+  const openMessageCompose = useOpenMessageCompose();
+
   // 편집 모드 진입 시 textarea 초기값을 원본으로 채워두는 로컬 state.
   // 부모에 끌어올리지 않는 이유: 입력 중 리렌더 시 keystroke이 부모까지 올라가면 다른 카드의
   // 리액션/페이지 상태까지 흔드는 광범위한 리렌더가 발생함. content는 "편집 중에만" 의미가
@@ -83,10 +87,14 @@ export default function CommentCard({
         {isReply && (
           <div className="self-start h-4 w-3 ml-6 border-l border-b border-gray-300 rounded-bl-lg" />
         )}
-        <UserAvatar
+        <UserActionDropdown
+          targetUserId={comment.authorId}
           nickname={comment.authorNickname}
           imageUrl={comment.authorProfileImageUrl}
           size={isReply ? 'sm' : 'md'}
+          onMessageClick={() =>
+            openMessageCompose({ id: comment.authorId, nickname: comment.authorNickname })
+          }
         />
         {/* 부모 댓글이 자식을 가졌으면 세로선이 카드 하단까지 흐름.
             자식 카드 ╰ 의 vertical 라인과 동일한 x=24 위치(items-center로 가운데). */}
