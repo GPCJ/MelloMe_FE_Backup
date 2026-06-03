@@ -85,3 +85,14 @@ src/
 - **기본값: superpowers 스킬을 사용하지 않음**
 - 메시지가 `obra:`로 시작하면 관련 superpowers 스킬을 검토하고 적용
 - 스킬을 사용하면 좋겠다고 판단될 경우, 자동으로 사용하지 말고 **반드시 사용자에게 먼저 물어보고 허가를 받을 것**
+
+---
+
+# 메모리 / 노션 초안 편집 위치 (IMPORTANT)
+
+메모리 파일과 노션 초안(`notion_draft.md` 포함)의 **유일한 편집 원본은 auto-memory 경로**입니다(`scripts/memory-sync.sh`의 `MEMORY_SRC`. WSL 기준 `/home/jin24/.claude/projects/-home-jin24-MelloMe-FE-Backup/memory/`).
+
+- 레포 안 `.claude/memory/`는 `push-mello`의 `rsync --delete` **단방향 미러 생성물**입니다. **절대 직접 편집하지 마십시오.**
+- 레포 사본을 편집하면 다음 push 때 stale한 auto-memory 버전으로 덮어써져 편집이 소실됩니다(2026-05-20, 2026-06-03 사고).
+- Read/Edit/Write, VSCode, `/post-notion-draft` 모두 **auto-memory 경로**를 대상으로 하십시오. 레포 사본 경로는 읽기 전용으로만 취급합니다.
+- 이 규칙은 `scripts/memory-sync.sh`의 `guard_no_direct_mirror_edit`로도 강제됩니다 — 레포 사본이 직접 편집된 상태로 `push-mello`를 돌리면 abort됩니다.
