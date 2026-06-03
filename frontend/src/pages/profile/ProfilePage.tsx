@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Camera, Pencil, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Camera, Pencil, Search, MessageCircle } from 'lucide-react';
 import { ProfileEditIcon } from '@/components/icons/ProfileEditIcon';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import PageHeader from '@/components/common/PageHeader';
@@ -163,6 +163,15 @@ export default function ProfilePage() {
         backTo="/posts"
         rightAction={
           <>
+            {/* 쪽지함 진입(돋보기 왼쪽). 안읽음 숫자 뱃지는 slice 3(store)에서 추가 */}
+            <button
+              type="button"
+              onClick={() => navigate('/messages')}
+              aria-label="쪽지함"
+              className="text-gray-900 hover:text-gray-600 transition-colors"
+            >
+              <MessageCircle size={24} />
+            </button>
             <Search size={24} className="text-gray-900" aria-hidden="true" />
             <button
               type="button"
