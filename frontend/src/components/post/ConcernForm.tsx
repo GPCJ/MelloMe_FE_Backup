@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import type { AgeGroup, TherapyArea, UIVisibility } from '@/types/post'
-import { AGE_GROUP_CHIPS, OTHER_NOTES_MAX_LENGTH } from '@/constants/concern'
+import { AGE_GROUP_CHIPS } from '@/constants/concern'
 import { THERAPY_CHIPS, toApiVisibility } from '@/constants/post'
 import { createConcern } from '@/api/concerns'
 import { fetchMyPosts } from '@/api/mypage'
@@ -38,7 +38,6 @@ export default function ConcernForm({
     const [ageGroup, setAgeGroup] = useState<AgeGroup | null>(null)
     const [therapyArea, setTherapyArea] = useState<TherapyArea | null>(null)
     const [diagnoses, setDiagnoses] = useState<string[]>([])
-    const [otherNotes, setOtherNotes] = useState('')
     const [visibility, setVisibility] = useState<UIVisibility>('PUBLIC')
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -65,7 +64,6 @@ export default function ConcernForm({
         ageGroup !== null ||
         therapyArea !== null ||
         diagnoses.length > 0 ||
-        otherNotes.trim().length > 0 ||
         visibility !== 'PUBLIC'
 
     const handleModeChange = (next: 'post' | 'concern') => {
@@ -102,7 +100,6 @@ export default function ConcernForm({
                 ageGroup,
                 therapyArea,
                 diagnoses,
-                otherNotes: otherNotes.trim() || undefined,
                 visibility: toApiVisibility(visibility),
             })
             trackEvent('post_created', { postType: 'CONCERN_CARD' })
@@ -134,25 +131,8 @@ export default function ConcernForm({
                 onModeChange={handleModeChange}
             />
 
-            {/* 본문 스크롤 영역 — 스펙 §4 순서: 고민 → 연령대 → 치료영역 → 진단명 → 기타 */}
+            {/* 본문 스크롤 영역 — View(ConcernCard)와 동일 순서: 연령대 → 치료영역 → 진단명 → 고민지점 */}
             <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-5 text-sm">
-                {/* 고민지점 본문 */}
-                <div className="flex flex-col gap-1">
-                    <span className="font-semibold text-gray-800">고민지점</span>
-                    <textarea
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        disabled={submitting}
-                        maxLength={BODY_MAX_LENGTH}
-                        rows={8}
-                        placeholder="고민하는 지점을 자유롭게 작성해보세요."
-                        className="w-full resize-none rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:border-gray-400 focus:outline-none disabled:bg-gray-50 disabled:text-gray-400"
-                    />
-                    <p className="text-right text-xs text-gray-400">
-                        {content.length} / {BODY_MAX_LENGTH}
-                    </p>
-                </div>
-
                 {/* 연령대 */}
                 <div className="flex flex-col gap-2">
                     <span className="font-semibold text-gray-800">연령대</span>
@@ -215,20 +195,20 @@ export default function ConcernForm({
                     />
                 </div>
 
-                {/* 기타 (선택) */}
+                {/* 고민지점 본문 — View 순서에 맞춰 최하단 */}
                 <div className="flex flex-col gap-1">
-                    <span className="font-semibold text-gray-800">기타</span>
+                    <span className="font-semibold text-gray-800">고민지점</span>
                     <textarea
-                        value={otherNotes}
-                        onChange={(e) => setOtherNotes(e.target.value)}
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
                         disabled={submitting}
-                        maxLength={OTHER_NOTES_MAX_LENGTH}
-                        rows={3}
-                        placeholder="추가로 남기고 싶은 내용이 있다면 작성해주세요. (선택)"
+                        maxLength={BODY_MAX_LENGTH}
+                        rows={8}
+                        placeholder="고민하는 지점을 자유롭게 작성해보세요."
                         className="w-full resize-none rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:border-gray-400 focus:outline-none disabled:bg-gray-50 disabled:text-gray-400"
                     />
                     <p className="text-right text-xs text-gray-400">
-                        {otherNotes.length} / {OTHER_NOTES_MAX_LENGTH}
+                        {content.length} / {BODY_MAX_LENGTH}
                     </p>
                 </div>
 
