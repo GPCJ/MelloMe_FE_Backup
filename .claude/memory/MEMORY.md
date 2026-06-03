@@ -10,6 +10,7 @@
 - [코드 추적 — outside-in (호출부→선언부)](./user_code_navigation_style.md)
 - [Zustand/RQ 학습 — 단편 규칙 누적](./user_reactivity_libs_learning.md)
 - [AI 의존 불안 패턴 — 주기적 재출현, 4프레임 응답](./user_ai_dependency_anxiety.md)
+- **[코드 읽기 진단 — WHAT은 읽고 WHY는 건너뜀 (2026-06-02)](./user_code_reading_what_vs_why.md)** — 못 읽는 게 아니라 습관, risk 줄에만 "지우면 뭐 깨지지?", PR 부담=착시
 - **[React 내부 모델 학습 (2026-05-19~20)](./user_react_internals_learning.md)** — 렌더 4단계/fiber=인스턴스/StrictMode 가짜언마운트/useEffect=동기화/race 도달성 잡힘, Component·Element 층 미정리
 - 문서화 역량 면접 Q&A 7항목 → wiki `q-a-7` (reference)
 
@@ -17,11 +18,11 @@
 - **[개발 단계 = Post-MVP (MVP 2026-05-15 발표 완료)](./project_mvp_launch_2026_05_15.md)** — MVP 데드라인 제약 해제, 기능 확장기. CLAUDE.md도 Post-MVP 갱신
 - **[프론트 작업 백로그](./backlog.md)** — 데일리 태스크 선택용 단일 참조
 - **[★ Google OAuth 재도입 (옵션 D 합의, 백엔드 대기, 2026-05-19)](./project_google_oauth_reimplementation.md)** — Jira Story 박제 완료, 재개 트리거 「구글 OAuth 이어가자」
-- **[★ 쪽지(DM) 기능 — API 존재 확정 + 설계 스펙 (2026-05-26)](./project_messaging_feature.md)** — mailbox 모델, 스펙 `docs/superpowers/specs/2026-05-26-...`, slice 0 완료/1 진행, 백엔드 Q1·Q2 대기
+- **[★ 쪽지(DM) 기능 — API 존재 확정 + 설계 스펙 (2026-05-26)](./project_messaging_feature.md)** — mailbox 모델, 스펙 `docs/superpowers/specs/2026-05-26-...`, slice 0 완료/1 진행, 백엔드 Q1·Q2 대기. **PR #20 리뷰 6파일 완료/남은 App·게이트 + ⚠️ 작업 브랜치에 bcea18e 없어 디스크 모달=폐기 버전 (2026-06-02)**
 - **[고민 카드 — prod 머지/배포 완료, GA4 `post_created{postType:CONCERN_CARD}` 발사 ✓ (2026-05-29)](./project_concern_card_feature.md)** — develop→main merge `b1e944d`, GA4 prod 실측 ✓. PM Custom Dimension 등록 대기. 재개 「고민 카드 이어가자」
   - [자동완성 UX = 드롭다운 카드형(세로), 고스트 텍스트 폐기](./project_concern_autocomplete_dropdown_card.md)
   - **[Task 6~9 구현 박제 (인지부채 HIGH, 2026-05-29)](./project_concern_card_implementation_2026_05_29.md)** — 다음 만지기 전 필독, 메커니즘 7개 + 자기점검 질문 5개
-  - **[prod 후속 트리거 박제 (2026-05-30 준비)](./project_concern_card_prod_followup_2026_05_30.md)** — 회귀 롤백 절차(백업 `main-backup-before-merge-2026-05-29` 로컬) + PM 핸드오프 문구 + QA 피드백 진입
+  - **[prod 후속 트리거 박제 (2026-05-30) + UT 피드백 반영 (2026-06-01, 06-02)](./project_concern_card_prod_followup_2026_05_30.md)** — 회귀 롤백/PM 핸드오프 + 모바일 UT 「작성완료 버튼」 푸터(develop `c7f9f10`) + UT2차 폼 입력 순서 View 일치(연령대→치료영역→진단명→본문)·기타 입력 삭제(브랜치 `feat/concern-form-reorder` 승인 전)
 
 ## 프로젝트
 멜로미 — 발달장애 아동 치료사 커뮤니티 (MVP)
@@ -111,6 +112,7 @@
 - **[최우선]** [workaround 전 스펙 재확인](./feedback_verify_spec_before_workaround.md)
 - **[백엔드 미확정 기능 = 뷰모델+로컬목으로 UI 선행, 추측계약 MSW 회피](./feedback_fe_ahead_of_backend_strategy.md)** — 와이어/통신부는 명세 후, 어댑터 격리
 - **[최우선]** [단일 작업 집중 존중](./feedback_single_task_focus.md) — 곁가지는 notepad
+- **[자가 리뷰 중 선제 행동 금지 (2026-06-02)](./feedback_no_run_ahead_during_self_review.md)** — "내가 리뷰할게" 신호 시 조사 멈추고 대기, 요청 시 검증만
 - **[최우선]** [기능 작업 중 번들러/인프라 미수정](./feedback_scope_discipline_no_bundler_drift.md)
 - **[최우선]** [UI 통일은 명시 항목만](./feedback_ui_unification_scope.md) — 주변 UI 추론 확장 금지
 - [worktree base + gitignore 확인](./feedback_worktree_base_check.md)
@@ -151,6 +153,7 @@
 - **[fix 검증 시 baseline 측정 우선](./feedback_verify_fix_with_baseline.md)** — after-only 검증 금지
 - **[분석 도구 환경 가드 grep 우선](./feedback_verify_analytics_env_gate_first.md)** — GA4/Clarity hostname/env 가드 추측 답변 금지, 사용자 자기 코드 기억이 우선
 - **[권장 전 사용자 컨디션 평가](./feedback_assess_user_state_before_rule.md)**
+- **[정체는 대부분 의욕 문제 — 떠먹이지 말고 설득+잘게 쪼개 추진력 (2026-06-02)](./feedback_unblock_by_persuasion.md)**
 - **[보조 기능이 핵심 의존성 메이저 업 끌면 회피](./feedback_dependency_blast_radius.md)**
 - [코드 리뷰 severity triage — HIGH만 즉시](./feedback_review_triage_workflow.md) / [/code-review high — 큰 변경 누적 후 검증](./feedback_code_review_ultra_high_usage.md)
 - [가드/임시대응 주석 스타일](./feedback_guard_comment_style.md)

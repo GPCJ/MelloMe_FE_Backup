@@ -71,6 +71,36 @@ develop 머지로 다른 직군(디자이너 부재, PM/백엔드)이 prod에서
 
 ---
 
+## 트리거 C 실현 #1 — 모바일 UT 작성완료 버튼 가시성 (2026-06-01)
+
+**피드백**: 모바일에서 고민카드 작성 시, 작성 완료 버튼이 헤더(상단)에 `PencilLine` 아이콘 단독으로만 있어 → 아래로 스크롤하며 폼을 채운 뒤 완료 버튼을 찾기 어렵다. 시선 종점(하단)과 액션 위치(상단)가 어긋남 + 아이콘 의미 약함.
+
+**대응 결정 (분류 = 시각/UX 자체 정정)**:
+- 항상 노출되는 하단 푸터(`shrink-0`, 스크롤 무관)에 `작성 완료` **텍스트 버튼** 추가 — 모바일 스크롤 종점에 배치. `ConcernForm.tsx` footer만 수정.
+- 스타일: 활성 시 **채움**(`bg-gray-900`/`text-white`, 연령대·치료영역 칩 active 톤 재사용) / 비활성 outline(`border-gray-200`/`text-gray-300`). 색상 신규 도입 X.
+- `aria-disabled` + `handleSubmit` 재사용 → 헤더 버튼과 동일하게 누락 필드 토스트 유지.
+- **헤더 ✏️ 아이콘은 의도적 유지 (이중 배치 확정 — 사용자 결정)**. 추후 "중복이니 제거" 판단 금지, 의도된 것.
+
+**상태**: develop push `c7f9f10` (`bf24bfe..c7f9f10`) → staging 팀 피드백 수집 중. main은 미반영(다음 develop→main 머지 때 동반). main 워킹트리의 타 세션 `notion_draft.md`는 stash로 보존, 미오염.
+
+**보류 (팀 피드백 후 결정)**:
+- [ ] 버튼 위치: 양끝 배치(현재 `[공개범위]…[작성완료]`) vs 전체폭
+- [ ] PostWriteForm(일반 글쓰기)도 동일 패턴 통일 여부 — 현재 ConcernForm만. 공유 `WriteFormHeader` 미수정이라 일반 글쓰기 영향 없음.
+
+---
+
+## 트리거 C 실현 #2 — 작성 폼 입력 구조를 View와 일치 (2026-06-02)
+
+**피드백 (UT 2차)**: 고민카드 작성 폼 입력 순서가 View(ConcernCard 표시)와 어긋남. 작성/조회 정신모델을 맞춰달라는 요청.
+
+**대응 결정 (분류 = 시각/UX 자체 정정)**:
+- `ConcernForm.tsx` 본문 입력 순서를 ConcernCard와 동일하게 재배치 — **연령대 → 치료영역 → 진단명(필터칩 입력 3종 상단) → 고민지점 본문 textarea(최하단)**. 기존엔 고민지점 본문이 맨 위였음.
+- **기타(otherNotes) 입력 폼 삭제** — `otherNotes` state·onChange·`createConcern` 전달·`isDirty` 체크·`OTHER_NOTES_MAX_LENGTH` import 전부 제거. ⚠️ `otherNotes`는 API(`api/concerns.ts`, 옵셔널)·ConcernCard View엔 그대로 잔존 → 작성 입구만 닫음. `OTHER_NOTES_MAX_LENGTH` 상수는 `constants/concern.ts`에 미사용으로 남음(승인 시 정리 후보).
+
+**상태**: 브랜치 `feat/concern-form-reorder`, **미커밋·승인 전** — dev 서버(`localhost:3000`)로 검증 중, tsc `-b` 통과. 사용자 승인 후 상수 정리 + 커밋 → develop 머지 사이클. AI 작성+리뷰 분담(기계적 재배치, deadline-unlock 사용).
+
+---
+
 ## 잔여 후속
 
 - [ ] postType Custom Dimension PM 등록 (트리거 B)

@@ -1,6 +1,6 @@
 ---
 name: git
-description: 커밋 메시지 한국어 + 서명 줄 금지 + sync 전용 chore 금지 + diff --stat 사전 확인 + 섞인 커밋 분리 절차
+description: 커밋 메시지 한국어 + 서명 줄 금지 + sync 전용 chore 금지 + diff --stat 사전 확인 + 섞인 커밋 분리 절차 + AI 기능작업 PR(유닛별 커밋, slice 분할, base develop)
 metadata: 
   node_type: memory
   type: feedback
@@ -87,6 +87,22 @@ metadata:
 
 ---
 
+## 6. AI 작성 비중 큰 기능 = PR + 유닛별 커밋으로 GitHub diff 리뷰
+
+AI가 코드를 많이 작성하는 기능 작업은, 작업물을 사용자가 **GitHub PR diff로 직접 검토**할 수 있게 올립니다.
+
+**How to apply:**
+- feature 브랜치 생성 → **base는 develop**(staging, [[project_backend_dev_prod_split]]). main 직접 PR 아님.
+- **유닛(작은 의미 단위)마다 커밋** → PR 안에서 커밋별 diff로 단계 검토 가능. 한 커밋에 여러 유닛 몰지 않음.
+- 남은 양이 크면 **설계 slice 단위로 PR 분할**(한 PR에 전부 몰지 않음). 작업 중 `--draft`, 완성 시 `gh pr ready`.
+- 유닛마다 `tsc -b` 통과 확인 후 커밋·push.
+- 다른 세션의 미커밋 변경(예: `notion_draft.md`)은 브랜치 전환 전 `git stash push -- <file>`로 분리, 사용자에게 복구법 고지.
+
+**Why:** 2026-06-01 쪽지 기능 slice 1에서 사용자 명시 요청 — "내가 github로 diff확인 가능하게", "많이 남았으면 중간에 나눠서 PR". AI 작성 코드를 GitHub diff로 검토·학습하려는 워크플로우. slice별 PR(#20=slice 1 등)로 진행.
+
+---
+
 ## 연관
 - [[feedback_force_push_safety_protocol]] — force-push 안전 프로토콜
 - [[feedback_clean_commit_history]] — 클린 커밋 히스토리 원칙
+- [[project_backend_dev_prod_split]] — PR base = develop(staging)

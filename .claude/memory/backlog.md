@@ -118,6 +118,12 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 함정: `setQueriesData` 콜백의 generic 추론이 까다로워 잘못 박으면 빌드 깨짐 — staging 검증 필수
   - 우선순위: 낮음 (MVP 발표 후), R-08/R-10 캐시 패치 코드 일관 정리 시 묶기
 
+- [ ] **R-13** `PostWriteModal` 조건부 마운트 전환 검토 — 쪽지 모달과 동일 판단 적용 여부
+  - 현황: `PostWriteModal`(상시 마운트 + `if(!open) return null`)은 닫힘 애니메이션·내용 보존 등 상시 마운트 이점을 실사용 안 하면서 수동 청소(`mode` 리셋 effect `:17-19`, 라우트 변경 자동 close `:21-26`)만 떠안음. 쪽지 모달(`MessageComposeModal`)을 조건부 마운트로 전환하며 같은 구조적 판단이 여기에도 적용됨
+  - 작업: 얇은 게이트 컴포넌트(`PostWriteModalGate`)로 `open` 구독 격리 → 조건부 렌더. 단 `PostWriteModal`은 `mode` 상태 + 2개 폼(post/concern) 분기라 쪽지 모달보다 청소 로직 많음 → 전환 이득 더 큼
+  - 함정: 라우트 변경 자동 close effect(`:21-26`)는 조건부 마운트로도 안 사라짐(open이 store에 살아있는 store-트리거 패턴 자체의 비용) → 별도 유지 필요
+  - 보류 근거: 이번 스코프는 쪽지 모달만. PostWriteModal은 Hot Path(글 작성)라 회귀 위험 → 별도 PR로 분리
+  - 검증: `grep -n "return null" frontend/src/components/post/PostWriteModal.tsx` + 글 작성 모달 열기/닫기/모드전환/라우트이동 4종 회귀
 - [ ] **R-09** `CommentCard` `React.memo` 적용 — 댓글 리액션 토글 시 불필요 리렌더 차단
   - 현황: 댓글 리액션 hook을 페이지 레벨 단일(B 옵션)로 채택 → 토글 시 부모 `comments` 배열 갱신 → 모든 CommentCard 기본 리렌더
   - 목표: `React.memo(CommentCard)` + immutable update 패턴(이미 hook에서 적용)으로 변경된 카드만 실제 리렌더
@@ -228,8 +234,11 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 
 #### 🔴 디자이너 무관 — 백엔드 블로킹 ("풀린 거 아님", 내일 착수 불가)
 - [~] **🔔 쪽지(DM)** — ⚠️ **정정(2026-05-26): API 존재함** (05-25 "부재 확정"은 오확인, 백엔드가 추가). 착수 진행 중. 설계 스펙 `docs/superpowers/specs/2026-05-26-user-interaction-messaging-design.md`, 메모리 [[project_messaging_feature]].
-  - 진행: 하이브리드 방식. **slice 0 + slice 1 step1~3 완료·커밋**(2026-05-27, slice0=`59a528e`/slice1=`a45ab65`): 알림 `NEW_MESSAGE` 타입+라우팅 / message 타입 / sendMessage API / UserActionDropdown(이해+커밋 완료). **다음 = slice 1 step 4**(`MessageComposeModal` + 모바일 `MessageComposePage` — PC모달/모바일라우트 CH-09, content 2000자·빈값 가드, 발송 에러 분기. 정답지 `PostWriteModal`/`CommentReplyModal`). 이후 step5(진입점 연결)·step6(라우트), slice 2(쪽지함)·3(뱃지/실시간) 대기.
-  - **백엔드 대기:** Q1 `NEW_MESSAGE.referenceId`=messageId? / Q2 `GET /messages/{id}` read 처리 여부 — slice 3 의존.
+  - 진행: **slice 1 완성 (2026-06-01, PR #20 ready, base develop)**. slice0=`59a528e`/slice1 step1~3=`a45ab65`(이전) + step4~6 이번 세션 6커밋(store/useSendMessage/모달/페이지/진입점연결/라우트). ⚠️ step4~6 전부 AI 작성(사용자 "뇌 덜 쓰는" 모드) — 인지부채 박제는 [[project_messaging_feature]].
+    - [ ] **staging 실측** (PR #20 머지 게이트): 작성자 프사 클릭 → 쪽지 → 전송 토스트, PC 모달 / 모바일 `/messages/new` 라우트 양쪽
+    - [ ] PR #20 머지 후 slice 2(쪽지함: received/sent API, 2탭, 상세, 삭제, 프로필 말풍선) — 별도 PR
+    - [ ] slice 3(뱃지/실시간) — 별도 PR
+  - **백엔드:** Q2 ✅해소(GET 상세 자동 읽음, Swagger 확인) / Q1 ⚠️거의해소(referenceId=messageId 추정, NEW_MESSAGE 알림 1건 런타임 확인 남음, slice 0 fallback 있음). **slice 3 하드 블로킹 풀림.** 발견: content maxLength=**1000**(스펙 2000 오기).
 - [ ] **B-09** 타인 프로필 — `GET /users/{id}` 부재 재확인. 상세 스펙/시안(`1444:24270`)은 §2 B-09
 - [ ] **B-04** 팔로우/언팔로우 — `/follow` 엔드포인트 부재. UI는 API 해소 후 자체 결정
 
