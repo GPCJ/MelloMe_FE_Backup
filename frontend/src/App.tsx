@@ -15,6 +15,8 @@ import PostEditPage from './pages/post/PostEditPage';
 import CommentWritePage from './pages/post/CommentWritePage';
 import CommentDetailPage from './pages/post/CommentDetailPage';
 import MessageComposePage from './pages/message/MessageComposePage';
+import MessageBoxPage from './pages/message/MessageBoxPage';
+import MessageDetailPage from './pages/message/MessageDetailPage';
 import SearchPage from './pages/search/SearchPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import NotificationPage from './pages/notification/NotificationPage';
@@ -80,8 +82,11 @@ function App() {
             <Route path="/search" element={<SearchPage />} />
             <Route path="/notifications" element={<NotificationPage />} />
             <Route path="/profile" element={<ProfilePage />} />
-            {/* 모바일 쪽지 작성. slice 2에서 /messages/:messageId 추가 시 그보다 먼저 배치 유지 */}
+            {/* 쪽지함(받은/보낸 2탭). 상세는 /messages/:messageId */}
+            <Route path="/messages" element={<MessageBoxPage />} />
+            {/* 모바일 쪽지 작성. 정적 경로라 /messages/:messageId보다 먼저 배치 */}
             <Route path="/messages/new" element={<MessageComposePage />} />
+            <Route path="/messages/:messageId" element={<MessageDetailPage />} />
           </Route>
 
           <Route path="/my-page" element={<Navigate to="/profile" replace />} />
