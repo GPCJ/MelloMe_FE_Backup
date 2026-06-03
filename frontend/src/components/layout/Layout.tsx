@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { HomeIcon, SearchIcon, WriteIcon, BellIcon, ProfileIcon } from '@/components/icons';
 import { useAuthStore } from '../../stores/useAuthStore';
@@ -14,6 +16,11 @@ export default function Layout() {
 
   // 모바일 글쓰기 페이지(/posts/new)는 풀스크린 시안 — BottomNav가 하단 툴바를 가리지 않도록 숨김.
   const hideBottomNav = location.pathname === '/posts/new';
+
+  // 라우트 변경 시 토스트 닫기
+  useEffect(() => {
+    toast.dismiss();
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen bg-gray-50">
