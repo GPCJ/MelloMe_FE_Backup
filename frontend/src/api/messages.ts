@@ -3,6 +3,7 @@ import type {
     MessageResponse,
     MessageSendRequest,
     PagedResponseMessageResponse,
+    UnreadCountResponse,
 } from '../types/message';
 
 export async function sendMessage(payload:MessageSendRequest): Promise<MessageResponse> {
@@ -36,4 +37,10 @@ export async function fetchMessageDetail(messageId: number): Promise<MessageResp
 
 export async function deleteMessage(messageId: number): Promise<void> {
     await axiosInstance.delete(`/messages/${messageId}`);
+}
+
+// 안읽은 쪽지 수. 뱃지 초기/탭복귀 동기화용. 정답지: api/notifications.ts fetchUnreadCount
+export async function fetchUnreadMessageCount(): Promise<UnreadCountResponse> {
+    const res = await axiosInstance.get('/me/messages/unread-count');
+    return res.data?.data ?? res.data;
 }
