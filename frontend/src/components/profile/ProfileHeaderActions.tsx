@@ -8,6 +8,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/components/shadcn-ui/dropdown-menu';
+import MessageUnreadBadge from '@/components/message/MessageUnreadBadge';
 
 interface ProfileHeaderActionsProps {
   onEditProfile: () => void;
@@ -48,6 +49,8 @@ export default function ProfileHeaderActions({ onEditProfile }: ProfileHeaderAct
             >
               <Icon size={24} />
             </button>
+            {/* 쪽지함 아이콘에만 안읽음 뱃지(부모 relative). */}
+            {key === 'messages' && <MessageUnreadBadge />}
             <span className="pointer-events-none absolute left-1/2 top-full z-50 mt-1.5 -translate-x-1/2 whitespace-nowrap rounded bg-gray-900 px-1.5 py-0.5 text-[11px] text-white opacity-0 transition-opacity group-hover:opacity-100">
               {label}
             </span>
@@ -57,7 +60,9 @@ export default function ProfileHeaderActions({ onEditProfile }: ProfileHeaderAct
 
       {/* 모바일: 케밥 → 드롭다운(아이콘 + 아래 라벨, 세로).
           modal=false: 드롭다운이 body 스크롤을 잠가 다른 모달로 누수되는 함정 회피(slice 1 전례). */}
-      <div className="flex md:hidden">
+      <div className="relative flex md:hidden">
+        {/* 쪽지함이 드롭다운 안에 숨으므로, 케밥 트리거에 안읽음 뱃지를 얹어 열기 전에 알린다. */}
+        <MessageUnreadBadge />
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger aria-label="메뉴" className="text-gray-900">
             <MoreVertical size={24} />
