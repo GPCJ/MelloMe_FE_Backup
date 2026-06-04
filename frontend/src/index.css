@@ -157,6 +157,12 @@
   font-weight: 700;
   margin-bottom: 0.5rem;
 }
+.post-content a {
+  color: #2563eb;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  overflow-wrap: anywhere;
+}
 .post-content strong {
   font-weight: 700;
 }
