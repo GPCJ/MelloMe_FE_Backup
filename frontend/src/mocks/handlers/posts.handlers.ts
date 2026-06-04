@@ -22,7 +22,7 @@ const mockFeedItems = Array.from({ length: FEED_TOTAL }, (_, i) => {
     id,
     postType: 'COMMUNITY' as const,
     // 백엔드 contentPreview에 \n 보존되는 형태(Jira 백엔드 Task 머지 후)를 가정한 mock.
-    // 더보기 인라인 펼침(line-clamp-3 이상 시 노출) 검증용으로 길이/줄수 충분히.
+    // 잘림 "더보기" 신호(line-clamp-3 초과 시 노출) 검증용으로 길이/줄수 충분히.
     contentPreview: `[목업 ${id}] 무한 스크롤 검증용 게시글입니다.\n\n스크롤하면 다음 페이지가 자동으로 로드됩니다.\n\n- 항목 A: 첫 번째 줄\n- 항목 B: 두 번째 줄\n- 항목 C: 세 번째 줄\n\n자세한 내용은 본문에서 확인해주세요.`,
     authorNickname: `테스트치료사${(id % 5) + 1}`,
     therapyArea: therapyAreas[id % therapyAreas.length],

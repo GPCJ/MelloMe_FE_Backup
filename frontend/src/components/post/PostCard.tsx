@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, MessageCircle, Heart, Lock, ChevronDown } from 'lucide-react';
+import { Bookmark, MessageCircle, Heart, Lock } from 'lucide-react';
 import type { PostSummary, PostReaction } from '../../types/post';
 import { formatRelativeTime } from '../../utils/formatDate';
 import { scrapPost, unscrapPost } from '../../api/posts';
@@ -57,14 +57,12 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
 
   const imagesScroll = useDragScroll();
 
-  // X 스타일 더보기: line-clamp-3으로 잘리는 경우에만 버튼 노출.
-  // truncated 측정은 축약 상태 기준이라야 의미가 있어 expanded=false일 때만 수행.
-  // ResizeObserver로 감싸 폰트/이미지 로딩·뷰포트 변경에 따른 레이아웃 변동도 재측정.
+  // 본문이 line-clamp-3로 잘리면 "더보기" 신호만 표시(인라인 펼침 없음).
+  // 카드 전체가 상세로 가는 Link라 더보기 클릭은 자연히 상세 이동으로 흡수됨.
+  // truncated 측정은 잘림 여부 판단용. ResizeObserver로 폰트/이미지 로딩·뷰포트 변경 재측정.
   const contentRef = useRef<HTMLParagraphElement>(null);
-  const [expanded, setExpanded] = useState(false);
   const [truncated, setTruncated] = useState(false);
   useLayoutEffect(() => {
-    if (expanded) return;
     const el = contentRef.current;
     if (!el) return;
     // +1: subpixel 반올림 오차 가드
@@ -73,7 +71,7 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [post.contentPreview, expanded]);
+  }, [post.contentPreview]);
 
   return (
     <Link
@@ -135,35 +133,21 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
             />
           ) : (
           <>
-            <p
-              ref={contentRef}
-              className={`text-sm text-gray-600 leading-5 whitespace-pre-wrap break-words mb-2.5 ${
-                expanded ? '' : 'line-clamp-3'
-              }`}
-            >
-              {post.contentPreview}
-            </p>
-            {truncated && !expanded && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  // 카드 전체가 Link라 펼침 클릭이 라우팅으로 새지 않도록 차단.
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setExpanded(true);
-                }}
-                // 한손 조작 도달성 개선: 충분히 넓은 탭 밴드 + 가운데 정렬 + 둥근 모서리로 어포던스 명시.
-                // -mx-3 px-6: 카드 padding 안쪽으로 양쪽 12px 흰 여백을 남겨 띠가 "정의된 pill"로 보이게.
-                // py-2: 위아래 8px 탭 패딩. rounded-md: 둥근 양끝이 body 흰색과의 시각 종단을 만듦.
-                // bg-gray-50, border-gray-100: 미니멀 톤 유지(흰색 대비 옅은 회색 + hairline).
-                // w-[calc(100%+1.5rem)]: w-full + -mx-3 조합의 너비식 불일치 보정 — 음수 마진 합(1.5rem=24px)
-                // 만큼 너비에 더해야 카드 좌·우 12px 여백이 균형 잡힘.
-                className="w-[calc(100%+1.5rem)] -mx-3 px-6 py-2 mb-2.5 flex items-center justify-center gap-1 text-xs text-blue-600 bg-gray-50 border-t border-gray-100 hover:bg-gray-100 rounded-md transition-colors"
+            {/* 본문 5줄 클램프 + 잘릴 때 6번째 줄에 "... 더보기" 신호.
+                높이 기반 클램프(max-h 100px = leading-5 20px × 5)로 자른다 —
+                line-clamp의 자동 "…"가 6줄째 "... 더보기"와 중복되므로 의도적으로 회피.
+                신호일 뿐 — 클릭은 카드 전체 Link가 상세로 흡수(별도 onClick 없음). */}
+            <div className="mb-2.5">
+              <p
+                ref={contentRef}
+                className="text-sm text-gray-600 leading-5 whitespace-pre-wrap break-words max-h-[100px] overflow-hidden"
               >
-                더보기
-                <ChevronDown size={14} />
-              </button>
-            )}
+                {post.contentPreview}
+              </p>
+              {truncated && (
+                <p className="text-sm text-gray-400 leading-5">... 더보기</p>
+              )}
+            </div>
             {/* 첨부 이미지 캐러셀 — staging 응답의 imageUrls 사용. 가드: 있을 때만 렌더. */}
             {post.imageUrls && post.imageUrls.length > 0 && (
               <div
