@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, PencilLine } from 'lucide-react';
 import { useMessageComposeStore } from '../../stores/messageComposeStore';
 import { useSendMessage, MESSAGE_MAX_LENGTH } from '../../hooks/useSendMessage';
@@ -12,8 +13,15 @@ export default function MessageComposeModal() {
   const receiverNickname = useMessageComposeStore((s) => s.receiverNickname);
   const closeCompose = useMessageComposeStore((s) => s.closeCompose);
 
+  const navigate = useNavigate();
   const [content, setContent] = useState('');
-  const { submitting, send } = useSendMessage({ onSuccess: closeCompose });
+  // 전송 성공 시 모달을 닫고 쪽지함의 보낸함 탭으로 이동 — 방금 보낸 쪽지가 바로 보이도록.
+  const { submitting, send } = useSendMessage({
+    onSuccess: () => {
+      closeCompose();
+      navigate('/messages?tab=sent');
+    },
+  });
 
   // ESC로 닫기 + body 스크롤 잠금. 마운트=열린 상태이므로 가드 없이 항상 설치한다.
   useEffect(() => {

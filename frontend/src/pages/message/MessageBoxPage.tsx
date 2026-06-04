@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import PageHeader from '../../components/common/PageHeader';
 import Pagination from '../../components/common/Pagination';
@@ -14,7 +14,9 @@ type Tab = 'received' | 'sent';
 // 안읽음 카운트는 slice 3에서 store로 별도 관리(목록=RQ / 카운트=store 이원화).
 export default function MessageBoxPage() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Tab>('received');
+  // 초기 탭은 ?tab=sent 쿼리로 지정 가능(전송 직후 보낸함 도착). 그 외엔 받은함 기본.
+  const [searchParams] = useSearchParams();
+  const [tab, setTab] = useState<Tab>(searchParams.get('tab') === 'sent' ? 'sent' : 'received');
   const [page, setPage] = useState(1);
 
   const queryKey = ['messages', tab, page - 1] as const;
