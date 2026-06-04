@@ -37,9 +37,13 @@ export default function MessageDetailPage() {
   const deleteMutation = useMutation({
     mutationFn: () => deleteMessage(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['messages'] });
-      toast.success('쪽지를 삭제했어요.');
+      // detail 캐시는 건드리지 않는다(invalidate/remove 모두 — 상세가 아직 마운트된 상태라
+      // active observer가 캐시 변화에 반응해 삭제된 쪽지를 다시 refetch → 404가 난다).
+      // navigate로 상세를 언마운트시켜 자연 소멸시키고, 목록만 무효화한다.
+      // 성공 토스트는 생략 — Layout의 라우트 전환 시 toast.dismiss()로 즉시 닫혀 보이지 않음.
       navigate('/messages');
+      queryClient.invalidateQueries({ queryKey: ['messages', 'received'] });
+      queryClient.invalidateQueries({ queryKey: ['messages', 'sent'] });
     },
     onError: (err) => {
       console.error('쪽지 삭제 실패:', err);
