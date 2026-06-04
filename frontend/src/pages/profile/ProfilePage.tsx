@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Camera, Pencil, Search, MessageCircle } from 'lucide-react';
-import { ProfileEditIcon } from '@/components/icons/ProfileEditIcon';
+import { ChevronLeft, ChevronRight, Camera, Pencil } from 'lucide-react';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import PageHeader from '@/components/common/PageHeader';
+import ProfileHeaderActions from '@/components/profile/ProfileHeaderActions';
 import PostCard from '../../components/post/PostCard';
 import { fetchMyPosts, fetchMyComments, fetchMyScraps } from '../../api/mypage';
 import { uploadProfileImage, updateMyProfile } from '../../api/auth';
@@ -161,28 +161,7 @@ export default function ProfilePage() {
       <PageHeader
         title="내 프로필"
         backTo="/posts"
-        rightAction={
-          <>
-            {/* 쪽지함 진입(돋보기 왼쪽). 안읽음 숫자 뱃지는 slice 3(store)에서 추가 */}
-            <button
-              type="button"
-              onClick={() => navigate('/messages')}
-              aria-label="쪽지함"
-              className="text-gray-900 hover:text-gray-600 transition-colors"
-            >
-              <MessageCircle size={24} />
-            </button>
-            <Search size={24} className="text-gray-900" aria-hidden="true" />
-            <button
-              type="button"
-              onClick={startEditNickname}
-              aria-label="프로필 수정"
-              className="text-gray-900 hover:text-gray-600 transition-colors"
-            >
-              <ProfileEditIcon size={24} />
-            </button>
-          </>
-        }
+        rightAction={<ProfileHeaderActions onEditProfile={startEditNickname} />}
       />
 
       {/* 프로필 헤더 */}
