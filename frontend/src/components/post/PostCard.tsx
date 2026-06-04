@@ -10,6 +10,7 @@ import { useDragScroll } from '../../hooks/useDragScroll';
 import UserAvatar from '../common/UserAvatar';
 import { trackReaction } from '../../lib/analytics';
 import { resolveImageUrl } from '../../utils/resolveImageUrl';
+import { parseContentPreview } from '../../utils/contentPreview';
 import ConcernCard from './ConcernCard';
 
 interface PostCardProps {
@@ -57,21 +58,23 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
 
   const imagesScroll = useDragScroll();
 
-  // 본문이 line-clamp-3로 잘리면 "더보기" 신호만 표시(인라인 펼침 없음).
-  // 카드 전체가 상세로 가는 Link라 더보기 클릭은 자연히 상세 이동으로 흡수됨.
-  // truncated 측정은 잘림 여부 판단용. ResizeObserver로 폰트/이미지 로딩·뷰포트 변경 재측정.
+  // "더보기" 신호 = 백엔드 생략(글자수) ∥ 프론트 5줄 오버플로. 둘을 OR로 합쳐 단일 신호로 노출.
+  // 백엔드 "..." 표식은 어댑터에서 떼어내(중복 회피) backendTruncated로 승격, 본문은 표식 없는 text 렌더.
+  // overflowed 측정은 프론트 클램프 잘림 판단용. ResizeObserver로 폰트/이미지 로딩·뷰포트 변경 재측정.
+  const { text: previewText, backendTruncated } = parseContentPreview(post.contentPreview);
   const contentRef = useRef<HTMLParagraphElement>(null);
-  const [truncated, setTruncated] = useState(false);
+  const [overflowed, setOverflowed] = useState(false);
   useLayoutEffect(() => {
     const el = contentRef.current;
     if (!el) return;
     // +1: subpixel 반올림 오차 가드
-    const measure = () => setTruncated(el.scrollHeight > el.clientHeight + 1);
+    const measure = () => setOverflowed(el.scrollHeight > el.clientHeight + 1);
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [post.contentPreview]);
+  }, [previewText]);
+  const showMore = backendTruncated || overflowed;
 
   return (
     <Link
@@ -142,9 +145,9 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
                 ref={contentRef}
                 className="text-sm text-gray-600 leading-5 whitespace-pre-wrap break-words max-h-[100px] overflow-hidden"
               >
-                {post.contentPreview}
+                {previewText}
               </p>
-              {truncated && (
+              {showMore && (
                 <p className="text-sm text-gray-400 leading-5">... 더보기</p>
               )}
             </div>
