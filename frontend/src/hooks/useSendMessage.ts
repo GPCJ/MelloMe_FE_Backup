@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { sendMessage } from '../api/messages';
@@ -15,6 +16,7 @@ interface UseSendMessageOptions {
 
 export function useSendMessage({ onSuccess }: UseSendMessageOptions = {}) {
   const [submitting, setSubmitting] = useState(false);
+  const queryClient = useQueryClient();
 
   async function send(receiverId: number, content: string) {
     // in-flight 가드: setSubmitting 비동기 배치라 동기 이중 호출(IME Enter 이중 발화, 더블탭)을
@@ -31,6 +33,9 @@ export function useSendMessage({ onSuccess }: UseSendMessageOptions = {}) {
     setSubmitting(true);
     try {
       const message = await sendMessage({ receiverId, content: trimmed });
+      // 전송 직후 쪽지함 캐시 무효화 — 보낸함(+broadcast면 받은함)이 staleTime(30s) 안이어도
+      // 쪽지함 진입 시 최신 목록을 다시 받게 한다. onSuccess(navigate)보다 먼저 무효화.
+      queryClient.invalidateQueries({ queryKey: ['messages'] });
       toast.success('쪽지를 보냈어요.');
       onSuccess?.(message);
     } catch (err) {
