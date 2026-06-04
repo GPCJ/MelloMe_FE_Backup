@@ -6,10 +6,10 @@ import { Trash2 } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import { fetchMessageDetail, deleteMessage } from '../../api/messages';
 import { useAuthStore } from '../../stores/useAuthStore';
+import { useMessageStore } from '../../stores/useMessageStore';
 import type { MessageResponse } from '../../types/message';
 
 // 쪽지 전문 + 삭제. 수신자가 조회하면 백엔드가 자동 읽음 처리(스펙 Q2).
-// 안읽음 뱃지 -1 동기화는 store에 의존하므로 slice 3 범위. 여기서는 목록 캐시만 무효화한다.
 export default function MessageDetailPage() {
   const { messageId } = useParams();
   const navigate = useNavigate();
@@ -27,10 +27,12 @@ export default function MessageDetailPage() {
   const message = messageQuery.data;
 
   // 수신자가 안읽은 쪽지를 열면 백엔드가 read 처리하므로, 받은함 목록 캐시를 무효화해
-  // 복귀 시 read 상태가 반영되게 한다(뱃지 카운트 동기화는 slice 3).
+  // 복귀 시 read 상태가 반영되게 하고, 안읽음 뱃지를 낙관적으로 1 줄인다.
+  // 낙관 감소는 표시 지연을 줄이는 보조 수단 — 신뢰 소스는 초기/탭복귀 동기화다.
   useEffect(() => {
     if (message && myId != null && message.receiverId === myId && !message.read) {
       queryClient.invalidateQueries({ queryKey: ['messages', 'received'] });
+      useMessageStore.getState().decrement();
     }
   }, [message, myId, queryClient]);
 
