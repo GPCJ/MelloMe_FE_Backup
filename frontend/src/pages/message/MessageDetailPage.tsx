@@ -59,7 +59,7 @@ export default function MessageDetailPage() {
   // to가 비숫자/누락이면 작성 화면과 동일하게 가드(PostDetailPage 404 가드 패턴).
   if (!validId) {
     return (
-      <div>
+      <div className="mx-auto max-w-[640px]">
         <PageHeader title="쪽지" backTo="/messages" />
         <div className="px-4 py-10 text-center">
           <p className="text-sm text-gray-600">쪽지를 찾을 수 없어요.</p>
@@ -72,7 +72,7 @@ export default function MessageDetailPage() {
   }
 
   return (
-    <div className="pb-20 md:pb-0">
+    <div className="mx-auto max-w-[640px] pb-20 md:pb-0">
       <PageHeader
         title="쪽지"
         backTo="/messages"
@@ -91,7 +91,7 @@ export default function MessageDetailPage() {
         }
       />
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <div>
         {messageQuery.isLoading ? (
           <div className="py-12 text-center text-gray-400 text-sm">불러오는 중...</div>
         ) : messageQuery.isError || !message ? (
@@ -116,7 +116,7 @@ function MessageBody({ message, myId }: { message: MessageResponse; myId?: numbe
   const counterpart = iAmSender ? message.receiverNickname : message.senderNickname;
 
   return (
-    <div>
+    <div className="bg-white px-4 py-5 border-b border-gray-100">
       <div className="flex items-center gap-2 pb-4 border-b border-gray-100">
         <div className="flex-1 min-w-0">
           <p className="text-xs text-gray-400">{label}</p>

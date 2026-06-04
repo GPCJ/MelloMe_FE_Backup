@@ -42,12 +42,12 @@ export default function MessageBoxPage() {
   }
 
   return (
-    <div className="pb-20 md:pb-0">
+    <div className="mx-auto max-w-[640px] pb-20 md:pb-0">
       <PageHeader title="쪽지함" backTo="/profile" />
 
-      <div className="max-w-2xl mx-auto">
-        {/* 받은함/보낸함 탭 */}
-        <div className="flex border-b border-gray-200">
+      {/* 받은함/보낸함 탭 — 프로필 탭과 동일 컨벤션(sticky + bg-white, text-xs/py-2.5) */}
+      <div className="sticky top-0 z-40 bg-white border-b border-gray-200">
+        <div className="flex">
           {(
             [
               ['received', '받은 쪽지'],
@@ -57,42 +57,40 @@ export default function MessageBoxPage() {
             <button
               key={value}
               onClick={() => switchTab(value)}
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                tab === value
-                  ? 'text-gray-900 border-b-2 border-gray-900'
-                  : 'text-gray-400 hover:text-gray-600'
+              className={`flex-1 py-2.5 text-xs font-medium text-center transition-colors ${
+                tab === value ? 'text-neutral-950 border-b-2 border-black' : 'text-gray-400'
               }`}
             >
               {label}
             </button>
           ))}
         </div>
-
-        {loading ? (
-          <div className="px-4 py-12 text-center text-gray-400 text-sm">불러오는 중...</div>
-        ) : messages.length === 0 ? (
-          <div className="px-4 py-12 text-center text-gray-400 text-sm">
-            {tab === 'received' ? '받은 쪽지가 없습니다' : '보낸 쪽지가 없습니다'}
-          </div>
-        ) : (
-          <>
-            <ul>
-              {messages.map((m) => (
-                <MessageRow
-                  key={m.messageId}
-                  message={m}
-                  tab={tab}
-                  onClick={() => navigate(`/messages/${m.messageId}`)}
-                />
-              ))}
-            </ul>
-
-            {totalPages > 1 && (
-              <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
-            )}
-          </>
-        )}
       </div>
+
+      {loading ? (
+        <div className="px-4 py-12 text-center text-gray-400 text-sm">불러오는 중...</div>
+      ) : messages.length === 0 ? (
+        <div className="px-4 py-12 text-center text-gray-400 text-sm">
+          {tab === 'received' ? '받은 쪽지가 없습니다' : '보낸 쪽지가 없습니다'}
+        </div>
+      ) : (
+        <>
+          <ul>
+            {messages.map((m) => (
+              <MessageRow
+                key={m.messageId}
+                message={m}
+                tab={tab}
+                onClick={() => navigate(`/messages/${m.messageId}`)}
+              />
+            ))}
+          </ul>
+
+          {totalPages > 1 && (
+            <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+          )}
+        </>
+      )}
     </div>
   );
 }
