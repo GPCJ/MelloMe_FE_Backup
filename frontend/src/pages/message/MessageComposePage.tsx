@@ -14,8 +14,8 @@ export default function MessageComposePage() {
   const receiverNickname = params.get('name');
 
   const [content, setContent] = useState('');
-  // TODO(slice 2): 보낸함(/messages) 생기면 성공 후 그쪽으로 이동. 현재는 홈 피드로.
-  const { submitting, send } = useSendMessage({ onSuccess: () => navigate('/posts') });
+  // 전송 성공 후 쪽지함(보낸함 탭에서 확인 가능)으로 이동.
+  const { submitting, send } = useSendMessage({ onSuccess: () => navigate('/messages') });
 
   // to가 누락/비숫자면 작성 불가 — 안내 + 빠져나갈 링크(PostDetailPage 404 가드 패턴).
   if (!to || isNaN(Number(to))) {
