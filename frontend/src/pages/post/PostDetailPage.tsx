@@ -40,6 +40,7 @@ import type { PostDetail, CommentResponse, PostImage } from '../../types/post';
 import { THERAPY_AREA_LABELS } from '../../constants/post';
 import { formatRelativeTime } from '../../utils/formatDate';
 import { resolveImageUrl } from '../../utils/resolveImageUrl';
+import { linkifyUrls } from '../../utils/linkify';
 import UserActionDropdown from '../../components/common/UserActionDropdown';
 import { useOpenMessageCompose } from '../../hooks/useOpenMessageCompose';
 import PageHeader from '@/components/common/PageHeader';
@@ -395,7 +396,10 @@ export default function PostDetailPage() {
             <div
               className="post-content"
               dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(post.content),
+                // 평문 URL을 <a>로 변환 후 정화. target은 새 탭(_blank) 유지를 위해 명시 허용.
+                __html: DOMPurify.sanitize(linkifyUrls(post.content), {
+                  ADD_ATTR: ['target'],
+                }),
               }}
             />
           ))}
