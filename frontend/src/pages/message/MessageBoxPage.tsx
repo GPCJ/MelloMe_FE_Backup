@@ -16,8 +16,8 @@ type Tab = 'received' | 'sent';
 export default function MessageBoxPage() {
   const navigate = useNavigate();
   // 초기 탭은 ?tab=sent 쿼리로 지정 가능(전송 직후 보낸함 도착). 그 외엔 받은함 기본.
-  const [searchParams] = useSearchParams();
-  const [tab, setTab] = useState<Tab>(searchParams.get('tab') === 'sent' ? 'sent' : 'received');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = searchParams.get('tab') === 'sent' ? 'sent' : 'received';
   const [page, setPage] = useState(1);
 
   const queryKey = ['messages', tab, page - 1] as const;
@@ -40,10 +40,10 @@ export default function MessageBoxPage() {
 
   function switchTab(next: Tab) {
     if (next === tab) return;
-    setTab(next);
+    setSearchParams({ tab: next });
     setPage(1);
   }
-
+  
   return (
     <NarrowPage>
       <PageHeader title="쪽지함" backTo="/profile" />

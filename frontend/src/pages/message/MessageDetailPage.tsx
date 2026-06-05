@@ -80,11 +80,14 @@ export default function MessageDetailPage() {
     );
   }
 
+  const iAmSender = message != null && myId != null && message.senderId === myId;
+  const backTo = iAmSender ? '/messages?tab=sent' : '/messages';
+
   return (
     <NarrowPage>
       <PageHeader
         title="쪽지"
-        backTo="/messages"
+        backTo={backTo}
         rightAction={
           message ? (
             <button
