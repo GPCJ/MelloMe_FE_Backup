@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { Trash2 } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import NarrowPage from '../../components/common/NarrowPage';
-import { fetchMessageDetail, deleteMessage } from '../../api/messages';
+import { fetchMessageDetail, deleteMessage, fetchUnreadMessageCount } from '../../api/messages';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useMessageStore } from '../../stores/useMessageStore';
 import type { MessageResponse } from '../../types/message';
@@ -28,13 +28,16 @@ export default function MessageDetailPage() {
   });
   const message = messageQuery.data;
 
-  // 수신자가 안읽은 쪽지를 열면 백엔드가 read 처리하므로, 받은함 목록 캐시를 무효화해
-  // 복귀 시 read 상태가 반영되게 하고, 안읽음 뱃지를 낙관적으로 1 줄인다.
-  // 낙관 감소는 표시 지연을 줄이는 보조 수단 — 신뢰 소스는 초기/탭복귀 동기화다.
+  // 수신자가 상세를 열면 백엔드가 자동 읽음 처리 후 read:true로 응답한다(스펙 Q2).
+  // 그래서 응답의 read로는 "이번에 읽혔는지"를 알 수 없어 낙관적 -1을 쓸 수 없다.
+  // 읽음이 서버에 커밋된 직후이므로, 받은함 목록 캐시를 무효화하고 안읽음 카운트를
+  // 서버에서 다시 받아 뱃지를 맞춘다(서버 = 신뢰 소스). SPA 이동만으로도 즉시 최신화됨.
   useEffect(() => {
-    if (message && myId != null && message.receiverId === myId && !message.read) {
+    if (message && myId != null && message.receiverId === myId) {
       queryClient.invalidateQueries({ queryKey: ['messages', 'received'] });
-      useMessageStore.getState().decrement();
+      fetchUnreadMessageCount()
+        .then(({ unreadCount }) => useMessageStore.getState().setUnreadCount(unreadCount))
+        .catch(() => {});
     }
   }, [message, myId, queryClient]);
 
