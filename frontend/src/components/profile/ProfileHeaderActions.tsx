@@ -61,8 +61,9 @@ export default function ProfileHeaderActions({ onEditProfile }: ProfileHeaderAct
       {/* 모바일: 케밥 → 드롭다운(아이콘 + 아래 라벨, 세로).
           modal=false: 드롭다운이 body 스크롤을 잠가 다른 모달로 누수되는 함정 회피(slice 1 전례). */}
       <div className="relative flex md:hidden">
-        {/* 쪽지함이 드롭다운 안에 숨으므로, 케밥 트리거에 안읽음 뱃지를 얹어 열기 전에 알린다. */}
-        <MessageUnreadBadge />
+        {/* 쪽지함이 드롭다운 안에 숨으므로, 케밥 트리거에 안읽음 뱃지를 얹어 열기 전에 알린다.
+            모바일은 화면이 좁아 숫자 대신 작은 점만(dotOnly). */}
+        <MessageUnreadBadge dotOnly />
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger aria-label="메뉴" className="text-gray-900">
             <MoreVertical size={24} />
@@ -76,7 +77,11 @@ export default function ProfileHeaderActions({ onEditProfile }: ProfileHeaderAct
               >
                 {/* size prop이 아니라 size- 클래스로 지정 — DropdownMenuItem의
                     `[&_svg:not([class*='size-'])]:size-4` 강제 규칙을 벗어나기 위함(size-10=40px) */}
-                <Icon className="size-6" />
+                <span className="relative flex">
+                  <Icon className="size-6" />
+                  {/* 메뉴를 열면 쪽지함 아이콘에도 안읽음 점을 표기(부모 relative). */}
+                  {key === 'messages' && <MessageUnreadBadge dotOnly />}
+                </span>
                 <span className="text-[11px] text-gray-600">{label}</span>
               </DropdownMenuItem>
             ))}
