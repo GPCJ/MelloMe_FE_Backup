@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -9,6 +9,7 @@ import { fetchMessageDetail, deleteMessage } from '../../api/messages';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useMessageStore } from '../../stores/useMessageStore';
 import type { MessageResponse } from '../../types/message';
+import { useSendMessage, MESSAGE_MAX_LENGTH } from '../../hooks/useSendMessage';
 
 // 쪽지 전문 + 삭제. 수신자가 조회하면 백엔드가 자동 읽음 처리(스펙 Q2).
 export default function MessageDetailPage() {
@@ -115,32 +116,63 @@ export default function MessageDetailPage() {
 }
 
 function MessageBody({ message, myId }: { message: MessageResponse; myId?: number }) {
+  const [ input, setInput ] = useState<string>('');
+  const { submitting, send } = useSendMessage({ onSuccess: () => setInput('') });
+
   const iAmSender = myId != null && message.senderId === myId;
   // 내가 보낸 쪽지면 "받는 사람", 받은 쪽지면 "보낸 사람"을 상대방으로 표시.
   const label = iAmSender ? '받는 사람' : '보낸 사람';
   const counterpart = iAmSender ? message.receiverNickname : message.senderNickname;
 
+  // 모바일은 Enter가 줄바꿈/완료 키라 전송 키로 쓰지 않고 전송 버튼을 강제(댓글 입력과 동일 정책).
+  const isMobile = navigator.maxTouchPoints > 0;
+
+  function handleSend() {
+    send(message.senderId, input);
+  }
+
+  // Enter=전송(데스크탑), Shift+Enter=줄바꿈. 한글 IME 합성 종료 시 Enter가 2회 발화하는
+  // React 이슈 방어(isComposing) — CommentInput과 동일 패턴.
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.nativeEvent.isComposing) return;
+    if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
+      e.preventDefault();
+      handleSend();
+    }
+  }
+
   return (
-    <div className="bg-white px-4 py-5 border-b border-gray-100">
-      <div className="flex items-center gap-2 pb-4 border-b border-gray-100">
-        <div className="flex-1 min-w-0">
-          <p className="text-xs text-gray-400">{label}</p>
-          <p className="text-sm font-semibold text-gray-900 truncate">{counterpart}</p>
+    <>
+      <div className="bg-white px-4 py-5 border-b border-gray-100">
+        <div className="flex items-center gap-2 pb-4 border-b border-gray-100">
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-gray-400">{label}</p>
+            <p className="text-sm font-semibold text-gray-900 truncate">{counterpart}</p>
+          </div>
+          {message.broadcast && (
+            <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+              공지
+            </span>
+          )}
         </div>
-        {message.broadcast && (
-          <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">
-            공지
-          </span>
-        )}
+
+        <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-relaxed text-gray-800">
+          {message.content}
+        </p>
+
+        <p className="mt-6 text-xs text-gray-400">
+          {new Date(message.createdAt).toLocaleString('ko-KR')}
+        </p>
       </div>
 
-      <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-relaxed text-gray-800">
-        {message.content}
-      </p>
-
-      <p className="mt-6 text-xs text-gray-400">
-        {new Date(message.createdAt).toLocaleString('ko-KR')}
-      </p>
-    </div>
+      {!iAmSender && !message.broadcast && (
+        <div className="flex items-center gap-2 bg-white px-4 py-5 border-t border-gray-100">
+          <textarea value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown} placeholder="답장을 입력해보세요!" maxLength = {MESSAGE_MAX_LENGTH} rows={1} className="field-sizing-content w-full rounded-lg border border-gray-200 px-4 py-3 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent" />
+          <button onClick={handleSend} disabled={submitting} className="px-5 py-3 text-base font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0">
+            전송
+          </button>
+        </div>
+      )}
+    </>
   );
 }
