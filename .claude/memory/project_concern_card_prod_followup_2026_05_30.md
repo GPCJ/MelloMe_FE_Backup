@@ -97,7 +97,12 @@ develop 머지로 다른 직군(디자이너 부재, PM/백엔드)이 prod에서
 - `ConcernForm.tsx` 본문 입력 순서를 ConcernCard와 동일하게 재배치 — **연령대 → 치료영역 → 진단명(필터칩 입력 3종 상단) → 고민지점 본문 textarea(최하단)**. 기존엔 고민지점 본문이 맨 위였음.
 - **기타(otherNotes) 입력 폼 삭제** — `otherNotes` state·onChange·`createConcern` 전달·`isDirty` 체크·`OTHER_NOTES_MAX_LENGTH` import 전부 제거. ⚠️ `otherNotes`는 API(`api/concerns.ts`, 옵셔널)·ConcernCard View엔 그대로 잔존 → 작성 입구만 닫음. `OTHER_NOTES_MAX_LENGTH` 상수는 `constants/concern.ts`에 미사용으로 남음(승인 시 정리 후보).
 
-**상태**: 브랜치 `feat/concern-form-reorder`, **미커밋·승인 전** — dev 서버(`localhost:3000`)로 검증 중, tsc `-b` 통과. 사용자 승인 후 상수 정리 + 커밋 → develop 머지 사이클. AI 작성+리뷰 분담(기계적 재배치, deadline-unlock 사용).
+**상태 (2026-06-03 ✅ prod + staging 반영 완료)**: 브라우저 검증 완료 → 체리픽으로 **main + develop 양쪽 배포**.
+- 입력 순서 = 연령대 → 치료영역 → 진단명 → 고민지점(본문 최하단). `ConcernForm.tsx`만 수정, otherNotes 0개.
+- **main**(prod): 체리픽 2커밋 `edd4b42`(작성완료 버튼 ← `c7f9f10`) + `d17ddbd`(구조변경 ← `775bbfb`). `b1e944d..d17ddbd` push. 쪽지 slice 1은 **끌고 가지 않음**(의도 — 쪽지함까지 완성 후 develop→main).
+- **develop**(staging): `0376444`(구조변경 체리픽). 작성완료 버튼은 develop에 이미 `c7f9f10`로 있었음.
+- ⚠️ main(`d17ddbd`)·develop(`0376444`)이 **동일 내용 다른 SHA** → 향후 develop→main 머지 시 중복 충돌 가능, **develop본 채택=무손실** ([[project_cherry_pick_retry_logging_to_main_2026_05_28]] 패턴).
+- 기타(otherNotes) 제거는 **작성 폼만**. **수정 폼(`ConcernEditForm`) + BE 필드 전면 제거는 후속** → backlog **`F-07 [BE]`**(BE 협의 필요, 필드 1개라 소규모 예상). 조회 `ConcernCard` 기타 표시는 하위호환 유지.
 
 ---
 

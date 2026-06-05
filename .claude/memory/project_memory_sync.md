@@ -60,3 +60,13 @@ originSessionId: b6f844ce-ccb5-4c47-a5ba-95c70db3b21d
 - **사고 사례 (2026-05-20)**: notion_draft를 레포 사본(`MelloMe_FE_Backup/.claude/memory/`)에서 편집 → push-mello가 stale한 auto-memory 버전을 push → 편집분이 main 워킹트리에만 uncommitted로 남고 누락. auto-memory로 복사 후 재push로 해소.
 - **혼란 원인**: 사람이 자연스럽게 여는 곳(VSCode, `/post-notion-draft`)이 레포 사본이라, 거기서 편집하기 쉬움. 하지만 sync 원본은 auto-memory.
 - **How to apply**: ① 메모리/노션초안 편집은 `MEMORY_SRC`(`/home/jin24/.claude/projects/-home-jin24-MelloMe-FE-Backup/memory/`) 경로 파일을 직접 수정 ② VSCode로 열 때도 auto-memory 경로를 열기 ③ 레포 사본이 워킹트리에 modified로 떠도 그건 미러일 뿐, 진실은 auto-memory ④ 코드 변경(.tsx 등)은 이 규칙과 무관, 일반 git 커밋 흐름. [[feedback_branch_aware_script_test]] 참조.
+
+## 2026-06-03 재발 + 강제 방지책 2종 (develop `bbe96eb`)
+
+위 규칙(2026-05-20 박제)이 있었는데도 **재발**: 이번 세션에서 Claude가 notion_draft를 레포 사본 경로(`MelloMe_FE_Backup/.claude/memory/`)에서 Read/Edit. push-mello 직전 auto-memory가 stale함을 발견해 **사본→원본 역복사로 사고 회피**(초안 전체 소실 직전). 교훈: **memory 규칙은 참고 컨텍스트라 강제력이 없음** → 반복 위반 시 우선순위 상위 수단으로 escalate.
+
+**escalate한 방지책 2종:**
+1. **CLAUDE.md IMPORTANT 규칙** — "메모리/노션초안의 유일한 편집 원본은 auto-memory(`MEMORY_SRC`), 레포 사본 직접 편집 금지". 프로젝트 지시라 memory보다 우선순위 높아 Claude가 반드시 따름.
+2. **`memory-sync.sh` `guard_no_direct_mirror_edit`** — push-mello 시작 시 레포 사본 `.claude/memory/`가 git-dirty(직접 편집됨)면 abort. **반드시 `ensure_on_develop`(stash)보다 먼저 호출** — stash되면 편집이 숨어 감지 불가. 정상 흐름은 원본만 편집→사본 깨끗→오탐 없음. `FORCE_MIRROR_EDIT=1`로 우회. abort 메시지가 "원본으로 옮긴 뒤 `git restore .claude/memory/`로 사본 비우고 재실행"을 안내.
+
+**주의(전이 한계):** 가드는 develop에만 존재 → 작업 브랜치는 develop 머지 후에야 가드 보유(branch-aware-script 한계, [[feedback_branch_aware_script_test]]). 또한 사본이 dirty인 채 가드 보유 브랜치에서 push-mello 돌리면(이번처럼 내용은 이미 원본·develop에 안전해도) abort됨 → `git restore .claude/memory/`로 비우고 재실행하면 무손실.

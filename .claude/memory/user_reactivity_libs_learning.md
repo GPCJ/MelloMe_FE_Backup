@@ -29,3 +29,9 @@ originSessionId: ae7aa7da-b987-4cb5-af3d-71635929aad2
 - 함께 잡은 구분: `getState()`=그 순간 한 번 찍는 **스냅샷(구독 X, 컴포넌트 밖용)** vs 훅 셀렉터=**구독**(반환값 바뀌면 리렌더). UserActionDropdown 본인/타인 분기가 로그인 상태 변화에 자동 반응하는 이유.
 - 효과 있었던 비유: 냉장고(store) 통째로 받지 않고 "우유만 보여줘" 쪽지(셀렉터)를 건네면 zustand가 우유만 꺼내 줌. 향후 셀렉터 설명 시 재사용 가능.
 - 이제 셀렉터 기본 문법은 체화됨 — 다음엔 기초 재설명 불필요, 캐시 키/무효화 등 상위 단편으로.
+
+**누적 단편 규칙 — RQ 캐시 3종 (2026-06-04 쪽지 slice 2 자가 리뷰에서, 사용자 이해·확인 완료):**
+- ① `placeholderData: keepPreviousData` — 쿼리키가 바뀌면(페이지/탭 전환) RQ는 새 쿼리로 보고 data가 잠깐 `undefined`가 돼 목록이 깜빡임. 이 옵션은 **새 키 데이터 도착 전까지 직전 키 데이터를 화면에 유지**해 깜빡임을 없앰. 비유=2페이지 가지러 간 사이 책상 위 1페이지를 안 치움.
+- ② `invalidateQueries` **prefix 매칭** — 정확히 일치가 아니라 **그 키로 시작하는 모든 쿼리**를 잡음. `['messages']`만 주면 그 아래 received/sent/detail·모든 page가 일괄 무효화. 좁히려면 더 깊은 키(`['messages','received']`). 영향 범위를 모르면 공통 조상, 알면 좁게.
+- ③ **active observer 반응** — 화면에 떠 있는(마운트된) 쿼리의 캐시를 invalidate/remove하면 그 observer가 변화를 감지해 **즉시 refetch**. 그래서 쪽지 삭제 직후 `invalidateQueries(['messages'])`(detail 포함)나 `removeQueries(detail)`를 하면 삭제된 쪽지를 다시 요청 → 404. 정답=**detail은 건드리지 말고 `navigate`로 언마운트시켜 observer를 없앤 뒤** 목록만 무효화. ("캐시를 어떻게 비우나"보다 "지금 그 쿼리를 누가 구독 중인가"가 핵심.)
+- 사용자가 ①의 `keepPreviousData`를 처음 보고 질문 → 메커니즘 이해, ③의 404를 직접 디버깅 흐름으로 따라옴. RQ 학습이 "구독/캐시 키" 단계에서 "캐시 무효화 타이밍×observer 생명주기" 단계로 진입.

@@ -23,5 +23,7 @@ worktree 생성 시 git이 추적하는 파일은 자동으로 따라오지만 `
 **How to apply:**
 - worktree 생성 직후 `cp <main-repo>/frontend/.env <main-repo>/frontend/.env.local <worktree>/frontend/`로 메인 repo의 env 파일 복사
 - 일반화: `git ls-files --others --ignored --exclude-standard`로 메인 repo의 gitignore된 파일 목록 확인 → 그중 환경 파일(`.env*`)은 worktree에도 복사
-- npm install도 worktree마다 따로 (메인 repo node_modules symlink는 vite `server.fs.allow` 깨뜨림)
+- **검증 목적별로 node_modules 전략이 다름:**
+  - 타입체크(`tsc -b`)만 할 거면 메인 repo node_modules를 심링크하면 npm install(수 분) 회피 가능. 단 심링크 전 `diff <(cat <main>/frontend/package.json) <(cat <worktree>/frontend/package.json)`로 동일성 확인(다르면 버전 어긋남 위험). 2026-06-03 slice 2 PR #21에서 이 방식으로 tsc 통과 검증.
+  - **dev 서버(`npm run dev`)를 띄울 거면 심링크 금지 → worktree마다 npm install 따로** (메인 repo node_modules symlink는 vite `server.fs.allow` 깨뜨림)
 - 검증: dev 서버 띄우고 첫 API 호출 응답이 200 + JSON인지 확인 (HTML이면 SPA fallback 의심)
