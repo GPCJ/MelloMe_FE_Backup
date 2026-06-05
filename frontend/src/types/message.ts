@@ -25,5 +25,5 @@ export interface PagedResponseMessageResponse{
 }
 
 export interface UnreadCountResponse {
-    count: number;
+    unreadCount: number;
 }
