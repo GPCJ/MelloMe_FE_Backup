@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tansta
 import { toast } from 'sonner';
 import { Trash2 } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
+import NarrowPage from '../../components/common/NarrowPage';
 import Pagination from '../../components/common/Pagination';
 import { useNotificationStore } from '../../stores/useNotificationStore';
 import {
@@ -135,7 +136,7 @@ export default function NotificationPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[640px] pb-20 md:pb-0">
+    <NarrowPage>
       <PageHeader
         title="알림"
         backTo="/posts"
@@ -196,6 +197,6 @@ export default function NotificationPage() {
           </>
         )}
       </div>
-    </div>
+    </NarrowPage>
   );
 }

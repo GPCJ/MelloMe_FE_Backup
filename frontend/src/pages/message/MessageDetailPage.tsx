@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Trash2 } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
+import NarrowPage from '../../components/common/NarrowPage';
 import { fetchMessageDetail, deleteMessage } from '../../api/messages';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useMessageStore } from '../../stores/useMessageStore';
@@ -61,6 +62,8 @@ export default function MessageDetailPage() {
   // to가 비숫자/누락이면 작성 화면과 동일하게 가드(PostDetailPage 404 가드 패턴).
   if (!validId) {
     return (
+      // NarrowPage 미사용: NarrowPage가 강제하는 pb-20(모바일 하단바 여백)이
+      // 이 짧은 가드 화면엔 불필요 → 폭(max-w-[640px])만 맞춘 단순 div로 둔다.
       <div className="mx-auto max-w-[640px]">
         <PageHeader title="쪽지" backTo="/messages" />
         <div className="px-4 py-10 text-center">
@@ -74,7 +77,7 @@ export default function MessageDetailPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[640px] pb-20 md:pb-0">
+    <NarrowPage>
       <PageHeader
         title="쪽지"
         backTo="/messages"
@@ -107,7 +110,7 @@ export default function MessageDetailPage() {
           <MessageBody message={message} myId={myId} />
         )}
       </div>
-    </div>
+    </NarrowPage>
   );
 }
 

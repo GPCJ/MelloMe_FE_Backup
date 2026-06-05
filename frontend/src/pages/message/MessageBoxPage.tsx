@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import PageHeader from '../../components/common/PageHeader';
+import NarrowPage from '../../components/common/NarrowPage';
 import Pagination from '../../components/common/Pagination';
 import { fetchReceivedMessages, fetchSentMessages } from '../../api/messages';
 import type { MessageResponse } from '../../types/message';
@@ -44,7 +45,7 @@ export default function MessageBoxPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[640px] pb-20 md:pb-0">
+    <NarrowPage>
       <PageHeader title="쪽지함" backTo="/profile" />
 
       {/* 받은함/보낸함 탭 — 프로필 탭과 동일 컨벤션(sticky + bg-white, text-xs/py-2.5) */}
@@ -93,7 +94,7 @@ export default function MessageBoxPage() {
           )}
         </>
       )}
-    </div>
+    </NarrowPage>
   );
 }
 
