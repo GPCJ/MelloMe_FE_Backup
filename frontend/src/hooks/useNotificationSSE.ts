@@ -163,8 +163,8 @@ export function useNotificationSSE() {
   // 안읽은 쪽지 수 동기화(신뢰 소스). SSE 끊긴 동안 도착한 쪽지를 초기/탭복귀 시점에 반영.
   async function syncMessageUnreadCount() {
     try {
-      const { count } = await fetchUnreadMessageCount();
-      useMessageStore.getState().setUnreadCount(count);
+      const { unreadCount } = await fetchUnreadMessageCount();
+      useMessageStore.getState().setUnreadCount(unreadCount);
     } catch (err) {
       console.warn('쪽지 unreadCount 동기화 실패:', err);
     }
