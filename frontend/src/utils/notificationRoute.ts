@@ -25,8 +25,8 @@ export function getNotificationRoute(
       return '/profile';
 
     case 'NEW_MESSAGE':
-      // 임시: Q1(referenceId=messageId) 확인 + 슬라이스 2(상세 페이지) 후 `/messages/${referenceId}`로 승격
-      return `/messages`;
+      // referenceId = messageId 확인됨(2026-06-05 런타임 대조). 쪽지 상세로 직행, 없으면 목록 fallback.
+      return referenceId ? `/messages/${referenceId}` : '/messages';
 
     default:
       return '/posts';
