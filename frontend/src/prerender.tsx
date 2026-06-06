@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom';
+import LandingPage from './pages/landing/LandingPage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 
@@ -23,18 +24,16 @@ const META_BY_URL: Record<string, PageMeta> = {
 };
 
 /**
- * 랜딩페이지 폐기(2026-05-06) 후 `/`은 hydrate 시 RootRedirect가 즉시 /signup·/posts로
- * navigate. description meta만으로는 Googlebot이 본문(/signup) 자동 추출을 우선해서
- * 검색 결과 부연설명에 회원가입 폼 텍스트가 잡히는 문제 확인(2026-05-15).
+ * 랜딩 부활(2026-06-06) 후 `/` prerender 본체는 실제 LandingPage.
  *
- * 그래서 sr-only 본문에 PM SEO 키워드(핵심5·영역10·정보성11)를 자연어로 박아
- * prerender HTML에 콘텐츠 시그널을 주입함. 사용자 화면에는 안 보이므로 UX 영향 0,
- * hydrate 직후 RootRedirect로 정상 이동.
+ * 추가로 PM SEO 롱테일 키워드(핵심5·영역10·정보성11)를 sr-only 블록으로 함께 prerender한다.
+ * LandingPage 본문이 커버하지 못하는 롱테일(활동지·구인구직 시설명·논문·번아웃 등)을 보존하기 위함.
+ * 이 블록은 prerender HTML(봇이 읽는 정적 산출물)에만 존재하고, 클라이언트 SPA는 LandingPage만
+ * 렌더하므로 실유저 DOM에는 노출되지 않는다(hidden-text 리스크 최소화).
  */
-function SeoRoot() {
+function SeoKeywords() {
   return (
     <div className="sr-only">
-      <h1>Mellti — 발달재활 치료사 커뮤니티</h1>
       <p>
         언어치료사·작업치료사·물리치료사·놀이치료사·특수교사를 비롯한 발달재활 치료사를 위한 커뮤니티
         Mellti. 활동지 공유, 보수교육 정보, 발달센터·병원·부설센터·사회복지관·장애인복지관 구인구직을 한
@@ -50,8 +49,18 @@ function SeoRoot() {
   );
 }
 
+/** `/` prerender = 실제 랜딩 본문 + SEO 키워드 블록. */
+function LandingPrerender() {
+  return (
+    <>
+      <LandingPage />
+      <SeoKeywords />
+    </>
+  );
+}
+
 const ROUTES: Record<string, ComponentType> = {
-  '/': SeoRoot,
+  '/': LandingPrerender,
   '/privacy': PrivacyPage,
   '/terms': TermsPage,
 };

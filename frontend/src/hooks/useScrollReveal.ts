@@ -1,5 +1,9 @@
-import { useLayoutEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import type { RefObject } from 'react';
+
+// SSR(prerender renderToString)에서는 useLayoutEffect가 경고를 내므로 useEffect로 대체.
+// 클라이언트에서는 paint 직전 실행이 필요(깜빡임 방지)하므로 useLayoutEffect 유지.
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 /**
  * 컨테이너 안의 [data-animate] 요소를 스크롤 진입 시 페이드+슬라이드로 등장시킨다.
@@ -10,7 +14,7 @@ import type { RefObject } from 'react';
  * - IntersectionObserver로 뷰포트 진입 시 1회 노출하고 관찰을 해제한다.
  */
 export function useScrollReveal(containerRef: RefObject<HTMLElement | null>) {
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const container = containerRef.current;
     if (!container || typeof IntersectionObserver === 'undefined') return;
 
