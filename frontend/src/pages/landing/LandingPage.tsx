@@ -468,8 +468,66 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Phase 6: Feature ③ 커뮤니티 기능 */}
-        <section id="feature-community" className="p-10">[feature-community]</section>
+        {/* Feature ③ 커뮤니티 기능 — 좌: 카드 4개 스택, 우: 텍스트. 900px↓ 1열(텍스트 먼저). */}
+        <section
+          id="feature-community"
+          className="relative bg-white px-6 py-[120px] max-[480px]:px-5 max-[480px]:py-20"
+        >
+          <div className="mx-auto grid max-w-[1100px] grid-cols-2 items-center gap-20 max-[900px]:grid-cols-1 max-[900px]:gap-12">
+            {/* 좌: 기능 카드 4개 (2x2) */}
+            <div data-animate className="max-[900px]:order-2 max-[900px]:flex max-[900px]:justify-center">
+              <div className="mx-auto grid max-w-[380px] grid-cols-2 gap-3.5 max-[480px]:max-w-[280px]">
+                {[
+                  ['💬', '1:1 메시지', '동료 치료사와 직접 소통'],
+                  ['🔔', '실시간 알림', '댓글, 리액션, DM 알림'],
+                  ['👥', '팔로우 피드', '관심 치료사의 글만 모아보기'],
+                  ['🔄', '리포스트', '유용한 글을 공유하고 인용'],
+                ].map(([icon, title, desc]) => (
+                  <div
+                    key={title}
+                    className="rounded-[20px] border border-neutral-200 bg-white px-[18px] py-7 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition-all hover:-translate-y-1.5 hover:border-neutral-300 hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] max-[480px]:px-3 max-[480px]:py-5"
+                  >
+                    <div className="mb-2.5 text-[1.8rem]">{icon}</div>
+                    <h4 className="mb-1 text-[0.88rem] font-bold text-neutral-800">{title}</h4>
+                    <p className="text-[0.75rem] text-neutral-400">{desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 우: 텍스트 */}
+            <div data-animate className="max-[900px]:order-1">
+              <span className="mb-4 inline-block rounded-full border border-neutral-200 bg-neutral-100 px-3.5 py-[5px] text-[0.8rem] font-semibold text-neutral-500">
+                커뮤니티 기능
+              </span>
+              <h2 className="mb-4 text-[clamp(1.6rem,3vw,2.3rem)] font-extrabold leading-[1.35] tracking-[-0.5px] text-neutral-900">
+                치료사를 위한
+                <br />
+                <span className="font-extrabold">모든 기능</span>
+              </h2>
+              <p className="mb-8 text-base leading-[1.8] text-neutral-500">
+                팔로우, 메시지, 리포스트 등 커뮤니티에 필요한 모든 기능을 갖추고 있어요. 같은 고민을
+                나누는 동료를 찾고, 함께 성장하세요.
+              </p>
+              <ul className="flex flex-col gap-5">
+                {[
+                  ['❤️', '3종 리액션', '좋아요, 유용해요, 궁금해요로 감정 표현'],
+                  ['⏳', '휘발성 게시글', '일정 시간 후 자동 삭제되는 게시글 기능'],
+                ].map(([icon, title, desc]) => (
+                  <li key={title} className="flex items-start gap-3.5">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-neutral-200 bg-neutral-50 text-[1.2rem]">
+                      {icon}
+                    </span>
+                    <div>
+                      <strong className="mb-0.5 block text-[0.95rem] font-semibold">{title}</strong>
+                      <p className="text-[0.85rem] leading-[1.5] text-neutral-500">{desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
 
         {/* Phase 7: CTA */}
         <section id="cta" className="p-10">[cta]</section>
