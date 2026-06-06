@@ -529,12 +529,86 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Phase 7: CTA */}
-        <section id="cta" className="p-10">[cta]</section>
+        {/* CTA — 다크 배경 + 반전 버튼 */}
+        <section
+          id="cta"
+          className="relative overflow-hidden bg-neutral-900 px-6 py-[120px] text-center text-white max-[480px]:px-5 max-[480px]:py-20"
+        >
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.03)_0%,transparent_60%)]" />
+          <div data-animate className="relative z-10">
+            <h2 className="mb-4 text-[clamp(1.8rem,3.5vw,2.6rem)] font-extrabold leading-[1.35] tracking-[-0.5px]">
+              임상 현장의 고민,
+              <br />
+              이제 <span className="text-neutral-300">Mellti</span>에서 나누세요
+            </h2>
+            <p className="mb-9 text-[1.05rem] text-neutral-400">
+              전국의 치료사 동료들이 기다리고 있어요
+            </p>
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-9 py-[15px] text-base font-semibold text-neutral-900 shadow-[0_2px_16px_rgba(255,255,255,0.1)] transition-all hover:-translate-y-0.5 hover:bg-neutral-100 hover:shadow-[0_6px_30px_rgba(255,255,255,0.15)]"
+            >
+              로그인하러 가기
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                <path
+                  d="M4 10h12m0 0l-4-4m4 4l-4 4"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Link>
+          </div>
+        </section>
       </main>
 
-      {/* Phase 8: Footer */}
-      <footer id="footer" className="border-t border-neutral-200 p-4">[footer]</footer>
+      {/* Footer — 브랜드 + 링크 + 회사 정보 */}
+      <footer id="footer" className="border-t border-neutral-200 bg-neutral-50 px-6 pb-8 pt-12">
+        <div className="mx-auto max-w-[1100px]">
+          <div className="mb-8 flex flex-wrap items-start justify-between gap-5">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[1.4rem] font-extrabold tracking-[-0.5px] text-neutral-900">
+                Mellti
+              </span>
+              <p className="text-[0.85rem] text-neutral-400">치료사들의 성장 바다</p>
+            </div>
+            <div className="flex items-center gap-5">
+              <Link
+                to="/terms"
+                className="text-[0.85rem] text-neutral-400 transition-colors hover:text-neutral-900"
+              >
+                이용약관
+              </Link>
+              <Link
+                to="/privacy"
+                className="text-[0.85rem] text-neutral-400 transition-colors hover:text-neutral-900"
+              >
+                개인정보 처리방침
+              </Link>
+              {/* TODO(인스타): 아이로 공식 인스타그램 URL 확정 후 href 연결 */}
+              <a
+                href="#"
+                aria-label="아이로 인스타그램"
+                className="text-neutral-400 transition-colors hover:text-neutral-900"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div className="border-t border-neutral-200 pt-5">
+            {/* TODO(사업자번호): 실제 사업자등록번호 확정 후 교체 */}
+            <p className="text-[0.78rem] leading-[1.8] text-neutral-400">
+              주식회사 아이로 | 사업자등록번호: 000-00-00000
+            </p>
+            <p className="text-[0.78rem] leading-[1.8] text-neutral-400">
+              © 2026 Airo Inc. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
