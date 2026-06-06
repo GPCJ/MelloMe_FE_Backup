@@ -1,6 +1,8 @@
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Upload, PencilLine, LockOpen } from 'lucide-react';
 import { useAuthStore } from '../../stores/useAuthStore';
+import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 /**
  * Mellti 랜딩 페이지 (비로그인 진입 화면).
@@ -14,9 +16,11 @@ import { useAuthStore } from '../../stores/useAuthStore';
  */
 export default function LandingPage() {
   const user = useAuthStore((s) => s.user);
+  const rootRef = useRef<HTMLDivElement>(null);
+  useScrollReveal(rootRef);
 
   return (
-    <div className="min-h-screen bg-white font-sans text-neutral-900">
+    <div ref={rootRef} className="min-h-screen bg-white font-sans text-neutral-900">
       {/* 상단 고정 네비게이션 (반투명 + blur). 높이 64px = h-16. */}
       <nav
         id="nav"
