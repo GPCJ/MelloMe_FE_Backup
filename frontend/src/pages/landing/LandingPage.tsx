@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Upload } from 'lucide-react';
+import { ArrowLeft, Upload, PencilLine, LockOpen } from 'lucide-react';
 import { useAuthStore } from '../../stores/useAuthStore';
 
 /**
@@ -328,8 +328,145 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Phase 5: Feature ② 고민카드 */}
-        <section id="feature-worry" className="p-10">[feature-worry]</section>
+        {/* Feature ② 고민카드 — 좌: 텍스트, 우: 실제 고민카드 작성 폼. bg-secondary. 900px↓ 1열(텍스트 먼저). */}
+        <section
+          id="feature-worry"
+          className="relative bg-neutral-50 px-6 py-[120px] max-[480px]:px-5 max-[480px]:py-20"
+        >
+          <div className="mx-auto grid max-w-[1100px] grid-cols-2 items-center gap-20 max-[900px]:grid-cols-1 max-[900px]:gap-12">
+            {/* 좌: 텍스트 */}
+            <div data-animate>
+              <span className="mb-4 inline-block rounded-full border border-neutral-200 bg-neutral-100 px-3.5 py-[5px] text-[0.8rem] font-semibold text-neutral-500">
+                임상 고민 해결
+              </span>
+              <h2 className="mb-4 text-[clamp(1.6rem,3vw,2.3rem)] font-extrabold leading-[1.35] tracking-[-0.5px] text-neutral-900">
+                혼자 고민하던 치료,
+                <br />
+                <span className="font-extrabold">이제 그만</span>
+              </h2>
+              <p className="mb-8 text-base leading-[1.8] text-neutral-500">
+                고민카드를 작성하면 동료 치료사들의 경험과 노하우를 얻을 수 있어요. 연령대, 진단명,
+                치료영역별로 구조화된 폼으로 정확한 도움을 받아보세요.
+              </p>
+              <ul className="flex flex-col gap-5">
+                {[
+                  ['🧩', '구조화된 고민카드', '연령대, 진단명, 치료영역을 포함한 체계적인 작성 폼'],
+                  ['💡', '동료의 실전 경험', '댓글과 리액션으로 다양한 중재 전략을 공유'],
+                  ['📌', '스크랩 & 아카이빙', '유용한 게시글은 스크랩하여 마이페이지에서 보관'],
+                ].map(([icon, title, desc]) => (
+                  <li key={title} className="flex items-start gap-3.5">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-neutral-200 bg-neutral-50 text-[1.2rem]">
+                      {icon}
+                    </span>
+                    <div>
+                      <strong className="mb-0.5 block text-[0.95rem] font-semibold">{title}</strong>
+                      <p className="text-[0.85rem] leading-[1.5] text-neutral-500">{desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* 우: 실제 ConcernForm 화면 축소 재현 (순서: 연령대→치료영역→진단명→고민지점) */}
+            <div data-animate className="flex justify-center">
+              <div className="w-[300px] rounded-[28px] border border-neutral-200 bg-white p-2.5 shadow-[0_16px_48px_rgba(0,0,0,0.12)] max-[900px]:w-[260px]">
+                <div className="mx-auto mb-2.5 mt-1 h-[5px] w-20 rounded-[10px] bg-neutral-200" />
+                <div className="min-h-[460px] overflow-hidden rounded-[20px] border border-[#eeeeee] bg-white p-3.5">
+                  {/* 헤더 — ← [일반 글 | 고민 카드] ✏️ */}
+                  <div className="mb-3 flex items-center justify-between border-b border-neutral-100 pb-2">
+                    <ArrowLeft size={12} className="text-neutral-700" />
+                    <div className="inline-flex rounded-lg bg-neutral-100 p-0.5 text-[0.5rem]">
+                      <span className="rounded-md px-2 py-1 text-neutral-500">일반 글</span>
+                      <span className="rounded-md bg-white px-2 py-1 font-semibold text-neutral-900 shadow-sm">
+                        고민 카드
+                      </span>
+                    </div>
+                    <PencilLine size={12} className="text-neutral-900" />
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    {/* 연령대 */}
+                    <div>
+                      <div className="mb-1 text-[0.6rem] font-semibold text-neutral-800">연령대</div>
+                      <div className="flex flex-wrap gap-1">
+                        {['영아기', '유아기', '아동기', '청소년기', '성년기', '노령기'].map((c) => (
+                          <span
+                            key={c}
+                            className={`rounded-full border px-2 py-0.5 text-[0.52rem] font-medium ${
+                              c === '유아기'
+                                ? 'border-neutral-900 bg-neutral-900 text-white'
+                                : 'border-neutral-200 bg-white text-neutral-700'
+                            }`}
+                          >
+                            {c}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    {/* 치료영역 */}
+                    <div>
+                      <div className="mb-1 text-[0.6rem] font-semibold text-neutral-800">치료영역</div>
+                      <div className="flex flex-wrap gap-1">
+                        {[
+                          '감각통합',
+                          '언어치료',
+                          '작업치료',
+                          '인지치료',
+                          '물리치료',
+                          '미술치료',
+                          '음악치료',
+                          '놀이치료',
+                          '행동치료',
+                        ].map((c) => (
+                          <span
+                            key={c}
+                            className={`rounded-full border px-2 py-0.5 text-[0.52rem] font-medium ${
+                              c === '감각통합'
+                                ? 'border-neutral-900 bg-neutral-900 text-white'
+                                : 'border-neutral-200 bg-white text-neutral-700'
+                            }`}
+                          >
+                            {c}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    {/* 진단명 */}
+                    <div>
+                      <div className="mb-1 text-[0.6rem] font-semibold text-neutral-800">진단명</div>
+                      <div className="mb-1 flex flex-wrap gap-1">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-[0.52rem] text-neutral-800">
+                          자폐스펙트럼장애 <span className="text-neutral-500">×</span>
+                        </span>
+                      </div>
+                      <div className="rounded-md border border-neutral-200 px-2 py-1.5 text-[0.55rem] text-neutral-400">
+                        진단명을 입력하세요
+                      </div>
+                    </div>
+                    {/* 고민지점 */}
+                    <div>
+                      <div className="mb-1 text-[0.6rem] font-semibold text-neutral-800">고민지점</div>
+                      <div className="min-h-[44px] rounded-md border border-neutral-200 px-2 py-1.5 text-[0.55rem] leading-relaxed text-neutral-600">
+                        만 3세 asd 아동 조절 잡기 어려워서 글 씁니다. 넓은 곳 달리기만 하고 치료실 내에서
+                        소리를 지르거나…
+                      </div>
+                      <p className="mt-0.5 text-right text-[0.5rem] text-neutral-400">52 / 2000</p>
+                    </div>
+                  </div>
+                  {/* 푸터 — 공개범위 + 작성 완료 */}
+                  <div className="mt-3 flex items-center border-t border-neutral-100 pt-2">
+                    <span className="flex items-center gap-1 text-[0.55rem] text-neutral-700">
+                      전체 공개 <LockOpen size={10} />
+                    </span>
+                    <div className="flex-1" />
+                    <span className="rounded-md border border-neutral-900 bg-neutral-900 px-3 py-1 text-[0.55rem] font-semibold text-white">
+                      작성 완료
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Phase 6: Feature ③ 커뮤니티 기능 */}
         <section id="feature-community" className="p-10">[feature-community]</section>
