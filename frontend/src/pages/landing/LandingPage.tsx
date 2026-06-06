@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ArrowLeft, Upload } from 'lucide-react';
 import { useAuthStore } from '../../stores/useAuthStore';
 
 /**
@@ -204,8 +205,128 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Phase 4: Feature ① 안전한 공간 / 인증 */}
-        <section id="feature-safe" className="p-10">[feature-safe]</section>
+        {/* Feature ① 안전한 공간 / 인증 — 좌: 인증 화면 목업, 우: 텍스트. 900px↓ 1열(텍스트 먼저). */}
+        <section
+          id="feature-safe"
+          className="relative bg-white px-6 py-[120px] max-[480px]:px-5 max-[480px]:py-20"
+        >
+          <div className="mx-auto grid max-w-[1100px] grid-cols-2 items-center gap-20 max-[900px]:grid-cols-1 max-[900px]:gap-12">
+            {/* 좌: 인증 화면 목업 */}
+            <div data-animate className="max-[900px]:order-2 max-[900px]:flex max-[900px]:justify-center">
+              <div className="w-[300px] rounded-[28px] border border-neutral-200 bg-white p-2.5 shadow-[0_16px_48px_rgba(0,0,0,0.12)] max-[900px]:w-[260px]">
+                <div className="mx-auto mb-2.5 mt-1 h-[5px] w-20 rounded-[10px] bg-neutral-200" />
+                <div className="min-h-[460px] overflow-hidden rounded-[20px] border border-[#eeeeee] bg-white p-3.5">
+                  {/* 실제 TherapistVerificationPage 화면 축소 재현 */}
+                  <div className="mb-3 flex items-center gap-1.5">
+                    <ArrowLeft size={12} className="text-neutral-400" />
+                    <span className="text-[0.8rem] font-bold text-neutral-900">치료사 인증</span>
+                  </div>
+                  <div className="mb-3">
+                    <div className="text-[0.7rem] font-bold text-neutral-900">치료사 인증 페이지</div>
+                    <p className="text-[0.55rem] text-neutral-500">
+                      치료사 자격증을 인증하고 전문 치료사로 활동해보세요.
+                    </p>
+                  </div>
+                  {/* 면허번호 */}
+                  <div className="mb-2.5">
+                    <div className="mb-1 text-[0.6rem] font-semibold text-neutral-700">
+                      면허번호 <span className="text-red-500">*</span>
+                    </div>
+                    <div className="rounded-md border border-neutral-200 px-2 py-1.5 text-[0.58rem] text-neutral-400">
+                      면허번호를 입력해주세요
+                    </div>
+                  </div>
+                  {/* 면허증 첨부 */}
+                  <div className="mb-2.5">
+                    <div className="mb-1 text-[0.6rem] font-semibold text-neutral-700">
+                      준비물: 면허증 첨부 <span className="text-red-500">*</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1 rounded-md border-2 border-dashed border-neutral-200 py-3 text-neutral-400">
+                      <Upload size={14} />
+                      <span className="text-[0.55rem]">파일을 선택하거나 드래그하세요</span>
+                      <span className="text-[0.5rem] text-neutral-300">JPG, PNG, WEBP (최대 5MB)</span>
+                    </div>
+                  </div>
+                  {/* 치료영역 (9개, 3열, 중복 선택) */}
+                  <div className="mb-3">
+                    <div className="text-[0.6rem] font-semibold text-neutral-700">
+                      추가 수집 정보: 치료영역 <span className="text-red-500">*</span>
+                    </div>
+                    <p className="mb-1.5 text-[0.5rem] text-neutral-400">
+                      인정하시는 치료 영역을 선택하세요 (중복 선택 가능)
+                    </p>
+                    <div className="grid grid-cols-3 gap-1">
+                      {[
+                        ['감각통합', true],
+                        ['언어치료', true],
+                        ['작업치료', false],
+                        ['인지치료', false],
+                        ['물리치료', false],
+                        ['미술치료', false],
+                        ['음악치료', false],
+                        ['놀이치료', false],
+                        ['행동치료', false],
+                      ].map(([area, selected]) => (
+                        <span
+                          key={area as string}
+                          className={`rounded-md border py-1 text-center text-[0.52rem] font-medium ${
+                            selected
+                              ? 'border-neutral-900 bg-neutral-900 text-white'
+                              : 'border-neutral-200 bg-white text-neutral-600'
+                          }`}
+                        >
+                          {area}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  {/* 버튼 (취소 / 인증 신청하기 violet) */}
+                  <div className="flex gap-1.5">
+                    <div className="flex-1 rounded-md border border-neutral-200 py-1.5 text-center text-[0.6rem] font-medium text-neutral-600">
+                      취소
+                    </div>
+                    <div className="flex-1 rounded-md bg-violet-500 py-1.5 text-center text-[0.6rem] font-medium text-white">
+                      인증 신청하기
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 우: 텍스트 */}
+            <div data-animate className="max-[900px]:order-1">
+              <span className="mb-4 inline-block rounded-full border border-neutral-200 bg-neutral-100 px-3.5 py-[5px] text-[0.8rem] font-semibold text-neutral-500">
+                안전한 전문가 공간
+              </span>
+              <h2 className="mb-4 text-[clamp(1.6rem,3vw,2.3rem)] font-extrabold leading-[1.35] tracking-[-0.5px] text-neutral-900">
+                치료사들만의
+                <br />
+                <span className="font-extrabold">안전한 공간</span>
+              </h2>
+              <p className="mb-8 text-base leading-[1.8] text-neutral-500">
+                면허증 인증을 통해 검증된 치료사만 접근할 수 있는 전문가 커뮤니티입니다. 인증 회원은 닉네임
+                옆에 치료영역이 표시되어, 신뢰할 수 있는 동료와 소통하세요.
+              </p>
+              <ul className="flex flex-col gap-5">
+                {[
+                  ['🔐', '면허증 기반 인증', '치료사 자격을 증빙하여 인증 회원 등급을 획득'],
+                  ['🏷️', '치료영역 표시', 'ST, OT, PT 등 전문 분야가 닉네임과 함께 표시'],
+                  ['👁️', '단계별 접근 권한', '인증 등급에 따라 열람 가능한 게시글이 달라져요'],
+                ].map(([icon, title, desc]) => (
+                  <li key={title} className="flex items-start gap-3.5">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-neutral-200 bg-neutral-50 text-[1.2rem]">
+                      {icon}
+                    </span>
+                    <div>
+                      <strong className="mb-0.5 block text-[0.95rem] font-semibold">{title}</strong>
+                      <p className="text-[0.85rem] leading-[1.5] text-neutral-500">{desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
 
         {/* Phase 5: Feature ② 고민카드 */}
         <section id="feature-worry" className="p-10">[feature-worry]</section>
