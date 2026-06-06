@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/layout/Layout';
-import RootRedirect from './components/auth/RootRedirect';
+import LandingPage from './pages/landing/LandingPage';
 import GuestRoute from './components/auth/GuestRoute';
 import AuthRoute from './components/auth/AuthRoute';
 import LoginPage from './pages/auth/LoginPage';
@@ -49,7 +49,9 @@ function App() {
       <AnalyticsTracker />
       <NotificationManager />
       <Routes>
-        <Route path="/" element={<RootRedirect />} />
+        {/* `/`는 로그인 여부와 무관하게 누구에게나 랜딩 페이지를 노출(2026-06-06 부활).
+        로그인 유저는 랜딩 nav의 "커뮤니티" 링크로 /posts 이동. */}
+        <Route path="/" element={<LandingPage />} />
         {/* 정책 페이지 — 비로그인/로그인 모두 접근, Layout 밖 독립 렌더 */}
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />
