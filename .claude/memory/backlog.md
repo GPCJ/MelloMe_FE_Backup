@@ -2,7 +2,7 @@
 name: 프론트엔드 작업 백로그
 description: 데일리 태스크 선택용 단일 참조 파일 — 할 수 있는 것 / 블로킹 대기 / 검증 방법 포함
 type: project
-updated: 2026-05-20
+updated: 2026-06-04
 originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 ---
 # 프론트엔드 작업 백로그
@@ -50,6 +50,28 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - **blast radius**: 작음 (catch 분기 1개 + 렌더 1곳). Hot Path지만 정상 흐름 미변경
   - 검증: `/posts/99999`(없는 ID) 직접 진입 시 404 전용 메시지 + 빠져나갈 링크 노출 확인
   - 연관: `feedback_error_handling`(에러 원인별 분기 정책)
+- [ ] **F-07 [BE]** 고민카드 `otherNotes`(기타) 전면 제거 후속 (2026-06-03)
+  - 배경: 2차 모바일 UT 반영으로 **작성 폼**(`ConcernForm.tsx`)에서만 기타 입력 제거 → prod main 반영 완료 (커밋 `edd4b42`+`d17ddbd`, 입력순서 재배치 동반)
+  - **남은 불일치**: 작성엔 없는데 **수정 폼**(`ConcernEditForm.tsx`)엔 기타 입력 여전히 존재 → 수정 시 기타 추가/편집 가능 (작성↔수정 비대칭)
+  - **유지 대상(건드리지 말 것)**: 조회 `ConcernCard.tsx`의 기타 표시 — 기존 데이터 하위호환용
+  - **잔존 참조**: `ConcernEditForm.tsx`(state/필드), `PostEditPage.tsx:222`, `PostDetailPage.tsx:391`, `PostCard.tsx:132`, `constants/concern.ts:41`(`OTHER_NOTES_MAX_LENGTH`), `api/concerns.ts`, `types/post.ts`(63/111/137/146) — 모두 optional이라 현재 tsc 영향 없음
+  - **[BE] 선결**: API/DB에서 `otherNotes` 필드를 완전히 뺄지 결정 — 필드 하나 제거라 백엔드 작업은 소규모 예상. 백엔드 협의 후 착수
+  - **결정 갈림길**: (a) 수정 폼만 기타 제거(FE 단독, BE 필드는 유지) / (b) BE 필드까지 완전 제거(스키마·기존 데이터 영향 검토)
+  - 검증: 고민카드 수정 진입 시 기타 입력 미노출 + 기존 기타 보유 카드 조회 정상
+- [ ] **F-08 [BE]** 홈피드 미리보기 생략 신호 백/프론트 중복 — FE 단독 조치 완료, 백엔드 협조 대기 (2026-06-04)
+  - **배경**: 백엔드가 `contentPreview`를 글자수 초과 시 잘라 끝에 "..."(또는 "…")를 붙임 + 프론트도 5줄 클램프로 자름 → "더 있음" 신호가 중복·불일치(긴 글=프론트 "... 더보기" / 중간 글=백엔드 "..."만, CTA 없음 / 경계 케이스 이중 "...")
+  - **FE 조치(완료, develop `fb42a22`, AI 작성·인지부채)**: 어댑터 `utils/contentPreview.ts`의 `parseContentPreview`가 끝의 "..."/"…"를 떼어내 `backendTruncated` boolean으로 승격, 본문은 표식 없는 text 렌더. `PostCard`에서 `showMore = backendTruncated ∥ overflowed(5줄)`로 신호 단일화 → 글 길이 무관 "... 더보기" 일관 노출
+  - **FE 단독의 한계(박제)**: "..." 문자열 휴리스틱이라 **작성자가 본문을 "..."로 끝낸 짧은 글은 잘림으로 오탐** → "더보기" 오노출(클릭 시 동일 상세라 무해하나 부정확)
+  - **[BE] 요청 사항**: `contentPreview` 응답에 **잘림 여부 boolean**(`contentTruncated` 또는 `hasMore`) 추가 → FE가 "..." 휴리스틱 대신 플래그로 키잉(오탐 제거). 플래그 도입 시 백엔드 "..." 표식은 제거 가능(FE가 신호 소유). 더불어 `contentPreview` 생략 규칙(글자수 한도)이 현재 **openapi 미문서화** → 스펙 명문화 요청
+  - **주의**: 플래그 없이 "..."만 제거 요청 X — 중간 글(5줄 이내로 잘린)에서 FE가 잘림 여부를 못 알아 "더보기" 누락(정보 손실). "..." 제거는 **반드시 플래그와 동반**
+  - **미적용 경로**: `ConcernCard`(고민카드 본문 clamp)는 별도 클램프 메커니즘이라 이번 조치 범위 밖 — 백엔드 플래그 도입 시 동일 적용 검토
+  - 검증: 짧은 글(생략 없음)=신호 X / 중간 글(백엔드 생략, 5줄 이내)=「... 더보기」 노출 / 긴 글(5줄 초과)=「... 더보기」 + 백엔드 "..." 비노출(클립) / 이중 "..." 없음
+  - 연관: `PostCard.tsx`, `utils/contentPreview.ts`
+
+- [x] **F-09** 알림 페이지 헤더 너비 과다 — 완료 (2026-06-05, develop ff `6fb9527`, 브라우저 검증 통과)
+  - 원인: 헤더는 full-width인데 콘텐츠만 `max-w-2xl`(672px)로 좁혀 헤더가 더 넓어 보였음 (`NotificationPage.tsx:138`/`:154`)
+  - 조치: 폭 제한을 최상위 div로 올려 헤더+콘텐츠를 함께 `max-w-[640px]` 중앙 정렬 (쪽지함과 동일 패턴·폭)
+  - 검증: `/notifications` 헤더·목록 폭 일치 + 쪽지함과 시각 정합 확인
 
 ### 리팩토링 / 마이그레이션 (미검증)
 - [x] **R-01a** ProfilePage 3탭 RQ 마이그레이션 완료 (2026-04-23, 커밋 924d55e + 0ba0523)
@@ -118,6 +140,12 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 함정: `setQueriesData` 콜백의 generic 추론이 까다로워 잘못 박으면 빌드 깨짐 — staging 검증 필수
   - 우선순위: 낮음 (MVP 발표 후), R-08/R-10 캐시 패치 코드 일관 정리 시 묶기
 
+- [ ] **R-13** `PostWriteModal` 조건부 마운트 전환 검토 — 쪽지 모달과 동일 판단 적용 여부
+  - 현황: `PostWriteModal`(상시 마운트 + `if(!open) return null`)은 닫힘 애니메이션·내용 보존 등 상시 마운트 이점을 실사용 안 하면서 수동 청소(`mode` 리셋 effect `:17-19`, 라우트 변경 자동 close `:21-26`)만 떠안음. 쪽지 모달(`MessageComposeModal`)을 조건부 마운트로 전환하며 같은 구조적 판단이 여기에도 적용됨
+  - 작업: 얇은 게이트 컴포넌트(`PostWriteModalGate`)로 `open` 구독 격리 → 조건부 렌더. 단 `PostWriteModal`은 `mode` 상태 + 2개 폼(post/concern) 분기라 쪽지 모달보다 청소 로직 많음 → 전환 이득 더 큼
+  - 함정: 라우트 변경 자동 close effect(`:21-26`)는 조건부 마운트로도 안 사라짐(open이 store에 살아있는 store-트리거 패턴 자체의 비용) → 별도 유지 필요
+  - 보류 근거: 이번 스코프는 쪽지 모달만. PostWriteModal은 Hot Path(글 작성)라 회귀 위험 → 별도 PR로 분리
+  - 검증: `grep -n "return null" frontend/src/components/post/PostWriteModal.tsx` + 글 작성 모달 열기/닫기/모드전환/라우트이동 4종 회귀
 - [ ] **R-09** `CommentCard` `React.memo` 적용 — 댓글 리액션 토글 시 불필요 리렌더 차단
   - 현황: 댓글 리액션 hook을 페이지 레벨 단일(B 옵션)로 채택 → 토글 시 부모 `comments` 배열 갱신 → 모든 CommentCard 기본 리렌더
   - 목표: `React.memo(CommentCard)` + immutable update 패턴(이미 hook에서 적용)으로 변경된 카드만 실제 리렌더
@@ -204,20 +232,51 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 검증: 각 탭에서 빈 상태 시각 확인 + 메시지 문구 정확 매칭
   - 상세: `project_profile_page_signal_chrome_2026_05_11.md`
 
-### UI 자체 결정 후 구현 가능 (디자이너 부재 2026-05-22 — 블로킹 해소)
+### 디자이너 부재(2026-05-22) 후 정리 — 내일 단일 참조 (2026-05-25 검증)
+> 디자이너 퇴팀으로 "디자인 대기"가 풀린 항목 정리. 단 일부는 **디자이너 무관·백엔드 의존**이라 안 풀림. 착수 순서 = 위→아래(쉬운 독립 항목부터).
+> 2026-05-25 코드/Swagger 검증: D-04/D-06은 이미 구현됨 / DM·타인프로필·팔로우는 Swagger 엔드포인트 부재 확정 / 알림(CH-05)은 백엔드 ready.
+
+#### ✅ 확인 결과 이미 해소 (재착수 불필요)
+- [x] **D-04** 첨부파일 UI — `PostDetailPage.tsx:387~432` 시안 정합(`1387:12297`)으로 이미지 캐러셀+첨부 칩+다운로드 구현 완료 (2026-05-25 확인)
+- [x] **D-06** 3종 리액션 UI — `ReactionBar.tsx`(LIKE/CURIOUS/USEFUL) 완성, 댓글·게시글 상세(`PostDetailPage.tsx:544`) 적용. 피드 카드 `PostCard`만 LIKE 단독 노출(의도) → 잔존은 CH-03뿐
+- [-] ~~**D-07** 블러 UI~~ → CH-02 구현 완료(2026-05-10)로 해소
+
+#### 🟢 바로 가능 — 프론트 단독 + 자체 결정 (시안 없음)
 - [ ] **D-02** fallback 안내 메시지 문구 — 자체 결정
 - [ ] **D-03** 모바일/PC 상단 헤더 — `project_mobile_header_refactor.md` 참조, 자체 결정
-- [ ] **D-04** 첨부파일 UI (PostDetailPage) — Figma 잔존 시안 확인 또는 자체 결정
-- [ ] **D-05** 치료영역 배지 (인증 치료사 닉네임 옆) — 백엔드 완료. 스타일 자체 결정
-- [ ] **D-06** 3종 리액션 UI (좋아요·궁금해요·유용해요) — 백엔드 완료. 아이콘+카운트 자체 결정
-- [-] ~~**D-07** 블러 UI~~ → CH-02 구현 완료(2026-05-10)로 해소
 - [ ] **D-09** 데스크탑 헤더 글쓰기 버튼 — 알림 아이콘 왼쪽 자체 결정
-- [ ] **D-10** VerificationCompletePage PENDING/APPROVED — Figma 시안 `1321:5251` 참조
-- [ ] **D-11** 치료사 인증 상세 정보 UI — 자체 결정
+- [ ] **MEL-47** 정렬 토글 UI(최신/인기) — 선행 1스텝: `GET /posts` sort 파라미터 Swagger 확인 (§1 ★ 항목과 동일)
+- [ ] **D-05** 치료영역 배지(인증 치료사 닉네임 옆) — 백엔드 완료. 배지 스타일 자체 결정
+- [ ] **CH-03** 피드 카드(`PostCard`)에 3종 리액션 노출할지 — 현재 LIKE만. 노출 결정 시 기존 `ReactionBar` 재사용
+
+#### 🟢 바로 가능 — 시안 있음 (Figma 참조)
+- [ ] **D-10 / CH-06** VerificationCompletePage(PENDING/APPROVED) + 인증완료 모달 — 시안 `1321:5251` (한 묶음 검토)
+- [ ] 치료사 인증 페이지(`TherapistVerificationPage`) — 기존 Figma 시안 확인 후 구현
+- [ ] **D-11** 치료사 인증 상세 정보(거절 사유/신청 일시) UI — 자체 결정
+
+#### 🔴 디자이너 무관 — 백엔드 블로킹 ("풀린 거 아님", 내일 착수 불가)
+- [x] **🔔 쪽지(DM)** — ✅ **핵심 4슬라이스(0~3) 완료 (2026-06-05).** API 존재(05-25 "부재"는 오확인). 설계 스펙 `docs/superpowers/specs/2026-05-26-user-interaction-messaging-design.md`, 메모리 [[project_messaging_feature]].
+  - slice 0·1 진입/작성(PR #20, merge), slice 2 쪽지함/상세/삭제(PR #21, merge `2896528`) + 후속 5건(`016f82b`~`49672f2`), slice 3 안읽음 뱃지+읽음 동기화+실시간 SSE(PR #23, merge `6a1b270`).
+  - slice 3 실측 4종 통과(초기 동기화/실시간 +1/읽음 -1/모바일 점). 실측 중 필드명 버그 1건 수정(`count`→`unreadCount`, 커밋 `21c44d0`) + 뱃지 UI 마감(`43dcf1c`).
+  - **백엔드:** Q2 ✅(GET 상세 자동 읽음) / Q1 ⚠️(NEW_MESSAGE referenceId=messageId 런타임 미확인, `/messages` 목록 fallback 유지). content maxLength=**1000**.
+  - **후속 4건 ✅ 완료 (2026-06-05, develop push `6fb9527..54a9e3f`)**: 쪽지 상세 답장 입력(+Enter) / 알림 NEW_MESSAGE→상세 직행(Q1 referenceId=messageId **런타임 확정**) / 안읽음 뱃지 SPA 미동기화 fix(상세 GET이 read:true 응답 → 서버 재동기화로 전환) / 쪽지함 탭 URL 보존(searchParams 양방향 + backTo 분기). 상세 [[project_messaging_feature]].
+  - **남은 확장(별도, 후순위)**: 피드 카드 진입점(authorId 부재, BE) / 답장·스레드(API 단발형, BE 재설계).
+- [ ] **F-10 [BE]** 쪽지 발신/수신 프로필 사진 — `MessageResponse`에 이미지 URL 필드 부재 (2026-06-05)
+  - 현황: 쪽지 상세/목록은 닉네임만 표시. `MessageResponse`(`types/message.ts`)에 senderNickname/receiverNickname만 있고 **이미지 URL 없음** → 상대 프로필 사진 표시 불가. `GET /users/{id}`(타인 프로필, B-09)도 부재라 우회 fetch도 불가
+  - 사용자 요청: 닉네임만으론 상대 식별 어려움(실명 아닌 닉네임) → 프로필 사진 표시 희망
+  - **[BE] 요청**: `MessageResponse`에 `senderProfileImageUrl` + `receiverProfileImageUrl` 추가 (게시글/댓글 응답엔 이미 작성자 이미지 동봉 → 같은 패턴, 소규모 예상)
+  - FE 후속(BE 해소 후): 쪽지 상세 발신/수신 라벨 옆에 `UserAvatar` 배선. 그 전엔 닉네임 이니셜 fallback만 가능
+  - 검증: 쪽지 상세에서 상대 프로필 사진 노출 + 이미지 없는 유저는 이니셜 fallback
+- [ ] **B-09** 타인 프로필 — `GET /users/{id}` 부재 재확인. 상세 스펙/시안(`1444:24270`)은 §2 B-09
+- [ ] **B-04** 팔로우/언팔로우 — `/follow` 엔드포인트 부재. UI는 API 해소 후 자체 결정
+
+#### 💡 검증 중 발견 — 디자이너 무관, 백엔드 ready (바로 가능)
+- [ ] **CH-05** 알림 페이지 — `/api/v1/notifications`(+`/subscribe` SSE) 백엔드 **존재** 확인(2026-05-25). 현재 `/notifications`→NotFoundPage. 프론트 단독 가능. SSE 설계 → wiki `sse-b-zustand-fetch-event-source`
 
 ### 인지부채 (코드 아닌 학습)
 - [x] **L-01** `useInfiniteFeed` + P1 fallback 메커니즘 복습 (04-17 대략적 로직 + controller 이해 완료, 더 깊이 파는 것은 RQ 도입 후 불필요)
   - 상세: wiki `p1-feed-pagination-auto-fallback-high`
+- [ ] **L-02** base-ui vs Radix/shadcn `asChild` 구분 재복습 — 이 프로젝트 dropdown은 폴더명만 shadcn이고 실토대는 `@base-ui/react`라 `asChild` 없음(감싸기가 정답). 2026-05-27 쪽지 작업 중 미체화 자각. 상세: `feedback_shadcn_button_aschild.md` 플래그
 - [ ] **L-02** multipart/form-data 연결 과정 이해
 - [ ] **L-03** 리액션 API 리팩토링 흐름 이해
 - [x] **L-04** 마이페이지 3탭 데이터 흐름 이해 (04-17 완료)
@@ -284,6 +343,7 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 - [?] **B-05** 스크랩 `scrapped` 필드 초기값 연동 (P1) — 확인일: 04-16
   - 현황: 합의 완료 + 구현 가능성. 프론트는 `useState(false)` 고정 중
   - 검증: DevTools → GET /posts 응답에서 `scrapped` 값 확인 → 있으면 `useState(post.scrapped)` 교체
+  - 정책: **자신이 쓴 글도 스크랩 가능** (2026-04-22 주간 회의 확정) — `authorId === currentUserId` 조건으로 스크랩 버튼 숨기는 분기 두지 말 것
 - [ ] **B-06** 환영 모달 isNewUser 트리거 — 확인일: 2026-05-06
   - 현황: 환영 모달 자체는 회원가입 직후 SignupPage에서 localStorage 신호로 트리거 완료(2026-05-06). 다른 디바이스/세션 첫 로그인 시 트리거는 미구현 — 백엔드 isNewUser 응답 정상 여부 확인 후 LoginPage에 같은 신호 추가 가능
   - 검증: DevTools → 로그인 응답 `isNewUser` 값이 실제 상태와 일치하는지

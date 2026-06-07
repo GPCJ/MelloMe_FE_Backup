@@ -32,6 +32,11 @@ PostCard "더 보기" 인라인 펼침 구현 중 useLayoutEffect/ResizeObserver
 5. **이벤트 핸들러 vs effect** — 핸들러=유저 행동(onClick) 반응, effect=화면에 보이는 동안 외부 동기화. "유저 행동 트리거면 핸들러, 동기화면 effect".
 6. **비동기 race 도달성 = 인스턴스 생명주기로 판단** — 같은 인스턴스 살아있으면 race(필터칩=searchParams 교체, 페이지 유지), 언마운트되면 죽은 인스턴스 setState가 no-op이라 무해(상세=목록 거쳐 인스턴스 교체). fetch(브라우저 세계)는 언마운트 무관하게 완료, setState(React 세계)만 무시.
 
+## 학습 시점: 2026-05-28 (단편 규칙 보강 — Task 6 DiagnosisTagInput 추상 2 단계)
+
+7. **state vs ref 갈림길** — 사용자가 input 글자를 `useRef`에 저장한다고 잘못 답 → 비유로 잡음. **화이트보드(state) vs 책상 서랍(ref)**: 화이트보드는 누가 마커로 바꾸면 회의실 사람들(React 렌더)이 즉시 바뀐 글자를 봄, 책상 서랍은 값은 들고 있지만 아무도 안 봄(내가 꺼낼 때만). 규칙 한 줄: **"값이 바뀌면 화면이 다시 그려져야 하면 state, 값은 들고 있지만 화면과 무관이면 ref."** input 박스의 글자처럼 매 키 입력마다 화면에 보여야 하는 값은 반드시 state — ref에 넣으면 사용자가 타이핑해도 화면이 안 바뀜.
+8. **파생값은 저장 아니라 매 렌더 계산** — Task 6 추상 2 Q3에서 사용자가 (b) 매 렌더 계산이 정답이라고 답함. 드롭다운 추천 목록처럼 "입력 글자(state) + 시드 목록(상수)"에서 즉석 도출되는 값은 `useState` 따로 두지 말고 컴포넌트 함수 본문에 그냥 `const suggestions = ...` 식으로 계산. 입력 state가 바뀌면 함수가 재실행 → suggestions도 자동 재계산. 별도 상태 + `setSuggestions` 동기화 코드는 불필요 + 버그 원천(React 핵심 멘탈모델). 이유 본인 문장 정리는 다음 세션 재개 시 보강.
+
 ## 아직 흐릿한 개념 (다음에 응용 마주치면 다시 확인)
 
 - **Component / Element 층 구분** — Instance(=fiber)는 2026-05-20에 해소. 남은 건 Component/Element 층. 사용자 표현(2026-05-19): "다른 곳에서도 범용적으로 자주 쓰이는 용어라서 좀 헷갈리네." 구체 코드 매핑에서 다시 정리 필요.
@@ -46,6 +51,8 @@ PostCard "더 보기" 인라인 펼침 구현 중 useLayoutEffect/ResizeObserver
 - "리렌더는 됐는데 화면이 안 바뀌네" → diff 후 DOM commit 없음
 - "왜 한 댓글에 좋아요 눌렀는데 다른 댓글도 같이 빨개졌지?" → key 잘못 줘서 인스턴스 매핑 꼬임
 - "왜 setState 했는데 리렌더가 안 되지?" → bailout 또는 같은 참조
+- "input에 친 글자가 화면에 안 보여" → state 아닌 ref에 저장 (책상 서랍 비유)
+- "파생값을 setState로 동기화하는 useEffect 짜야 하나?" → 그냥 함수 본문에 계산식 한 줄로 두기
 
 ## wiki 박제 여부
 

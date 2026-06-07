@@ -2,7 +2,9 @@ import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useNotificationStore } from '../stores/useNotificationStore';
+import { useMessageStore } from '../stores/useMessageStore';
 import { fetchUnreadCount } from '../api/notifications';
+import { fetchUnreadMessageCount } from '../api/messages';
 import { connectSSE, type SseConnection } from '../lib/sseClient';
 import type { NotificationResponse } from '../types/notification';
 
@@ -35,12 +37,14 @@ export function useNotificationSSE() {
     const accessToken = tokens?.accessToken;
     if (!accessToken) {
       store.getState().clear();
+      useMessageStore.getState().clear();
       return;
     }
 
     // MSW 모드에서는 SSE 비활성화, unreadCount만 REST로 조회
     if (import.meta.env.VITE_MSW_ENABLED === 'true') {
       syncUnreadCount(accessToken);
+      syncMessageUnreadCount();
       return;
     }
 
@@ -49,6 +53,7 @@ export function useNotificationSSE() {
 
     // 초기 unreadCount 동기화
     syncUnreadCount(accessToken);
+    syncMessageUnreadCount();
 
     // SSE 연결
     connect(accessToken);
@@ -57,6 +62,7 @@ export function useNotificationSSE() {
     const handleVisibility = () => {
       if (document.visibilityState === 'visible' && isActiveRef.current) {
         syncUnreadCount(accessToken);
+        syncMessageUnreadCount();
         if (!store.getState().isConnected) {
           connect(accessToken);
         }
@@ -101,6 +107,11 @@ export function useNotificationSSE() {
           try {
             const notification = JSON.parse(event.data) as NotificationResponse;
             store.getState().addNotification(notification);
+            // 쪽지 도착이면 쪽지 전용 뱃지도 +1(알림 뱃지는 위 addNotification이 이미 +1).
+            // 둘 다 오르는 건 의도된 동작 — 스펙 "알림/뱃지 동작" 참조.
+            if (notification.type === 'NEW_MESSAGE') {
+              useMessageStore.getState().increment();
+            }
             toast(notification.content, { duration: 4000 });
           } catch (err) {
             console.warn('알림 이벤트 파싱 실패:', err);
@@ -146,6 +157,16 @@ export function useNotificationSSE() {
     } catch (err) {
       // 401은 axios 인터셉터가 refresh로 흡수합니다. 그 외 일시 장애는 토스트 없이 로깅만 합니다.
       console.warn('unreadCount 동기화 실패:', err);
+    }
+  }
+
+  // 안읽은 쪽지 수 동기화(신뢰 소스). SSE 끊긴 동안 도착한 쪽지를 초기/탭복귀 시점에 반영.
+  async function syncMessageUnreadCount() {
+    try {
+      const { unreadCount } = await fetchUnreadMessageCount();
+      useMessageStore.getState().setUnreadCount(unreadCount);
+    } catch (err) {
+      console.warn('쪽지 unreadCount 동기화 실패:', err);
     }
   }
 }

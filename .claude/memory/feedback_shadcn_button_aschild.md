@@ -34,3 +34,5 @@ trigger 자체에 className 직접 적용 + children은 아이콘만 넣어 butt
 ```
 
 다음에 다른 shadcn 컴포넌트에 `asChild` 시도 전 동일 우회 가능성 먼저 확인.
+
+**⚠️ 사용자 인지부채 플래그 (2026-05-27):** 쪽지 `UserActionDropdown` 단위2 작업 중, 본인이 "이 프로젝트 dropdown = shadcn처럼 보이지만 속은 `@base-ui/react`라 `asChild` 없음 → 감싸기가 정답"을 아직 체화 못 한 상태로 자각. "shadcn이라서 감쌌다"로 잘못 설명했고 교정 받음. 재등장 시 이 구분(shadcn 폴더명 ≠ Radix, 실토대는 base-ui)을 다시 짚을 것. 관련 작업: [[dm-api]] slice 1.

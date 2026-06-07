@@ -27,6 +27,12 @@ originSessionId: 66a71c38-a303-4648-9da9-5f6eff5595a0
 - **시간대**: 대한민국 / 통화: KRW
 - **비즈니스 목표 선택**: "웹/앱 트래픽 파악" + "사용자 참여·유지율 보기"
 - **실시간 리포트**: 좌측 "보고서 > 실시간"
+- **prod 도메인 가드** (2026-04-27 이후): `index.html`에서 `location.hostname === 'www.melonnetherapists.com'`일 때만 `gtag('config', ...)` 호출. develop/staging/localhost는 발사 차단. 검증 절차 = [[feedback_verify_analytics_env_gate_first]]
+- **이벤트 발사 검증 빠른 경로**: 보고서 → 실시간 → "지난 30분 이벤트" 카드 → 이벤트명 클릭 → 매개변수 패널에서 값 확인
+- **매개변수 → 분석 차원 등록**: 관리 → 맞춤 정의 → 맞춤 측정기준 만들기 (범위=이벤트, 매개변수명 코드와 정확히 일치)
+  - 함정: 매개변수만 추가 ≠ 보고서·탐색 분할 가능. 차원 등록 후 발생한 이벤트부터 적용(소급 X)
+  - 한도: 속성당 50개(이벤트 범위)
+  - 결정 정책 = [[project_ga4_event_naming_pattern_2026_05_29]]
 
 ## Microsoft Clarity
 

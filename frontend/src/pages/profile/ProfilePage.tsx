@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Camera, Pencil, Search } from 'lucide-react';
-import { ProfileEditIcon } from '@/components/icons/ProfileEditIcon';
+import { ChevronLeft, ChevronRight, Camera, Pencil } from 'lucide-react';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import PageHeader from '@/components/common/PageHeader';
+import ProfileHeaderActions from '@/components/profile/ProfileHeaderActions';
 import PostCard from '../../components/post/PostCard';
 import { fetchMyPosts, fetchMyComments, fetchMyScraps } from '../../api/mypage';
 import { uploadProfileImage, updateMyProfile } from '../../api/auth';
@@ -161,19 +161,7 @@ export default function ProfilePage() {
       <PageHeader
         title="내 프로필"
         backTo="/posts"
-        rightAction={
-          <>
-            <Search size={24} className="text-gray-900" aria-hidden="true" />
-            <button
-              type="button"
-              onClick={startEditNickname}
-              aria-label="프로필 수정"
-              className="text-gray-900 hover:text-gray-600 transition-colors"
-            >
-              <ProfileEditIcon size={24} />
-            </button>
-          </>
-        }
+        rightAction={<ProfileHeaderActions onEditProfile={startEditNickname} />}
       />
 
       {/* 프로필 헤더 */}

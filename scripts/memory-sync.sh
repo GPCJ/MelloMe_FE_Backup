@@ -58,6 +58,32 @@ guard_no_mass_deletion() {
   fi
 }
 
+# 레포 사본 직접 편집 감지 — .claude/memory/ 사본은 rsync 생성물이므로 직접 편집 금지.
+# 사본에 미커밋 변경이 있으면(=직접 편집됨) 이어지는 rsync가 stale한 원본으로 덮어써 편집이 소실됨
+# (2026-05-20, 2026-06-03 사고). 정상 흐름은 원본 MEMORY_SRC만 편집하므로 사본은 깨끗함 → 오탐 없음.
+# 반드시 ensure_on_develop(stash)보다 먼저 호출해야 함 — stash되면 편집이 숨어 감지 불가.
+# FORCE_MIRROR_EDIT=1 로 우회 가능 (의도한 드문 경우).
+guard_no_direct_mirror_edit() {
+  local dirty
+  dirty=$(git -C "$PROJECT_REPO" status --porcelain -- ".claude/memory/")
+  if [ -n "$dirty" ]; then
+    if [ "$FORCE_MIRROR_EDIT" = "1" ]; then
+      echo "⚠️  레포 사본(.claude/memory/) 직접 편집 감지 — FORCE_MIRROR_EDIT=1 이라 계속 진행합니다."
+      echo "$dirty"
+      return 0
+    fi
+    echo "❌ 레포 사본(.claude/memory/)에 미커밋 변경이 있습니다 — 직접 편집된 것으로 보입니다."
+    echo "   이 사본은 push-mello의 rsync 생성물입니다. 직접 편집하면 다음 push에서"
+    echo "   stale한 auto-memory 원본으로 덮어써져 편집이 소실됩니다 (2026-05-20, 2026-06-03 사고)."
+    echo "   조치: ① 편집 내용을 auto-memory 원본($MEMORY_SRC)으로 옮기고"
+    echo "         ② 사본 변경은 되돌린 뒤(git -C \"$PROJECT_REPO\" restore .claude/memory/) 다시 실행하세요."
+    echo "   변경 파일:"
+    echo "$dirty"
+    echo "   (의도한 작업이면 FORCE_MIRROR_EDIT=1 ./scripts/memory-sync.sh push-mello)"
+    exit 1
+  fi
+}
+
 # 메모리 sync는 항상 develop 대상으로 작동 (2026-04-29 정책 갱신).
 # 2브랜치 정책(main=prod, develop=staging)에서 일상 작업=develop 원칙에 맞춰 메모리 sync도 develop으로 통일.
 # main은 코드 PR merge 흐름으로만 갱신 (memory sync로 main에 직접 커밋 안 함).
@@ -89,6 +115,8 @@ case "$1" in
   push-mello)
     echo "📤 메모리 → 레포 sync 후 push 중..."
     cd "$PROJECT_REPO"
+    # ensure_on_develop(stash)보다 먼저 — stash되면 사본 직접편집을 감지 못 함
+    guard_no_direct_mirror_edit
     ensure_on_develop
     # rsync 전에 레포 상태가 필요하므로 pull 먼저 (push-mello 기존 흐름에선 commit 후 pull이었는데,
     # 대량 삭제 가드는 rsync 실행 전 레포 파일 수를 알아야 정확하니 순서 조정)
