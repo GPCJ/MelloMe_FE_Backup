@@ -135,7 +135,7 @@ export default function LandingPage() {
                     </span>
                   </div>
                   {/* 필터 칩 */}
-                  <div className="mb-2.5 flex gap-[5px] overflow-hidden">
+                  <div className="mb-2.5 flex gap-[5px] overflow-hidden border-b border-neutral-200 pb-2.5">
                     <span className="whitespace-nowrap rounded-full border border-neutral-900 bg-neutral-900 px-2.5 py-1 text-[0.6rem] font-medium text-white">
                       전체
                     </span>
@@ -149,7 +149,7 @@ export default function LandingPage() {
                     ))}
                   </div>
                   {/* 정렬 */}
-                  <div className="mb-3 flex gap-2.5 text-[0.62rem] text-neutral-400">
+                  <div className="mb-3 flex gap-2.5 border-b border-neutral-200 pb-2.5 text-[0.62rem] text-neutral-400">
                     <span className="rounded-full bg-neutral-100 px-2 py-[3px] font-semibold text-neutral-900">
                       최신순
                     </span>
@@ -161,7 +161,18 @@ export default function LandingPage() {
                       <div className="h-7 w-7 rounded-full bg-neutral-300" />
                       <span className="font-semibold text-neutral-900">숨이는 귀엽다</span>
                       <span className="text-[0.6rem] text-neutral-400">1분 전</span>
-                      <span className="ml-auto text-[0.8rem] text-neutral-300">☐</span>
+                      <svg
+                        className="ml-auto h-3.5 w-3.5 text-neutral-300"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden
+                      >
+                        <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+                      </svg>
                     </div>
                     <div className="mb-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
                       <div className="mb-2.5 text-[0.72rem] font-bold text-neutral-700">❓ 고민카드</div>
@@ -193,7 +204,18 @@ export default function LandingPage() {
                       <div className="h-7 w-7 rounded-full bg-neutral-400" />
                       <span className="font-semibold text-neutral-900">햄스터#2727</span>
                       <span className="text-[0.6rem] text-neutral-400">8시간 전</span>
-                      <span className="ml-auto text-[0.8rem] text-neutral-300">☐</span>
+                      <svg
+                        className="ml-auto h-3.5 w-3.5 text-neutral-300"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden
+                      >
+                        <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+                      </svg>
                     </div>
                     <p className="mb-2 text-[0.7rem] leading-relaxed text-neutral-600">
                       🚩 각 사이트별 최신 채용 공고 모음입니다!
