@@ -4,7 +4,6 @@ import { Bookmark, MessageCircle, Heart, Lock } from 'lucide-react';
 import type { PostSummary, PostReaction } from '../../types/post';
 import { formatRelativeTime } from '../../utils/formatDate';
 import { scrapPost, unscrapPost } from '../../api/posts';
-import VerifiedBadge from './VerifiedBadge';
 import { useReactionToggle } from '../../hooks/useReactionToggle';
 import { useDragScroll } from '../../hooks/useDragScroll';
 import UserAvatar from '../common/UserAvatar';
@@ -91,7 +90,6 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
             size="xs"
           />
           <span className="text-sm font-medium text-neutral-950">{post.authorNickname}</span>
-          <VerifiedBadge status={post.authorVerificationStatus} />
           <span className="text-[11px] text-gray-500">{formatRelativeTime(post.createdAt)}</span>
           <button
             type="button"
