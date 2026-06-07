@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Upload, PencilLine, LockOpen } from 'lucide-react';
+import { ArrowLeft, Upload, PencilLine, LockOpen, MessageCircle, Heart } from 'lucide-react';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
 
@@ -142,7 +142,7 @@ export default function LandingPage() {
                     {['감각통합', '언어치료', '작업치료'].map((c) => (
                       <span
                         key={c}
-                        className="whitespace-nowrap rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-[0.6rem] font-medium text-neutral-600"
+                        className="whitespace-nowrap rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-[0.6rem] font-medium text-neutral-950"
                       >
                         {c}
                       </span>
@@ -150,10 +150,12 @@ export default function LandingPage() {
                   </div>
                   {/* 정렬 */}
                   <div className="mb-3 flex gap-2.5 border-b border-neutral-200 pb-2.5 text-[0.62rem] text-neutral-400">
-                    <span className="rounded-full bg-neutral-100 px-2 py-[3px] font-semibold text-neutral-900">
+                    <span className="rounded-full border border-neutral-900 bg-neutral-900 px-2 py-[3px] font-medium text-white">
                       최신순
                     </span>
-                    <span>인기순</span>
+                    <span className="rounded-full border border-neutral-300 px-2 py-[3px] text-neutral-500">
+                      인기순
+                    </span>
                   </div>
                   {/* 고민카드 글 */}
                   <div className="border-b border-[#eeeeee] py-3">
@@ -174,28 +176,44 @@ export default function LandingPage() {
                         <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
                       </svg>
                     </div>
-                    <div className="mb-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-                      <div className="mb-2.5 text-[0.72rem] font-bold text-neutral-700">❓ 고민카드</div>
-                      <div className="mb-2.5">
-                        {[
-                          ['연령대', '유아기'],
-                          ['치료영역', '감각통합'],
-                          ['진단명', '자폐스펙트럼장애'],
-                        ].map(([label, value]) => (
-                          <div key={label} className="flex gap-2.5 py-[3px] text-[0.62rem]">
-                            <span className="min-w-[46px] font-semibold text-neutral-500">{label}</span>
-                            <span className="text-neutral-700">{value}</span>
-                          </div>
-                        ))}
+                    <div className="mb-2 overflow-hidden rounded-xl border border-neutral-200">
+                      {/* 헤더바 — 실제 ConcernCard와 동일(회색 바 + 원형 ? 뱃지) */}
+                      <div className="flex items-center gap-1.5 border-b border-neutral-100 bg-neutral-50 px-3 py-2">
+                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-neutral-800 text-[0.5rem] text-white">
+                          ?
+                        </span>
+                        <span className="text-[0.72rem] font-bold text-neutral-700">고민카드</span>
                       </div>
-                      <div className="border-t border-neutral-200 pt-2 text-[0.65rem] leading-relaxed text-neutral-600">
-                        <div className="mb-1 font-bold text-neutral-700">고민지점</div>
-                        만 3세 asd 아동 조절 잡기 어려워서 글 씁니다
+                      <div className="px-3 py-2.5">
+                        <div className="mb-2.5">
+                          {[
+                            ['연령대', '유아기'],
+                            ['치료영역', '감각통합'],
+                          ].map(([label, value]) => (
+                            <div key={label} className="flex gap-2.5 py-[3px] text-[0.62rem]">
+                              <span className="min-w-[46px] font-semibold text-neutral-500">{label}</span>
+                              <span className="text-neutral-700">{value}</span>
+                            </div>
+                          ))}
+                          {/* 진단명 — 실제처럼 칩(pill)로 */}
+                          <div className="flex gap-2.5 py-[3px] text-[0.62rem]">
+                            <span className="min-w-[46px] font-semibold text-neutral-500">진단명</span>
+                            <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-neutral-700">
+                              자폐스펙트럼장애
+                            </span>
+                          </div>
+                        </div>
+                        <div className="border-t border-neutral-100 pt-2 text-[0.65rem] leading-relaxed text-neutral-600">
+                          <div className="mb-1 font-bold text-neutral-700">고민지점</div>
+                          만 3세 asd 아동 조절 잡기 어려워서 글 씁니다
+                        </div>
                       </div>
                     </div>
-                    <div className="flex gap-3.5 text-[0.65rem] text-neutral-400">
-                      <span>💬 0</span>
-                      <span>♡</span>
+                    <div className="flex items-center gap-3 text-[0.65rem] text-neutral-400">
+                      <span className="flex items-center gap-1 font-medium text-neutral-500">
+                        <MessageCircle size={12} />0
+                      </span>
+                      <Heart size={13} />
                     </div>
                   </div>
                   {/* 일반 글 */}
@@ -220,9 +238,11 @@ export default function LandingPage() {
                     <p className="mb-2 text-[0.7rem] leading-relaxed text-neutral-600">
                       🚩 각 사이트별 최신 채용 공고 모음입니다!
                     </p>
-                    <div className="flex gap-3.5 text-[0.65rem] text-neutral-400">
-                      <span>💬 0</span>
-                      <span>♡</span>
+                    <div className="flex items-center gap-3 text-[0.65rem] text-neutral-400">
+                      <span className="flex items-center gap-1 font-medium text-neutral-500">
+                        <MessageCircle size={12} />0
+                      </span>
+                      <Heart size={13} />
                     </div>
                   </div>
                 </div>
