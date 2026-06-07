@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import { Eye, MoreVertical } from 'lucide-react';
-import VerifiedBadge from '../../components/post/VerifiedBadge';
 import ReactionBar from '../../components/post/ReactionBar';
 import { useReactionToggle, reactionFromPostDetail } from '../../hooks/useReactionToggle';
 import { Badge } from '@/components/shadcn-ui/badge';
@@ -107,7 +106,6 @@ export default function CommentWritePage() {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-gray-900">{post.authorNickname}</span>
-              <VerifiedBadge status={post.authorVerificationStatus} />
               {therapyLabel && (
                 <Badge variant="secondary" className="text-xs">
                   {therapyLabel}
