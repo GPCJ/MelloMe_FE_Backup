@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { User, UserPlus, UserCheck, Mail } from 'lucide-react';
 import UserAvatar from './UserAvatar';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useFollowUser } from '../../hooks/useFollowUser';
@@ -45,15 +46,32 @@ function UserActionDropdown({
           onClick={() => toast('준비 중인 기능이에요', { id: 'coming-soon' })}
           className="text-gray-400"
         >
+          <User size={14} className="mr-2" />
           프로필
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => follow.toggle()}
           disabled={follow.isLoading || follow.pending}
+          className={follow.following ? 'text-gray-400' : ''}
         >
-          {follow.isLoading ? '불러오는 중…' : follow.following ? '팔로잉' : '팔로우'}
+          {follow.isLoading ? (
+            '불러오는 중…'
+          ) : follow.following ? (
+            <>
+              <UserCheck size={14} className="mr-2" />
+              팔로잉
+            </>
+          ) : (
+            <>
+              <UserPlus size={14} className="mr-2" />
+              팔로우
+            </>
+          )}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onMessageClick?.()}>쪽지</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onMessageClick?.()}>
+          <Mail size={14} className="mr-2" />
+          쪽지
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
