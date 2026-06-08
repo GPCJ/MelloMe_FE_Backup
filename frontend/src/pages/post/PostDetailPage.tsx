@@ -13,7 +13,6 @@ import {
   Image as ImageIcon,
 } from 'lucide-react';
 import ReactionBar from '../../components/post/ReactionBar';
-import VerifiedBadge from '../../components/post/VerifiedBadge';
 import { useReactionToggle, reactionFromPostDetail } from '../../hooks/useReactionToggle';
 import CommentCard from '../../components/post/CommentCard';
 import CommentInput from '../../components/post/CommentInput';
@@ -327,7 +326,6 @@ export default function PostDetailPage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-gray-900">{post.authorNickname}</span>
-                <VerifiedBadge status={post.authorVerificationStatus} />
                 {post.visibility === 'PRIVATE' && (
                   <span
                     className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-600 text-[11px] font-medium"
