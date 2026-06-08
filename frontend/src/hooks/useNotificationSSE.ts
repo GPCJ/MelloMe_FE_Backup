@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useNotificationStore } from '../stores/useNotificationStore';
 import { useMessageStore } from '../stores/useMessageStore';
@@ -26,6 +27,7 @@ const BACKOFF_MULTIPLIER = 2;
  */
 export function useNotificationSSE() {
   const tokens = useAuthStore((s) => s.tokens);
+  const queryClient = useQueryClient();
 
   const store = useNotificationStore;
   const connectionRef = useRef<SseConnection | null>(null);
@@ -111,6 +113,12 @@ export function useNotificationSSE() {
             // 둘 다 오르는 건 의도된 동작 — 스펙 "알림/뱃지 동작" 참조.
             if (notification.type === 'NEW_MESSAGE') {
               useMessageStore.getState().increment();
+            }
+            // 누가 나를 팔로우 → 팔로워 카운트 서버 재조회로 보정.
+            // 언팔로우 알림은 enum에 없어(NEW_FOLLOW만) 낙관적 +1은 감소를 못 따라가 드리프트 →
+            // 무효화로 서버 진실에 맞춤(/me/follow-counts는 경량).
+            if (notification.type === 'NEW_FOLLOW') {
+              queryClient.invalidateQueries({ queryKey: ['follow-counts'] });
             }
             toast(notification.content, { duration: 4000 });
           } catch (err) {
