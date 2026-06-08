@@ -26,10 +26,11 @@ export function useFollowUser(targetUserId: number, enabled: boolean) {
       const fresh = wasFollowing
         ? await unfollowUser(targetUserId)
         : await followUser(targetUserId);
-      // 단일 상태 캐시 갱신 + 카운트/목록 동기화
+      // 단일 상태 캐시 갱신 + 카운트 동기화.
+      // 목록(['follow'])은 강제 무효화하지 않는다 — 정책 A(언팔해도 행 유지) 일관성.
+      // 목록 경로(useFollowToggle)도 카운트만 동기화하므로 두 경로를 동일하게 맞춤.
       qc.setQueryData(['follow-status', targetUserId], fresh);
       qc.invalidateQueries({ queryKey: ['follow-counts'] });
-      qc.invalidateQueries({ queryKey: ['follow'] });
       toast(fresh.following ? '팔로우했어요' : '팔로우를 취소했어요');
     } catch (err) {
       console.error('[follow]', err);
