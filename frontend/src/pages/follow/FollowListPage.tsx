@@ -106,8 +106,8 @@ export default function FollowListPage() {
                     disabled={pendingId === u.userId}
                     className={`group w-[72px] text-center text-xs px-3 py-1.5 rounded-full border transition-colors disabled:opacity-50 ${
                       isFollowing(u.userId)
-                        ? 'text-gray-500 border-gray-300 hover:text-red-600 hover:border-red-300 hover:bg-red-50'
-                        : 'bg-gray-900 text-white border-gray-900'
+                        ? 'bg-gray-900 text-white border-gray-900 hover:bg-white hover:text-gray-700 hover:border-gray-300'
+                        : 'text-gray-500 border-gray-300 hover:border-gray-400'
                     }`}
                   >
                     {isFollowing(u.userId) ? (
