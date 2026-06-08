@@ -31,9 +31,11 @@ export default function LandingPage() {
             Mellti
           </Link>
           <div className="flex items-center gap-4">
-            {/* TODO(협업문의): 실제 타겟 미정 — 문의 폼/메일 주소 확정 후 연결 */}
+            {/* 협업문의 — 아이로 채널톡(카카오 채널)으로 연결 */}
             <a
-              href="#"
+              href="https://pf.kakao.com/_qxfBAX"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-sm font-medium text-neutral-500 transition-colors hover:text-neutral-900"
             >
               협업문의
@@ -99,9 +101,10 @@ export default function LandingPage() {
                   </span>
                 ))}
               </div>
+              {/* 로그인 상태면 홈피드(/posts), 아니면 로그인 화면으로 */}
               <Link
                 data-animate
-                to="/signup"
+                to={user ? '/posts' : '/login'}
                 className="inline-flex items-center gap-2 rounded-full bg-neutral-900 px-9 py-[15px] text-base font-semibold text-white shadow-[0_2px_12px_rgba(0,0,0,0.15)] transition-all hover:-translate-y-0.5 hover:bg-neutral-800 hover:shadow-[0_6px_24px_rgba(0,0,0,0.2)]"
               >
                 지금 시작하기
@@ -590,11 +593,12 @@ export default function LandingPage() {
             <p className="mb-9 text-[1.05rem] text-neutral-400">
               전국의 치료사 동료들이 기다리고 있어요
             </p>
+            {/* 로그인 상태면 홈피드(/posts), 아니면 로그인 화면으로 — 텍스트도 함께 분기 */}
             <Link
-              to="/login"
+              to={user ? '/posts' : '/login'}
               className="inline-flex items-center gap-2 rounded-full bg-white px-9 py-[15px] text-base font-semibold text-neutral-900 shadow-[0_2px_16px_rgba(255,255,255,0.1)] transition-all hover:-translate-y-0.5 hover:bg-neutral-100 hover:shadow-[0_6px_30px_rgba(255,255,255,0.15)]"
             >
-              로그인하러 가기
+              {user ? '커뮤니티 둘러보기' : '로그인하러 가기'}
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
                 <path
                   d="M4 10h12m0 0l-4-4m4 4l-4 4"
@@ -632,9 +636,11 @@ export default function LandingPage() {
               >
                 개인정보 처리방침
               </Link>
-              {/* TODO(인스타): 아이로 공식 인스타그램 URL 확정 후 href 연결 */}
+              {/* 아이로 공식 인스타그램 */}
               <a
-                href="#"
+                href="https://www.instagram.com/airo_officially/"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="아이로 인스타그램"
                 className="text-neutral-400 transition-colors hover:text-neutral-900"
               >
@@ -645,9 +651,8 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="border-t border-neutral-200 pt-5">
-            {/* TODO(사업자번호): 실제 사업자등록번호 확정 후 교체 */}
             <p className="text-[0.78rem] leading-[1.8] text-neutral-400">
-              주식회사 아이로 | 사업자등록번호: 000-00-00000
+              주식회사 아이로 | 사업자등록번호: 394-87-03655 | 통신판매번호: 2026-서울광진-0955
             </p>
             <p className="text-[0.78rem] leading-[1.8] text-neutral-400">
               © 2026 Airo Inc. All rights reserved.
