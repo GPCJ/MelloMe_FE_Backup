@@ -18,6 +18,11 @@ export async function fetchFollowers(page = 0, size = 10): Promise<PagedFollowUs
   return res.data?.data ?? res.data;
 }
 
+export async function getFollowStatus(userId: number): Promise<FollowStatus> {
+  const res = await axiosInstance.get(`/users/${userId}/follow`);
+  return res.data?.data ?? res.data;
+}
+
 export async function followUser(userId: number): Promise<FollowStatus> {
   const res = await axiosInstance.post(`/users/${userId}/follow`);
   return res.data?.data ?? res.data;
