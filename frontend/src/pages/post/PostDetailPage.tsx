@@ -182,7 +182,9 @@ export default function PostDetailPage() {
     if (!post || !confirm('게시글을 삭제할까요?')) return;
     try {
       await deletePost(post.id);
+      // 전체 피드(['feed'])와 팔로우 피드(['feed-following']) 둘 다 무효화 — 리액션 캐시 패치와 동일하게 두 피드 일관성 유지.
       qc.invalidateQueries({ queryKey: ['feed'] });
+      qc.invalidateQueries({ queryKey: ['feed-following'] });
       navigate('/posts');
     } catch {
       alert('게시글 삭제에 실패했습니다. 다시 시도해주세요.');
