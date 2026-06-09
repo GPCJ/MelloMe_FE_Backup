@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { resolveImageUrl } from '../../utils/resolveImageUrl';
 
 interface UserAvatarProps {
@@ -16,12 +17,16 @@ const sizeMap = {
 export default function UserAvatar({ nickname, imageUrl, size = 'sm' }: UserAvatarProps) {
   const resolved = resolveImageUrl(imageUrl);
   const { container, text } = sizeMap[size];
+  // 이미지 로드 실패(예: BE가 presigned 대신 raw S3 키를 내려준 경우) 시 이니셜로 폴백.
+  // 실패한 src 자체를 기억해, src가 바뀌면(다른 유저) 자연히 다시 시도한다.
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
 
-  if (resolved) {
+  if (resolved && resolved !== failedSrc) {
     return (
       <img
         src={resolved}
         alt={nickname}
+        onError={() => setFailedSrc(resolved)}
         className={`${container} rounded-full object-cover shrink-0`}
       />
     );
