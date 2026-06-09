@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { isAxiosError } from 'axios';
-import { Plus, Menu } from 'lucide-react';
+import { Plus, Menu, UserPlus } from 'lucide-react';
 import { buttonVariants } from '@/components/shadcn-ui/button';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
-import { fetchPosts } from '../../api/posts';
+import { fetchPosts, fetchFeed, fetchFollowingFeed } from '../../api/posts';
 import type { TherapyArea, PaginatedPosts, PostReaction } from '../../types/post';
 import { FILTER_CHIPS } from '../../constants/post';
 import WelcomeModal from '@/components/auth/WelcomeModal';
@@ -57,7 +57,8 @@ export default function PostListPage() {
   const therapyArea = (searchParams.get('therapyArea') as TherapyArea) ?? '';
   const currentPage = Number(searchParams.get('page') ?? '1');
 
-  const [activeTab, setActiveTab] = useState<FeedTab>('all');
+  // 탭을 URL에 보존 — 상세 진입 후 뒤로가기 시 마지막 탭 복원(state면 'all'로 리셋됨).
+  const activeTab: FeedTab = searchParams.get('tab') === 'following' ? 'following' : 'all';
   const [data, setData] = useState<PaginatedPosts | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -77,9 +78,10 @@ export default function PostListPage() {
   const qc = useQueryClient();
 
   const infinite = useInfiniteFeed({
-    size: 20,
+    queryKey: ['feed', { size: 20, sort }],
+    fetchPage: ({ pageParam, signal }) =>
+      fetchFeed({ size: 20, sort, ...(pageParam ? { cursor: pageParam } : {}), signal }),
     enabled: isInfiniteMode,
-    sort,
     initialSnapshot: initialSnapshotRef.current
       ? {
           items: initialSnapshotRef.current.items,
@@ -88,6 +90,15 @@ export default function PostListPage() {
         }
       : undefined,
     onError: () => setFeedFailed(true),
+  });
+
+  // 팔로우 탭 무한 스크롤 — 같은 useInfiniteFeed를 ['feed-following'] 키 + fetchFollowingFeed로 재사용.
+  // 전체 피드와 캐시 슬롯이 분리되고, sort/snapshot은 없음(BE sort 미지원·스크롤 복원 미적용).
+  const followingFeed = useInfiniteFeed({
+    queryKey: ['feed-following', { size: 20 }],
+    fetchPage: ({ pageParam, signal }) =>
+      fetchFollowingFeed({ size: 20, ...(pageParam ? { cursor: pageParam } : {}), signal }),
+    enabled: activeTab === 'following',
   });
 
   useEffect(() => {
@@ -141,6 +152,7 @@ export default function PostListPage() {
   }, [therapyArea, currentPage, activeTab, isInfiniteMode]);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const followingSentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!isInfiniteMode) return;
@@ -157,6 +169,23 @@ export default function PostListPage() {
     observer.observe(node);
     return () => observer.disconnect();
   }, [isInfiniteMode, infinite.loadMore]);
+
+  // 팔로우 탭 전용 sentinel observer — 전체 피드 옵저버(위)와 독립.
+  useEffect(() => {
+    if (activeTab !== 'following') return;
+    const node = followingSentinelRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          followingFeed.loadMore();
+        }
+      },
+      { rootMargin: '200px' },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [activeTab, followingFeed.loadMore]);
 
   function handleCardClick() {
     if (!isInfiniteMode) return;
@@ -179,6 +208,13 @@ export default function PostListPage() {
     setSearchParams(value ? { therapyArea: value } : {});
   }
 
+  function handleTabChange(tab: FeedTab) {
+    const next = new URLSearchParams(searchParams);
+    if (tab === 'following') next.set('tab', 'following');
+    else next.delete('tab');
+    setSearchParams(next);
+  }
+
   function handlePageChange(page: number) {
     const params: Record<string, string> = { page: String(page) };
     if (therapyArea) params.therapyArea = therapyArea;
@@ -190,7 +226,7 @@ export default function PostListPage() {
 
   function handleReactionUpdated(fresh: PostReaction) {
     // any타입 임시. 나중에 바꿔야함
-    qc.setQueriesData({ queryKey: ['feed'] }, (old: any) => {
+    const patch = (old: any) => {
       if (!old) return old;
       return {
         ...old,
@@ -209,7 +245,10 @@ export default function PostListPage() {
           ),
         })),
       };
-    });
+    };
+    // 전체 피드(['feed'])와 팔로우 피드(['feed-following']) 캐시를 모두 패치.
+    qc.setQueriesData({ queryKey: ['feed'] }, patch);
+    qc.setQueriesData({ queryKey: ['feed-following'] }, patch);
   }
 
   // 빈 상태 CTA — PC는 모달, 모바일은 라우트 이동.
@@ -244,7 +283,7 @@ export default function PostListPage() {
       <div className="bg-white">
         <div className="flex">
           <button
-            onClick={() => setActiveTab('all')}
+            onClick={() => handleTabChange('all')}
             className={`flex-1 py-2 text-xs font-medium text-center transition-colors ${
               activeTab === 'all'
                 ? 'text-neutral-950 border-b-2 border-black'
@@ -254,7 +293,7 @@ export default function PostListPage() {
             전체 피드
           </button>
           <button
-            onClick={() => setActiveTab('following')}
+            onClick={() => handleTabChange('following')}
             className={`flex-1 py-2 text-xs font-medium text-center transition-colors ${
               activeTab === 'following'
                 ? 'text-neutral-950 border-b-2 border-black'
@@ -266,10 +305,12 @@ export default function PostListPage() {
         </div>
       </div>
 
-      {/* 필터 칩 */}
-      <div className="p-4 bg-white border-b border-gray-200">
-        <FilterChips value={therapyArea} onChange={handleFilterClick} />
-      </div>
+      {/* 필터 칩 — 전체 피드에서만 (팔로우 피드는 BE therapyArea 필터 미지원) */}
+      {activeTab === 'all' && (
+        <div className="p-4 bg-white border-b border-gray-200">
+          <FilterChips value={therapyArea} onChange={handleFilterClick} />
+        </div>
+      )}
 
       {/* 정렬 전환 — 무한스크롤 모드(전체 피드 + 필터 없음)에서만 노출 */}
       {isInfiniteMode && (
@@ -392,8 +433,51 @@ export default function PostListPage() {
           )}
         </div>
       ) : (
-        <div className="text-center py-20">
-          <p className="text-gray-400 text-sm">팔로우한 치료사의 글이 여기에 표시됩니다.</p>
+        <div className="bg-white">
+          {followingFeed.isLoading
+            ? Array.from({ length: 4 }).map((_, i) => <PostCardSkeleton key={i} />)
+            : followingFeed.items.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  onReactionUpdated={handleReactionUpdated}
+                  backTo="/posts?tab=following"
+                />
+              ))}
+
+          {followingFeed.isFetchingMore &&
+            Array.from({ length: 2 }).map((_, i) => <PostCardSkeleton key={`fmore-${i}`} />)}
+
+          {followingFeed.error && (
+            <div className="flex flex-col items-center gap-3 py-8">
+              <p className="text-sm text-destructive">{followingFeed.error}</p>
+              <button
+                onClick={followingFeed.retry}
+                className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                재시도
+              </button>
+            </div>
+          )}
+
+          {!followingFeed.isLoading && !followingFeed.error && followingFeed.items.length === 0 && (
+            <div className="text-center py-16">
+              <p className="text-gray-400 mb-4">팔로우한 치료사의 글이 아직 없어요.</p>
+              <button
+                type="button"
+                onClick={() => navigate('/follow')}
+                className={buttonVariants({ size: 'sm' }) + ' gap-1'}
+              >
+                <UserPlus size={15} />치료사 팔로우하러 가기
+              </button>
+            </div>
+          )}
+
+          {!followingFeed.isLoading && !followingFeed.hasNext && followingFeed.items.length > 0 && (
+            <p className="text-center text-sm text-gray-400 py-8">마지막 글이에요</p>
+          )}
+
+          <div ref={followingSentinelRef} aria-hidden className="h-1" />
         </div>
       )}
     </div>
