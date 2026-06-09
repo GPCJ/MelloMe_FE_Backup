@@ -26,7 +26,12 @@ export default function UserAvatar({ nickname, imageUrl, size = 'sm' }: UserAvat
       <img
         src={resolved}
         alt={nickname}
-        onError={() => setFailedSrc(resolved)}
+        onError={() => {
+          // 폴백은 깨진 아이콘만 가릴 뿐 — 검증 시 정상으로 오인하지 않도록 원인을 콘솔에 남긴다.
+          // 대개 BE가 presigned/풀 URL 대신 raw S3 키를 내려준 경우(F-14).
+          console.warn(`[avatar] 이미지 로드 실패 → 이니셜 폴백. nickname=${nickname}, src=${resolved}`);
+          setFailedSrc(resolved);
+        }}
         className={`${container} rounded-full object-cover shrink-0`}
       />
     );
