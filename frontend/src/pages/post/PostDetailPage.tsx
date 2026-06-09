@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import {
   MessageSquare,
@@ -79,7 +79,10 @@ export default function PostDetailPage() {
 
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const openMessageCompose = useOpenMessageCompose();
+  // 진입 카드가 Link state로 실어 보낸 목적지(쿼리 포함). 없으면 '/posts' 폴백 → 기존 동작 유지.
+  const backTo = (location.state as { from?: string } | null)?.from ?? '/posts';
 
   const [post, setPost] = useState<PostDetail | null>(null);
   const [comments, setComments] = useState<CommentResponse[]>([]);
@@ -179,7 +182,9 @@ export default function PostDetailPage() {
     if (!post || !confirm('게시글을 삭제할까요?')) return;
     try {
       await deletePost(post.id);
+      // 전체 피드(['feed'])와 팔로우 피드(['feed-following']) 둘 다 무효화 — 리액션 캐시 패치와 동일하게 두 피드 일관성 유지.
       qc.invalidateQueries({ queryKey: ['feed'] });
+      qc.invalidateQueries({ queryKey: ['feed-following'] });
       navigate('/posts');
     } catch {
       alert('게시글 삭제에 실패했습니다. 다시 시도해주세요.');
@@ -301,7 +306,7 @@ export default function PostDetailPage() {
   return (
     <div className="max-w-3xl mx-auto pb-20 md:pb-8">
       {/* 상단 헤더 */}
-      <PageHeader title="게시글" backTo={`/posts`} />
+      <PageHeader title="게시글" backTo={backTo} />
 
       {/* 시안: 흰 카드를 회색 컨테이너 + gap-px로 묶어 카드 사이 1px 회색 띠로 분리 */}
       <div className="bg-gray-200 flex flex-col gap-px">
