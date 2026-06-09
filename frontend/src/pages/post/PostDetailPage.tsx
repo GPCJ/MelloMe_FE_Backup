@@ -49,6 +49,7 @@ import { useCommentReactionToggle } from '../../hooks/useCommentReactionToggle';
 import { useDragScroll } from '../../hooks/useDragScroll';
 import { useQueryClient } from '@tanstack/react-query';
 import ConcernCard from '@/components/post/ConcernCard';
+import ImageLightbox from '@/components/common/ImageLightbox';
 
 function PostDetailSkeleton() {
   return (
@@ -100,6 +101,8 @@ export default function PostDetailPage() {
   // PC 전용 답글 모달의 대상 댓글(top-level). null이면 모달 닫힘.
   // 모바일은 기존 라우트 이동을 유지하므로 이 state를 거치지 않는다.
   const [replyModalParent, setReplyModalParent] = useState<CommentResponse | null>(null);
+  // 이미지 라이트박스(확대 오버레이) — 열려 있는 이미지 인덱스, null이면 닫힘.
+  const [zoomIndex, setZoomIndex] = useState<number | null>(null);
 
   // 댓글/대댓글의 💬 답글 액션 진입 분기.
   // - PC(md 이상): 같은 페이지 위 모달 — PostDetailPage 위에 답글 작성 폼만 노출.
@@ -419,14 +422,18 @@ export default function PostDetailPage() {
                   {...imagesScroll.handlers}
                   className="flex gap-2 overflow-x-auto -mx-4 px-4 cursor-grab select-none"
                 >
-                  {images.map((img) => (
+                  {images.map((img, i) => (
                     <img
                       key={`img-${img.id}`}
                       crossOrigin="anonymous"
                       src={resolveImageUrl(img.imageUrl) ?? ''}
                       alt={img.originalFilename}
                       draggable={false}
-                      className="shrink-0 w-72 h-72 rounded-lg object-cover bg-gray-100"
+                      // 드래그 스크롤과 클릭 구분: moved > 5px면 드래그로 보고 확대 무시.
+                      onClick={() => {
+                        if (imagesScroll.state.current.moved <= 5) setZoomIndex(i);
+                      }}
+                      className="shrink-0 w-72 h-72 rounded-lg object-cover bg-gray-100 cursor-pointer"
                     />
                   ))}
                 </div>
@@ -669,6 +676,18 @@ export default function PostDetailPage() {
           postId={Number(postId) || 0}
           onClose={() => setReplyModalParent(null)}
           onSuccess={(newReply) => setComments((prev) => [...prev, newReply])}
+        />
+      )}
+
+      {/* 이미지 확대 라이트박스 — 첨부 이미지 클릭 시 풀스크린 오버레이 */}
+      {zoomIndex !== null && (
+        <ImageLightbox
+          images={images.map((img) => ({
+            url: resolveImageUrl(img.imageUrl) ?? '',
+            alt: img.originalFilename,
+          }))}
+          initialIndex={zoomIndex}
+          onClose={() => setZoomIndex(null)}
         />
       )}
     </div>
