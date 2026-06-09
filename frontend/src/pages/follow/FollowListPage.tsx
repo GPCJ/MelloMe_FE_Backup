@@ -104,21 +104,14 @@ export default function FollowListPage() {
                   <button
                     onClick={() => toggle(u)}
                     disabled={pendingId === u.userId}
-                    className={`group w-[72px] text-center text-xs px-3 py-1.5 rounded-full border transition-colors disabled:opacity-50 ${
+                    className={`w-[72px] text-center text-xs px-3 py-1.5 rounded-full border transition-colors disabled:opacity-50 ${
                       isFollowing(u.userId)
-                        ? 'bg-gray-900 text-white border-gray-900 hover:bg-white hover:text-gray-700 hover:border-gray-300'
-                        : 'text-gray-500 border-gray-300 hover:border-gray-400'
+                        ? 'text-gray-600 border-gray-300 hover:border-gray-400 hover:text-gray-900'
+                        : 'bg-gray-900 text-white border-gray-900 hover:bg-gray-800'
                     }`}
                   >
-                    {isFollowing(u.userId) ? (
-                      <>
-                        {/* 기본 "팔로잉", 호버 시 빨간 "언팔로우"로 전환 — 실수 언팔 방지(의도 명확화) */}
-                        <span className="group-hover:hidden">팔로잉</span>
-                        <span className="hidden group-hover:inline">언팔로우</span>
-                      </>
-                    ) : (
-                      '팔로우'
-                    )}
+                    {/* 버튼이 클릭 시 일어날 동작을 그대로 표시 — 팔로우 중이면 "언팔로우", 언팔한 행이면 "팔로우" */}
+                    {isFollowing(u.userId) ? '언팔로우' : '팔로우'}
                   </button>
                 )}
               </li>
