@@ -51,15 +51,18 @@ export default function UserMenu({
           <LogOut size={18} className="mr-3" />
           로그아웃
         </DropdownMenuItem>
+        {/* 계정/고객센터: 기능 미구현 — 라우트(/account, /support) 부재로 비활성화. 구현 시 disabled 제거 + onClick 복원 */}
         <DropdownMenuItem
-          onClick={() => navigate('/account')}
+          disabled
+          // onClick={() => navigate('/account')}
           className="px-3 py-2.5 rounded-xl text-sm"
         >
           <Settings size={18} className="mr-3" />
           계정
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => navigate('/support')}
+          disabled
+          // onClick={() => navigate('/support')}
           className="px-3 py-2.5 rounded-xl text-sm"
         >
           <Info size={18} className="mr-3" />

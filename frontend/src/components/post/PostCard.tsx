@@ -15,9 +15,11 @@ import ConcernCard from './ConcernCard';
 interface PostCardProps {
   post: PostSummary;
   onReactionUpdated?: (fresh: PostReaction) => void;
+  // 상세 진입 후 뒤로가기로 돌아올 목적지(쿼리 포함). 미전달 시 상세는 '/posts' 폴백 → 기존 동작 유지.
+  backTo?: string;
 }
 
-export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
+export default function PostCard({ post, onReactionUpdated, backTo }: PostCardProps) {
   const [scrapped, setScrapped] = useState(post.scrapped ?? false);
   const [scrapLoading, setScrapLoading] = useState(false);
 
@@ -78,6 +80,7 @@ export default function PostCard({ post, onReactionUpdated }: PostCardProps) {
   return (
     <Link
       to={post.accessLocked ? '/therapist-verifications' : `/posts/${post.id}`}
+      state={backTo ? { from: backTo } : undefined}
       draggable={false}
       className="block"
     >

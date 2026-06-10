@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import {
   MessageSquare,
@@ -49,6 +49,7 @@ import { useCommentReactionToggle } from '../../hooks/useCommentReactionToggle';
 import { useDragScroll } from '../../hooks/useDragScroll';
 import { useQueryClient } from '@tanstack/react-query';
 import ConcernCard from '@/components/post/ConcernCard';
+import ImageLightbox from '@/components/common/ImageLightbox';
 
 /* 
 CH-09 작업 8(스켈레톤 시안 룩 반영) 보류 — 현재 로딩이 충분히 빨라 스켈레톤이
@@ -84,7 +85,10 @@ export default function PostDetailPage() {
 
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const openMessageCompose = useOpenMessageCompose();
+  // 진입 카드가 Link state로 실어 보낸 목적지(쿼리 포함). 없으면 '/posts' 폴백 → 기존 동작 유지.
+  const backTo = (location.state as { from?: string } | null)?.from ?? '/posts';
 
   const [post, setPost] = useState<PostDetail | null>(null);
   const [comments, setComments] = useState<CommentResponse[]>([]);
@@ -102,6 +106,8 @@ export default function PostDetailPage() {
   // PC 전용 답글 모달의 대상 댓글(top-level). null이면 모달 닫힘.
   // 모바일은 기존 라우트 이동을 유지하므로 이 state를 거치지 않는다.
   const [replyModalParent, setReplyModalParent] = useState<CommentResponse | null>(null);
+  // 이미지 라이트박스(확대 오버레이) — 열려 있는 이미지 인덱스, null이면 닫힘.
+  const [zoomIndex, setZoomIndex] = useState<number | null>(null);
 
   // 댓글/대댓글의 💬 답글 액션 진입 분기.
   // - PC(md 이상): 같은 페이지 위 모달 — PostDetailPage 위에 답글 작성 폼만 노출.
@@ -184,7 +190,9 @@ export default function PostDetailPage() {
     if (!post || !confirm('게시글을 삭제할까요?')) return;
     try {
       await deletePost(post.id);
+      // 전체 피드(['feed'])와 팔로우 피드(['feed-following']) 둘 다 무효화 — 리액션 캐시 패치와 동일하게 두 피드 일관성 유지.
       qc.invalidateQueries({ queryKey: ['feed'] });
+      qc.invalidateQueries({ queryKey: ['feed-following'] });
       navigate('/posts');
     } catch {
       alert('게시글 삭제에 실패했습니다. 다시 시도해주세요.');
@@ -306,7 +314,7 @@ export default function PostDetailPage() {
   return (
     <div className="max-w-3xl mx-auto pb-20 md:pb-8">
       {/* 상단 헤더 */}
-      <PageHeader title="게시글" backTo={`/posts`} />
+      <PageHeader title="게시글" backTo={backTo} />
 
       {/* 시안: 흰 카드를 회색 컨테이너 + gap-px로 묶어 카드 사이 1px 회색 띠로 분리 */}
       <div className="bg-gray-200 flex flex-col gap-px">
@@ -419,14 +427,18 @@ export default function PostDetailPage() {
                   {...imagesScroll.handlers}
                   className="flex gap-2 overflow-x-auto -mx-4 px-4 cursor-grab select-none"
                 >
-                  {images.map((img) => (
+                  {images.map((img, i) => (
                     <img
                       key={`img-${img.id}`}
                       crossOrigin="anonymous"
                       src={resolveImageUrl(img.imageUrl) ?? ''}
                       alt={img.originalFilename}
                       draggable={false}
-                      className="shrink-0 w-72 h-72 rounded-lg object-cover bg-gray-100"
+                      // 드래그 스크롤과 클릭 구분: moved > 5px면 드래그로 보고 확대 무시.
+                      onClick={() => {
+                        if (imagesScroll.state.current.moved <= 5) setZoomIndex(i);
+                      }}
+                      className="shrink-0 w-72 h-72 rounded-lg object-cover bg-gray-100 cursor-pointer"
                     />
                   ))}
                 </div>
@@ -669,6 +681,18 @@ export default function PostDetailPage() {
           postId={Number(postId) || 0}
           onClose={() => setReplyModalParent(null)}
           onSuccess={(newReply) => setComments((prev) => [...prev, newReply])}
+        />
+      )}
+
+      {/* 이미지 확대 라이트박스 — 첨부 이미지 클릭 시 풀스크린 오버레이 */}
+      {zoomIndex !== null && (
+        <ImageLightbox
+          images={images.map((img) => ({
+            url: resolveImageUrl(img.imageUrl) ?? '',
+            alt: img.originalFilename,
+          }))}
+          initialIndex={zoomIndex}
+          onClose={() => setZoomIndex(null)}
         />
       )}
     </div>

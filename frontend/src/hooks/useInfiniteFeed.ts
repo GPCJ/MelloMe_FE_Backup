@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { fetchFeed } from '../api/posts';
-import type { PostSummary } from '../types/post';
+import { useInfiniteQuery, type QueryKey } from '@tanstack/react-query';
+import type { CursorPagedPosts, PostSummary } from '../types/post';
 
 // useInfiniteFeed훅의 파라미터 타입 인터페이스
 // (R-01b 마이그레이션 전/후 동일 — PostListPage 호출부 변경 없음)
 interface UseInfiniteFeedOptions {
-  size?: number;
-  enabled?: boolean; // 무한 스크롤 모드 ON/OFF (필터/팔로잉 탭에서는 false → 페이지네이션 모드)
-  sort?: 'LATEST' | 'POPULAR';
+  // 캐시 주소 — 호출부가 직접 만든다. 전체 피드 ['feed',{size,sort}] / 팔로우 ['feed-following',{size}]
+  queryKey: QueryKey;
+  // 한 페이지를 가져오는 함수 — 호출부가 size/sort/postType 등을 클로저로 닫아 주입한다.
+  // pageParam(=cursor)과 RQ가 만든 signal을 받아 CursorPagedPosts를 반환.
+  fetchPage: (ctx: { pageParam: string | null; signal: AbortSignal }) => Promise<CursorPagedPosts>;
+  enabled?: boolean; // 무한 스크롤 모드 ON/OFF (필터/페이지네이션 모드에서는 false)
   initialSnapshot?: {
     // 뒤로가기 시 Zustand에 저장된 상태 복원용 (스크롤 위치 + 이미 로드된 아이템들)
     items: PostSummary[];
@@ -43,8 +45,8 @@ interface UseInfiniteFeedResult {
  *   }
  * 항상 pages.length === pageParams.length 불변량을 지킵니다.
  */
-export function useInfiniteFeed(options: UseInfiniteFeedOptions = {}): UseInfiniteFeedResult {
-  const { size = 20, enabled = true, sort = 'LATEST', initialSnapshot } = options;
+export function useInfiniteFeed(options: UseInfiniteFeedOptions): UseInfiniteFeedResult {
+  const { queryKey, fetchPage, enabled = true, initialSnapshot } = options;
 
   // onError 콜백을 ref로 보관합니다.
   // 이유: RQ v5에서 useQuery의 onError 옵션이 제거되었습니다.
@@ -73,19 +75,13 @@ export function useInfiniteFeed(options: UseInfiniteFeedOptions = {}): UseInfini
   }, [initialSnapshot]);
 
   const query = useInfiniteQuery({
-    // 캐시 주소 — size가 바뀌면 별개 쿼리(별개 캐시 슬롯)가 됩니다.
-    queryKey: ['feed', { size, sort }],
-    // RQ가 호출하는 실제 페치 함수.
+    // 캐시 주소 — 호출부 주입. queryKey가 바뀌면 별개 쿼리(별개 캐시 슬롯)가 됩니다.
+    queryKey,
+    // RQ가 호출하는 실제 페치 함수 — 호출부가 주입한 fetchPage에 위임합니다.
     // signal은 RQ가 자동으로 만들어 주는 AbortSignal입니다.
     // 컴포넌트 언마운트 / queryKey 변경 / queryClient.cancelQueries() 호출 시
     // RQ가 알아서 abort 하므로, v1의 inflightRef + AbortController 수동 관리가 사라집니다.
-    queryFn: ({ pageParam, signal }) =>
-      fetchFeed({
-        size,
-        sort,
-        ...(pageParam ? { cursor: pageParam } : {}),
-        signal,
-      }),
+    queryFn: ({ pageParam, signal }) => fetchPage({ pageParam, signal }),
     // 첫 페이지의 책갈피 — null = "처음부터" (cursor 쿼리 파라미터 없음).
     initialPageParam: null as string | null,
     // 다음 페이지의 책갈피 계산.
