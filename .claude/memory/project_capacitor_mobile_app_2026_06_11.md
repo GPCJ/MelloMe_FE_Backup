@@ -1,0 +1,51 @@
+---
+name: project_capacitor_mobile_app_2026_06_11
+description: 모바일 앱 확장 = Capacitor 확정 + C1 스캐폴딩 완료(PR
+metadata: 
+  node_type: memory
+  type: project
+  originSessionId: 1f7daa41-4d30-4445-be00-95aa16cbc6ee
+---
+
+# 모바일 앱 확장 — Capacitor 확정 + C1 완료 (2026-06-11)
+
+2026-03-26 ADR의 "부분 확정"(PWA vs Capacitor)을 Post-MVP 시점에 **Capacitor로 확정**. wiki `adr-pwa-vs-capacitor-2026-03-26`의 후속.
+
+## 결정 근거 (재논의 결과)
+- 타겟(20~30대 여성·아이폰 다수) 모바일 접근성 개선이 동기.
+- **Flutter 제외**: 배우고 싶으나 1개월 마감 내 손코딩 불가 + AI 100% 생성은 리뷰 불가(인지부채 최대, 본인 원칙 위배). → 제출 후 개인 학습 트랙으로 분리.
+- **React Native 제외**: 기존 UI 0% 재사용, FE 1명 감당 불가(ADR 유지).
+- **PWA 제외**: 앱스토어 불가.
+- 백엔드 변경량은 Flutter≈Capacitor (인증 쿠키·OAuth·푸시), 오히려 Capacitor가 WebView 덕에 쿠키 인증 덜 건드림. 비용 차이의 핵심은 FE(재작성 vs 감싸기).
+
+## 결정 확정 (2026-06-12)
+- **appId=`com.mellti.app` 최종 확정** — 스토어 첫 제출 후 영구 고정 동의.
+- **푸시 알림 v1 포함 확정 → ~4주 풀 로드맵** 채택(2주 단축안 폐기). iOS 4.2 리젝 회피 명분 + 리텐션 도달채널 갭 동시 해소. 푸시 BE 의존(FCM/APNs+토큰저장·발송)이 critical path에 들어옴.
+
+## C1 완료 (PR #27, 브랜치 `feat/capacitor-setup`, 커밋 `d2f94ed`)
+- `@capacitor/core·cli·ios·android` 도입, `npx cap init/add/sync` 완료.
+- `capacitor.config.ts`: **appId=`com.mellti.app`**(스토어 첫 제출 후 변경 불가), appName=`Mellti`, webDir=`dist`.
+- `android/`·`ios/` 네이티브 프로젝트 커밋(아이콘·권한·푸시 영속화용). 최신 Capacitor=iOS가 **SPM**(CocoaPods 아님)이라 WSL에서 pod install 없이 스캐폴딩 성공.
+- **AI 작성 로직 0** — 전부 CLI 스캐폴딩 → 인지부채 박제 불필요. unlock 갱신했으나 C1엔 불필요했음.
+- F-15 미커밋 작업(`PostListPage.tsx`,`feedScrollStore.ts`)은 PR에서 제외(분리 유지).
+
+## 환경 분리
+- **C1(스캐폴딩)=WSL 가능**, **C2(기기 실행)=맥북 필요**(Xcode=macOS 전용, WSL 불가). 사용자=맥북+삼성폰 보유.
+- 빌드에 박힌 API URL=`.env.local`의 `api-staging.melonnetherapists.com`(HTTPS, 기기 접근 OK).
+
+## 후속 의존성 (C2+, 아직 안 함) — PR #27 본문에 표로 박제
+- **CORS**[BE]: WebView origin(`capacitor://localhost`,`https://localhost`) 허용 추가해야 API 성공.
+- **쿠키 인증**[FE+BE]: httpOnly RT 쿠키의 네이티브 cross-origin SameSite 검증, 안 되면 "네이티브엔 RT body" 옵션.
+- **푸시**[FE+BE]: FCM/APNs + BE 토큰저장·발송. iOS 4.2(minimum functionality) 리젝 회피 핵심 명분. SSE→네이티브 푸시 전환은 리텐션 도달채널 갭과도 맞물림([[project_retention_strategy_reach_channels_2026_06_11]]).
+- 아이콘·스플래시: 소스 이미지 필요.
+
+## 4주 로드맵 분기점
+푸시 v1 포함=~4주 풀 / 제외=~2주(iOS 4.2 리젝 위험↑, Android 무관). 1주차 C2+CORS, 2주차 푸시(분기 확정), 3주차 내부테스트(Play 내부트랙·TestFlight), 4주차 iOS 정식제출+심사버퍼.
+
+## C1 머지 완료 (2026-06-15)
+- **PR #27 develop 머지 완료**(머지 커밋, MERGED). 리뷰 표면=`capacitor.config.ts`+`package.json` ~13줄뿐, 나머지 75파일은 전부 `cap add android/ios`가 찍은 CLI 스캐폴딩(AI 작성 로직 0)이라 셀프리뷰만으로 머지 정당. 사용자 직접 파일 훑음.
+- **C2 플로우 변경**: 스캐폴딩이 develop에 있으므로 맥북에서 feat 브랜치가 아니라 **`develop` checkout**. 원격 `feat/capacitor-setup`은 F-15 미커밋이 로컬 동명 브랜치에 얹혀 있어 미삭제 보류.
+- WSL 사전준비 검증(06-15): `npm run build` exit 0(prerender 3p)·`cap sync` OK(iOS=SPM)·빌드 박힌 API=`https://api-staging.melonnetherapists.com`(HTTPS, localhost 없음→기기접근 OK).
+
+## 재개 트리거 「Capacitor 이어가자」 또는 「모바일 앱 이어가자」
+다음 = C2(맥북에서 `git checkout develop && git pull → cd frontend → npm install → npm run build && npx cap sync → cap run android`/`cap open ios`)로 화면 띄우기. PR #27 본문에 맥북 실행 가이드 있음(단 checkout 대상은 이제 develop).

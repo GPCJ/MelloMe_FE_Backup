@@ -22,6 +22,7 @@ originSessionId: b6f844ce-ccb5-4c47-a5ba-95c70db3b21d
 - 백업 레포 로컬 클론: `/Users/jin/claude-backup-temp`
 - claude-backup 레포 브랜치: `main` (master에서 변경됨)
 - 스크립트가 없으면 재생성 필요 (삭제된 적 있음)
+- **main SHA drift 주의**: cherry-pick 기반 동기화는 origin/airo 양쪽 main SHA를 어긋나게 만들 수 있고, push-airo가 main을 일관 동기화하지 않을 수 있음. 2026-05-11 강제 동기화(`reset --hard develop`+`--force-with-lease`)로 양쪽 `dd9ed7d` 통일한 이력 있음(force-push 절차는 [[feedback_force_push_safety_protocol]]).
 
 ## 2026-04-20 사고 + 가드 강화
 - **사고 요약**: SSD 포맷 후 `pull-mello` 없이 새 환경에서 세션 진행 → 로컬에 메모리 13개만 쌓인 상태로 `push-mello` 실행 → `rsync --delete` 때문에 레포의 120+ 파일이 대량 삭제됨 (commit `9c75a33`). Revert(`c1578ec`) + merge push(`7b6923d`)로 당일 복구 완료.
