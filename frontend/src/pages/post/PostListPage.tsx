@@ -18,7 +18,7 @@ import { useFeedScrollStore } from '@/stores/feedScrollStore';
 import { usePostWriteModalStore } from '@/stores/postWriteModalStore';
 import { useScreenExit } from '@/hooks/useScreenExit';
 import { useWelcomeModal } from '@/hooks/useWelcomeModal';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 
 type FeedTab = 'all' | 'following';
 type FeedSort = 'LATEST' | 'POPULAR';
@@ -225,14 +225,13 @@ export default function PostListPage() {
   const totalPages = data?.totalPages ?? 1;
 
   function handleReactionUpdated(fresh: PostReaction) {
-    // any타입 임시. 나중에 바꿔야함
-    const patch = (old: any) => {
+    const patch = (old: InfiniteData<PaginatedPosts> | undefined) => {
       if (!old) return old;
       return {
         ...old,
-        pages: old.pages.map((page: any) => ({
+        pages: old.pages.map((page: PaginatedPosts) => ({
           ...page,
-          items: page.items.map((item: any) =>
+          items: page.items.map((item: PaginatedPosts['items'][number]) =>
             item.id === fresh.postId
               ? {
                   ...item,
@@ -247,8 +246,8 @@ export default function PostListPage() {
       };
     };
     // 전체 피드(['feed'])와 팔로우 피드(['feed-following']) 캐시를 모두 패치.
-    qc.setQueriesData({ queryKey: ['feed'] }, patch);
-    qc.setQueriesData({ queryKey: ['feed-following'] }, patch);
+    qc.setQueriesData<InfiniteData<PaginatedPosts>>({ queryKey: ['feed'] }, patch);
+    qc.setQueriesData<InfiniteData<PaginatedPosts>>({ queryKey: ['feed-following'] }, patch);
   }
 
   // 빈 상태 CTA — PC는 모달, 모바일은 라우트 이동.
