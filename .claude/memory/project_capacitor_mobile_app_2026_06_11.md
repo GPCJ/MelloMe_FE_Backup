@@ -47,5 +47,19 @@ metadata:
 - **C2 플로우 변경**: 스캐폴딩이 develop에 있으므로 맥북에서 feat 브랜치가 아니라 **`develop` checkout**. 원격 `feat/capacitor-setup`은 F-15 미커밋이 로컬 동명 브랜치에 얹혀 있어 미삭제 보류.
 - WSL 사전준비 검증(06-15): `npm run build` exit 0(prerender 3p)·`cap sync` OK(iOS=SPM)·빌드 박힌 API=`https://api-staging.melonnetherapists.com`(HTTPS, localhost 없음→기기접근 OK).
 
+## C2 완료 (2026-06-15)
+- **맥북에서 iPhone 17 시뮬레이터(iOS 26.5) Mellti 앱 실행 확인** — 홈화면에 앱 아이콘 설치됨.
+- 맥북 환경: Xcode 26.5 설치 완료, iOS 26.5 시뮬레이터 런타임 다운로드 완료(8.52GB).
+- 로그인 시도 → "로그인 실패" = **예상된 CORS 블로킹** 확인.
+- **MEL-56 등록** — `capacitor://localhost`(iOS), `http://localhost`(Android) 허용 요청. 영구 설정 필요(스토어 배포 후에도 동일 origin 사용).
+- 쿠키 인증(RT httpOnly) 이슈 = CORS 해결 후 실제 로그인해봐야 확인 가능. 문제 시 "네이티브엔 RT body" 추가 BE 작업.
+
+## v2 결정 사항
+- **치료사 면허번호 카메라 자동입력(OCR)** = 정식 배포 후 v2로 결정. 초기 범위 제외. 기술 스택: `@capacitor/camera` + Google ML Kit(한국어 OCR, BE 엔드포인트 처리 권장).
+
+## 현재 상태 (2026-06-15)
+- **블로커: MEL-56 CORS 해결 대기** — 해결되면 전 기능 시뮬레이터 테스트 → 쿠키 인증 검증 → 푸시 구현 → 내부테스트 → 스토어 제출 순서.
+
 ## 재개 트리거 「Capacitor 이어가자」 또는 「모바일 앱 이어가자」
-다음 = C2(맥북에서 `git checkout develop && git pull → cd frontend → npm install → npm run build && npx cap sync → cap run android`/`cap open ios`)로 화면 띄우기. PR #27 본문에 맥북 실행 가이드 있음(단 checkout 대상은 이제 develop).
+- CORS 해결 후: `npx cap run ios` → 로그인 테스트 → 쿠키 인증 확인.
+- C2 환경 이미 세팅됨(맥북에 Xcode 26.5 + iOS 26.5 런타임). 재실행 시 `cd frontend && npm run build && npx cap sync && npx cap run ios`만 하면 됨.
