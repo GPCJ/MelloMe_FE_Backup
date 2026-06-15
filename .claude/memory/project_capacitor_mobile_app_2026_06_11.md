@@ -60,6 +60,11 @@ metadata:
 ## 현재 상태 (2026-06-15)
 - **블로커: MEL-56 CORS 해결 대기** — 해결되면 전 기능 시뮬레이터 테스트 → 쿠키 인증 검증 → 푸시 구현 → 내부테스트 → 스토어 제출 순서.
 
+## 브랜치 정리 + MEL-56 티켓 오류 발견 (2026-06-15 후속 세션)
+- **`feat/capacitor-setup` 브랜치 삭제 완료**(line 47 "미삭제 보류" 해소). 브랜치에만 있던 비-capacitor 작업 2건(R-12 리액션캐시 any제거, F-15① 팔로우탭 스크롤복원)을 develop으로 cherry-pick→tsc 통과→push(`492f674`). patch 동일성(`git cherry`) 확인 후 로컬+원격 브랜치 삭제. **C2는 계속 develop 기준**(변동 없음).
+- **⚠️ MEL-56 Android origin 오류**: 티켓·line 54는 Android를 `http://localhost`로 요청했으나, **Capacitor 6+ `androidScheme` 기본값=`https`**(공식 문서 확인). 본 앱=Capacitor `8.4.0` + `capacitor.config.ts`에 scheme 미명시 → **실제 Android origin=`https://localhost`**. BE가 `http://localhost`로 CORS 설정하면 **Android 로그인 실패**(앱은 https origin 전송→차단). 지금까지 iOS 시뮬만 테스트해 미발현. **BE에 `https://localhost`로 정정 요청 필요**. iOS `capacitor://localhost`는 정확.
+- 참고 정리(BE 핸드오프용): origin=scheme+host+port. iOS=`capacitor://localhost`, Android=`https://localhost`(둘 다 로컬 HTML 출처, 이름만 다름). 실제 네트워크는 양쪽 다 JS가 `https://api.melonnetherapists.com` 호출 시만. → 개념 학습 Notion TIL 초안(`notion_draft.md`)으로 박제.
+
 ## 재개 트리거 「Capacitor 이어가자」 또는 「모바일 앱 이어가자」
 - CORS 해결 후: `npx cap run ios` → 로그인 테스트 → 쿠키 인증 확인.
 - C2 환경 이미 세팅됨(맥북에 Xcode 26.5 + iOS 26.5 런타임). 재실행 시 `cd frontend && npm run build && npx cap sync && npx cap run ios`만 하면 됨.
