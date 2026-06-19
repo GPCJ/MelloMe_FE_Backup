@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { ArrowLeft, Image, Paperclip, PencilLine } from 'lucide-react';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
 import SimpleTextEditor from '../../components/post/SimpleTextEditor';
@@ -193,7 +194,7 @@ export default function PostEditPage() {
       }
 
       if (failedCount > 0) {
-        alert(`게시글은 수정되었지만 ${failedCount}개 첨부파일 처리에 실패했습니다.`);
+        toast.error(`게시글은 수정되었지만 ${failedCount}개 첨부파일 처리에 실패했습니다.`);
       }
       qc.invalidateQueries({ queryKey: ['feed'] });
       navigate(`/posts/${postId}`);

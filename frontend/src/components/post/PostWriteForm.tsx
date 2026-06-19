@@ -158,7 +158,7 @@ export default function PostWriteForm({ variant, onClose, onSuccess, mode, onMod
       }
 
       if (failedCount > 0) {
-        alert(`게시글은 등록되었지만 ${failedCount}개 첨부파일 업로드에 실패했습니다.`);
+        toast.error(`게시글은 등록되었지만 ${failedCount}개 첨부파일 업로드에 실패했습니다.`);
       }
       trackEvent('post_created');
       if (wasFirstPost) trackEvent('first_post_created');
@@ -169,7 +169,7 @@ export default function PostWriteForm({ variant, onClose, onSuccess, mode, onMod
         err,
       });
       if (createdPostId) {
-        alert('첨부파일 업로드에 실패했습니다. 게시글 상세로 이동합니다.');
+        toast.error('첨부파일 업로드에 실패했습니다. 게시글 상세로 이동합니다.');
         navigate(`/posts/${createdPostId}`);
       } else {
         setError('게시글 작성에 실패했습니다. 다시 시도해주세요.');

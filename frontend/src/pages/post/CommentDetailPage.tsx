@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
+import { toast } from 'sonner';
 import { MoreVertical } from 'lucide-react';
 import CommentCard from '../../components/post/CommentCard';
 import CommentInput from '../../components/post/CommentInput';
@@ -95,7 +96,7 @@ export default function CommentDetailPage() {
         );
       }
     } catch {
-      alert('댓글 삭제에 실패했습니다. 다시 시도해주세요.');
+      toast.error('댓글 삭제에 실패했습니다. 다시 시도해주세요.');
     }
   }
 
@@ -126,7 +127,7 @@ export default function CommentDetailPage() {
       }
       setEditingCommentId(null);
     } catch {
-      alert('댓글 수정에 실패했습니다. 다시 시도해주세요.');
+      toast.error('댓글 수정에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setEditSubmitting(false);
     }

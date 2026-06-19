@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { login } from '../../api/auth';
 import { useAuthStore } from '../../stores/useAuthStore';
@@ -139,7 +140,7 @@ export default function LoginPage() {
               </div>
               <button
                 type="button"
-                onClick={() => alert('준비 중인 기능입니다')}
+                onClick={() => toast('준비 중인 기능입니다')}
                 className="text-sm font-medium text-[#6d00da]"
               >
                 비밀번호 찾기
