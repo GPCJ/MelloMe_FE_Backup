@@ -21,7 +21,7 @@ const bootstrap = async () => {
       <QueryClientProvider client={queryClient}>
         <App />
         <ReactQueryDevtools initialIsOpen={false} />
-        <Toaster position="top-center" richColors />
+        <Toaster position="top-center" richColors visibleToasts={1} />
       </QueryClientProvider>
     </StrictMode>,
   );
