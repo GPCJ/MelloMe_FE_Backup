@@ -7,6 +7,7 @@
 - [지식 흡수 — 이미지/구조 떠올라야 흡수](./user_comprehension_criterion.md) / [작업 집중 — 싱글태스크 + 스쳐가는 생각 캡처](./user_work_focus_pattern.md)
 - [코드 추적 — outside-in (호출부→선언부)](./user_code_navigation_style.md) / [Zustand/RQ 학습 — 단편 규칙 누적](./user_reactivity_libs_learning.md)
 - [AI 의존 불안 패턴 — 주기적 재출현, 4프레임 응답](./user_ai_dependency_anxiety.md)
+- **[개발 의욕↔게임 회귀 패턴 + 6개 지속 시스템 (2026-06-19)](./user_motivation_dev_vs_games.md)** — "개발 재미/의욕 없다"·"게임 vs 개발" 트리거. 게임 못 이김(구조)·바닥선/마찰설계/가시화/게임=보상/돈목표=멜로미→취업/트립와이어. 다음스텝 막막함=구조적, railroad 금지
 - **[코드 읽기 진단 — WHAT은 읽고 WHY는 건너뜀 (2026-06-02)](./user_code_reading_what_vs_why.md)** — 못 읽는 게 아니라 습관, risk 줄에만 "지우면 뭐 깨지지?", PR 부담=착시
 - **[React 내부 모델 학습 (2026-05-19~20)](./user_react_internals_learning.md)** — 렌더 4단계/fiber=인스턴스/StrictMode 가짜언마운트/useEffect=동기화/race 도달성 잡힘, Component·Element 층 미정리
 - **[기본기 강박 — "어려운 코드 이해해야 기본기" (2026-06-04)](./user_fundamentals_complexity_compulsion.md)** — 강박 정당할 때도 있으나 "첫 읽기 술술"=틀린 기준, 본질 vs 우발 복잡도 구분 프레임으로 응답

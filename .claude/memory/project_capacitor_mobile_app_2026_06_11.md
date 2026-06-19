@@ -57,13 +57,13 @@ metadata:
 ## v2 결정 사항
 - **치료사 면허번호 카메라 자동입력(OCR)** = 정식 배포 후 v2로 결정. 초기 범위 제외. 기술 스택: `@capacitor/camera` + Google ML Kit(한국어 OCR, BE 엔드포인트 처리 권장).
 
-## 현재 상태 (2026-06-15 갱신)
-- **MEL-56 BE 완료(PR #126), staging 검증 ✅, prod 미배포 ❌**
-  - staging(`api-staging.melonnetherapists.com`): `capacitor://localhost` preflight → 200, `Access-Control-Allow-Origin: capacitor://localhost` + `Allow-Credentials: true` 확인.
-  - prod(`api.melonnetherapists.com`): 403 "Invalid CORS request" — PR #126 아직 prod 배포 전.
-  - prod 배포 완료 후 앱에서 로그인 검증 → MEL-56 종료 가능.
-- **⚠️ Android origin 미검증** — BE가 `http://localhost`로 설정했으나 실제 Capacitor 8.4 Android origin=`https://localhost`(line 65). prod 배포 후 Android 기기/에뮬레이터 검증 필수. iOS는 staging ✅로 확인됨.
-- prod 배포 후 순서: `npx cap run ios` → 로그인 테스트 → 쿠키 인증(RT httpOnly) 확인 → Android origin 정정 필요 시 BE 추가 요청.
+## 현재 상태 (2026-06-19 갱신)
+- **MEL-56 BE 완료(PR #126), prod 미배포 ❌** (2026-06-19 curl 실증)
+  - staging iOS(`capacitor://localhost`): preflight → 200, `Access-Control-Allow-Origin: capacitor://localhost` + `Allow-Credentials: true` ✅
+  - staging Android(`https://localhost`): preflight → 403 ❌ — BE가 `https://localhost` 누락
+  - prod 전체: 403 ❌ — PR #126 아직 prod 배포 전
+- **🔴 Android origin 이슈 실증** — staging curl로 `https://localhost` → 403 확인(2026-06-19). BE가 `capacitor://localhost`(iOS)만 추가하고 `https://localhost`(Android) 누락(`http://localhost`로 잘못 설정). **BE 조치 확인 완료(2026-06-19), staging 재검증 대기 중**.
+- 다음 순서: BE에 `https://localhost` 추가 요청 → staging 재검증 → prod 배포 → `npx cap run ios` 로그인 테스트 → 쿠키 인증 확인.
 
 ## 브랜치 정리 + MEL-56 티켓 오류 발견 (2026-06-15 후속 세션)
 - **`feat/capacitor-setup` 브랜치 삭제 완료**(line 47 "미삭제 보류" 해소). 브랜치에만 있던 비-capacitor 작업 2건(R-12 리액션캐시 any제거, F-15① 팔로우탭 스크롤복원)을 develop으로 cherry-pick→tsc 통과→push(`492f674`). patch 동일성(`git cherry`) 확인 후 로컬+원격 브랜치 삭제. **C2는 계속 develop 기준**(변동 없음).
