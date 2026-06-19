@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import DOMPurify from 'dompurify';
 import {
   MessageSquare,
@@ -195,7 +196,7 @@ export default function PostDetailPage() {
       qc.invalidateQueries({ queryKey: ['feed-following'] });
       navigate('/posts');
     } catch {
-      alert('게시글 삭제에 실패했습니다. 다시 시도해주세요.');
+      toast.error('게시글 삭제에 실패했습니다. 다시 시도해주세요.');
     }
   }
 
@@ -213,7 +214,7 @@ export default function PostDetailPage() {
         ),
       );
     } catch {
-      alert('댓글 삭제에 실패했습니다. 다시 시도해주세요.');
+      toast.error('댓글 삭제에 실패했습니다. 다시 시도해주세요.');
     }
   }
 
@@ -242,7 +243,7 @@ export default function PostDetailPage() {
       );
       setEditingCommentId(null);
     } catch {
-      alert('댓글 수정에 실패했습니다. 다시 시도해주세요.');
+      toast.error('댓글 수정에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setEditSubmitting(false);
     }
@@ -277,7 +278,7 @@ export default function PostDetailPage() {
       }
       setScrapped(!scrapped);
     } catch {
-      alert('스크랩에 실패했습니다. 다시 시도해주세요.');
+      toast.error('스크랩에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setScrapLoading(false);
     }

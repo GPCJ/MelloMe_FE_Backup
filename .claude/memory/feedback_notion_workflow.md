@@ -81,6 +81,16 @@ metadata:
 
 ---
 
+## 7. 노션 작성 성공 후 draft 자동 비우기 (누적 충돌 재발 방지)
+
+`/post-notion-draft`로 노션 작성이 성공하면 `notion_draft.md`를 **자동으로 비울 것**(헤더만 남기고 `## 섹션` 제거). 따로 묻지 말 것. 부분 작성 시 완료된 섹션만 제거.
+
+**Why:** "작성 후 비우기"가 opt-in(물어봄)이라 매번 스킵돼 초안이 누적됨. git 추적 결과 **05-31에 5개→리셋, 06-15에 또 5개 재누적** = 같은 사고 반복. 누적되면 다음 `/report-notion`·`/post-notion-draft`가 stale 초안을 "충돌"로 감지해 매번 정리 부담. (06-15에 5개 초안 일괄 삭제 + 스킬 수정)
+
+**How to apply:** `post-notion-draft.md` 스킬 5·6단계 + 주의사항에 자동 비우기 명시 완료. draft 헤더에도 "작성 후 비울 것(05-31·06-15 사고)" 경고 박음. 새 보고 시 초안 1개만 유지되는 게 정상.
+
+---
+
 ## 연관
 - [[project_notion_page_policy]] — Notion 운영 방침
 - [[feedback_career_documentation]] — 취업 경험 정리 방향

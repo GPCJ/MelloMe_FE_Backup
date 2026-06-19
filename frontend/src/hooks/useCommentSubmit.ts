@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { createComment } from '../api/posts';
 import type { CommentResponse } from '../types/post';
 import { trackReaction } from '../lib/analytics';
@@ -36,7 +37,7 @@ export function useCommentSubmit({
       onSuccess(newComment);
       onReset?.();
     } catch {
-      alert(
+      toast.error(
         parentCommentId
           ? '답글 작성에 실패했습니다. 다시 시도해주세요.'
           : '댓글 작성에 실패했습니다. 다시 시도해주세요.',

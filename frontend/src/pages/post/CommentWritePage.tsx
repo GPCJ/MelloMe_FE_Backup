@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import DOMPurify from 'dompurify';
 import { Eye, MoreVertical } from 'lucide-react';
 import ReactionBar from '../../components/post/ReactionBar';
@@ -65,7 +66,7 @@ export default function CommentWritePage() {
       trackReaction('comment', { postId: Number(postId) });
       navigate(`/posts/${postId}`);
     } catch {
-      alert('댓글 작성에 실패했습니다. 다시 시도해주세요.');
+      toast.error('댓글 작성에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setSubmitting(false);
     }

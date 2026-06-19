@@ -18,7 +18,7 @@ import { useFeedScrollStore } from '@/stores/feedScrollStore';
 import { usePostWriteModalStore } from '@/stores/postWriteModalStore';
 import { useScreenExit } from '@/hooks/useScreenExit';
 import { useWelcomeModal } from '@/hooks/useWelcomeModal';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 
 type FeedTab = 'all' | 'following';
 type FeedSort = 'LATEST' | 'POPULAR';
@@ -68,9 +68,14 @@ export default function PostListPage() {
 
   const consumeSnapshot = useFeedScrollStore((s) => s.consume);
   const saveSnapshot = useFeedScrollStore((s) => s.save);
-  const initialSnapshotRef = useRef<ReturnType<typeof consumeSnapshot>>(
-    isInfiniteMode ? consumeSnapshot() : null,
-  );
+  function pickInitialSnapshot() {
+    const snap = consumeSnapshot();
+    if (!snap) return null;
+    if (snap.tab === 'all' && isInfiniteMode) return snap;
+    if (snap.tab === 'following' && activeTab === 'following') return snap;
+    return null;
+  }
+  const initialSnapshotRef = useRef(pickInitialSnapshot());
 
   // 뒤로가기 복원 시 snapshot에 저장된 sort를 초기값으로 사용.
   const [sort, setSort] = useState<FeedSort>(initialSnapshotRef.current?.sort ?? 'LATEST');
@@ -82,7 +87,7 @@ export default function PostListPage() {
     fetchPage: ({ pageParam, signal }) =>
       fetchFeed({ size: 20, sort, ...(pageParam ? { cursor: pageParam } : {}), signal }),
     enabled: isInfiniteMode,
-    initialSnapshot: initialSnapshotRef.current
+    initialSnapshot: initialSnapshotRef.current?.tab === 'all'
       ? {
           items: initialSnapshotRef.current.items,
           nextCursor: initialSnapshotRef.current.nextCursor,
@@ -99,10 +104,18 @@ export default function PostListPage() {
     fetchPage: ({ pageParam, signal }) =>
       fetchFollowingFeed({ size: 20, ...(pageParam ? { cursor: pageParam } : {}), signal }),
     enabled: activeTab === 'following',
+    initialSnapshot: initialSnapshotRef.current?.tab === 'following'
+      ? {
+          items: initialSnapshotRef.current.items,
+          nextCursor: initialSnapshotRef.current.nextCursor,
+          hasNext: initialSnapshotRef.current.hasNext,
+        }
+      : undefined,
   });
 
   useEffect(() => {
-    if (!isInfiniteMode) return;
+    // pickInitialSnapshot이 "지금 탭에 유효한 스냅샷"일 때만 ref를 채우므로
+    // (아니면 null) snap 존재 여부만으로 all/following 양쪽 복원을 게이트한다.
     const snap = initialSnapshotRef.current;
     if (!snap) return;
     requestAnimationFrame(() => {
@@ -111,7 +124,7 @@ export default function PostListPage() {
         behavior: 'instant' as ScrollBehavior,
       });
     });
-  }, [isInfiniteMode]);
+  }, []);
 
   const VALID_THERAPY_AREAS: (TherapyArea | '')[] = FILTER_CHIPS.map((chip) => chip.value);
 
@@ -188,14 +201,26 @@ export default function PostListPage() {
   }, [activeTab, followingFeed.loadMore]);
 
   function handleCardClick() {
-    if (!isInfiniteMode) return;
-    saveSnapshot({
-      items: infinite.items,
-      nextCursor: infinite.nextCursor,
-      hasNext: infinite.hasNext,
-      scrollY: window.scrollY,
-      sort,
-    });
+    if (activeTab === 'all') {
+      if (!isInfiniteMode) return;
+
+      saveSnapshot({
+        items: infinite.items,
+        nextCursor: infinite.nextCursor,
+        hasNext: infinite.hasNext,
+        scrollY: window.scrollY,
+        sort,
+        tab: 'all',
+      });
+    } else {
+      saveSnapshot({
+        items: followingFeed.items,
+        nextCursor: followingFeed.nextCursor,
+        hasNext: followingFeed.hasNext,
+        scrollY: window.scrollY,
+        tab: 'following',
+      });
+    }
   }
 
   function handleSortChange(next: FeedSort) {
@@ -225,14 +250,13 @@ export default function PostListPage() {
   const totalPages = data?.totalPages ?? 1;
 
   function handleReactionUpdated(fresh: PostReaction) {
-    // any타입 임시. 나중에 바꿔야함
-    const patch = (old: any) => {
+    const patch = (old: InfiniteData<PaginatedPosts> | undefined) => {
       if (!old) return old;
       return {
         ...old,
-        pages: old.pages.map((page: any) => ({
+        pages: old.pages.map((page: PaginatedPosts) => ({
           ...page,
-          items: page.items.map((item: any) =>
+          items: page.items.map((item: PaginatedPosts['items'][number]) =>
             item.id === fresh.postId
               ? {
                   ...item,
@@ -247,8 +271,8 @@ export default function PostListPage() {
       };
     };
     // 전체 피드(['feed'])와 팔로우 피드(['feed-following']) 캐시를 모두 패치.
-    qc.setQueriesData({ queryKey: ['feed'] }, patch);
-    qc.setQueriesData({ queryKey: ['feed-following'] }, patch);
+    qc.setQueriesData<InfiniteData<PaginatedPosts>>({ queryKey: ['feed'] }, patch);
+    qc.setQueriesData<InfiniteData<PaginatedPosts>>({ queryKey: ['feed-following'] }, patch);
   }
 
   // 빈 상태 CTA — PC는 모달, 모바일은 라우트 이동.
@@ -437,12 +461,13 @@ export default function PostListPage() {
           {followingFeed.isLoading
             ? Array.from({ length: 4 }).map((_, i) => <PostCardSkeleton key={i} />)
             : followingFeed.items.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  onReactionUpdated={handleReactionUpdated}
-                  backTo="/posts?tab=following"
-                />
+                <div key={post.id} onClickCapture={handleCardClick}>
+                  <PostCard
+                    post={post}
+                    onReactionUpdated={handleReactionUpdated}
+                    backTo="/posts?tab=following"
+                  />
+                </div>
               ))}
 
           {followingFeed.isFetchingMore &&

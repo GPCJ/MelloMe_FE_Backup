@@ -9,7 +9,8 @@ interface FeedSnapshot {
   hasNext: boolean;
   scrollY: number;
   savedAt: number;
-  sort: 'LATEST' | 'POPULAR';
+  sort?: 'LATEST' | 'POPULAR';
+  tab: 'all' | 'following';
 }
 
 interface FeedScrollState {

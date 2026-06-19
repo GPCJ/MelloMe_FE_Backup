@@ -16,13 +16,13 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 
 ## 1. 바로 할 수 있는 것 (프론트 독립)
 
+> ✅ **(2026-06-08 해소) 위 "develop push 금지" 경고는 해결됨.** 공유 워킹트리에서 두 세션이 얽혔던 것을 정리: 팔로우 커밋들을 `feat/follow`로 분리(cherry-pick) → **PR #25(feat/follow→develop, 미머지, QA 예정)**. develop은 origin/develop(`d086a2d`) + **UI fix 2커밋만**(`bf518d9` 메뉴 / `390e2e9` 검색, 새 SHA `497dae0`·`20c5fc4`)으로 정리해 **push 완료**. 즉 origin/develop엔 팔로우 WIP 안 섞임. 백업 브랜치 `backup-tangled-develop`(구 tip `dd384b8`)은 PR 머지 후 삭제 예정.
+> 교훈: **두 Claude 세션이 워킹트리 하나를 공유하면 브랜치/커밋이 발밑에서 바뀐다.** 동시 작업 시 브랜치 새로 파지 말고 같은 브랜치 유지가 안전.
+
 ### ★ 내일 1순위 (2026-05-11)
 - [x] **CH-09** 게시글 상세 댓글/대댓글 시안 정합 — 완료 (2026-05-20 브라우저 검증 통과). 상세는 아래 Chrome 통일 후속 섹션 CH-09 참조
-- [ ] **MEL-47** 피드 정렬 전환 UI 추가 (최신순/인기순)
-  - Jira: MEL-47 / 담당: 진서현(나) / 상태: 해야 할 일
-  - 현황: 정렬 API 스펙 확인 필요 (Swagger `GET /posts?sort=LATEST|POPULAR` 파라미터 여부)
-  - 연관: D-01 — 디자이너 부재(2026-05-22)로 자체 결정 후 선착수 가능
-  - 검증: 최신순 ↔ 인기순 전환 시 피드 재요청 + 탭 상태 유지 확인
+- [x] **MEL-47** 피드 정렬 전환 UI (최신순/인기순) — 완료 (커밋 `64d5b6c`, develop+main 배포)
+  - 무한스크롤 모드 한정 칩 토글(`PostListPage.tsx:275~298`), `sort` state→`useInfiniteFeed` queryKey→API 배선, 뒤로가기 snapshot에 sort 보존. BE `GET /posts/feed?sort=` 지원 확인(prod 동작)
 
 ### 임시 조치 / 버그
 - [x] **F-01** 인터셉터 로그인 401 refresh 버그 (커밋 a92320a)
@@ -72,6 +72,39 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 원인: 헤더는 full-width인데 콘텐츠만 `max-w-2xl`(672px)로 좁혀 헤더가 더 넓어 보였음 (`NotificationPage.tsx:138`/`:154`)
   - 조치: 폭 제한을 최상위 div로 올려 헤더+콘텐츠를 함께 `max-w-[640px]` 중앙 정렬 (쪽지함과 동일 패턴·폭)
   - 검증: `/notifications` 헤더·목록 폭 일치 + 쪽지함과 시각 정합 확인
+- [x] **F-11** 랜딩 페이지 placeholder 확정 — 완료 (2026-06-08, develop `d086a2d`)
+  - 배경: 랜딩 부활(`feat/landing-page` PR #24 머지 06-06). PM 와이어프레임(`Mellti` 브랜드) 기반 구현 완료, 폰 목업 3종(피드/인증/고민카드)은 실제 화면 재현
+  - **placeholder 3종 해소**(`d086a2d`): 협업문의 링크(nav) + 아이로 인스타그램 URL(footer) + 사업자등록번호(footer) 기입 + CTA/버튼 auth 분기. 검증 `grep -E "TODO\((협업문의|인스타|사업자번호)\)|000-00-00000" frontend/src/pages/landing/LandingPage.tsx` → 0건 확인
+- [ ] **F-12 [BE]** 팔로워 탭 맞팔(follow-back) 버튼 — 1차 안정화 후 (2026-06-08 보류 결정)
+  - 배경: 팔로우 수직 슬라이스 1(`/follow` 목록+언팔 토글) 설계 시 발견. 설계 문서 `docs/superpowers/specs/2026-06-08-follow-list-toggle-design.md`
+  - **블로커**: `FollowUserResponse`(`/me/followers`·`/me/followings` 응답)에 "내가 이 사람을 팔로우 중인가"(`following`) 필드 부재 → 팔로워 탭 각 행의 팔로우/팔로잉 버튼 **초기 라벨**을 정확히 못 그림(userId/nickname/profileImageUrl/role만 옴). POST/DELETE 자체는 동작하므로 "기능"은 가능, "정확한 초기 표시"만 BE 의존
+  - **[BE] 요청(안정화 후)**: `FollowUserResponse`에 `following: boolean` 추가 (쪽지 F-10과 동일한 응답 필드 1개 추가 패턴, 소규모)
+  - FE 후속(BE 해소 후): 팔로워 탭 행에 맞팔 버튼 배선, `following`으로 초기 라벨 정확히. 우회안(보류): (나) 행별 `GET /users/{id}/follow` N+1 / (다) 내 팔로잉 전체 Set 대조
+  - 결정/Why: 1차 팔로우(목록+언팔) 완료 + 자잘한 버그·수정 안정화 후 BE 요청하기로 (2026-06-08). 슬라이스 1은 팔로잉 탭 언팔 토글로 데모 완결, 팔로워 탭은 명단 표시만
+- [ ] **F-11b [PM]** 랜딩 카피↔실제 기능 갭 — PM 소유 (passive)
+  - **카피↔실제 갭**: Feature③이 광고하는 **팔로우 피드·리포스트·휘발성 게시글**은 미구현 가능성 → 신규 유저 기대-실제 갭. PM이 실제 구현 현황에 맞춰 카피 조정 검토 (FE 능동 작업 아님, PM 결정 대기)
+- [x] **F-14** 사이드바 "..." 메뉴 계정·고객센터 비활성화 (2026-06-08, 로컬 develop `bf518d9`, dev 검증 통과, **unpushed**)
+  - 원인: `UserMenu.tsx` 계정→`/account`, 고객센터→`/support` navigate인데 두 라우트 부재 → 클릭 시 404로 빠짐
+  - 조치: 두 `DropdownMenuItem`에 `disabled` (base-ui Menu.Item, className에 이미 `data-disabled:pointer-events-none data-disabled:opacity-50` → 회색+클릭 무반응), `onClick={navigate(...)}`는 주석으로 보존
+  - **⚠️ 의도적 비활성화 — 이후 세션이 "버그"로 오인해 재활성화 금지.** 기능 구현 시 `disabled` 제거 + onClick 복원
+- [x] **F-15** 검색 페이지 폭 홈피드와 동일 정합 (2026-06-08, 로컬 develop `390e2e9`, dev 검증 통과, **unpushed**)
+  - 조치: `SearchPage.tsx` 최상위 `<div className="pb-20 md:pb-8">` → `max-w-3xl mx-auto pb-20 md:pb-8` (홈피드 768px와 동일, 검색 결과가 동일 PostCard 목록이라 폭 통일). 프로필은 640px로 더 좁음(미채택)
+- [x] **F-13** 게시글 상세 이미지 라이트박스(클릭 → 확대 팝업) — 완료 (2026-06-09, develop 1커밋 `3b7c36d`, 브라우저 검증 통과). AI 작성+리뷰. 인지부채 박제 [[project_image_lightbox_implementation_2026_06_09]]
+  - 결정: **직접 오버레이**(라이브러리 X, blast radius 최소) / 좌우 네비게이션 + ESC·배경 클릭 닫기 / **핀치 줌 포함**(Pointer 이벤트로 터치·마우스 통합)
+  - 구현: 신규 `components/common/ImageLightbox.tsx`(Portal, LegalModal 컨벤션) + `PostDetailPage` 캐러셀 `<img>` onClick 배선(드래그 구분 `moved<=5`, `cursor-pointer`)
+  - 기능: Phase1=풀스크린 확대+wrap 네비+카운터. Phase2=핀치 줌(max 4배)/확대 중 팬/더블탭·더블클릭 1↔2배 토글/PC 휠 줌, 확대 중 ◀▶ 숨김, `touchAction:none`
+  - 의도된 한계(박제): 스와이프 닫기 미구현 / focus trap 미구현(role=dialog만) / 줌 transition 없음(핀치 반응성 우선) / 모바일 실기기 제스처는 코드+브라우저 검증만
+- [x] **F-15 ★ 홈피드 "팔로우" 탭 배선 (접근 B)** — **완료 (2026-06-09, PR #26 develop 머지 `41484c9`)**. dev 검증 통과(전체 Hot Path 5종 회귀 무탈)+`/code-review high`(HIGH 0, 삭제 캐시갭 `d4d8303` 수정). 구현/취약점 박제 [[project_follow_feed_tab_implementation_2026_06_09]]. **남은 후속**: 팔로우 탭 스크롤 복원(snapshot store 일반화)·정렬/필터(BE following에 sort·therapyArea 추가 선결)·backTo 하드코딩 location 파생화
+  - 현황(완료 전): `PostListPage` activeTab==='following'이 placeholder("팔로우한 치료사의 글이 여기에 표시됩니다", `:394~398`)만. BE `/posts/feed/following`(커서, `size/cursor/postType`, **sort 없음**) 준비됨
+  - 작업: `fetchFollowingFeed` 추가 + `useInfiniteFeed`(현재 `fetchFeed`+queryKey `['feed']` 하드코딩) 일반화 또는 형제 훅 + 팔로우 탭 실배선 + 팔로우 탭에선 정렬 토글(MEL-47) 숨김
+  - ⚠️ **핵심 위험 = 무한스크롤 Hot Path 회귀** — useInfiniteFeed 일반화 시 전체피드 동작(스크롤복원/필터/fallback) 회귀 검증 필수
+  - 프론트 단독, 커서 구조 호환. 트리거 「팔로우 탭 이어가자」. 상세 [[project_follow_feature]]
+  - 검증: 팔로우 탭에서 팔로우한 사람 글 무한스크롤 + 전체피드 5종 회귀 무탈
+  - **후속 ① 팔로우 탭 스크롤 복원 — 코드 완성 (2026-06-10, 워킹트리 미커밋, tsc OK)**: `feedScrollStore`에 `tab` 태그 + `sort?` optional / `pickInitialSnapshot`(consume 후 `snap.tab===activeTab`일 때만 ref 채움) / 시딩 tab 라우팅(infinite=`'all'`·followingFeed=`'following'`일 때만 initialSnapshot → 캐시 교차오염 방지) / 복원 effect `isInfiniteMode` 게이트 제거 → `[]` 양탭 1회 / `handleCardClick` all·following 분기 + following 카드 `<div onClickCapture>` 래핑. **대부분 본인 손코딩(학습 모드)**, 마지막 3b effect+nit만 AI(unlock). ⚠️ **런타임 QA 2건 미완**: ⑴following 탭 스크롤+아이템 복원 ⑵following 저장→all 탭 캐시 안 섞이는지(회귀) → 컨디션 회복 후 셀프QA→커밋. low-sev 관찰: `pickInitialSnapshot`이 무조건 consume → 필터뷰 착지 시 스냅샷 옛 코드보다 일찍 discard(영향 미미). 후속 ② backTo 하드코딩→location 파생화 = **미착수**
+- [x] **F-14 [BE]** 팔로워/팔로잉 목록 아바타 이미지 깨짐 — ✅ **BE 해결 (2026-06-10)**
+  - 원인: `FollowUserResponse.profileImageUrl`이 풀 URL 아닌 **raw S3 키**(`xxxx.png`)로 와서 `resolveImageUrl`이 404 URL로 오해석 → 아바타 깨짐
+  - 조치: BE가 작성자 이미지(`TherapyPostSummaryResponse.authorProfileImageUrl`)와 동일 URL 빌드를 `FollowUserResponse`에 적용 → **풀 URL 응답**. `/me/followers`·`/me/followings` 공유 DTO라 한 번에 해소. FE 변경 불필요(우회 안 함)
+  - 잔존(무해): FE `UserAvatar` onError 이니셜 폴백(`cd556ac`)+`console.warn('[avatar] …')`(`eb8f469`)는 graceful degradation으로 유지
 
 ### 리팩토링 / 마이그레이션 (미검증)
 - [x] **R-01a** ProfilePage 3탭 RQ 마이그레이션 완료 (2026-04-23, 커밋 924d55e + 0ba0523)
@@ -99,8 +132,7 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 - [ ] **R-03** refresh plain axios 분리
   - 검증: `grep "import axios" frontend/src/api/axiosInstance.ts` → plain axios import 유무
   - 참고: F-01과 연관, 백엔드 연결 후 401 통합 테스트 시점에 처리
-- [ ] **R-04** FilterChips 컴포넌트 추출 (Pagination 추출 완료, 다음 순서)
-  - 검증: `grep "FilterChips" frontend/src/components` → 공통 컴포넌트 존재 여부
+- [x] **R-04** FilterChips 컴포넌트 추출 — 완료 (`components/common/FilterChips.tsx` 존재)
   - 상세: `project_search_code_review.md`
 - [ ] **R-05** ProfilePage 관심사 분리 (RQ 마이그레이션 후 후속 정리)
   - 현황: 3탭 RQ 전환 후 파일 400줄+, 탭/편집/인증 로직 혼재
@@ -177,10 +209,7 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 ### Chrome 통일 후속 (시안 진행)
 2026-05-08 chrome 통일 정책 결정/구현 후속. 상세: `project_chrome_unification_policy.md`, `project_user_menu_component.md`
 
-- [ ] **CH-01** `PageHeader` `leftAction` 슬롯 추가 + 모바일 햄버거 ≡ (UserMenu 재사용)
-  - 현황: PageHeader는 `title`/`backTo`/`rightAction` 3슬롯. 모바일에서 좌측 햄버거 진입점 부재
-  - 작업: `PageHeader`에 `leftAction?: ReactNode` 추가, 모바일 페이지에서 `<UserMenu side="bottom" align="start" sideOffset={8}>` 트리거로 햄버거 아이콘 주입
-  - 검증: 모바일 뷰에서 햄버거 → 메뉴 3항목 펼침 / PC에선 leftAction 없을 때 좌측 공간 깨지지 않음
+- [x] **CH-01** `PageHeader` `leftAction` 슬롯 + 모바일 햄버거 — 완료 (`PageHeader.tsx:9,12,17` 슬롯 + `PostListPage.tsx:228` leftAction 주입)
 - [x] **CH-02** 비인증 차단 카드 — 완료 (2026-05-10, develop 머지 PR #10)
   - **분기 필드**: `accessLocked: boolean` (PostSummary/PostDetail), 백엔드 응답 키 그대로 매핑 (이전 `isBlurred` 변환 레이어 제거)
   - **PostCard 시안 적용** (figma 1321:4066): `blur-[5.8px]` + `opacity-50` 본문/첨부 블러 + 중앙 🔒 + "치료사 인증 후에 볼 수 있어요!" 오버레이
@@ -190,8 +219,8 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - **헤더 자물쇠 아이콘 제거**: 본문 블러+오버레이로 차단 상태 충분히 전달, 시각 노이즈 정리
   - **부수 발견 (후속 backlog 후보)**: UserMenu 시안 1332:6580에서 메뉴 bundle 구분선 있음 — 현재 평면 3개
 - [ ] **CH-03** 카드 액션바 4종 리액션 — 백엔드 스펙 확인 필요, 별 PR 후보
-- [ ] **CH-04** PostListPage PC 검색바 제거 — 큰 UI 수정 시 묶어서
-- [ ] **CH-05** 알림 페이지 구현 — 현재 `/notifications` → `NotFoundPage`
+- [x] **CH-04** PostListPage PC 검색바 제거 — 완료 (PostListPage에 `<input>`/검색바 렌더 없음, searchParams는 필터 라우팅용)
+- [x] **CH-05** 알림 페이지 구현 — 완료 (`NotificationPage.tsx` + `/notifications` 라우트, PR #19, F-09 헤더 정합). SSE 실시간 포함
 - [ ] **CH-06** 인증완료 모달 구현 — 시안 1321:5251 (현재는 `VerificationCompletePage` 페이지)
 - [ ] **CH-07** 게시글 작성 모달/페이지 임시저장(Draft) — 2026-05-10 PR #12 작업 중 후순위 결정
   - **트리거**: 모달 닫힘(ESC/배경/← back) 또는 모바일 페이지 이탈 시 본문/카테고리/공개범위 localStorage 보관, 다음 진입 시 복원
@@ -245,14 +274,14 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 - [ ] **D-02** fallback 안내 메시지 문구 — 자체 결정
 - [ ] **D-03** 모바일/PC 상단 헤더 — `project_mobile_header_refactor.md` 참조, 자체 결정
 - [ ] **D-09** 데스크탑 헤더 글쓰기 버튼 — 알림 아이콘 왼쪽 자체 결정
-- [ ] **MEL-47** 정렬 토글 UI(최신/인기) — 선행 1스텝: `GET /posts` sort 파라미터 Swagger 확인 (§1 ★ 항목과 동일)
+- [x] **MEL-47** 정렬 토글 UI(최신/인기) — 완료 (커밋 `64d5b6c`, §1 항목 참조)
 - [ ] **D-05** 치료영역 배지(인증 치료사 닉네임 옆) — 백엔드 완료. 배지 스타일 자체 결정
 - [ ] **CH-03** 피드 카드(`PostCard`)에 3종 리액션 노출할지 — 현재 LIKE만. 노출 결정 시 기존 `ReactionBar` 재사용
 
 #### 🟢 바로 가능 — 시안 있음 (Figma 참조)
 - [ ] **D-10 / CH-06** VerificationCompletePage(PENDING/APPROVED) + 인증완료 모달 — 시안 `1321:5251` (한 묶음 검토)
 - [ ] 치료사 인증 페이지(`TherapistVerificationPage`) — 기존 Figma 시안 확인 후 구현
-- [ ] **D-11** 치료사 인증 상세 정보(거절 사유/신청 일시) UI — 자체 결정
+- [x] **D-11** 치료사 인증 상세 정보 UI — 완료 (거절 사유 `TherapistVerificationPage.tsx:144`/`VerificationCompletePage.tsx:70` + 신청일 `:142`)
 
 #### 🔴 디자이너 무관 — 백엔드 블로킹 ("풀린 거 아님", 내일 착수 불가)
 - [x] **🔔 쪽지(DM)** — ✅ **핵심 4슬라이스(0~3) 완료 (2026-06-05).** API 존재(05-25 "부재"는 오확인). 설계 스펙 `docs/superpowers/specs/2026-05-26-user-interaction-messaging-design.md`, 메모리 [[project_messaging_feature]].
@@ -268,10 +297,10 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - FE 후속(BE 해소 후): 쪽지 상세 발신/수신 라벨 옆에 `UserAvatar` 배선. 그 전엔 닉네임 이니셜 fallback만 가능
   - 검증: 쪽지 상세에서 상대 프로필 사진 노출 + 이미지 없는 유저는 이니셜 fallback
 - [ ] **B-09** 타인 프로필 — `GET /users/{id}` 부재 재확인. 상세 스펙/시안(`1444:24270`)은 §2 B-09
-- [ ] **B-04** 팔로우/언팔로우 — `/follow` 엔드포인트 부재. UI는 API 해소 후 자체 결정
+- [x] **B-04** 팔로우/언팔로우 — **FE 1차 완료 (2026-06-08, PR #25 미머지)**. 목록2탭+언팔토글(정책A)+ProfilePage 카운트+작성자 드롭다운 팔로우+NEW_FOLLOW 카운트동기화. 상세 [[project_follow_feature]]. 미해결=F-12 맞팔필드/F-14 아바타이미지(둘 다 BE)
 
 #### 💡 검증 중 발견 — 디자이너 무관, 백엔드 ready (바로 가능)
-- [ ] **CH-05** 알림 페이지 — `/api/v1/notifications`(+`/subscribe` SSE) 백엔드 **존재** 확인(2026-05-25). 현재 `/notifications`→NotFoundPage. 프론트 단독 가능. SSE 설계 → wiki `sse-b-zustand-fetch-event-source`
+- [x] **CH-05** 알림 페이지 — 완료. `NotificationPage.tsx` + `/notifications` 라우트 + SSE 실시간(PR #19). §1 CH-05 참조
 
 ### 인지부채 (코드 아닌 학습)
 - [x] **L-01** `useInfiniteFeed` + P1 fallback 메커니즘 복습 (04-17 대략적 로직 + controller 이해 완료, 더 깊이 파는 것은 RQ 도입 후 불필요)
@@ -336,10 +365,10 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 분기 신호: `accessLocked === true` (문자열 비교 X)
   - 단, GET /posts/:id 직접 접근은 실패("게시글을 불러오는 데 실패했습니다.") — 디테일 진입 시 분기 필요
   - 후속: CH-02 디자인 도착 시 블러 + 🔒 + VerificationRequiredModal 구현
-- [ ] **B-04** 팔로우 시스템 API (P1) — 확인일: 04-16
-  - 현황: 미구현
-  - UI(D-08): 팔로우/언팔로우 버튼 UI는 이 API 해소 후 자체 결정으로 구현
-  - 검증: Swagger에서 `/follow` 엔드포인트 존재 여부
+- [x] **B-04** 팔로우 시스템 API — **BE 완료 확인 (2026-06-08 Swagger 실조회)**. 블로킹 해제 → FE 착수 대기
+  - 등재 엔드포인트: `users/{userId}/follow`(GET/POST/DELETE) / `posts/feed/following`(커서) / `me/followings`·`me/followers`(offset) / `me/follow-counts`
+  - **FE 구현 = `project_follow_feature.md` 참조 (API 계약 + 스코프 + 미결 박제). 트리거 「팔로우 이어가자」**
+  - ⚠️ 타인 프로필(B-09 `GET /users/{id}`)은 여전히 부재 → 팔로우 버튼 위치 미결
 - [?] **B-05** 스크랩 `scrapped` 필드 초기값 연동 (P1) — 확인일: 04-16
   - 현황: 합의 완료 + 구현 가능성. 프론트는 `useState(false)` 고정 중
   - 검증: DevTools → GET /posts 응답에서 `scrapped` 값 확인 → 있으면 `useState(post.scrapped)` 교체

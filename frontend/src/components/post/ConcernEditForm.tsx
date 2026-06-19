@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { ArrowLeft, PencilLine } from 'lucide-react'
 import { toast } from 'sonner'
 import type { AgeGroup, TherapyArea, UIVisibility, Visibility } from '@/types/post'
-import { AGE_GROUP_CHIPS, OTHER_NOTES_MAX_LENGTH } from '@/constants/concern'
+import { AGE_GROUP_CHIPS } from '@/constants/concern'
 import { THERAPY_CHIPS, fromApiVisibility, toApiVisibility } from '@/constants/post'
 import { updatePost } from '@/api/posts'
 import { useAuthStore } from '@/stores/useAuthStore'
@@ -55,7 +55,6 @@ export default function ConcernEditForm({
     const [ageGroup, setAgeGroup] = useState<AgeGroup>(initial.ageGroup)
     const [therapyArea, setTherapyArea] = useState<TherapyArea>(initial.therapyArea)
     const [diagnoses, setDiagnoses] = useState<string[]>(initial.diagnoses)
-    const [otherNotes, setOtherNotes] = useState(initial.otherNotes)
     const [visibility, setVisibility] = useState<UIVisibility>(initialUIVisibility)
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -72,7 +71,6 @@ export default function ConcernEditForm({
         ageGroup !== initial.ageGroup ||
         therapyArea !== initial.therapyArea ||
         !arrayEquals(diagnoses, initial.diagnoses) ||
-        otherNotes !== initial.otherNotes ||
         visibility !== initialUIVisibility
 
     const canSubmit = isValid && isDirty && !submitting
@@ -99,7 +97,9 @@ export default function ConcernEditForm({
                 ageGroup,
                 therapyArea,
                 diagnoses,
-                otherNotes: otherNotes.trim() || undefined,
+                // 기타(otherNotes): 2차 UT 반영으로 편집 UI 제거(작성폼과 대칭). 기존 데이터는
+                // 보존해야 하므로 initial 값을 그대로 pass-through(생략 시 BE에서 소실 위험 회피).
+                otherNotes: initial.otherNotes.trim() || undefined,
                 visibility: toApiVisibility(visibility),
             })
             // 수정 analytics는 기존 PostEditPage와 일관해서 미발사 — PM 합의 후 추가 검토.
@@ -217,23 +217,6 @@ export default function ConcernEditForm({
                         onChange={setDiagnoses}
                         disabled={submitting}
                     />
-                </div>
-
-                {/* 기타 (선택) */}
-                <div className="flex flex-col gap-1">
-                    <span className="font-semibold text-gray-800">기타</span>
-                    <textarea
-                        value={otherNotes}
-                        onChange={(e) => setOtherNotes(e.target.value)}
-                        disabled={submitting}
-                        maxLength={OTHER_NOTES_MAX_LENGTH}
-                        rows={3}
-                        placeholder="추가로 남기고 싶은 내용이 있다면 작성해주세요. (선택)"
-                        className="w-full resize-none rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:border-gray-400 focus:outline-none disabled:bg-gray-50 disabled:text-gray-400"
-                    />
-                    <p className="text-right text-xs text-gray-400">
-                        {otherNotes.length} / {OTHER_NOTES_MAX_LENGTH}
-                    </p>
                 </div>
 
                 {error && <p role="alert" className="text-sm text-red-500">{error}</p>}
