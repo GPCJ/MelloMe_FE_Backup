@@ -57,19 +57,46 @@ metadata:
 ## v2 결정 사항
 - **치료사 면허번호 카메라 자동입력(OCR)** = 정식 배포 후 v2로 결정. 초기 범위 제외. 기술 스택: `@capacitor/camera` + Google ML Kit(한국어 OCR, BE 엔드포인트 처리 권장).
 
-## 현재 상태 (2026-06-19 갱신)
-- **MEL-56 BE 완료(PR #126), prod 미배포 ❌** (2026-06-19 curl 실증)
-  - staging iOS(`capacitor://localhost`): preflight → 200, `Access-Control-Allow-Origin: capacitor://localhost` + `Allow-Credentials: true` ✅
-  - staging Android(`https://localhost`): preflight → 403 ❌ — BE가 `https://localhost` 누락
-  - prod 전체: 403 ❌ — PR #126 아직 prod 배포 전
-- **🔴 Android origin 이슈 실증** — staging curl로 `https://localhost` → 403 확인(2026-06-19). BE가 `capacitor://localhost`(iOS)만 추가하고 `https://localhost`(Android) 누락(`http://localhost`로 잘못 설정). **BE 조치 확인 완료(2026-06-19), staging 재검증 대기 중**.
-- 다음 순서: BE에 `https://localhost` 추가 요청 → staging 재검증 → prod 배포 → `npx cap run ios` 로그인 테스트 → 쿠키 인증 확인.
+## 현재 상태 (2026-06-15 갱신)
+- **MEL-56 BE 완료(PR #126), staging 검증 ✅, prod 미배포 ❌**
+  - staging(`api-staging.melonnetherapists.com`): `capacitor://localhost` preflight → 200, `Access-Control-Allow-Origin: capacitor://localhost` + `Allow-Credentials: true` 확인.
+  - prod(`api.melonnetherapists.com`): 403 "Invalid CORS request" — PR #126 아직 prod 배포 전.
+  - prod 배포 완료 후 앱에서 로그인 검증 → MEL-56 종료 가능.
+- **⚠️ Android origin 미검증** — BE가 `http://localhost`로 설정했으나 실제 Capacitor 8.4 Android origin=`https://localhost`(line 65). prod 배포 후 Android 기기/에뮬레이터 검증 필수. iOS는 staging ✅로 확인됨.
+- prod 배포 후 순서: `npx cap run ios` → 로그인 테스트 → 쿠키 인증(RT httpOnly) 확인 → Android origin 정정 필요 시 BE 추가 요청.
 
 ## 브랜치 정리 + MEL-56 티켓 오류 발견 (2026-06-15 후속 세션)
 - **`feat/capacitor-setup` 브랜치 삭제 완료**(line 47 "미삭제 보류" 해소). 브랜치에만 있던 비-capacitor 작업 2건(R-12 리액션캐시 any제거, F-15① 팔로우탭 스크롤복원)을 develop으로 cherry-pick→tsc 통과→push(`492f674`). patch 동일성(`git cherry`) 확인 후 로컬+원격 브랜치 삭제. **C2는 계속 develop 기준**(변동 없음).
 - **⚠️ MEL-56 Android origin 오류**: 티켓·line 54는 Android를 `http://localhost`로 요청했으나, **Capacitor 6+ `androidScheme` 기본값=`https`**(공식 문서 확인). 본 앱=Capacitor `8.4.0` + `capacitor.config.ts`에 scheme 미명시 → **실제 Android origin=`https://localhost`**. BE가 `http://localhost`로 CORS 설정하면 **Android 로그인 실패**(앱은 https origin 전송→차단). 지금까지 iOS 시뮬만 테스트해 미발현. **BE에 `https://localhost`로 정정 요청 필요**. iOS `capacitor://localhost`는 정확.
 - 참고 정리(BE 핸드오프용): origin=scheme+host+port. iOS=`capacitor://localhost`, Android=`https://localhost`(둘 다 로컬 HTML 출처, 이름만 다름). 실제 네트워크는 양쪽 다 JS가 `https://api.melonnetherapists.com` 호출 시만. → 개념 학습 Notion TIL 초안(`notion_draft.md`)으로 박제.
 
+## RT 쿠키 이슈 발견 + MEL-72 등록 (2026-06-19)
+
+### 실측 확인
+- staging 로그인 성공 후 Safari Web Inspector 콘솔에서 직접 테스트:
+  ```javascript
+  fetch('https://api-staging.melonnetherapists.com/api/v1/auth/refresh', {
+    method: 'POST', credentials: 'include'
+  })
+  ```
+  → **401 `REFRESH_TOKEN_INVALID`** — RT 쿠키가 요청에 미포함
+
+### 원인
+- WKWebView origin = `capacitor://localhost`, API = `api-staging.melonnetherapists.com` → **cross-origin**
+- Spring Boot 기본값 `SameSite=Lax`는 cross-origin POST에서 쿠키 전송 차단
+- 웹 브라우저에서는 정상(same-origin이므로 무관)
+
+### MEL-72 BE 요청 (해야할일)
+- RT 쿠키를 `SameSite=None; Secure=true`로 변경 요청
+- 검증 방법: 위 fetch 코드로 200 확인
+- **폴백(MEL-72 해결 안 될 시)**: 로그인 응답 body에 `refreshToken` 추가 → 앱이 직접 저장/전송 (더 큰 BE+FE 작업)
+
+### 디버깅 환경 확립
+- Xcode로 앱 실행 시 Safari `개발자용 → iPhone 17 Pro → Mellti` 로 Web Inspector 연결 가능
+- Xcode 콘솔에서 JS `console.log` 실시간 확인 가능
+- `axiosInstance.ts` 인터셉터에 임시 로그 추가 후 `npm run build && cap sync` → Xcode ▶ 재실행으로 검증
+
 ## 재개 트리거 「Capacitor 이어가자」 또는 「모바일 앱 이어가자」
-- CORS 해결 후: `npx cap run ios` → 로그인 테스트 → 쿠키 인증 확인.
+- **현재 블로커**: MEL-72 (BE `SameSite=None` 변경) → BE 완료 후 fetch 테스트로 200 확인
+- **그 다음**: prod CORS(MEL-56 prod 배포) → prod 앱 로그인 검증 → Android origin 검증
 - C2 환경 이미 세팅됨(맥북에 Xcode 26.5 + iOS 26.5 런타임). 재실행 시 `cd frontend && npm run build && npx cap sync && npx cap run ios`만 하면 됨.

@@ -7,7 +7,6 @@
 - [지식 흡수 — 이미지/구조 떠올라야 흡수](./user_comprehension_criterion.md) / [작업 집중 — 싱글태스크 + 스쳐가는 생각 캡처](./user_work_focus_pattern.md)
 - [코드 추적 — outside-in (호출부→선언부)](./user_code_navigation_style.md) / [Zustand/RQ 학습 — 단편 규칙 누적](./user_reactivity_libs_learning.md)
 - [AI 의존 불안 패턴 — 주기적 재출현, 4프레임 응답](./user_ai_dependency_anxiety.md)
-- **[개발 의욕↔게임 회귀 패턴 + 6개 지속 시스템 (2026-06-19)](./user_motivation_dev_vs_games.md)** — "개발 재미/의욕 없다"·"게임 vs 개발" 트리거. 게임 못 이김(구조)·바닥선/마찰설계/가시화/게임=보상/돈목표=멜로미→취업/트립와이어. 다음스텝 막막함=구조적, railroad 금지
 - **[코드 읽기 진단 — WHAT은 읽고 WHY는 건너뜀 (2026-06-02)](./user_code_reading_what_vs_why.md)** — 못 읽는 게 아니라 습관, risk 줄에만 "지우면 뭐 깨지지?", PR 부담=착시
 - **[React 내부 모델 학습 (2026-05-19~20)](./user_react_internals_learning.md)** — 렌더 4단계/fiber=인스턴스/StrictMode 가짜언마운트/useEffect=동기화/race 도달성 잡힘, Component·Element 층 미정리
 - **[기본기 강박 — "어려운 코드 이해해야 기본기" (2026-06-04)](./user_fundamentals_complexity_compulsion.md)** — 강박 정당할 때도 있으나 "첫 읽기 술술"=틀린 기준, 본질 vs 우발 복잡도 구분 프레임으로 응답
@@ -15,7 +14,7 @@
 
 ## 작업 관리
 - **[개발 단계 = Post-MVP (MVP 2026-05-15 발표 완료)](./project_mvp_launch_2026_05_15.md)** — MVP 데드라인 제약 해제, 기능 확장기. CLAUDE.md도 Post-MVP 갱신
-- **[★ 모바일 앱 = Capacitor 확정 + C1 완료 (PR #27, 2026-06-11)](./project_capacitor_mobile_app_2026_06_11.md)** — Flutter/RN/PWA 제외, 기존앱 ~90% 재사용. appId=com.mellti.app. C1=WSL 스캐폴딩 끝(AI로직 0), C2=맥북 필요. 후속=CORS·쿠키인증·푸시(BE). 트리거 「Capacitor 이어가자」
+- **[★ 모바일 앱 = Capacitor C2 완료, RT 쿠키 이슈 발견 (MEL-72, 2026-06-19)](./project_capacitor_mobile_app_2026_06_11.md)** — appId=com.mellti.app. C2 iOS 시뮬 실행 ✅. **블로커: MEL-72** WKWebView cross-origin SameSite=Lax → RT 쿠키 전송 차단(401 실측). BE에 SameSite=None;Secure 변경 요청 중. 트리거 「Capacitor 이어가자」
 - **[리텐션 전략 — 도달 채널 부재가 갭 (2026-06-11)](./project_retention_strategy_reach_channels_2026_06_11.md)** — 알림이 앱 접속 중(SSE)에만 도달. 이메일 약함(한국)→카카오 알림톡(정보성)/친구톡(광고성) 구분+선행조건(🚧사업자등록·번호수집, FE는 번호폼만), Web Push=PWA게이트(iOS). 채널×돌아올이유(정기 활동지 리듬)
 - **[프론트 작업 백로그](./backlog.md)** — 데일리 태스크 선택용 단일 참조
   - **[★ 이미지 라이트박스 F-13 구현 박제 (인지부채 HIGH, 2026-06-09)](./project_image_lightbox_implementation_2026_06_09.md)** — develop `3b7c36d`. 직접 오버레이+핀치 줌(Pointer). 메커니즘 9개+자기점검 5개
@@ -100,6 +99,7 @@
 - **[최우선]** [구현 방식 = 하이브리드 (작업유형별 분담, 2026-05-26)](./feedback_direct_coding_default.md) — 기계적=AI작성+리뷰 / 새 로직=본인작성 / 항상 "왜" 재구성. AI작성은 `.claude/deadline-unlock`(4h) 필요, 위임 시 본인 touch
 - **[Speed mode — 시간 압박 새 로직 = AI 우선 + Task 분할 (2026-05-29)](./feedback_speed_mode_ai_first_task_split.md)** — 학습 모드 보류, 사전 paste-ready 컨텍스트 → 수동 코드생성 → 사후 정정. direct_coding_default 예외
 - **[최우선]** [pseudocode 의무화 + 막막함 프로토콜](./feedback_pseudocode_first_protocol.md) / **[최우선]** [workaround 전 스펙 재확인](./feedback_verify_spec_before_workaround.md)
+- **[Jira 티켓 기술 용어 — 설명은 쉽게, 식별자(에러코드·설정값·origin)는 유지](./feedback_jira_ticket_technical_level.md)**
 - **[최우선]** [추상→코드 해상도 4단계 (학습 모드)](./feedback_abstract_to_code_resolution_levels.md) — 추상1 화면·행동 → 추상2 데이터모델·소유권 → 의사코드 → 코드. 사용자 직답 우선, AI 코드 선구상 금지
 - **[최우선]** [큰 UI 변경 시 이해 컨펌 후 실행](./feedback_confirm_understanding_before_implement.md) — bullet+대조표
 - **[최우선]** [트레이드오프 설명 필수](./feedback_tradeoff_before_code.md) / [클린 커밋 히스토리](./feedback_clean_commit_history.md)
