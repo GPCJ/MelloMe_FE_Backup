@@ -109,7 +109,26 @@ BE에서 `https://localhost` (Android origin) CORS 허용 완료 통보. curl �
 - Prod는 아직 미배포, 403
 - RT 쿠키 `SameSite=None` 여부는 실제 계정 로그인 성공 시 `Set-Cookie` 헤더로 확인 가능 (미확인)
 
+## MEL-72 SameSite 미적용 확인 (2026-06-20 맥북 세션)
+
+### 실증
+- AT 만료(`localStorage.accessToken = 'expired'` 강제 설정) 후 새로고침 → 로그아웃
+- 정상 새로고침(AT 유효) → 로그인 유지
+- 결론: `/auth/refresh` POST 시 RT 쿠키 미전달 → 401 → `clearAuth()` → 로그아웃
+
+### 백엔드 코드 확인 (GitHub MCP)
+- `application.yaml`: `auth.cookie.refresh.same-site: Lax` 그대로
+- `application-dev.yaml`(staging): `same-site: None` — staging만 풀려 있음
+- dev yaml 주석: "prod는 same-site 환경이라 Lax 그대로" — Capacitor 고려 전 작성된 주석
+- **MEL-72 관련 PR = 존재 없음** (open/closed 모두 확인)
+- MEL-56 CORS PR: #126 (06-15, iOS) + #129 (06-19, Android `https://localhost`) — 모두 main 머지 완료
+
+### 상황 정리
+백엔드가 "조치 완료"라 했으나 CORS(MEL-56)만 완료, SameSite=None(MEL-72)은 미착수. 백엔드에 재요청 완료, 대기 중.
+
 ## 재개 트리거 「Capacitor 이어가자」 또는 「모바일 앱 이어가자」
-- **다음 할 일**: 맥북에서 iOS 시뮬레이터로 staging 로그인 → Safari Web Inspector로 RT 쿠키 `SameSite=None` 확인 + `/auth/refresh` fetch 200 확인
-- **그 다음**: prod CORS 배포(BE에 요청) → prod 앱 로그인 검증 → Android 에뮬레이터(WSL 가능) origin 검증
+- **현재 블로커**: MEL-72 (BE prod `SameSite=None` 변경) — 백엔드 재요청 완료, 대기 중
+- **검증 순서** (MEL-72 배포 후):
+  1. iOS 시뮬 — staging 로그인 → Safari Web Inspector Set-Cookie 헤더에 `SameSite=None` 확인 → AT 만료 → refresh 200
+  2. Android 기기(삼성폰) — `npx cap run android`로 직접 설치 후 동일 검증
 - C2 환경 이미 세팅됨(맥북에 Xcode 26.5 + iOS 26.5 런타임). 재실행 시 `cd frontend && npm run build && npx cap sync && npx cap run ios`만 하면 됨.
