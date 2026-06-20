@@ -96,7 +96,20 @@ metadata:
 - Xcode 콘솔에서 JS `console.log` 실시간 확인 가능
 - `axiosInstance.ts` 인터셉터에 임시 로그 추가 후 `npm run build && cap sync` → Xcode ▶ 재실행으로 검증
 
+## MEL-72 CORS 허용 완료 — Staging 검증 (2026-06-20)
+
+BE에서 `https://localhost` (Android origin) CORS 허용 완료 통보. curl 실측 결과:
+
+| Origin | Staging | Prod |
+|---|---|---|
+| `https://localhost` | ✅ 200 + `allow-credentials: true` | ❌ 403 |
+| `capacitor://localhost` | ✅ 200 + `allow-credentials: true` | ❌ 403 |
+
+- Staging 두 origin 모두 preflight 200 + `Access-Control-Allow-Origin` + `Allow-Credentials: true` 포함 → MEL-56·MEL-72 CORS 조건 충족
+- Prod는 아직 미배포, 403
+- RT 쿠키 `SameSite=None` 여부는 실제 계정 로그인 성공 시 `Set-Cookie` 헤더로 확인 가능 (미확인)
+
 ## 재개 트리거 「Capacitor 이어가자」 또는 「모바일 앱 이어가자」
-- **현재 블로커**: MEL-72 (BE `SameSite=None` 변경) → BE 완료 후 fetch 테스트로 200 확인
-- **그 다음**: prod CORS(MEL-56 prod 배포) → prod 앱 로그인 검증 → Android origin 검증
+- **다음 할 일**: 맥북에서 iOS 시뮬레이터로 staging 로그인 → Safari Web Inspector로 RT 쿠키 `SameSite=None` 확인 + `/auth/refresh` fetch 200 확인
+- **그 다음**: prod CORS 배포(BE에 요청) → prod 앱 로그인 검증 → Android 에뮬레이터(WSL 가능) origin 검증
 - C2 환경 이미 세팅됨(맥북에 Xcode 26.5 + iOS 26.5 런타임). 재실행 시 `cd frontend && npm run build && npx cap sync && npx cap run ios`만 하면 됨.

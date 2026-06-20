@@ -16,6 +16,7 @@
 - **[개발 단계 = Post-MVP (MVP 2026-05-15 발표 완료)](./project_mvp_launch_2026_05_15.md)** — MVP 데드라인 제약 해제, 기능 확장기. CLAUDE.md도 Post-MVP 갱신
 - **[★ 모바일 앱 = Capacitor C2 완료, RT 쿠키 이슈 발견 (MEL-72, 2026-06-19)](./project_capacitor_mobile_app_2026_06_11.md)** — appId=com.mellti.app. C2 iOS 시뮬 실행 ✅. **블로커: MEL-72** WKWebView cross-origin SameSite=Lax → RT 쿠키 전송 차단(401 실측). BE에 SameSite=None;Secure 변경 요청 중. 트리거 「Capacitor 이어가자」
 - **[리텐션 전략 — 도달 채널 부재가 갭 (2026-06-11)](./project_retention_strategy_reach_channels_2026_06_11.md)** — 알림이 앱 접속 중(SSE)에만 도달. 이메일 약함(한국)→카카오 알림톡(정보성)/친구톡(광고성) 구분+선행조건(🚧사업자등록·번호수집, FE는 번호폼만), Web Push=PWA게이트(iOS). 채널×돌아올이유(정기 활동지 리듬)
+- **[★ AI 코드 심층 버그 리뷰 결과 — 미열람 보관 (2026-06-20)](./project_ai_code_bug_review_2026_06_20.md)** — 4기능(팔로우/팔로우탭/라이트박스/고민카드) 다중에이전트 리뷰 확정 14건(MEDIUM 7/LOW 7)+반증 3. 본인 미열람, 트리거「심층 리뷰 결과 확인」. 추천 1순위=#1·#2 팔로우 캐시 결함
 - **[프론트 작업 백로그](./backlog.md)** — 데일리 태스크 선택용 단일 참조
   - **[★ 이미지 라이트박스 F-13 구현 박제 (인지부채 HIGH, 2026-06-09)](./project_image_lightbox_implementation_2026_06_09.md)** — develop `3b7c36d`. 직접 오버레이+핀치 줌(Pointer). 메커니즘 9개+자기점검 5개
 - **[★ Google OAuth 재도입 (옵션 D 합의, 백엔드 대기, 2026-05-19)](./project_google_oauth_reimplementation.md)** — Jira Story 박제 완료, 재개 트리거 「구글 OAuth 이어가자」
@@ -144,6 +145,7 @@
 - **[자리 비울 때(AFK) 자율 작업 + PR 리뷰 모드 (2026-06-11)](./feedback_afk_autonomous_pr_review_mode.md)** — unlock 미리 갱신 + 안전 기계적 작업만 자율 + 인지부채/실로직은 커밋 말고 PR(리뷰포인트·실행가이드·결정대기). 멈출 지점=기기·계정·실로직 결정 필요한 곳
 - **[셸 명령 안내는 절대경로로 (cwd 드리프트 방지, 2026-06-10)](./feedback_absolute_path_in_shell_guidance.md)** — frontend 서브폴더에서 상대경로 실패, `mel-unlock` alias
 - [코드 리뷰 severity triage — HIGH만 즉시](./feedback_review_triage_workflow.md) / [/code-review high — 큰 변경 누적 후 검증](./feedback_code_review_ultra_high_usage.md)
+- **[check-memory 포맷 확정 — [오늘①]/[대기★]/[대기] 태그+줄바꿈+자동stale감지 (2026-06-19)](./feedback_check_memory_format.md)**
 - [가드/임시대응 주석 스타일](./feedback_guard_comment_style.md) / **[vite plugin closeBundle 작업 전 wiki 검토](./feedback_vite_plugin_closeBundle_check.md)**
 - **[브랜치별 스크립트 테스트 함정](./feedback_branch_aware_script_test.md)** / [커맨드 범용 네이밍](./feedback_draft_notion_naming.md)
 - **[API 에러 처리 통합 — 에러 삼키지 말기 + 원인별 분기(401 인터셉터/500/네트워크)](./feedback_error_handling.md)**
