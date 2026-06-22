@@ -39,8 +39,13 @@ export default function ConcernForm({
     const [therapyArea, setTherapyArea] = useState<TherapyArea | null>(null)
     const [diagnoses, setDiagnoses] = useState<string[]>([])
     const [visibility, setVisibility] = useState<UIVisibility>('PUBLIC')
+    const [requestAutoComment, setRequestAutoComment] = useState(false)
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
+
+    // AI 답변은 전체공개 글에서만 가능 — 비공개(VERIFIED_ONLY/PRIVATE_ONLY는 모두 API PRIVATE로 매핑)면
+    // BE가 400으로 막으므로 체크박스를 비활성화하고, 비공개 상태에선 체크값을 무시(false 취급)한다.
+    const aiAvailable = toApiVisibility(visibility) === 'PUBLIC'
 
     // 첫 게시글 여부 (가입→첫글 전환 KPI). 실패 시 조용히 무시 — PostWriteForm과 동일 패턴.
     const [wasFirstPost, setWasFirstPost] = useState(false)
@@ -64,7 +69,8 @@ export default function ConcernForm({
         ageGroup !== null ||
         therapyArea !== null ||
         diagnoses.length > 0 ||
-        visibility !== 'PUBLIC'
+        visibility !== 'PUBLIC' ||
+        requestAutoComment
 
     const handleModeChange = (next: 'post' | 'concern') => {
         if (next === mode) return
@@ -101,6 +107,8 @@ export default function ConcernForm({
                 therapyArea,
                 diagnoses,
                 visibility: toApiVisibility(visibility),
+                // 전체공개일 때만 true 전달 — 비공개면 aiAvailable=false라 무조건 꺼진 것으로.
+                requestAutoComment: requestAutoComment && aiAvailable,
             })
             trackEvent('post_created', { postType: 'CONCERN_CARD' })
             if (wasFirstPost) trackEvent('first_post_created')
@@ -211,6 +219,31 @@ export default function ConcernForm({
                         {content.length} / {BODY_MAX_LENGTH}
                     </p>
                 </div>
+
+                {/* AI 답변 받기 — 체크 시 작성과 함께 AI 댓글 초안 생성 요청(BE). 전체공개일 때만 활성. */}
+                <label
+                    className={`flex items-start gap-2.5 rounded-md border p-3 ${
+                        aiAvailable
+                            ? 'cursor-pointer border-gray-200'
+                            : 'cursor-not-allowed border-gray-100 opacity-60'
+                    }`}
+                >
+                    <input
+                        type="checkbox"
+                        checked={requestAutoComment && aiAvailable}
+                        onChange={(e) => setRequestAutoComment(e.target.checked)}
+                        disabled={submitting || !aiAvailable}
+                        className="mt-0.5 h-4 w-4 shrink-0 accent-gray-900"
+                    />
+                    <span className="flex flex-col gap-0.5">
+                        <span className="font-semibold text-gray-800">AI 답변 받기</span>
+                        <span className="text-xs text-gray-500">
+                            {aiAvailable
+                                ? '작성하면 AI가 댓글을 달아드려요.'
+                                : '전체 공개 글에서만 사용할 수 있어요.'}
+                        </span>
+                    </span>
+                </label>
 
                 {error && <p role="alert" className="text-sm text-red-500">{error}</p>}
             </div>

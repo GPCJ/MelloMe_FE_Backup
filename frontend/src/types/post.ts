@@ -135,6 +135,8 @@ export interface PostCreateRequest {
   ageGroup?: AgeGroup;
   diagnoses?: string[];
   otherNotes?: string;
+  // AI 자동 댓글 초안 요청 — true일 때만 BE가 Job 생성. PRIVATE 글과 동시 사용 불가(BE가 400).
+  requestAutoComment?: boolean;
 }
 
 export interface PostUpdateRequest {
