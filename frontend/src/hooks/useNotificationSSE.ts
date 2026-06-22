@@ -119,6 +119,7 @@ export function useNotificationSSE() {
             // 무효화로 서버 진실에 맞춤(/me/follow-counts는 경량).
             if (notification.type === 'NEW_FOLLOW') {
               queryClient.invalidateQueries({ queryKey: ['follow-counts'] });
+              queryClient.invalidateQueries({ queryKey: ['follow'] });
             }
             toast(notification.content, { duration: 4000 });
           } catch (err) {

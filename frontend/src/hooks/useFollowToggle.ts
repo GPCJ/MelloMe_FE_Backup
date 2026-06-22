@@ -39,6 +39,7 @@ export function useFollowToggle() {
       // 서버 응답으로 reconcile (following=false → 언팔 상태로 고정)
       applyUnfollow(userId, !fresh.following);
       qc.invalidateQueries({ queryKey: ['follow-counts'] });
+      qc.invalidateQueries({ queryKey: ['feed-following'] });
     } catch (err) {
       // 롤백: 낙관적 반영을 되돌림
       applyUnfollow(userId, !currentlyFollowing);
