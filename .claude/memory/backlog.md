@@ -271,11 +271,11 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
 - [-] ~~**D-07** 블러 UI~~ → CH-02 구현 완료(2026-05-10)로 해소
 
 #### 🟢 바로 가능 — 프론트 단독 + 자체 결정 (시안 없음)
-- [ ] **D-02** fallback 안내 메시지 문구 — 자체 결정
+- [x] **D-02** alert() → toast.error() 전환 완료 (2026-06-19, develop `3cd64b8`·`9d743c7`). 12곳 교체 + visibleToasts={1} 토스트 단일 노출
 - [ ] **D-03** 모바일/PC 상단 헤더 — `project_mobile_header_refactor.md` 참조, 자체 결정
 - [ ] **D-09** 데스크탑 헤더 글쓰기 버튼 — 알림 아이콘 왼쪽 자체 결정
 - [x] **MEL-47** 정렬 토글 UI(최신/인기) — 완료 (커밋 `64d5b6c`, §1 항목 참조)
-- [ ] **D-05** 치료영역 배지(인증 치료사 닉네임 옆) — 백엔드 완료. 배지 스타일 자체 결정
+- [-] **D-05** 치료영역 배지 — **보류** (2026-06-19). FollowUser·MessageResponse·알림 등 다수 DTO에 therapyArea 없음 → 전체 통일 시 BE DTO 대규모 추가 필요. 비용 대비 효과 낮아 BE 일괄 요청 시점까지 대기
 - [ ] **CH-03** 피드 카드(`PostCard`)에 3종 리액션 노출할지 — 현재 LIKE만. 노출 결정 시 기존 `ReactionBar` 재사용
 
 #### 🟢 바로 가능 — 시안 있음 (Figma 참조)
@@ -325,8 +325,7 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
     - `reaction` 헬퍼 → `lib/analytics.ts:79` (type 분기)
     - `screen_exit` → `hooks/useScreenExit.ts:63` (beacon transport)
   - [?] GA4 실시간 리포트 집계 검증 — 6/7개 정상 추적 확인. **`certification_completed` 1건만 미발생** (재현/원인 추적 필요, `VerificationCompletePage.tsx:32` `verStatus === 'APPROVED'` 분기 effect)
-- [ ] **G-03** PM 정식 스펙 비주요 17개 점진 삽입 (G-02 안정화 후)
-  - 콘텐츠/탐색/세부 인증 이벤트들. 우선순위 낮음
+- [-] **G-03** PM 정식 스펙 비주요 17개 점진 삽입 — **PM 확인 후 진행** (2026-06-19). 불필요한 이벤트 추가 시 GA4 대시보드 난잡해질 수 있어 PM이 원하는 이벤트 먼저 확인하기로. 미삽입 13개 목록은 세션 기록 참조
 - [ ] **G-04** `certification_completed` 미추적 원인 추적 (G-02 잔여)
   - 현황: 2026-05-06 GA4 실시간 검증 시 7개 중 6개 정상, 이 1건만 미발생
   - 위치: `VerificationCompletePage.tsx:32` (`verStatus === 'APPROVED'` 분기 effect)
