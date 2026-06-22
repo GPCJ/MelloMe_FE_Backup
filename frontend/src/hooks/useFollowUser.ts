@@ -31,6 +31,7 @@ export function useFollowUser(targetUserId: number, enabled: boolean) {
       // 목록 경로(useFollowToggle)도 카운트만 동기화하므로 두 경로를 동일하게 맞춤.
       qc.setQueryData(['follow-status', targetUserId], fresh);
       qc.invalidateQueries({ queryKey: ['follow-counts'] });
+      qc.invalidateQueries({ queryKey: ['feed-following'] });
       toast(fresh.following ? '팔로우했어요' : '팔로우를 취소했어요');
     } catch (err) {
       console.error('[follow]', err);
