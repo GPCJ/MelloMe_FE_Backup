@@ -256,6 +256,7 @@ export default function ConcernForm({
                     visibility={visibility}
                     onChange={setVisibility}
                     isPublicOnly={isPublicOnly}
+                    align="left"
                 />
                 <div className="flex-1" />
                 <button
