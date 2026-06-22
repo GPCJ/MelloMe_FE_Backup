@@ -86,3 +86,35 @@ export function trackReaction(
  * 어휘를 쓰도록 한 곳에서 정의하기 위함입니다 (오타 방지).
  */
 export type ScreenName = 'feed' | 'post_write' | 'my_page';
+
+/**
+ * `landing_clicked` 이벤트의 type 파라미터로 허용되는 7종.
+ *
+ * PM 스펙(2026-06-22 승인): 랜딩 페이지의 주요 클릭 지점을 단일 이벤트 +
+ * type 파라미터로 통합합니다 (reaction과 동일한 카운트 인플레 방지 설계).
+ *
+ * type은 "랜딩 슬롯 위치"를 식별합니다 — 라벨/목적지가 로그인 여부에 따라
+ * 갈리는 슬롯(nav_community, last_cta)도 같은 type을 쓰고, 부가 파라미터
+ * `loggedIn`으로 비로그인/로그인 유저의 클릭을 분리해 유입 분석에 활용합니다.
+ */
+export type LandingClickType =
+  | 'nav_contact'
+  | 'nav_community'
+  | 'hero_cta'
+  | 'last_cta'
+  | 'footer_terms'
+  | 'footer_privacy'
+  | 'footer_instagram';
+
+/**
+ * `landing_clicked` 단일 이벤트 헬퍼.
+ *
+ * @param type   클릭 슬롯 (위 7종 중 하나)
+ * @param params 부가 파라미터. 조건부 슬롯은 `{ loggedIn: !!user }`를 함께 보냅니다.
+ */
+export function trackLandingClick(
+  type: LandingClickType,
+  params?: Record<string, unknown>,
+): void {
+  trackEvent('landing_clicked', { type, ...(params ?? {}) });
+}

@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Upload, PencilLine, LockOpen, MessageCircle, Heart } from 'lucide-react';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
+import { useScrollDepth } from '../../hooks/useScrollDepth';
+import { trackLandingClick } from '../../lib/analytics';
 
 /**
  * Mellti 랜딩 페이지 (비로그인 진입 화면).
@@ -18,6 +20,7 @@ export default function LandingPage() {
   const user = useAuthStore((s) => s.user);
   const rootRef = useRef<HTMLDivElement>(null);
   useScrollReveal(rootRef);
+  useScrollDepth(); // 25/50/75/100% 도달 시 landing_scrolled 발사
 
   return (
     <div ref={rootRef} className="min-h-screen bg-white font-sans text-neutral-900">
@@ -36,6 +39,7 @@ export default function LandingPage() {
               href="https://pf.kakao.com/_qxfBAX"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackLandingClick('nav_contact')}
               className="text-sm font-medium text-neutral-500 transition-colors hover:text-neutral-900"
             >
               협업문의
@@ -43,6 +47,7 @@ export default function LandingPage() {
             {user ? (
               <Link
                 to="/posts"
+                onClick={() => trackLandingClick('nav_community', { loggedIn: true })}
                 className="inline-flex items-center rounded-full bg-neutral-900 px-6 py-2.5 text-sm font-semibold text-white transition-all hover:bg-neutral-700"
               >
                 커뮤니티
@@ -50,6 +55,7 @@ export default function LandingPage() {
             ) : (
               <Link
                 to="/login"
+                onClick={() => trackLandingClick('nav_community', { loggedIn: false })}
                 className="inline-flex items-center rounded-full bg-neutral-900 px-6 py-2.5 text-sm font-semibold text-white transition-all hover:bg-neutral-700"
               >
                 로그인
@@ -105,6 +111,7 @@ export default function LandingPage() {
               <Link
                 data-animate
                 to={user ? '/posts' : '/login'}
+                onClick={() => trackLandingClick('hero_cta', { loggedIn: !!user })}
                 className="inline-flex items-center gap-2 rounded-full bg-neutral-900 px-9 py-[15px] text-base font-semibold text-white shadow-[0_2px_12px_rgba(0,0,0,0.15)] transition-all hover:-translate-y-0.5 hover:bg-neutral-800 hover:shadow-[0_6px_24px_rgba(0,0,0,0.2)]"
               >
                 지금 시작하기
@@ -596,6 +603,7 @@ export default function LandingPage() {
             {/* 로그인 상태면 홈피드(/posts), 아니면 로그인 화면으로 — 텍스트도 함께 분기 */}
             <Link
               to={user ? '/posts' : '/login'}
+              onClick={() => trackLandingClick('last_cta', { loggedIn: !!user })}
               className="inline-flex items-center gap-2 rounded-full bg-white px-9 py-[15px] text-base font-semibold text-neutral-900 shadow-[0_2px_16px_rgba(255,255,255,0.1)] transition-all hover:-translate-y-0.5 hover:bg-neutral-100 hover:shadow-[0_6px_30px_rgba(255,255,255,0.15)]"
             >
               {user ? '커뮤니티 둘러보기' : '로그인하러 가기'}
@@ -626,12 +634,14 @@ export default function LandingPage() {
             <div className="flex items-center gap-5">
               <Link
                 to="/terms"
+                onClick={() => trackLandingClick('footer_terms')}
                 className="text-[0.85rem] text-neutral-400 transition-colors hover:text-neutral-900"
               >
                 이용약관
               </Link>
               <Link
                 to="/privacy"
+                onClick={() => trackLandingClick('footer_privacy')}
                 className="text-[0.85rem] text-neutral-400 transition-colors hover:text-neutral-900"
               >
                 개인정보 처리방침
@@ -642,6 +652,7 @@ export default function LandingPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="아이로 인스타그램"
+                onClick={() => trackLandingClick('footer_instagram')}
                 className="text-neutral-400 transition-colors hover:text-neutral-900"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
