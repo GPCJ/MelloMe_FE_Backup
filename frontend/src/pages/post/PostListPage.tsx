@@ -487,13 +487,17 @@ export default function PostListPage() {
 
           {!followingFeed.isLoading && !followingFeed.error && followingFeed.items.length === 0 && (
             <div className="text-center py-16">
-              <p className="text-gray-400 mb-4">팔로우한 치료사의 글이 아직 없어요.</p>
+              <p className="text-gray-400 mb-4">
+                팔로우한 치료사의 글이 아직 없어요.
+                <br />
+                전체 피드에서 마음에 드는 치료사분을 팔로우해보세요.
+              </p>
               <button
                 type="button"
-                onClick={() => navigate('/follow')}
+                onClick={() => handleTabChange('all')}
                 className={buttonVariants({ size: 'sm' }) + ' gap-1'}
               >
-                <UserPlus size={15} />치료사 팔로우하러 가기
+                <UserPlus size={15} />전체 피드 둘러보기
               </button>
             </div>
           )}
