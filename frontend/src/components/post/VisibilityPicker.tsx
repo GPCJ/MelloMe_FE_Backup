@@ -7,6 +7,9 @@ interface VisibilityPickerProps {
   visibility: UIVisibility;
   onChange: (v: UIVisibility) => void;
   isPublicOnly: boolean;
+  // 팝오버가 자라는 방향 — picker가 푸터 왼쪽 끝에 있으면(고민카드 작성) 'left'로 줘서
+  // 오른쪽으로 펼치게 한다. 기본 'right'는 picker가 오른쪽에 있을 때(작성/수정 폼) 안쪽으로 펼침.
+  align?: 'left' | 'right';
 }
 
 // 공개 범위 chip + popover — PostWriteForm 푸터와 동일 시각/동작 규약.
@@ -15,6 +18,7 @@ export default function VisibilityPicker({
   visibility,
   onChange,
   isPublicOnly,
+  align = 'right',
 }: VisibilityPickerProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -59,7 +63,9 @@ export default function VisibilityPicker({
       {open && (
         <div
           role="menu"
-          className="absolute bottom-full right-0 mb-2 w-64 bg-white rounded-xl shadow-[0px_4px_10px_0px_rgba(136,136,136,0.20)] border border-gray-100 py-2 z-10"
+          className={`absolute bottom-full mb-2 w-64 bg-white rounded-xl shadow-[0px_4px_10px_0px_rgba(136,136,136,0.20)] border border-gray-100 py-2 z-10 ${
+            align === 'left' ? 'left-0' : 'right-0'
+          }`}
         >
           {VISIBILITY_OPTIONS.map((opt) => {
             const selected = visibility === opt.value;
