@@ -10,6 +10,7 @@ import { FILTER_CHIPS } from '../../constants/post';
 import WelcomeModal from '@/components/auth/WelcomeModal';
 import PostCard from '../../components/post/PostCard';
 import FilterChips from '../../components/common/FilterChips';
+import JobPostFeed from '../../components/jobpost/JobPostFeed';
 import PageHeader from '@/components/common/PageHeader';
 import UserMenu from '@/components/layout/UserMenu';
 import Pagination from '../../components/common/Pagination';
@@ -20,7 +21,7 @@ import { useScreenExit } from '@/hooks/useScreenExit';
 import { useWelcomeModal } from '@/hooks/useWelcomeModal';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 
-type FeedTab = 'all' | 'following';
+type FeedTab = 'all' | 'following' | 'jobs';
 type FeedSort = 'LATEST' | 'POPULAR';
 
 function PostCardSkeleton() {
@@ -58,7 +59,9 @@ export default function PostListPage() {
   const currentPage = Number(searchParams.get('page') ?? '1');
 
   // 탭을 URL에 보존 — 상세 진입 후 뒤로가기 시 마지막 탭 복원(state면 'all'로 리셋됨).
-  const activeTab: FeedTab = searchParams.get('tab') === 'following' ? 'following' : 'all';
+  const tabParam = searchParams.get('tab');
+  const activeTab: FeedTab =
+    tabParam === 'following' ? 'following' : tabParam === 'jobs' ? 'jobs' : 'all';
   const [data, setData] = useState<PaginatedPosts | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -236,6 +239,7 @@ export default function PostListPage() {
   function handleTabChange(tab: FeedTab) {
     const next = new URLSearchParams(searchParams);
     if (tab === 'following') next.set('tab', 'following');
+    else if (tab === 'jobs') next.set('tab', 'jobs');
     else next.delete('tab');
     setSearchParams(next);
   }
@@ -326,6 +330,16 @@ export default function PostListPage() {
           >
             팔로우
           </button>
+          <button
+            onClick={() => handleTabChange('jobs')}
+            className={`flex-1 py-2 text-xs font-medium text-center transition-colors ${
+              activeTab === 'jobs'
+                ? 'text-neutral-950 border-b-2 border-black'
+                : 'text-gray-400 border-b border-gray-200'
+            }`}
+          >
+            구인
+          </button>
         </div>
       </div>
 
@@ -363,7 +377,9 @@ export default function PostListPage() {
       )}
 
       {/* 피드 콘텐츠 */}
-      {activeTab === 'all' ? (
+      {activeTab === 'jobs' ? (
+        <JobPostFeed />
+      ) : activeTab === 'all' ? (
         <div className="bg-white">
           {isInfiniteMode ? (
             <>
