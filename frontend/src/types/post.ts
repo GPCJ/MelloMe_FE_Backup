@@ -1,4 +1,5 @@
-export type PostSort = 'LATEST' | 'MOST_VIEWED';
+// RELEVANCE는 keyword 검색 시 관련도순. /posts(offset)·/posts/search(cursor) 모두 BE 지원.
+export type PostSort = 'LATEST' | 'MOST_VIEWED' | 'RELEVANCE';
 export type PostType = 'COMMUNITY' | 'RESOURCE' | 'CONCERN_CARD';
 export type Visibility = 'PUBLIC' | 'PRIVATE';
 
