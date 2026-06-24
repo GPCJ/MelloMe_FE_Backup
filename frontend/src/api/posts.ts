@@ -34,6 +34,72 @@ export async function fetchPosts(params: {
   return res.data;
 }
 
+// 게시글 검색 (무한스크롤) — GET /posts/search, RELEVANCE 정렬 전용.
+// BE 커서는 (lastScore, lastId) 2-값이지만 useInfiniteFeed는 단일 string 커서만 안다.
+// 그래서 어댑터에서 {nextScore, nextId}를 base64 문자열 1개로 인코딩/디코딩해
+// CursorPagedPosts 모양으로 맞춰주면 기존 무한스크롤 훅을 그대로 재사용할 수 있다.
+// keyword는 BE 필수 — 호출부(SearchPage)가 keyword 있을 때만 이 함수를 쓴다.
+interface SearchCursor {
+  lastScore: number;
+  lastId: number;
+}
+
+function encodeSearchCursor(c: SearchCursor): string {
+  return btoa(JSON.stringify(c));
+}
+
+function decodeSearchCursor(cursor: string): SearchCursor | null {
+  try {
+    const parsed = JSON.parse(atob(cursor));
+    if (typeof parsed.lastScore === 'number' && typeof parsed.lastId === 'number') {
+      return parsed;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchSearch(params: {
+  keyword: string;
+  therapyArea?: TherapyArea;
+  postType?: PostType;
+  cursor?: string | null;
+  size?: number;
+  signal?: AbortSignal;
+}): Promise<CursorPagedPosts> {
+  const { keyword, therapyArea, postType, cursor, size, signal } = params;
+  // 첫 페이지는 lastScore/lastId 둘 다 생략(BE 규약). 커서가 있으면 풀어서 두 값으로 전달.
+  const decoded = cursor ? decodeSearchCursor(cursor) : null;
+  const res = await axiosInstance.get('/posts/search', {
+    params: {
+      keyword,
+      ...(therapyArea ? { therapyArea } : {}),
+      ...(postType ? { postType } : {}),
+      ...(decoded ? { lastScore: decoded.lastScore, lastId: decoded.lastId } : {}),
+      ...(size ? { size } : {}),
+    },
+    signal,
+  });
+  // 응답 형태가 피드와 다름: { success, data: { data:[아이템], meta:{hasNextData,nextScore,nextId} } }.
+  // 주의: axiosInstance 인터셉터가 success===true면 이미 한 겹(`{success,data}`→`data`) 벗겨준다.
+  //       검색 응답은 그 안쪽 객체에도 `data` 키가 있어서 fetchFeed식 `res.data?.data ?? res.data`로
+  //       풀면 아이템 배열까지 한 겹 더 벗겨져 buggy. envelope 의미대로 success 유무로 분기한다.
+  const body = res.data?.success === true ? res.data.data : res.data;
+  const meta = body?.meta ?? {};
+  const hasNext = meta.hasNextData ?? false;
+  return {
+    items: body?.data ?? [],
+    // 다음 페이지가 있을 때만 (nextScore, nextId)를 단일 커서로 인코딩. 없으면 null로 잠금.
+    nextCursor:
+      hasNext && typeof meta.nextScore === 'number' && typeof meta.nextId === 'number'
+        ? encodeSearchCursor({ lastScore: meta.nextScore, lastId: meta.nextId })
+        : null,
+    hasNext,
+    size: size ?? (body?.data?.length ?? 0),
+  };
+}
+
 export async function fetchFeed(params: {
   cursor?: string;
   size?: number;
