@@ -1,9 +1,8 @@
 import type { TherapyArea } from './post';
 
 // 구인공고 — staging `/api/v1/job-posts` 실측 계약 기반 (AI 큐레이션 읽기 전용, Phase 1).
-// ⚠️ region/employmentType의 enum 문자열 값은 BE 미확정(staging 공고 0건 상태).
-//    서버가 `*Label` 필드를 동봉하므로 화면 표시엔 라벨을 그대로 쓰고,
-//    raw enum은 필터 쿼리 파라미터에만 쓰인다. 실데이터 연동 시 값 정합 재확인 필요.
+// region/employmentType enum 값은 staging `/v3/api-docs` 스키마로 실측 확정(2026-06-24).
+//   서버가 `*Label` 필드를 동봉하므로 화면 표시엔 라벨을 쓰고, raw enum은 필터 쿼리에만 쓴다.
 
 export type JobPostStatus = 'OPEN' | 'CLOSED';
 
