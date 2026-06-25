@@ -3,8 +3,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Search } from 'lucide-react';
 import PostCard from '../../components/post/PostCard';
 import FilterChips from '../../components/common/FilterChips';
-import { fetchPosts } from '../../api/posts';
-import type { TherapyArea, PostSort, PostSummary } from '../../types/post';
+import { fetchPosts, fetchSearch } from '../../api/posts';
+import { useInfiniteFeed } from '@/hooks/useInfiniteFeed';
+import type { TherapyArea, PaginatedPosts } from '../../types/post';
 import Pagination from '../../components/common/Pagination';
 
 export default function SearchPage() {
@@ -13,51 +14,89 @@ export default function SearchPage() {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [therapyArea, setTherapyArea] = useState<TherapyArea | ''>('');
-  const sortType: PostSort = 'LATEST';
-  const [results, setResults] = useState<PostSummary[] | null>(null);
-  const [loading, setLoading] = useState(false);
+  // 검색 실행 시점에 확정된 키워드. 입력 중 값이 아니라 "제출된" 값만 데이터 페치를 움직인다.
+  const [submittedKeyword, setSubmittedKeyword] = useState('');
   const [searched, setSearched] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  // 무한스크롤(/posts/search) 호출 실패 시 offset(/posts)으로 폴백하는 스위치.
+  const [feedFailed, setFeedFailed] = useState(false);
 
-  // 현재 검색 키워드 (검색 실행 시점에 확정된 값)
-  const keywordRef = useRef('');
+  // 모드 결정: 검색어가 있고 무한스크롤이 실패하지 않았으면 무한스크롤, 그 외엔 offset.
+  // - 검색어 있음           → /posts/search (RELEVANCE, 커서, 무한스크롤)  ← 기본
+  // - 검색어 있는데 실패     → /posts (sortType=RELEVANCE, offset)         ← 에러 폴백
+  // - 검색어 없이 필터만     → /posts (LATEST, offset)                     ← keyword 필수라 search 불가
+  const hasKeyword = submittedKeyword.trim().length > 0;
+  const isInfiniteMode = hasKeyword && !feedFailed;
 
-  async function doSearch(keyword: string, page: number) {
-    // 초기 마운트 보호: 검색어/필터 둘 다 비어있고 아직 검색 이력 없으면 호출 생략.
-    // 첫 검색 후에는 "전체"(therapyArea='') 리셋도 정상 재조회되도록 허용.
-    if (!keyword && !therapyArea && !searched) return;
-    setLoading(true);
-    setSearched(true);
-    setError(null);
-    try {
-      const data = await fetchPosts({
+  // ── 무한스크롤 (검색어 모드) ────────────────────────────────
+  // queryKey에 keyword/therapyArea를 넣어 검색 조건이 바뀌면 별개 캐시로 재조회.
+  // fetchSearch 어댑터가 2-값 커서(score,id)를 단일 문자열로 감싸 useInfiniteFeed가 그대로 먹는다.
+  const infinite = useInfiniteFeed({
+    queryKey: ['post-search', { keyword: submittedKeyword, therapyArea }],
+    fetchPage: ({ pageParam, signal }) =>
+      fetchSearch({
+        keyword: submittedKeyword,
         ...(therapyArea ? { therapyArea } : {}),
-        ...(keyword ? { keyword } : {}),
-        sortType,
-        page: page - 1,
+        cursor: pageParam,
         size: 10,
-      });
-      setResults(data.items ?? []);
-      setTotalPages(data.totalPages ?? 1);
-      setCurrentPage(page);
-    } catch {
-      setResults([]);
-      setError('검색 중 오류가 발생했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  }
+        signal,
+      }),
+    enabled: isInfiniteMode,
+    onError: () => setFeedFailed(true),
+  });
 
+  // ── offset (필터-only / 무한스크롤 폴백 모드) ──────────────────
+  const [offsetData, setOffsetData] = useState<PaginatedPosts | null>(null);
+  const [offsetLoading, setOffsetLoading] = useState(false);
+  const [offsetError, setOffsetError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    if (isInfiniteMode) return; // 무한스크롤이 담당
+    // 초기 마운트 보호: 검색어/필터 둘 다 없고 검색 이력도 없으면 호출 생략.
+    if (!hasKeyword && !therapyArea && !searched) return;
+    setOffsetLoading(true);
+    setOffsetError(null);
+    fetchPosts({
+      ...(therapyArea ? { therapyArea } : {}),
+      ...(hasKeyword ? { keyword: submittedKeyword } : {}),
+      // 검색어가 있는 폴백 경로는 관련도순, 필터-only는 최신순.
+      sortType: hasKeyword ? 'RELEVANCE' : 'LATEST',
+      page: currentPage - 1,
+      size: 10,
+    })
+      .then(setOffsetData)
+      .catch(() => {
+        setOffsetData(null);
+        setOffsetError('검색 중 오류가 발생했습니다.');
+      })
+      .finally(() => setOffsetLoading(false));
+  }, [isInfiniteMode, hasKeyword, submittedKeyword, therapyArea, currentPage, searched]);
+
+  // ── 무한스크롤 sentinel ──────────────────────────────────────
+  const { loadMore } = infinite;
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!isInfiniteMode) return;
+    const node = sentinelRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) loadMore();
+      },
+      { rootMargin: '200px' },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [isInfiniteMode, loadMore]);
+
+  // ── 검색 실행 ────────────────────────────────────────────────
   function executeSearch() {
     const value = inputRef.current?.value.trim() ?? '';
-    keywordRef.current = value;
-    if (value) {
-      setSearchParams({ q: value });
-    }
+    setSubmittedKeyword(value);
+    setFeedFailed(false); // 새 검색마다 폴백 스위치 리셋
     setCurrentPage(1);
-    doSearch(value, 1);
+    setSearched(true);
+    setSearchParams(value ? { q: value } : {});
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -66,28 +105,33 @@ export default function SearchPage() {
     requestAnimationFrame(() => executeSearch());
   }
 
+  function handleTherapyAreaChange(value: TherapyArea | '') {
+    setTherapyArea(value);
+    setFeedFailed(false);
+    setCurrentPage(1);
+    setSearched(true);
+  }
+
   function handlePageChange(page: number) {
-    doSearch(keywordRef.current, page);
+    setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // URL ?q= 파라미터로 진입 시 자동 검색
   useEffect(() => {
     const q = searchParams.get('q');
-    if (q && inputRef.current) {
-      inputRef.current.value = q;
-      keywordRef.current = q;
-      doSearch(q, 1);
+    if (q) {
+      if (inputRef.current) inputRef.current.value = q;
+      setSubmittedKeyword(q);
+      setSearched(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 필터 변경 시 검색 실행 (검색어 없어도 필터만으로 트리거)
-  // 초기 마운트는 doSearch 가드에서 흡수.
-  useEffect(() => {
-    doSearch(keywordRef.current, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [therapyArea]);
+  // ── 표시용 통합 변수 (모드별 소스 선택) ────────────────────────
+  const items = isInfiniteMode ? infinite.items : offsetData?.items ?? [];
+  const loading = isInfiniteMode ? infinite.isLoading : offsetLoading;
+  const error = isInfiniteMode ? infinite.error : offsetError;
 
   return (
     <div className="max-w-3xl mx-auto pb-20 md:pb-8">
@@ -124,7 +168,7 @@ export default function SearchPage() {
 
         {/* 카테고리 필터 칩 */}
         <div className="px-4 pt-2 pb-4">
-          <FilterChips value={therapyArea} onChange={setTherapyArea} />
+          <FilterChips value={therapyArea} onChange={handleTherapyAreaChange} />
         </div>
       </div>
 
@@ -134,24 +178,32 @@ export default function SearchPage() {
 
         {!loading && error && <p className="text-center text-red-500 text-sm py-12">{error}</p>}
 
-        {!loading && !error && searched && results?.length === 0 && (
+        {!loading && !error && searched && items.length === 0 && (
           <p className="text-center text-gray-400 text-sm py-12">검색 결과가 없습니다</p>
         )}
 
-        {!loading && results?.map((post) => <PostCard key={post.id} post={post} />)}
+        {!loading && items.map((post) => <PostCard key={post.id} post={post} />)}
 
         {!searched && !loading && (
-          <p className="text-[#6d7685] text-lg font-bold p-6">
-            시그널을 찾아보세요!
-          </p>
+          <p className="text-[#6d7685] text-lg font-bold p-6">시그널을 찾아보세요!</p>
         )}
       </div>
 
-      {/* 페이지네이션 */}
-      {searched && !loading && totalPages > 1 && (
+      {/* 무한스크롤 모드: sentinel + 추가 로딩 표시 */}
+      {isInfiniteMode && (
+        <>
+          <div ref={sentinelRef} aria-hidden className="h-1" />
+          {infinite.isFetchingMore && (
+            <p className="text-center text-gray-400 text-sm py-6">더 불러오는 중...</p>
+          )}
+        </>
+      )}
+
+      {/* offset 모드: 페이지네이션 */}
+      {!isInfiniteMode && searched && !loading && (offsetData?.totalPages ?? 1) > 1 && (
         <Pagination
           currentPage={currentPage}
-          totalPages={totalPages}
+          totalPages={offsetData?.totalPages ?? 1}
           onPageChange={handlePageChange}
         />
       )}

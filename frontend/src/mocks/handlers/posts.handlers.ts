@@ -136,6 +136,50 @@ export const postsHandlers = [
     });
   }),
 
+  // 게시글 검색 (무한스크롤) — RELEVANCE 전용, (lastScore, lastId) 2-값 커서.
+  // 반드시 `/posts/:postId` 앞에 등록 (안 그러면 :postId="search"로 가로채임).
+  // 응답 envelope이 feed와 다름: data.data[](아이템) + data.meta{hasNextData,nextScore,nextId}.
+  http.get(`${API}/posts/search`, ({ request }) => {
+    const url = new URL(request.url);
+    const keyword = url.searchParams.get('keyword') ?? '';
+    const therapyArea = url.searchParams.get('therapyArea');
+    const rawSize = Number(url.searchParams.get('size') ?? '10');
+    const size = Math.min(50, Math.max(1, isNaN(rawSize) ? 10 : rawSize));
+    const lastScore = url.searchParams.get('lastScore');
+    const lastId = url.searchParams.get('lastId');
+
+    // 관련도 점수(목): score=id로 단순화. 정렬 = (score desc, id desc) = 커서 비교 기준.
+    const pool = mockFeedItems
+      .filter((p) => (therapyArea ? p.therapyArea === therapyArea : true))
+      .filter((p) => (keyword ? p.contentPreview.includes(keyword) : true))
+      .map((p) => ({ item: p, score: p.id }));
+    pool.sort((a, b) => b.score - a.score || b.item.id - a.item.id);
+
+    let startIdx = 0;
+    if (lastScore !== null && lastId !== null) {
+      const s = Number(lastScore);
+      const i = Number(lastId);
+      const idx = pool.findIndex((p) => p.score === s && p.item.id === i);
+      startIdx = idx === -1 ? pool.length : idx + 1;
+    }
+
+    const slice = pool.slice(startIdx, startIdx + size);
+    const hasNextData = startIdx + size < pool.length;
+    const last = slice[slice.length - 1];
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        data: slice.map((p) => p.item),
+        meta: {
+          hasNextData,
+          nextScore: hasNextData && last ? last.score : null,
+          nextId: hasNextData && last ? last.item.id : null,
+        },
+      },
+    });
+  }),
+
   http.get(`${API}/posts/:postId`, ({ params }) => {
     const post = mockPosts.find((p) => p.id === Number(params.postId));
     if (!post) return HttpResponse.json({ code: 'NOT_FOUND' }, { status: 404 });
