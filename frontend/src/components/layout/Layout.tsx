@@ -39,7 +39,9 @@ export default function Layout() {
       {/* Bottom Navigation (Mobile) */}
       {!hideBottomNav && (
         <nav
-          className={`md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-3`}
+          // pt-3은 기존 상단 패딩 유지. 하단은 0.75rem(기존 py-3 값) + 홈인디케이터 안전영역(env)을 더해
+          // 흰 배경 바가 홈인디케이터 밑까지 깔리되 아이콘은 그 위에 머물게 함. Tailwind 임의값은 공백을 _로 표기.
+          className={`md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around pt-3 pb-[calc(0.75rem_+_env(safe-area-inset-bottom))]`}
         >
           {/* 커뮤니티 */}
           <Link

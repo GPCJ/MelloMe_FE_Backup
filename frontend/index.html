@@ -2,7 +2,8 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover: WebView를 노치/홈인디케이터까지 꽉 채워 그림 → env(safe-area-inset-*) 값이 실제 inset으로 보고됨(없으면 0). 네이티브 앱(Capacitor)에서 안전영역 패딩의 전제. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <!-- Google Search Console 소유권 확인용 (삭제하면 Search Console 연결 해제됨) -->
     <meta name="google-site-verification" content="cZuyZEZ9eWZ_1HbxFXHDQfVDp7wWJMQlSxkcwbE10ug" />
