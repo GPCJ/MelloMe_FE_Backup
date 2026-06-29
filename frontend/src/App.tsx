@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { App as CapApp } from '@capacitor/app';
 import Layout from './components/layout/Layout';
 import LandingPage from './pages/landing/LandingPage';
 import GuestRoute from './components/auth/GuestRoute';
@@ -45,11 +47,27 @@ function NotificationManager() {
   return null;
 }
 
+/** Android 하드웨어 뒤로가기를 WebView history 탐색으로 연결. 히스토리 없으면 앱 종료. */
+function AndroidBackButtonManager() {
+  useEffect(() => {
+    const listenerPromise = CapApp.addListener('backButton', ({ canGoBack }) => {
+      if (canGoBack) {
+        window.history.back();
+      } else {
+        CapApp.exitApp();
+      }
+    });
+    return () => { listenerPromise.then(h => h.remove()); };
+  }, []);
+  return null;
+}
+
 function App() {
   return (
     <BrowserRouter>
       <AnalyticsTracker />
       <NotificationManager />
+      <AndroidBackButtonManager />
       <Routes>
         {/* `/`는 로그인 여부와 무관하게 누구에게나 랜딩 페이지를 노출(2026-06-06 부활).
         로그인 유저는 랜딩 nav의 "커뮤니티" 링크로 /posts 이동. */}
