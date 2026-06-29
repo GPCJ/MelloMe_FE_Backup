@@ -7,7 +7,6 @@ export type NotificationType =
   | 'VERIFICATION_SUBMITTED'
   | 'VERIFICATION_APPROVED'
   | 'VERIFICATION_REJECTED'
-  | 'NEW_FOLLOW'
   | 'NEW_MESSAGE';
 
 // 백엔드 NotificationResponse 스펙 (api-staging Swagger 기준).

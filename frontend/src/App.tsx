@@ -22,7 +22,6 @@ import MessageBoxPage from './pages/message/MessageBoxPage';
 import MessageDetailPage from './pages/message/MessageDetailPage';
 import SearchPage from './pages/search/SearchPage';
 import ProfilePage from './pages/profile/ProfilePage';
-import FollowListPage from './pages/follow/FollowListPage';
 import NotificationPage from './pages/notification/NotificationPage';
 import TherapistVerificationPage from './pages/auth/TherapistVerificationPage';
 import VerificationCompletePage from './pages/auth/VerificationCompletePage';
@@ -105,7 +104,6 @@ function App() {
             <Route path="/search" element={<SearchPage />} />
             <Route path="/notifications" element={<NotificationPage />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/follow" element={<FollowListPage />} />
             {/* 쪽지함(받은/보낸 2탭). 상세는 /messages/:messageId */}
             <Route path="/messages" element={<MessageBoxPage />} />
             {/* 모바일 쪽지 작성. 정적 경로라 /messages/:messageId보다 먼저 배치 */}
