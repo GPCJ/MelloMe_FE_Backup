@@ -10,7 +10,6 @@ import { FILTER_CHIPS } from '../../constants/post';
 import WelcomeModal from '@/components/auth/WelcomeModal';
 import PostCard from '../../components/post/PostCard';
 import FilterChips from '../../components/common/FilterChips';
-import JobPostFeed from '../../components/jobpost/JobPostFeed';
 import PageHeader from '@/components/common/PageHeader';
 import UserMenu from '@/components/layout/UserMenu';
 import Pagination from '../../components/common/Pagination';
@@ -21,7 +20,6 @@ import { useScreenExit } from '@/hooks/useScreenExit';
 import { useWelcomeModal } from '@/hooks/useWelcomeModal';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 
-type FeedTab = 'all' | 'jobs';
 type FeedSort = 'LATEST' | 'POPULAR';
 
 function PostCardSkeleton() {
@@ -58,9 +56,8 @@ export default function PostListPage() {
   const therapyArea = (searchParams.get('therapyArea') as TherapyArea) ?? '';
   const currentPage = Number(searchParams.get('page') ?? '1');
 
-  // 탭을 URL에 보존 — 상세 진입 후 뒤로가기 시 마지막 탭 복원(state면 'all'로 리셋됨).
-  const tabParam = searchParams.get('tab');
-  const activeTab: FeedTab = tabParam === 'jobs' ? 'jobs' : 'all';
+  // 단일 전체 피드 — 팔로우/구인 탭 제거됨.
+  const activeTab = 'all' as const;
   const [data, setData] = useState<PaginatedPosts | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -189,13 +186,6 @@ export default function PostListPage() {
     setSearchParams(value ? { therapyArea: value } : {});
   }
 
-  function handleTabChange(tab: FeedTab) {
-    const next = new URLSearchParams(searchParams);
-    if (tab === 'jobs') next.set('tab', 'jobs');
-    else next.delete('tab');
-    setSearchParams(next);
-  }
-
   function handlePageChange(page: number) {
     const params: Record<string, string> = { page: String(page) };
     if (therapyArea) params.therapyArea = therapyArea;
@@ -258,38 +248,10 @@ export default function PostListPage() {
         }
       />
 
-      {/* 탭 */}
-      <div className="bg-white">
-        <div className="flex">
-          <button
-            onClick={() => handleTabChange('all')}
-            className={`flex-1 py-2 text-xs font-medium text-center transition-colors ${
-              activeTab === 'all'
-                ? 'text-neutral-950 border-b-2 border-black'
-                : 'text-gray-400 border-b border-gray-200'
-            }`}
-          >
-            전체 피드
-          </button>
-          <button
-            onClick={() => handleTabChange('jobs')}
-            className={`flex-1 py-2 text-xs font-medium text-center transition-colors ${
-              activeTab === 'jobs'
-                ? 'text-neutral-950 border-b-2 border-black'
-                : 'text-gray-400 border-b border-gray-200'
-            }`}
-          >
-            구인
-          </button>
-        </div>
+      {/* 필터 칩 */}
+      <div className="p-4 bg-white border-b border-gray-200">
+        <FilterChips value={therapyArea} onChange={handleFilterClick} />
       </div>
-
-      {/* 필터 칩 — 전체 피드에서만 (팔로우 피드는 BE therapyArea 필터 미지원) */}
-      {activeTab === 'all' && (
-        <div className="p-4 bg-white border-b border-gray-200">
-          <FilterChips value={therapyArea} onChange={handleFilterClick} />
-        </div>
-      )}
 
       {/* 정렬 전환 — 무한스크롤 모드(전체 피드 + 필터 없음)에서만 노출 */}
       {isInfiniteMode && (
@@ -318,10 +280,7 @@ export default function PostListPage() {
       )}
 
       {/* 피드 콘텐츠 */}
-      {activeTab === 'jobs' ? (
-        <JobPostFeed />
-      ) : (
-        <div className="bg-white">
+      <div className="bg-white">
           {isInfiniteMode ? (
             <>
               {infinite.isLoading
@@ -413,7 +372,6 @@ export default function PostListPage() {
             </>
           )}
         </div>
-      )}
     </div>
   );
 }

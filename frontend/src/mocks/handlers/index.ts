@@ -9,7 +9,6 @@ import { reactionsHandlers } from './reactions.handlers';
 import { profileHandlers } from './profile.handlers';
 import { scrapHandlers } from './scrap.handlers';
 import { notificationsHandlers } from './notifications.handlers';
-import { jobPostsHandlers } from './jobPosts.handlers';
 
 export const handlers = [
   ...authHandlers,
@@ -22,5 +21,4 @@ export const handlers = [
   ...profileHandlers,
   ...scrapHandlers,
   ...notificationsHandlers,
-  ...jobPostsHandlers,
 ];
