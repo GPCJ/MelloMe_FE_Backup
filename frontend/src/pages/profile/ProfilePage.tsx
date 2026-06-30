@@ -7,7 +7,6 @@ import ProfileHeaderActions from '@/components/profile/ProfileHeaderActions';
 import PostCard from '../../components/post/PostCard';
 import { fetchMyPosts, fetchMyComments, fetchMyScraps } from '../../api/mypage';
 import { uploadProfileImage, updateMyProfile } from '../../api/auth';
-import { fetchFollowCounts } from '../../api/follow';
 import { useAuthStore } from '../../stores/useAuthStore';
 import type { MyComment } from '../../types/mypage';
 import type { PostSummary } from '../../types/post';
@@ -115,13 +114,6 @@ export default function ProfilePage() {
     queryClient.invalidateQueries({ queryKey: ['myComments'] });
     queryClient.invalidateQueries({ queryKey: ['myScraps'] });
   };
-
-  const followCountsQuery = useQuery({
-    queryKey: ['follow-counts'],
-    queryFn: fetchFollowCounts,
-    staleTime: 30_000,
-  });
-  const followCounts = followCountsQuery.data;
 
   const [postsPage, setPostsPage] = useState(1);
   const postsQuery = useQuery({
@@ -259,27 +251,6 @@ export default function ProfilePage() {
                   )}
                 </>
               )}
-            </div>
-            {/* 팔로워/팔로잉 — /me/follow-counts, 클릭 시 목록 페이지 진입 */}
-            <div className="flex gap-4 text-sm text-gray-500">
-              <button
-                onClick={() => navigate('/follow?tab=followers')}
-                className="hover:text-gray-900 transition-colors"
-              >
-                팔로워{' '}
-                <span className="font-medium text-gray-900">
-                  {followCounts?.followerCount ?? 0}
-                </span>
-              </button>
-              <button
-                onClick={() => navigate('/follow?tab=followings')}
-                className="hover:text-gray-900 transition-colors"
-              >
-                팔로잉{' '}
-                <span className="font-medium text-gray-900">
-                  {followCounts?.followingCount ?? 0}
-                </span>
-              </button>
             </div>
           </div>
         </div>

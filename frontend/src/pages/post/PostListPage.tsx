@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { isAxiosError } from 'axios';
-import { Plus, Menu, UserPlus } from 'lucide-react';
+import { Plus, Menu } from 'lucide-react';
 import { buttonVariants } from '@/components/shadcn-ui/button';
 import { Skeleton } from '@/components/shadcn-ui/skeleton';
-import { fetchPosts, fetchFeed, fetchFollowingFeed } from '../../api/posts';
+import { fetchPosts, fetchFeed } from '../../api/posts';
 import type { TherapyArea, PaginatedPosts, PostReaction } from '../../types/post';
 import { FILTER_CHIPS } from '../../constants/post';
 import WelcomeModal from '@/components/auth/WelcomeModal';
@@ -21,7 +21,7 @@ import { useScreenExit } from '@/hooks/useScreenExit';
 import { useWelcomeModal } from '@/hooks/useWelcomeModal';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 
-type FeedTab = 'all' | 'following' | 'jobs';
+type FeedTab = 'all' | 'jobs';
 type FeedSort = 'LATEST' | 'POPULAR';
 
 function PostCardSkeleton() {
@@ -60,8 +60,7 @@ export default function PostListPage() {
 
   // 탭을 URL에 보존 — 상세 진입 후 뒤로가기 시 마지막 탭 복원(state면 'all'로 리셋됨).
   const tabParam = searchParams.get('tab');
-  const activeTab: FeedTab =
-    tabParam === 'following' ? 'following' : tabParam === 'jobs' ? 'jobs' : 'all';
+  const activeTab: FeedTab = tabParam === 'jobs' ? 'jobs' : 'all';
   const [data, setData] = useState<PaginatedPosts | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,7 +74,6 @@ export default function PostListPage() {
     const snap = consumeSnapshot();
     if (!snap) return null;
     if (snap.tab === 'all' && isInfiniteMode) return snap;
-    if (snap.tab === 'following' && activeTab === 'following') return snap;
     return null;
   }
   const initialSnapshotRef = useRef(pickInitialSnapshot());
@@ -100,25 +98,9 @@ export default function PostListPage() {
     onError: () => setFeedFailed(true),
   });
 
-  // 팔로우 탭 무한 스크롤 — 같은 useInfiniteFeed를 ['feed-following'] 키 + fetchFollowingFeed로 재사용.
-  // 전체 피드와 캐시 슬롯이 분리되고, sort/snapshot은 없음(BE sort 미지원·스크롤 복원 미적용).
-  const followingFeed = useInfiniteFeed({
-    queryKey: ['feed-following', { size: 20 }],
-    fetchPage: ({ pageParam, signal }) =>
-      fetchFollowingFeed({ size: 20, ...(pageParam ? { cursor: pageParam } : {}), signal }),
-    enabled: activeTab === 'following',
-    initialSnapshot: initialSnapshotRef.current?.tab === 'following'
-      ? {
-          items: initialSnapshotRef.current.items,
-          nextCursor: initialSnapshotRef.current.nextCursor,
-          hasNext: initialSnapshotRef.current.hasNext,
-        }
-      : undefined,
-  });
-
   useEffect(() => {
-    // pickInitialSnapshot이 "지금 탭에 유효한 스냅샷"일 때만 ref를 채우므로
-    // (아니면 null) snap 존재 여부만으로 all/following 양쪽 복원을 게이트한다.
+    // pickInitialSnapshot이 "지금 전체 피드에 유효한 스냅샷"일 때만 ref를 채우므로
+    // (아니면 null) snap 존재 여부만으로 복원을 게이트한다.
     const snap = initialSnapshotRef.current;
     if (!snap) return;
     requestAnimationFrame(() => {
@@ -168,7 +150,6 @@ export default function PostListPage() {
   }, [therapyArea, currentPage, activeTab, isInfiniteMode]);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const followingSentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!isInfiniteMode) return;
@@ -186,44 +167,16 @@ export default function PostListPage() {
     return () => observer.disconnect();
   }, [isInfiniteMode, infinite.loadMore]);
 
-  // 팔로우 탭 전용 sentinel observer — 전체 피드 옵저버(위)와 독립.
-  useEffect(() => {
-    if (activeTab !== 'following') return;
-    const node = followingSentinelRef.current;
-    if (!node) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          followingFeed.loadMore();
-        }
-      },
-      { rootMargin: '200px' },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [activeTab, followingFeed.loadMore]);
-
   function handleCardClick() {
-    if (activeTab === 'all') {
-      if (!isInfiniteMode) return;
-
-      saveSnapshot({
-        items: infinite.items,
-        nextCursor: infinite.nextCursor,
-        hasNext: infinite.hasNext,
-        scrollY: window.scrollY,
-        sort,
-        tab: 'all',
-      });
-    } else {
-      saveSnapshot({
-        items: followingFeed.items,
-        nextCursor: followingFeed.nextCursor,
-        hasNext: followingFeed.hasNext,
-        scrollY: window.scrollY,
-        tab: 'following',
-      });
-    }
+    if (!isInfiniteMode) return;
+    saveSnapshot({
+      items: infinite.items,
+      nextCursor: infinite.nextCursor,
+      hasNext: infinite.hasNext,
+      scrollY: window.scrollY,
+      sort,
+      tab: 'all',
+    });
   }
 
   function handleSortChange(next: FeedSort) {
@@ -238,8 +191,7 @@ export default function PostListPage() {
 
   function handleTabChange(tab: FeedTab) {
     const next = new URLSearchParams(searchParams);
-    if (tab === 'following') next.set('tab', 'following');
-    else if (tab === 'jobs') next.set('tab', 'jobs');
+    if (tab === 'jobs') next.set('tab', 'jobs');
     else next.delete('tab');
     setSearchParams(next);
   }
@@ -274,9 +226,8 @@ export default function PostListPage() {
         })),
       };
     };
-    // 전체 피드(['feed'])와 팔로우 피드(['feed-following']) 캐시를 모두 패치.
+    // 전체 피드(['feed']) 캐시 패치.
     qc.setQueriesData<InfiniteData<PaginatedPosts>>({ queryKey: ['feed'] }, patch);
-    qc.setQueriesData<InfiniteData<PaginatedPosts>>({ queryKey: ['feed-following'] }, patch);
   }
 
   // 빈 상태 CTA — PC는 모달, 모바일은 라우트 이동.
@@ -319,16 +270,6 @@ export default function PostListPage() {
             }`}
           >
             전체 피드
-          </button>
-          <button
-            onClick={() => handleTabChange('following')}
-            className={`flex-1 py-2 text-xs font-medium text-center transition-colors ${
-              activeTab === 'following'
-                ? 'text-neutral-950 border-b-2 border-black'
-                : 'text-gray-400 border-b border-gray-200'
-            }`}
-          >
-            팔로우
           </button>
           <button
             onClick={() => handleTabChange('jobs')}
@@ -379,7 +320,7 @@ export default function PostListPage() {
       {/* 피드 콘텐츠 */}
       {activeTab === 'jobs' ? (
         <JobPostFeed />
-      ) : activeTab === 'all' ? (
+      ) : (
         <div className="bg-white">
           {isInfiniteMode ? (
             <>
@@ -471,58 +412,6 @@ export default function PostListPage() {
               )}
             </>
           )}
-        </div>
-      ) : (
-        <div className="bg-white">
-          {followingFeed.isLoading
-            ? Array.from({ length: 4 }).map((_, i) => <PostCardSkeleton key={i} />)
-            : followingFeed.items.map((post) => (
-                <div key={post.id} onClickCapture={handleCardClick}>
-                  <PostCard
-                    post={post}
-                    onReactionUpdated={handleReactionUpdated}
-                    backTo="/posts?tab=following"
-                  />
-                </div>
-              ))}
-
-          {followingFeed.isFetchingMore &&
-            Array.from({ length: 2 }).map((_, i) => <PostCardSkeleton key={`fmore-${i}`} />)}
-
-          {followingFeed.error && (
-            <div className="flex flex-col items-center gap-3 py-8">
-              <p className="text-sm text-destructive">{followingFeed.error}</p>
-              <button
-                onClick={followingFeed.retry}
-                className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                재시도
-              </button>
-            </div>
-          )}
-
-          {!followingFeed.isLoading && !followingFeed.error && followingFeed.items.length === 0 && (
-            <div className="text-center py-16">
-              <p className="text-gray-400 mb-4">
-                팔로우한 치료사의 글이 아직 없어요.
-                <br />
-                전체 피드에서 마음에 드는 치료사분을 팔로우해보세요.
-              </p>
-              <button
-                type="button"
-                onClick={() => handleTabChange('all')}
-                className={buttonVariants({ size: 'sm' }) + ' gap-1'}
-              >
-                <UserPlus size={15} />전체 피드 둘러보기
-              </button>
-            </div>
-          )}
-
-          {!followingFeed.isLoading && !followingFeed.hasNext && followingFeed.items.length > 0 && (
-            <p className="text-center text-sm text-gray-400 py-8">마지막 글이에요</p>
-          )}
-
-          <div ref={followingSentinelRef} aria-hidden className="h-1" />
         </div>
       )}
     </div>
