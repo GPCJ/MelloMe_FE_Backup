@@ -5,7 +5,7 @@ import type { CursorPagedPosts, PostSummary } from '../types/post';
 // useInfiniteFeed훅의 파라미터 타입 인터페이스
 // (R-01b 마이그레이션 전/후 동일 — PostListPage 호출부 변경 없음)
 interface UseInfiniteFeedOptions {
-  // 캐시 주소 — 호출부가 직접 만든다. 전체 피드 ['feed',{size,sort}] / 팔로우 ['feed-following',{size}]
+  // 캐시 주소 — 호출부가 직접 만든다. 예: 전체 피드 ['feed',{size,sort}]
   queryKey: QueryKey;
   // 한 페이지를 가져오는 함수 — 호출부가 size/sort/postType 등을 클로저로 닫아 주입한다.
   // pageParam(=cursor)과 RQ가 만든 signal을 받아 CursorPagedPosts를 반환.

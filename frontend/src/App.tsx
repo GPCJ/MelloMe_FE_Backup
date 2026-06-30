@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { App as CapApp } from '@capacitor/app';
 import Layout from './components/layout/Layout';
 import LandingPage from './pages/landing/LandingPage';
 import GuestRoute from './components/auth/GuestRoute';
@@ -11,6 +13,7 @@ import TermsPage from './pages/TermsPage';
 import PostListPage from './pages/post/PostListPage';
 import PostDetailPage from './pages/post/PostDetailPage';
 import PostCreatePage from './pages/post/PostCreatePage';
+import JobPostDetailPage from './pages/jobpost/JobPostDetailPage';
 import PostEditPage from './pages/post/PostEditPage';
 import CommentWritePage from './pages/post/CommentWritePage';
 import CommentDetailPage from './pages/post/CommentDetailPage';
@@ -19,7 +22,6 @@ import MessageBoxPage from './pages/message/MessageBoxPage';
 import MessageDetailPage from './pages/message/MessageDetailPage';
 import SearchPage from './pages/search/SearchPage';
 import ProfilePage from './pages/profile/ProfilePage';
-import FollowListPage from './pages/follow/FollowListPage';
 import NotificationPage from './pages/notification/NotificationPage';
 import TherapistVerificationPage from './pages/auth/TherapistVerificationPage';
 import VerificationCompletePage from './pages/auth/VerificationCompletePage';
@@ -44,11 +46,27 @@ function NotificationManager() {
   return null;
 }
 
+/** Android 하드웨어 뒤로가기를 WebView history 탐색으로 연결. 히스토리 없으면 앱 종료. */
+function AndroidBackButtonManager() {
+  useEffect(() => {
+    const listenerPromise = CapApp.addListener('backButton', ({ canGoBack }) => {
+      if (canGoBack) {
+        window.history.back();
+      } else {
+        CapApp.exitApp();
+      }
+    });
+    return () => { listenerPromise.then(h => h.remove()); };
+  }, []);
+  return null;
+}
+
 function App() {
   return (
     <BrowserRouter>
       <AnalyticsTracker />
       <NotificationManager />
+      <AndroidBackButtonManager />
       <Routes>
         {/* `/`는 로그인 여부와 무관하게 누구에게나 랜딩 페이지를 노출(2026-06-06 부활).
         로그인 유저는 랜딩 nav의 "커뮤니티" 링크로 /posts 이동. */}
@@ -81,11 +99,11 @@ function App() {
             <Route path="/posts/:postId/comments" element={<CommentWritePage />} />
             <Route path="/posts/:postId/comments/:commentId" element={<CommentDetailPage />} />
             <Route path="/posts/new" element={<PostCreatePage />} />
+            <Route path="/job-posts/:jobPostId" element={<JobPostDetailPage />} />
             <Route path="/posts/:postId/edit" element={<PostEditPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/notifications" element={<NotificationPage />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/follow" element={<FollowListPage />} />
             {/* 쪽지함(받은/보낸 2탭). 상세는 /messages/:messageId */}
             <Route path="/messages" element={<MessageBoxPage />} />
             {/* 모바일 쪽지 작성. 정적 경로라 /messages/:messageId보다 먼저 배치 */}

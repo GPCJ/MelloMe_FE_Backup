@@ -111,19 +111,6 @@ export async function fetchFeed(params: {
   return res.data?.data ?? res.data;
 }
 
-// 팔로우 피드 — fetchFeed 미러. 단 sort 없음(BE 미지원), postType만 선택.
-// 응답 shape은 전체 피드와 동일한 CursorPagedPosts.
-export async function fetchFollowingFeed(params: {
-  cursor?: string;
-  size?: number;
-  postType?: PostType;
-  signal?: AbortSignal;
-}): Promise<CursorPagedPosts> {
-  const { signal, ...query } = params;
-  const res = await axiosInstance.get('/posts/feed/following', { params: query, signal });
-  return res.data?.data ?? res.data;
-}
-
 export async function fetchPost(postId: number): Promise<PostDetail> {
   const res = await axiosInstance.get(`/posts/${postId}`);
   return res.data;
