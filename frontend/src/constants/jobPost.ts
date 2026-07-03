@@ -1,5 +1,9 @@
 import type { EmploymentType, JobRegion } from '../types/jobPost';
 
+// 상시모집 sentinel 날짜 — BE 합의(2026-07-03). deadlineDate가 non-null 필수라
+// "마감 없음"을 표현할 수 없어, 상시모집은 이 먼 미래 날짜로 약속. FE는 이 값을 "상시모집"으로 렌더.
+export const ALWAYS_OPEN_DEADLINE = '9999-12-31';
+
 export const REGION_LABELS: Record<JobRegion, string> = {
   SEOUL: '서울',
   BUSAN: '부산',

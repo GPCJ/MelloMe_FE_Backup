@@ -1,8 +1,25 @@
-// 구인공고 핸들러 — 목록(cursor + 필터 4종), 상세. Phase 1 읽기 전용.
+// 구인공고 핸들러 — 목록(cursor + 필터 4종), 상세, 작성(Phase 2).
 import { http, HttpResponse } from 'msw';
 import { mockJobPosts } from '../data/jobPosts';
+import {
+  REGION_LABELS,
+  EMPLOYMENT_TYPE_LABELS,
+  ALWAYS_OPEN_DEADLINE,
+} from '../../constants/jobPost';
+import { THERAPY_AREA_LABELS } from '../../constants/post';
+import type { JobPostCreatePayload, JobPostDetail } from '../../types/jobPost';
 
 const API = import.meta.env.VITE_API_BASE_URL;
+
+// 마감일까지 남은 일수(자정 기준). 상시모집(sentinel)은 null.
+function computeDday(deadlineDate: string): number | null {
+  if (deadlineDate === ALWAYS_OPEN_DEADLINE) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const deadline = new Date(`${deadlineDate}T00:00:00`);
+  if (Number.isNaN(deadline.getTime())) return null;
+  return Math.round((deadline.getTime() - today.getTime()) / 86_400_000);
+}
 
 function encodeCursor(lastId: number): string {
   return btoa(JSON.stringify({ lastId }));
@@ -67,6 +84,7 @@ export const jobPostsHandlers = [
       status: j.status,
       dday: j.dday,
       deadlineDate: j.deadlineDate,
+      alwaysOpen: j.alwaysOpen,
     }));
 
     return HttpResponse.json({
@@ -81,5 +99,60 @@ export const jobPostsHandlers = [
       return HttpResponse.json({ success: false, code: 'NOT_FOUND' }, { status: 404 });
     }
     return HttpResponse.json({ success: true, data: job });
+  }),
+
+  // 작성(Create) — Phase 2. 페이로드 검증 후 상세 형태로 만들어 최신 상단(unshift)에 추가.
+  http.post(`${API}/job-posts`, async ({ request }) => {
+    const body = (await request.json()) as JobPostCreatePayload;
+
+    const required =
+      body?.organizationName?.trim() &&
+      body?.therapyArea &&
+      body?.region &&
+      body?.employmentType &&
+      body?.content?.trim() &&
+      body?.sourceUrl?.trim() &&
+      body?.deadlineDate;
+    if (!required) {
+      return HttpResponse.json(
+        { success: false, code: 'INVALID_INPUT', message: '필수 항목 누락' },
+        { status: 400 },
+      );
+    }
+
+    // 상시모집이면 sentinel 마감일로 강제(alwaysRecruiting=true가 deadlineDate 이김 — BE 합의).
+    const deadlineDate = body.alwaysRecruiting ? ALWAYS_OPEN_DEADLINE : body.deadlineDate;
+    const alwaysOpen = body.alwaysRecruiting === true;
+    const nextId = mockJobPosts.reduce((max, j) => Math.max(max, j.id), 0) + 1;
+
+    const therapyAreaLabel = THERAPY_AREA_LABELS[body.therapyArea] ?? body.therapyArea;
+    const employmentTypeLabel = EMPLOYMENT_TYPE_LABELS[body.employmentType];
+    // title은 요청에 없음 — 실제 BE가 서버에서 파생. 목에선 조직명+분야+고용형태로 근사.
+    const title = `${body.organizationName.trim()} ${therapyAreaLabel} ${employmentTypeLabel} 모집`;
+
+    const created: JobPostDetail = {
+      id: nextId,
+      title,
+      organizationName: body.organizationName.trim(),
+      therapyArea: body.therapyArea,
+      therapyAreaLabel,
+      region: body.region,
+      regionLabel: REGION_LABELS[body.region],
+      employmentType: body.employmentType,
+      employmentTypeLabel,
+      status: 'OPEN',
+      dday: computeDday(deadlineDate),
+      deadlineDate,
+      alwaysOpen,
+      content: body.content.trim(),
+      qualification: body.qualification?.trim() || null,
+      preferred: body.preferred?.trim() || null,
+      salaryText: body.salaryText?.trim() || null,
+      sourceUrl: body.sourceUrl.trim(),
+      authorNickname: '나',
+    };
+
+    mockJobPosts.unshift(created);
+    return HttpResponse.json({ success: true, data: created }, { status: 201 });
   }),
 ];

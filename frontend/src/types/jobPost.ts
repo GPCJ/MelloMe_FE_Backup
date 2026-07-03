@@ -48,7 +48,10 @@ export interface JobPostSummary {
   status: JobPostStatus;
   // 서버 계산값. 양수=남은 일수, 0=오늘 마감, 음수=마감, null=상시/미정.
   dday: number | null;
-  deadlineDate: string; // ISO date (YYYY-MM-DD)
+  deadlineDate: string; // ISO date (YYYY-MM-DD). 상시모집이면 sentinel(ALWAYS_OPEN_DEADLINE).
+  // 상시모집 판별 필드. BE가 sentinel 날짜(9999-12-31)에서 파생해 내려주기로 합의(2026-07-03).
+  // BE 미배포 구간에는 응답에 없을 수 있어 optional — utils/isAlwaysOpen이 sentinel/dday로 폴백.
+  alwaysOpen?: boolean;
 }
 
 // 상세 — Summary + 본문/자격/우대/급여/원문 링크.
@@ -75,4 +78,22 @@ export interface JobPostListParams {
   employmentType?: EmploymentType;
   cursor?: string;
   size?: number;
+}
+
+// 작성(Create) 요청 바디 — Phase 2. staging /v3/api-docs 실측 CreateJobPostRequest 기준.
+// 주의: title은 요청에 없음 — BE가 서버에서 파생(조직명+분야 등). 폼에 제목 입력칸 없음.
+// 상시모집: alwaysRecruiting=true면 deadlineDate에 sentinel(ALWAYS_OPEN_DEADLINE)을 실어 보냄.
+//   (alwaysRecruiting은 2026-07-03 BE 합의로 추가된 필드. 06-26 계약엔 없던 상시모집 지원.)
+export interface JobPostCreatePayload {
+  organizationName: string;
+  content: string;
+  therapyArea: TherapyArea;
+  employmentType: EmploymentType;
+  region: JobRegion;
+  sourceUrl: string; // 필수(≤500).
+  deadlineDate: string; // ISO(YYYY-MM-DD). 상시모집이면 ALWAYS_OPEN_DEADLINE.
+  alwaysRecruiting: boolean;
+  salaryText?: string;
+  qualification?: string;
+  preferred?: string;
 }

@@ -1,6 +1,7 @@
 import axiosInstance from './axiosInstance';
 import type {
   CursorPagedJobPosts,
+  JobPostCreatePayload,
   JobPostDetail,
   JobPostListParams,
 } from '../types/jobPost';
@@ -21,5 +22,14 @@ export async function fetchJobPostDetail(
   signal?: AbortSignal,
 ): Promise<JobPostDetail> {
   const res = await axiosInstance.get(`/job-posts/${id}`, { signal });
+  return res.data?.data ?? res.data;
+}
+
+// 구인공고 작성 — Phase 2. 현재 MSW 목이 응답(생성된 상세 반환).
+// BE POST /job-posts 계약 확정·배포 시 이 함수는 그대로 두고 MSW만 OFF하면 실통신.
+export async function createJobPost(
+  payload: JobPostCreatePayload,
+): Promise<JobPostDetail> {
+  const res = await axiosInstance.post('/job-posts', payload);
   return res.data?.data ?? res.data;
 }

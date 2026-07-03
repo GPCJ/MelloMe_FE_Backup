@@ -4,7 +4,7 @@ import { ExternalLink } from 'lucide-react';
 import NarrowPage from '../../components/common/NarrowPage';
 import PageHeader from '../../components/common/PageHeader';
 import JobStatusBadge from '../../components/jobpost/JobStatusBadge';
-import { ddayLabel, isClosed } from '../../utils/jobPost';
+import { ddayLabel, deadlineText, isAlwaysOpen, isClosed, isHttpUrl } from '../../utils/jobPost';
 import { fetchJobPostDetail } from '../../api/jobPosts';
 
 export default function JobPostDetailPage() {
@@ -23,7 +23,8 @@ export default function JobPostDetailPage() {
     enabled: !Number.isNaN(id),
   });
 
-  const closed = job ? isClosed(job.status, job.dday) : false;
+  const alwaysOpen = job ? isAlwaysOpen(job) : false;
+  const closed = job ? isClosed(job.status, job.dday, alwaysOpen) : false;
 
   return (
     <NarrowPage>
@@ -36,10 +37,10 @@ export default function JobPostDetailPage() {
         <div className="px-5 pb-10">
           {/* 상태 + D-day */}
           <div className="flex items-center gap-2 mb-2 mt-1">
-            <JobStatusBadge status={job.status} dday={job.dday} />
+            <JobStatusBadge status={job.status} dday={job.dday} alwaysOpen={alwaysOpen} />
             {!closed && (
               <span className="text-sm font-semibold text-emerald-600">
-                {ddayLabel(job.status, job.dday)}
+                {ddayLabel(job.status, job.dday, alwaysOpen)}
               </span>
             )}
           </div>
@@ -54,7 +55,7 @@ export default function JobPostDetailPage() {
             <MetaRow label="지역" value={job.regionLabel} />
             <MetaRow label="고용형태" value={job.employmentTypeLabel} />
             {job.salaryText && <MetaRow label="급여" value={job.salaryText} />}
-            <MetaRow label="마감" value={job.deadlineDate} />
+            <MetaRow label="마감" value={deadlineText(job)} />
           </dl>
 
           {/* 본문 */}
@@ -62,16 +63,19 @@ export default function JobPostDetailPage() {
           {job.qualification && <Section title="자격요건" body={job.qualification} />}
           {job.preferred && <Section title="우대사항" body={job.preferred} />}
 
-          {/* 아웃링크 CTA — Phase 1엔 플랫폼 내 지원 없음, 원문으로 이동 */}
-          <a
-            href={job.sourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-6 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gray-900 py-3 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
-          >
-            원문에서 지원하기
-            <ExternalLink size={16} />
-          </a>
+          {/* 아웃링크 CTA — http(s) 절대 URL일 때만 렌더. 스킴 없는 값은 SPA 내부 상대경로로
+              오인되고 javascript: 등은 클릭 시 실행되므로 isHttpUrl로 방어(폼 검증과 이중). */}
+          {isHttpUrl(job.sourceUrl) && (
+            <a
+              href={job.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-6 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gray-900 py-3 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+            >
+              원문에서 지원하기
+              <ExternalLink size={16} />
+            </a>
+          )}
         </div>
       )}
     </NarrowPage>

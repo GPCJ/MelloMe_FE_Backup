@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Building2 } from 'lucide-react';
 import type { JobPostSummary } from '../../types/jobPost';
 import JobStatusBadge from './JobStatusBadge';
-import { ddayLabel, isClosed } from '../../utils/jobPost';
+import { ddayLabel, isAlwaysOpen, isClosed } from '../../utils/jobPost';
 
 interface JobPostCardProps {
   job: JobPostSummary;
@@ -11,7 +11,8 @@ interface JobPostCardProps {
 }
 
 export default function JobPostCard({ job, backTo }: JobPostCardProps) {
-  const closed = isClosed(job.status, job.dday);
+  const alwaysOpen = isAlwaysOpen(job);
+  const closed = isClosed(job.status, job.dday, alwaysOpen);
   return (
     <Link
       to={`/job-posts/${job.id}`}
@@ -21,10 +22,10 @@ export default function JobPostCard({ job, backTo }: JobPostCardProps) {
       <div className="px-6 py-5 border-b border-gray-200 hover:bg-gray-50 transition-colors">
         {/* 1행: 상태 배지 + D-day */}
         <div className="flex items-center justify-between mb-2">
-          <JobStatusBadge status={job.status} dday={job.dday} />
+          <JobStatusBadge status={job.status} dday={job.dday} alwaysOpen={alwaysOpen} />
           {!closed && (
             <span className="text-xs font-semibold text-emerald-600">
-              {ddayLabel(job.status, job.dday)}
+              {ddayLabel(job.status, job.dday, alwaysOpen)}
             </span>
           )}
         </div>

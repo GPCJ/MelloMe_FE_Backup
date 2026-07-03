@@ -4,11 +4,13 @@ import { isClosed } from '../../utils/jobPost';
 export default function JobStatusBadge({
   status,
   dday,
+  alwaysOpen = false,
 }: {
   status: JobPostStatus;
   dday: number | null;
+  alwaysOpen?: boolean;
 }) {
-  const closed = isClosed(status, dday);
+  const closed = isClosed(status, dday, alwaysOpen);
   return (
     <span
       className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${

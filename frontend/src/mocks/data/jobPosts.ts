@@ -1,5 +1,9 @@
 import type { JobPostDetail } from '../../types/jobPost';
-import { REGION_LABELS, EMPLOYMENT_TYPE_LABELS } from '../../constants/jobPost';
+import {
+  REGION_LABELS,
+  EMPLOYMENT_TYPE_LABELS,
+  ALWAYS_OPEN_DEADLINE,
+} from '../../constants/jobPost';
 import { THERAPY_AREA_LABELS } from '../../constants/post';
 
 // 더미 구인공고 — staging 실데이터 0건이라 개발/표시 검증용.
@@ -18,9 +22,30 @@ type Seed = Pick<
   | 'content'
   | 'sourceUrl'
 > &
-  Partial<Pick<JobPostDetail, 'qualification' | 'preferred' | 'salaryText'>>;
+  Partial<
+    Pick<JobPostDetail, 'qualification' | 'preferred' | 'salaryText' | 'alwaysOpen'>
+  >;
 
 const seeds: Seed[] = [
+  {
+    id: 13,
+    title: '언어·인지 치료사 상시 채용',
+    organizationName: '느티나무발달지원센터',
+    therapyArea: 'SPEECH',
+    region: 'GYEONGGI',
+    employmentType: 'FULL_TIME',
+    status: 'OPEN',
+    // 상시모집: dday=null + sentinel 마감일 + alwaysOpen=true (BE 파생 필드 모사).
+    dday: null,
+    deadlineDate: ALWAYS_OPEN_DEADLINE,
+    alwaysOpen: true,
+    salaryText: '경력·자격에 따라 협의',
+    content:
+      '수원 소재 발달지원센터에서 언어·인지 치료사를 상시 모집합니다.\n\n정해진 마감 없이 상시 지원 가능하며, 결원 발생 시 순차 채용합니다.',
+    qualification: '관련 국가자격 또는 민간자격 소지자',
+    preferred: '아동 치료 경력자',
+    sourceUrl: 'https://example.com/jobs/13',
+  },
   {
     id: 12,
     title: '언어재활사 정규직 모집',
@@ -197,11 +222,13 @@ const seeds: Seed[] = [
   },
 ];
 
+// const 배열이지만 내용은 가변 — POST 핸들러(mocks/handlers)가 unshift로 새 공고를 최신 상단에 추가.
 export const mockJobPosts: JobPostDetail[] = seeds.map((s) => ({
   ...s,
   therapyAreaLabel: THERAPY_AREA_LABELS[s.therapyArea] ?? s.therapyArea,
   regionLabel: REGION_LABELS[s.region],
   employmentTypeLabel: EMPLOYMENT_TYPE_LABELS[s.employmentType],
+  alwaysOpen: s.alwaysOpen ?? false,
   qualification: s.qualification ?? null,
   preferred: s.preferred ?? null,
   salaryText: s.salaryText ?? null,
