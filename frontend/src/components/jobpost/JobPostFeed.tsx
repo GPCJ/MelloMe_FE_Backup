@@ -123,16 +123,17 @@ export default function JobPostFeed() {
 
       <div ref={sentinelRef} aria-hidden className="h-1" />
 
-      {/* 작성 FAB — 인증 치료사만. fixed라 피드 위에 떠 있는 맥락 작성 버튼.
-          모바일=BottomNav(fixed bottom-0) 위로 bottom-20, 데스크탑=콘텐츠 우측(Layout md:mx-20에 맞춰 md:right-24). */}
+      {/* 작성 확장형 FAB — 인증 치료사만. 알약 모양 + 텍스트 라벨로 정체 명확(벌거벗은 '+' 회피).
+          fixed라 피드 위에 떠 있음. 모바일=BottomNav(fixed bottom-0) 위로 bottom-20,
+          데스크탑=콘텐츠 우측(Layout md:mx-20에 맞춰 md:right-24). */}
       {canWrite && (
         <button
           type="button"
           onClick={() => navigate('/job-posts/new')}
-          aria-label="구인공고 작성"
-          className="fixed bottom-20 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white shadow-lg transition-transform hover:bg-black active:scale-95 md:bottom-8 md:right-24"
+          className="fixed bottom-20 right-5 z-30 flex items-center gap-1.5 rounded-full bg-gray-900 py-3 pl-4 pr-5 text-sm font-semibold text-white shadow-lg transition-transform hover:bg-black active:scale-95 md:bottom-8 md:right-24"
         >
-          <Plus size={24} />
+          <Plus size={18} />
+          구인공고 작성
         </button>
       )}
     </div>
