@@ -5,6 +5,7 @@
 - [개발 스타일 — 기능 구현 강, 설계 약 자각](./user_dev_style.md) / [디자인 패턴 학습 진입점 — 자리부터(왜>무엇), 싱글턴이 첫 사례](./user_design_pattern_learning.md)
 - [AI 의존 줄이기 — 코드 직접 작성](./user_self_coding_goal.md) / [협업 스타일 — AI 행동 규약 공동 설계형](./user_collab_style_meta.md)
 - [지식 흡수 — 이미지/구조 떠올라야 흡수](./user_comprehension_criterion.md) / [작업 집중 — 싱글태스크 + 스쳐가는 생각 캡처](./user_work_focus_pattern.md)
+- [Cursor 무거움 → 작은 로컬 편집(.env 등)은 내가 직접, "에디터에서 여세요" 금지](./user_cursor_heavy_prefer_direct_edits.md)
 - [코드 추적 — outside-in (호출부→선언부)](./user_code_navigation_style.md) / [Zustand/RQ 학습 — 단편 규칙 누적](./user_reactivity_libs_learning.md)
 - [AI 의존 불안 패턴 — 주기적 재출현, 4프레임 응답](./user_ai_dependency_anxiety.md)
 - **[코드 읽기 진단 — WHAT은 읽고 WHY는 건너뜀 (2026-06-02)](./user_code_reading_what_vs_why.md)** — 못 읽는 게 아니라 습관, risk 줄에만 "지우면 뭐 깨지지?", PR 부담=착시
@@ -14,22 +15,22 @@
 
 ## 작업 관리
 - **[개발 단계 = Post-MVP (MVP 2026-05-15 발표 완료)](./project_mvp_launch_2026_05_15.md)** — MVP 데드라인 제약 해제, 기능 확장기. CLAUDE.md도 Post-MVP 갱신
+- **[★ PM 스크럼 (06-29) — 마감 ~7/19, 모바일 후순위, 팔로우 삭제(백업후)](./project_pm_scrum_priority_2026_06_29.md)** — 기간 내 모바일 출시 불가 → Capacitor 트랙 보류. 목표=기존 기능 고도화로 유입·잔류율 수치 개선. 팔로우 삭제 범위/백업 방식 협의 중
 - **[★ 모바일 앱 = Capacitor C2 완료, RT 쿠키 이슈 발견 (MEL-72, 2026-06-19)](./project_capacitor_mobile_app_2026_06_11.md)** — appId=com.mellti.app. C2 iOS 시뮬 실행 ✅. **블로커: MEL-72** WKWebView cross-origin SameSite=Lax → RT 쿠키 전송 차단(401 실측). BE에 SameSite=None;Secure 변경 요청 중. 트리거 「Capacitor 이어가자」
 - **[리텐션 전략 — 도달 채널 부재가 갭 (2026-06-11)](./project_retention_strategy_reach_channels_2026_06_11.md)** — 알림이 앱 접속 중(SSE)에만 도달. 이메일 약함(한국)→카카오 알림톡(정보성)/친구톡(광고성) 구분+선행조건(🚧사업자등록·번호수집, FE는 번호폼만), Web Push=PWA게이트(iOS). 채널×돌아올이유(정기 활동지 리듬)
+- **[Web Push 알림 멘탈 모델 — 모바일 푸시와 동일 구조, 사용자 이해 완료/미구현 (2026-06-30)](./project_web_push_mental_model.md)** — 서버→푸시서비스(우체국, Chrome=FCM) 중계→SW(관리인)가 탭 꺼져도 토스트. 구독=사서함주소 발급+BE등록. SSE와 별개 외부채널. 추천 구현=A 하이브리드, BE Phase0(VAPID+발송) 선행. [[project_retention_strategy_reach_channels_2026_06_11]] 갭 채널
 - **[★ AI 코드 심층 버그 리뷰 결과 — 미열람 보관 (2026-06-20)](./project_ai_code_bug_review_2026_06_20.md)** — 4기능(팔로우/팔로우탭/라이트박스/고민카드) 다중에이전트 리뷰 확정 14건(MEDIUM 7/LOW 7)+반증 3. 본인 미열람, 트리거「심층 리뷰 결과 확인」. 추천 1순위=#1·#2 팔로우 캐시 결함
 - **[프론트 작업 백로그](./backlog.md)** — 데일리 태스크 선택용 단일 참조
   - **[★ 이미지 라이트박스 F-13 구현 박제 (인지부채 HIGH, 2026-06-09)](./project_image_lightbox_implementation_2026_06_09.md)** — develop `3b7c36d`. 직접 오버레이+핀치 줌(Pointer). 메커니즘 9개+자기점검 5개
 - **[★ Google OAuth 재도입 (옵션 D 합의, 백엔드 대기, 2026-05-19)](./project_google_oauth_reimplementation.md)** — Jira Story 박제 완료, 재개 트리거 「구글 OAuth 이어가자」
-- **[★ 쪽지(DM) — ✅ 핵심 4슬라이스 + 후속 4건 완료 (2026-06-05)](./project_messaging_feature.md)** — mailbox 모델. slice 0~3 develop 머지(PR #20·#21·#23). **후속 4건 push `6fb9527..54a9e3f`**: 상세 답장 입력(+Enter)/알림→상세 직행(Q1 referenceId=messageId 런타임 확정)/뱃지 SPA 미동기화 fix(상세 GET이 read:true→서버 재동기화)/탭 URL 보존(searchParams 양방향+backTo 분기). 뱃지=store(push)/목록=RQ(pull). **③ 프로필 사진=BE 블로킹**(MessageResponse 이미지 URL 부재, backlog F-10). 트리거 「쪽지 이어가자」
-- **[★ 팔로우 — ✅ prod 배포 완료 (develop→main `5654a96`, 2026-06-10)](./project_follow_feature.md)** — `/follow` 목록 2탭+언팔토글(정책A)+ProfilePage 카운트+드롭다운 팔로우+홈피드 팔로우 탭+NEW_FOLLOW SSE. **셀프 QA(Playwright 5/5 staging)로 머지**(팀 QA 부재). **F-14 아바타 ✅BE 풀URL 해결**. BE 잔여=F-12 맞팔 `following`뿐. 다음=F-15 후속(스크롤복원 store 일반화·backTo 파생화). 트리거 「팔로우 이어가자」
-  - **[⚠️ 팔로우 1차 구현 박제 (인지부채 HIGH, 2026-06-09)](./project_follow_implementation_2026_06_09.md)** — 다음 만지기 전 필독, 메커니즘 8개(이중 토글 경로·정책A·SSE invalidate·아바타 404 폴백) + 자기점검 질문 5개
-  - **[⚠️ 팔로우 탭(홈피드 접근 B) 구현 박제 (인지부채 HIGH, 2026-06-09)](./project_follow_feed_tab_implementation_2026_06_09.md)** — `feat/follow-feed-tab` 2커밋(PR 대기). 메커니즘 7개(useInfiniteFeed 일반화·이중 sentinel·탭 URL 보존·backTo Link state·cross-cache 패치)+자기점검 5개. 의도된 한계=팔로우 탭 스크롤 미복원·sort/필터 없음(BE)
-  - **[Playwright E2E 도입 — 팔로우 셀프 QA 자동화 (2026-06-10)](./project_playwright_e2e_setup_2026_06_10.md)** — 임시 학습 스펙(uncommitted). WSL libnspr4 등 누락→`install-deps`(sudo). 명령어 분해+인과 사슬, 노션 초안 후보. **F-14 아바타=BE 풀URL로 해결**. 셀프 QA 통과 후 develop→main 머지 예정
-- **[구인공고 — PM 기획 단계, FE는 카드피드형(A) 기움·미확정 (2026-06-09)](./project_job_posting_feature.md)** — 카드피드(A) vs 지도(B) 중 A 우세(기존패턴 재사용·B는 지도SDK 부담, PM도 위치 제1요소 의심). 미착수, A 확정+BE 공고스키마 후 배선. 곁가지=포인트/미션
-- **[고민 카드 — prod 머지/배포 완료, GA4 `post_created{postType:CONCERN_CARD}` 발사 ✓ (2026-05-29)](./project_concern_card_feature.md)** — develop→main merge `b1e944d`, GA4 prod 실측 ✓. PM Custom Dimension 등록 대기. 재개 「고민 카드 이어가자」
+- **[★ 쪽지(DM) — ✅ 핵심4+후속4 완료 (2026-06-05)](./project_messaging_feature.md)** — mailbox 모델(뱃지=store/목록=RQ). **③ 프로필 사진=BE 블로킹**(backlog F-10). 트리거 「쪽지 이어가자」
+- **[어드민 페이지 논의 — AI답변 승인 발단→구인공고 CRUD 통합 아이디어, PM 리텐션 리소스 우려 (2026-07-02)](./project_admin_page_discussion_2026_07_02.md)** — 스크럼 논의만, 미착수. 확정 시 FE는 BE계약·UI방향·구인공고CRUD통합 3개 준비. 어드민 착수 전 FE 리소스 투입 금지(passive)
+- **[★ 구인공고 — A확정, prod BE **엔드포인트 배포 확인**(07-04 실측), 크롤러 데이터만 남음](./project_job_posting_feature.md)** — 카드피드(A). Phase1 읽기전용 "구인"탭/상세 develop 유지, prod는 `1896774` revert로 제거됨. **07-04 실측: prod `/api/v1/job-posts` 풀 CRUD+close 배포됨, GET 200이나 items:[]**(크롤러 0건). 재배포 남은 조건=크롤러 실데이터 하나. 백업 `backup/main-with-jobposting-2026-06-30`. 곁가지=포인트/미션
+  - **[★ Phase2 작성(Create) 박제 (인지부채 HIGH, 2026-07-03)](./project_job_posting_phase2_create_implementation_2026_07_03.md)** — `7a17249` develop 머지, MSW 목만. 상시모집=sentinel `9999-12-31`+`alwaysOpen`. 메커니즘 10+자기점검 5. (07-06 stale정정: BE POST staging·prod 배포됨→"404" 전제 깨짐)
+  - **[★ Phase2 수정·삭제(U/D) 박제 (인지부채 HIGH, 전량 AI, 2026-07-06)](./project_job_posting_phase2_crud_ud_implementation_2026_07_06.md)** — PR #32 develop 머지(`075897b`). 리뷰1순위=`useJobPostMutations`(삭제만 removeQueries). 폼 create/edit 공용화. 마감(close)만 남음. 메커니즘 10+자기점검 6
+- **[고민 카드 — ✅ prod 배포, GA4 `post_created{CONCERN_CARD}` ✓ (2026-05-29)](./project_concern_card_feature.md)** — main `b1e944d`. PM Custom Dimension 등록 대기. 재개 「고민 카드 이어가자」
   - [자동완성 UX = 드롭다운 카드형(세로), 고스트 텍스트 폐기](./project_concern_autocomplete_dropdown_card.md)
   - **[Task 6~9 구현 박제 (인지부채 HIGH, 2026-05-29)](./project_concern_card_implementation_2026_05_29.md)** — 다음 만지기 전 필독, 메커니즘 7개 + 자기점검 질문 5개
-  - **[prod 후속 트리거 박제 (2026-05-30) + UT 피드백 반영 (2026-06-01, 06-02)](./project_concern_card_prod_followup_2026_05_30.md)** — 회귀 롤백/PM 핸드오프 + 모바일 UT 「작성완료 버튼」 푸터(develop `c7f9f10`) + UT2차 폼 입력 순서 View 일치(연령대→치료영역→진단명→본문)·기타 입력 삭제 ✅ **prod main(`d17ddbd`+`edd4b42`)+develop(`0376444`) 체리픽 반영 완료(06-03)**, 쪽지 slice 1 develop 보존, 기타 전면제거(수정폼+BE)는 backlog `F-07 [BE]`
 
 ## 프로젝트
 멜로미 — 발달장애 아동 치료사 커뮤니티 (MVP)
@@ -106,17 +107,13 @@
 - **[최우선]** [트레이드오프 설명 필수](./feedback_tradeoff_before_code.md) / [클린 커밋 히스토리](./feedback_clean_commit_history.md)
 - **[최우선]** [진단→이해→지시→조치 (과잉설명 금지)](./feedback_explain_before_act.md) / **[최우선]** [단계 단위 가이드 제시](./feedback_step_by_step_guidance.md)
 - **[Cursor 새 로직 가이드 = 복붙 가능한 작은 단위 평문 지시문](./feedback_cursor_paste_ready_units.md)** — blockquote/메타섹션 금지, diff 확인 후 다음 단위
-- **[백엔드 미확정 기능 = 뷰모델+로컬목으로 UI 선행, 추측계약 MSW 회피](./feedback_fe_ahead_of_backend_strategy.md)** — 와이어/통신부는 명세 후, 어댑터 격리
+- **[백엔드 미확정 기능 = 뷰모델+로컬목으로 UI 선행, 추측계약 MSW 회피](./feedback_fe_ahead_of_backend_strategy.md)** — 와이어/통신부는 명세 후, 어댑터 격리. **+MSW 더미 기능은 prod 머지 전 BE 엔드포인트 prod 배포 확인(prod=MSW OFF→404), 구인공고 사례**
 - **[최우선]** [단일 작업 집중 존중](./feedback_single_task_focus.md) — 곁가지는 notepad / **[자가 리뷰 중 선제 행동 금지 (2026-06-02)](./feedback_no_run_ahead_during_self_review.md)** — "내가 리뷰할게" 신호 시 대기
 - **[최우선]** [기능 작업 중 번들러/인프라 미수정](./feedback_scope_discipline_no_bundler_drift.md) / **[최우선]** [UI 통일은 명시 항목만](./feedback_ui_unification_scope.md) — 주변 UI 추론 확장 금지
 - [worktree base + gitignore 확인](./feedback_worktree_base_check.md)
 - **[AI 작성 코드 → 인지부채 HIGH 메모리 의무](./feedback_ai_written_code_cognitive_debt.md)** / [AI 코드 학습용 주석 워크플로우](./feedback_ai_code_learning_comments.md) / **[AI 50%+ 작업 후 소크라테스식 Q&A](./feedback_learning_gap_socratic_checkin.md)**
-- **[소크라테스 체크 형식 — 구체 API는 코드 발췌+키워드+변형 질문, React 모델은 추상 설명](./feedback_socratic_code_excerpt_pattern.md)**
-- **[AI 응답 대기 10초+ 시 집중력 흐트러져 — 소크라테스 Q&A default ❌, 배치 모드 우선 (2026-05-28)](./feedback_ai_response_latency_focus.md)**
-- **[React 개념 = 단일 비유 체계 누적 확장](./feedback_react_concept_layered_analogy.md)** — 집/우편함/메모/거주자 한 체계로 fiber·effect 전반, 재진술로 닫기
-- **[학습 중에는 산출물보다 본인 이해 우선](./feedback_learning_mode_understanding_over_drafts.md)** — "잘 안 들어온다" 신호 시 줄 단위 검증+비유로 전환
-- **[이해 안 된 표시 컴포넌트 = 임시 강제 렌더 시각 확인 패턴](./feedback_visual_check_temp_render_pattern.md)** — 더미 props로 단독 렌더 → dev 확인 → `git restore` 원복(커밋 X)
-- **[목업은 실제 앱 화면 재현 (와이어프레임 예시 맹신 금지) (2026-06-06)](./feedback_mockup_reflect_real_screens.md)** — 폰목업·스크린샷·온보딩 비주얼은 실제 컴포넌트 Read 후 필드·순서·버튼·색까지 맞춤. 추상 카드는 예외
+- **[소크라테스 체크 형식](./feedback_socratic_code_excerpt_pattern.md)** — 구체 API=코드발췌+변형질문/React=추상 / **[AI 응답 대기 10초+=배치 우선](./feedback_ai_response_latency_focus.md)** — 소크라테스 Q&A default ❌ / **[React 개념=단일 비유 체계](./feedback_react_concept_layered_analogy.md)** — 집/우편함/메모/거주자, 재진술로 닫기
+- **[학습 중 산출물보다 이해 우선](./feedback_learning_mode_understanding_over_drafts.md)** — "잘 안 들어온다" 시 줄단위+비유 / **[이해 안된 표시 컴포넌트=임시 강제 렌더](./feedback_visual_check_temp_render_pattern.md)** — 더미 props→dev확인→`git restore` / **[목업=실제 앱 화면 재현 (2026-06-06)](./feedback_mockup_reflect_real_screens.md)** — 컴포넌트 Read 후 필드·순서·색까지, 추상카드 예외
 - **[AI 산문 패턴 체크리스트](./feedback_ai_prose_patterns.md)** — em-dash·3의법칙·볼드콜론 등 / **[코드 설명은 파일:줄번호만, 본문에 코드 인라인 금지](./feedback_code_reference_path_line_only.md)** — IDE에서 직접 열어 보게
 - **[이원 독자 문서 파일 분리](./feedback_audience_split_docs.md)** — PM/개발자 하이브리드 X / **[한국어 ~합니다 통일](./feedback_korean_formal_tone_docs.md)**
 - [MVP 코드 수정 기준](./feedback_mvp_fix_criteria.md) / [UI 자체 결정 정책 — 디자이너 부재 (2026-05-22)](./feedback_ui_designer_confirm.md)
@@ -129,8 +126,7 @@
 - **[피그마 협업 워크플로우 통합 — 스크린샷·PNG 2x / 링크=요구사항 / React export semantic 변환 / 아이콘 SVG 추출+트랩 4종](./feedback_figma_workflow.md)**
 - **[노션 워크플로우 통합 — 업로드 승인·경로 / 날짜별 서브페이지 / 번호 fetch 확인 / 서브페이지 자기평가 / draft VSCode / /report-notion 재질문](./feedback_notion_workflow.md)** + [Notion 운영](./project_notion_page_policy.md) / 노션 스킬 정리 → wiki `2026-04-15-report-notion` (session-log)
 - [와이어프레임 색상 보수적](./feedback_wireframe_color.md) / [서버 에러 시 프론트 먼저](./feedback_backend_blame.md)
-- **[백엔드 자기수정 후 FE 톤 — 결백 변론 빼고 검증 자청](./feedback_team_chat_no_defensive_framing.md)** — 협업 채널에서 blame 공방 회피, forward-looking 한 줄
-- **[백엔드 "로깅 추가" 요청 = console-only vs 원격 수집(Sentry) 의도 먼저 확인](./feedback_clarify_logging_intent_console_vs_remote.md)** — 작업 규모 가르는 한 줄 확인 문구
+- **[백엔드 자기수정 후 FE 톤=검증 자청](./feedback_team_chat_no_defensive_framing.md)** — 결백 변론 빼고 forward-looking / **[백엔드 "로깅 추가"=console vs 원격(Sentry) 의도 먼저 확인](./feedback_clarify_logging_intent_console_vs_remote.md)** — 작업 규모 가르는 한 줄
 - [compact/clear 타이밍](./feedback_compact_timing.md) / [TS tsc -b](./feedback_ts_type_check.md)
 - [shadcn asChild 미지원](./feedback_shadcn_button_aschild.md) / [shadcn/ui 기본 사용](./feedback_shadcn_default.md)
 - [브랜치 main/develop](./feedback_branch_preference.md) / [credentials 갱신](./feedback_github_credentials_renewal.md)
@@ -140,17 +136,16 @@
 - **[fix 검증 시 baseline 측정 우선](./feedback_verify_fix_with_baseline.md)** — after-only 검증 금지 / **[브랜치 머지 여부=origin·PR 기준](./feedback_verify_merge_status_against_origin.md)** — 로컬 develop stale 단정 금지(linkify 오판 06-04)
 - **[분석 도구 환경 가드 grep 우선](./feedback_verify_analytics_env_gate_first.md)** — GA4/Clarity hostname/env 가드 추측 답변 금지, 사용자 자기 코드 기억이 우선
 - **[권장 전 사용자 컨디션 평가](./feedback_assess_user_state_before_rule.md)** / **[보조 기능이 핵심 의존성 메이저 업 끌면 회피](./feedback_dependency_blast_radius.md)**
-- **[정체는 대부분 의욕 문제 — 떠먹이지 말고 설득+잘게 쪼개 추진력 (2026-06-02)](./feedback_unblock_by_persuasion.md)**
-- **[AI 작성 코드 머지 불안 = 셀프 QA 2반 게이트 (2026-06-10)](./feedback_selfqa_merge_gate.md)** — "안 짠 것" vs "미완성" 분리 + 자동 e2e 동작회귀 + 박제 자기점검 오너십, 둘 다 통과=팀 QA 부재여도 머지 정당
+- **[정체는 대부분 의욕 문제 (2026-06-02)](./feedback_unblock_by_persuasion.md)** — 떠먹이지 말고 설득+잘게 쪼개 추진력 / **[AI 코드 머지 불안=셀프 QA 2반 게이트 (2026-06-10)](./feedback_selfqa_merge_gate.md)** — "안 짠 것"vs"미완성" 분리+자동 e2e+박제 오너십, 둘 다 통과=머지 정당
 - **[자리 비울 때(AFK) 자율 작업 + PR 리뷰 모드 (2026-06-11)](./feedback_afk_autonomous_pr_review_mode.md)** — unlock 미리 갱신 + 안전 기계적 작업만 자율 + 인지부채/실로직은 커밋 말고 PR(리뷰포인트·실행가이드·결정대기). 멈출 지점=기기·계정·실로직 결정 필요한 곳
 - **[셸 명령 안내는 절대경로로 (cwd 드리프트 방지, 2026-06-10)](./feedback_absolute_path_in_shell_guidance.md)** — frontend 서브폴더에서 상대경로 실패, `mel-unlock` alias
 - [코드 리뷰 severity triage — HIGH만 즉시](./feedback_review_triage_workflow.md) / [/code-review high — 큰 변경 누적 후 검증](./feedback_code_review_ultra_high_usage.md)
 - **[check-memory 포맷 확정 — [오늘①]/[대기★]/[대기] 태그+줄바꿈+자동stale감지 (2026-06-19)](./feedback_check_memory_format.md)**
 - [가드/임시대응 주석 스타일](./feedback_guard_comment_style.md) / **[vite plugin closeBundle 작업 전 wiki 검토](./feedback_vite_plugin_closeBundle_check.md)**
 - **[브랜치별 스크립트 테스트 함정](./feedback_branch_aware_script_test.md)** / [커맨드 범용 네이밍](./feedback_draft_notion_naming.md)
-- **[API 에러 처리 통합 — 에러 삼키지 말기 + 원인별 분기(401 인터셉터/500/네트워크)](./feedback_error_handling.md)**
-- **[폴백이 문제 가리지 않게 — 폴백 시 console.warn 원인 노출 (2026-06-09)](./feedback_fallback_log_to_avoid_masking.md)** — graceful 폴백(이니셜·기본값)이 검증 시 정상 오인 방지, 도메인 prefix 경고 로깅. error_handling의 UI-폴백 버전
+- **[API 에러 처리 통합](./feedback_error_handling.md)** — 삼키지 말고 원인별 분기(401/500/네트워크) / **[폴백이 문제 가리지 않게=console.warn 원인 노출 (2026-06-09)](./feedback_fallback_log_to_avoid_masking.md)** — graceful 폴백 정상 오인 방지, 도메인 prefix. error_handling의 UI-폴백 버전
 - [백엔드 필드 요청 전 스펙 확인](./feedback_backend_field_request_check.md) / [Explore 결과 검증](./feedback_explore_result_verification.md)
+- **[구현 착수 전 docs/ 기존 계획서 grep](./feedback_check_existing_plans_before_implementing.md)** — docs/superpowers/plans/에 실측 BE계약 박혀 있어 추측 구현 덮어씀(구인 Phase2 사례)
 - [GitHub Issues 기술부채](./feedback_github_issues.md) / **[이슈 채널 Jira로 전환 (구 airo GitHub 이슈)](./feedback_airo_issues_only.md)** — 2026-05-19~
 - [취업 경험 Notion](./feedback_career_documentation.md) / [Vercel SPA 라우팅](./feedback_vercel_spa_routing.md)
 - **[다른 직군 영향 작업 먼저](./feedback_cross_role_impact_priority.md)** / **[머지/배포 시 미완 기능 섞이면 "특정 기능 제외" 선택지 제시 (2026-06-07)](./feedback_offer_partial_scope_on_merge.md)**
@@ -180,10 +175,8 @@
 - GA4 + Clarity 학습 노트(인지부채 HIGH) → wiki `ga4-clarity-high-ai` (decision)
 - **[RQ 마이그레이션 구현 로그 — 인지부채 HIGH](./project_rq_migration_implementation.md)** — R-01a/b 완료, R-05 미착수
 - 유저 행동 수집 맥락 (개발자/PM) → wiki `ga4-clarity-dev` / `ga4-clarity-pm` (decision)
-- **[GA4 user_id 정책 — analyticsId 드롭](./project_analytics_user_id_decision.md)** — 익명 유지(client_id only) / **[/privacy 라우트 설계](./project_privacy_policy_page.md)** — Layout 밖 독립 / [README MVP 후](./project_readme_plan.md)
-
+- **[GA4 user_id 정책 — analyticsId 드롭](./project_analytics_user_id_decision.md)** — 익명 유지(client_id only) / **[/privacy 라우트 설계](./project_privacy_policy_page.md)** — Layout 밖 독립
 ## 폴더 / 초안
-- [프론트 폴더 구조 04-07](./project_folder_restructure.md) — components/pages 도메인별 하위
 - [노션 업로드 대기 초안](./notion_draft.md) — `/pull-mello` 후 확인 / [Jira 에픽/스토리 초안](./jira_draft.md) — 프로젝트 키 `MEL` 재확인
 
 ## 메모리 관리

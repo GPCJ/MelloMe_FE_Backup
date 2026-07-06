@@ -105,6 +105,12 @@ originSessionId: f733d60b-43f4-4c4c-be62-0deecb757652
   - 원인: `FollowUserResponse.profileImageUrl`이 풀 URL 아닌 **raw S3 키**(`xxxx.png`)로 와서 `resolveImageUrl`이 404 URL로 오해석 → 아바타 깨짐
   - 조치: BE가 작성자 이미지(`TherapyPostSummaryResponse.authorProfileImageUrl`)와 동일 URL 빌드를 `FollowUserResponse`에 적용 → **풀 URL 응답**. `/me/followers`·`/me/followings` 공유 DTO라 한 번에 해소. FE 변경 불필요(우회 안 함)
   - 잔존(무해): FE `UserAvatar` onError 이니셜 폴백(`cd556ac`)+`console.warn('[avatar] …')`(`eb8f469`)는 graceful degradation으로 유지
+- [ ] **F-16** 구인 탭 필터 줄 초소형 화면 겹침 — 우선순위 낮음 (2026-07-06)
+  - 증상: `JobPostFeed.tsx:55` 필터 줄이 `flex items-center gap-2`(no wrap)에 지역/고용형태 native `<select>`(각 `flex-1 min-w-0`) + "모집중만" 버튼 3개를 한 줄에 담음 → 화면 작은 기종에서 select가 최소폭 이하로 눌려 라벨("고용형태 전체")이 native 드롭다운 화살표와 겹치거나 잘림
+  - 범위: **초소형 화면 한정** — 일반 모바일 폭에선 정상 노출. 데이터/기능 영향 없음(표시만)
+  - 최소안: 필터 줄 `flex-wrap` + select `min-w-[7rem]`(좁으면 "모집중만"이 아래로 접힘) / 또는 지역·고용형태를 `grid grid-cols-2`로 묶고 "모집중만"을 별줄로
+  - 검증: 좁은 폭(≤360px, DevTools 디바이스)에서 라벨 안 잘림 + 일반 폭 회귀 없음
+  - 발견: 2026-07-06 실기기(소형) 스크린샷. 탭 UI 작업(`PostListPage`)과 별개, 미착수
 
 ### 리팩토링 / 마이그레이션 (미검증)
 - [x] **R-01a** ProfilePage 3탭 RQ 마이그레이션 완료 (2026-04-23, 커밋 924d55e + 0ba0523)
