@@ -14,9 +14,10 @@ import type { EmploymentType, JobRegion } from '../../types/jobPost';
 export default function JobPostFeed() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
-  // 작성 진입은 인증 치료사(THERAPIST/ADMIN)만 — ProfilePage:157의 isVerified 컨벤션 재사용.
-  // 일반 USER/비로그인은 버튼 미노출. (2026-07-06 결정: 인증 치료사 자유 작성)
-  const canWrite = user?.role === 'THERAPIST' || user?.role === 'ADMIN';
+  // 작성 진입은 로그인한 모든 유저(USER/THERAPIST/ADMIN). 비로그인만 미노출.
+  // (2026-07-06 결정 변경: 인증 치료사 한정 → 전체 유저 허용)
+  const canWrite =
+    user?.role === 'USER' || user?.role === 'THERAPIST' || user?.role === 'ADMIN';
 
   const [therapyArea, setTherapyArea] = useState<TherapyArea | ''>('');
   const [region, setRegion] = useState<JobRegion | ''>('');
