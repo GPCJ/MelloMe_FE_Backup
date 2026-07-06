@@ -88,13 +88,14 @@ export default function PostListPage() {
     fetchPage: ({ pageParam, signal }) =>
       fetchFeed({ size: 20, sort, ...(pageParam ? { cursor: pageParam } : {}), signal }),
     enabled: isInfiniteMode,
-    initialSnapshot: initialSnapshotRef.current?.tab === 'all'
-      ? {
-          items: initialSnapshotRef.current.items,
-          nextCursor: initialSnapshotRef.current.nextCursor,
-          hasNext: initialSnapshotRef.current.hasNext,
-        }
-      : undefined,
+    initialSnapshot:
+      initialSnapshotRef.current?.tab === 'all'
+        ? {
+            items: initialSnapshotRef.current.items,
+            nextCursor: initialSnapshotRef.current.nextCursor,
+            hasNext: initialSnapshotRef.current.hasNext,
+          }
+        : undefined,
     onError: () => setFeedFailed(true),
   });
 
@@ -258,64 +259,67 @@ export default function PostListPage() {
         }
       />
 
-      {/* 탭 */}
-      <div className="bg-white">
-        <div className="flex">
-          <button
-            onClick={() => handleTabChange('all')}
-            className={`flex-1 py-2 text-xs font-medium text-center transition-colors ${
-              activeTab === 'all'
-                ? 'text-neutral-950 border-b-2 border-black'
-                : 'text-gray-400 border-b border-gray-200'
-            }`}
-          >
-            전체 피드
-          </button>
-          <button
-            onClick={() => handleTabChange('jobs')}
-            className={`flex-1 py-2 text-xs font-medium text-center transition-colors ${
-              activeTab === 'jobs'
-                ? 'text-neutral-950 border-b-2 border-black'
-                : 'text-gray-400 border-b border-gray-200'
-            }`}
-          >
-            구인
-          </button>
+      {/* 탭 + 필터칩 + 정렬칩 — 스크롤해도 상단 고정(sticky). 상단에 fixed 요소 없어 top-0. */}
+      <div className="sticky top-0 z-20 bg-white">
+        {/* 탭 */}
+        <div className="bg-white">
+          <div className="flex gap-px">
+            <button
+              onClick={() => handleTabChange('all')}
+              className={`flex-1 py-2 text-sm font-medium text-center transition-colors ${
+                activeTab === 'all'
+                  ? 'bg-black text-white'
+                  : 'bg-white text-gray-500 hover:bg-neutral-600 hover:text-white hover:duration-500'
+              }`}
+            >
+              전체 피드
+            </button>
+            <button
+              onClick={() => handleTabChange('jobs')}
+              className={`flex-1 py-2 text-sm font-medium text-center transition-colors ${
+                activeTab === 'jobs'
+                  ? 'bg-black text-white'
+                  : 'bg-white text-gray-500 hover:bg-neutral-600 hover:text-white hover:duration-500'
+              }`}
+            >
+              구인
+            </button>
+          </div>
         </div>
+
+        {/* 필터 칩 — 전체 피드에서만 (팔로우 피드는 BE therapyArea 필터 미지원) */}
+        {activeTab === 'all' && (
+          <div className="p-4 bg-white border-b border-gray-200">
+            <FilterChips value={therapyArea} onChange={handleFilterClick} />
+          </div>
+        )}
+
+        {/* 정렬 전환 — 무한스크롤 모드(전체 피드 + 필터 없음)에서만 노출 */}
+        {isInfiniteMode && (
+          <div className="flex px-4 py-2 gap-2 border-b border-gray-200 bg-white">
+            <button
+              onClick={() => handleSortChange('LATEST')}
+              className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                sort === 'LATEST'
+                  ? 'bg-gray-900 text-white border-gray-900'
+                  : 'text-gray-500 border-gray-300 hover:border-gray-400'
+              }`}
+            >
+              최신순
+            </button>
+            <button
+              onClick={() => handleSortChange('POPULAR')}
+              className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                sort === 'POPULAR'
+                  ? 'bg-gray-900 text-white border-gray-900'
+                  : 'text-gray-500 border-gray-300 hover:border-gray-400'
+              }`}
+            >
+              인기순
+            </button>
+          </div>
+        )}
       </div>
-
-      {/* 필터 칩 — 전체 피드에서만 (팔로우 피드는 BE therapyArea 필터 미지원) */}
-      {activeTab === 'all' && (
-        <div className="p-4 bg-white border-b border-gray-200">
-          <FilterChips value={therapyArea} onChange={handleFilterClick} />
-        </div>
-      )}
-
-      {/* 정렬 전환 — 무한스크롤 모드(전체 피드 + 필터 없음)에서만 노출 */}
-      {isInfiniteMode && (
-        <div className="flex px-4 py-2 gap-2 border-b border-gray-200 bg-white">
-          <button
-            onClick={() => handleSortChange('LATEST')}
-            className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-              sort === 'LATEST'
-                ? 'bg-gray-900 text-white border-gray-900'
-                : 'text-gray-500 border-gray-300 hover:border-gray-400'
-            }`}
-          >
-            최신순
-          </button>
-          <button
-            onClick={() => handleSortChange('POPULAR')}
-            className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-              sort === 'POPULAR'
-                ? 'bg-gray-900 text-white border-gray-900'
-                : 'text-gray-500 border-gray-300 hover:border-gray-400'
-            }`}
-          >
-            인기순
-          </button>
-        </div>
-      )}
 
       {/* 피드 콘텐츠 */}
       {activeTab === 'jobs' ? (
