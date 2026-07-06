@@ -89,20 +89,6 @@ export default function JobPostFeed() {
         </div>
       </div>
 
-      {/* 작성 진입 — 인증 치료사만. fixed FAB 대신 콘텐츠 흐름 안(필터 아래·목록 위)에 배치. */}
-      {canWrite && (
-        <div className="px-4 py-3 border-b border-gray-200">
-          <button
-            type="button"
-            onClick={() => navigate('/job-posts/new')}
-            className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-gray-900 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-black"
-          >
-            <Plus size={16} />
-            구인공고 작성
-          </button>
-        </div>
-      )}
-
       {/* 목록 */}
       {feed.isLoading
         ? Array.from({ length: 4 }).map((_, i) => <JobPostCardSkeleton key={i} />)
@@ -136,6 +122,20 @@ export default function JobPostFeed() {
       )}
 
       <div ref={sentinelRef} aria-hidden className="h-1" />
+
+      {/* 작성 확장형 FAB — 인증 치료사만. 알약 모양 + 텍스트 라벨로 정체 명확(벌거벗은 '+' 회피).
+          fixed라 피드 위에 떠 있음. 모바일=BottomNav(fixed bottom-0) 위로 bottom-20,
+          데스크탑=콘텐츠 우측(Layout md:mx-20에 맞춰 md:right-24). */}
+      {canWrite && (
+        <button
+          type="button"
+          onClick={() => navigate('/job-posts/new')}
+          className="fixed bottom-20 right-5 z-30 flex items-center gap-1.5 rounded-full bg-gray-900 py-3 pl-4 pr-5 text-sm font-semibold text-white shadow-lg transition-transform hover:bg-black active:scale-95 md:bottom-8 md:right-24"
+        >
+          <Plus size={18} />
+          구인공고 작성
+        </button>
+      )}
     </div>
   );
 }
