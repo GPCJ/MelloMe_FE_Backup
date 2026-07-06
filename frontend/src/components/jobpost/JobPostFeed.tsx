@@ -49,20 +49,6 @@ export default function JobPostFeed() {
 
   return (
     <div className="bg-white">
-      {/* 작성 진입 — 인증 치료사만 노출 */}
-      {canWrite && (
-        <div className="flex justify-end px-4 pt-3">
-          <button
-            type="button"
-            onClick={() => navigate('/job-posts/new')}
-            className="flex items-center gap-1 rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-black"
-          >
-            <Plus size={14} />
-            구인공고 작성
-          </button>
-        </div>
-      )}
-
       {/* 필터 */}
       <div className="p-4 border-b border-gray-200 space-y-3">
         <FilterChips value={therapyArea} onChange={setTherapyArea} />
@@ -136,6 +122,19 @@ export default function JobPostFeed() {
       )}
 
       <div ref={sentinelRef} aria-hidden className="h-1" />
+
+      {/* 작성 FAB — 인증 치료사만. fixed라 피드 위에 떠 있는 맥락 작성 버튼.
+          모바일=BottomNav(fixed bottom-0) 위로 bottom-20, 데스크탑=콘텐츠 우측(Layout md:mx-20에 맞춰 md:right-24). */}
+      {canWrite && (
+        <button
+          type="button"
+          onClick={() => navigate('/job-posts/new')}
+          aria-label="구인공고 작성"
+          className="fixed bottom-20 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white shadow-lg transition-transform hover:bg-black active:scale-95 md:bottom-8 md:right-24"
+        >
+          <Plus size={24} />
+        </button>
+      )}
     </div>
   );
 }
