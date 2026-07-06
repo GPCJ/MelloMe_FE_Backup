@@ -1,14 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import FilterChips from '../common/FilterChips';
 import JobPostCard from './JobPostCard';
 import { useInfiniteJobPosts } from '../../hooks/useInfiniteJobPosts';
 import { REGION_FILTER_OPTIONS, EMPLOYMENT_FILTER_OPTIONS } from '../../constants/jobPost';
+import { useAuthStore } from '../../stores/useAuthStore';
 import type { TherapyArea } from '../../types/post';
 import type { EmploymentType, JobRegion } from '../../types/jobPost';
 
 // 홈피드 "구인" 탭 본문. PostListPage의 PostSummary 머신과 격리 — 자체 데이터/필터/카드 소유.
 // 필터는 로컬 state(Phase 1). 뒤로가기 시 필터 복원은 미지원(범위 밖).
 export default function JobPostFeed() {
+  const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  // 작성 진입은 인증 치료사(THERAPIST/ADMIN)만 — ProfilePage:157의 isVerified 컨벤션 재사용.
+  // 일반 USER/비로그인은 버튼 미노출. (2026-07-06 결정: 인증 치료사 자유 작성)
+  const canWrite = user?.role === 'THERAPIST' || user?.role === 'ADMIN';
+
   const [therapyArea, setTherapyArea] = useState<TherapyArea | ''>('');
   const [region, setRegion] = useState<JobRegion | ''>('');
   const [employmentType, setEmploymentType] = useState<EmploymentType | ''>('');
@@ -40,6 +49,20 @@ export default function JobPostFeed() {
 
   return (
     <div className="bg-white">
+      {/* 작성 진입 — 인증 치료사만 노출 */}
+      {canWrite && (
+        <div className="flex justify-end px-4 pt-3">
+          <button
+            type="button"
+            onClick={() => navigate('/job-posts/new')}
+            className="flex items-center gap-1 rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-black"
+          >
+            <Plus size={14} />
+            구인공고 작성
+          </button>
+        </div>
+      )}
+
       {/* 필터 */}
       <div className="p-4 border-b border-gray-200 space-y-3">
         <FilterChips value={therapyArea} onChange={setTherapyArea} />
