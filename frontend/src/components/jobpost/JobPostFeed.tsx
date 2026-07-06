@@ -123,18 +123,24 @@ export default function JobPostFeed() {
 
       <div ref={sentinelRef} aria-hidden className="h-1" />
 
-      {/* 작성 확장형 FAB — 인증 치료사만. 알약 모양 + 텍스트 라벨로 정체 명확(벌거벗은 '+' 회피).
-          fixed라 피드 위에 떠 있음. 모바일=BottomNav(fixed bottom-0) 위로 bottom-20,
-          데스크탑=콘텐츠 우측(Layout md:mx-20에 맞춰 md:right-24). */}
+      {/* 작성 확장형 FAB — 인증 치료사만. 스크롤해도 콘텐츠 열 우측 하단에 고정.
+          뷰포트 오른쪽 끝이 아니라 칼럼 우측에 붙도록, 콘텐츠와 동일한 래퍼로 감쌈:
+          바깥 fixed 스트립(md:mx-20 = main 여백) → 안쪽 mx-auto max-w-3xl(PostListPage 칼럼 폭) → justify-end.
+          스트립은 pointer-events-none, 버튼만 pointer-events-auto라 뒤 콘텐츠 클릭 안 막음.
+          모바일=BottomNav(fixed bottom-0) 위로 bottom-20, 데스크탑=bottom-8. */}
       {canWrite && (
-        <button
-          type="button"
-          onClick={() => navigate('/job-posts/new')}
-          className="fixed bottom-20 right-5 z-30 flex items-center gap-1.5 rounded-full bg-gray-900 py-3 pl-4 pr-5 text-sm font-semibold text-white shadow-lg transition-transform hover:bg-black active:scale-95 md:bottom-8 md:right-24"
-        >
-          <Plus size={18} />
-          구인공고 작성
-        </button>
+        <div className="pointer-events-none fixed inset-x-0 bottom-20 z-30 md:mx-20 md:bottom-8">
+          <div className="mx-auto flex max-w-3xl justify-end px-4">
+            <button
+              type="button"
+              onClick={() => navigate('/job-posts/new')}
+              className="pointer-events-auto flex items-center gap-1.5 rounded-full bg-gray-900 py-3 pl-4 pr-5 text-sm font-semibold text-white shadow-lg transition-transform hover:bg-black active:scale-95"
+            >
+              <Plus size={18} />
+              구인공고 작성
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
