@@ -4,6 +4,7 @@ import type {
   JobPostCreatePayload,
   JobPostDetail,
   JobPostListParams,
+  JobPostUpdatePayload,
 } from '../types/jobPost';
 
 // 구인공고 목록 — cursor 페이지네이션 + 필터(status/therapyArea/region/employmentType).
@@ -32,4 +33,18 @@ export async function createJobPost(
 ): Promise<JobPostDetail> {
   const res = await axiosInstance.post('/job-posts', payload);
   return res.data?.data ?? res.data;
+}
+
+// 수정 — Phase 2. PATCH /job-posts/{id}. 응답은 갱신된 상세(create와 동일 형태).
+export async function updateJobPost(
+  id: number,
+  payload: JobPostUpdatePayload,
+): Promise<JobPostDetail> {
+  const res = await axiosInstance.patch(`/job-posts/${id}`, payload);
+  return res.data?.data ?? res.data;
+}
+
+// 삭제 — Phase 2. DELETE /job-posts/{id}. 응답 바디 없음(204).
+export async function deleteJobPost(id: number): Promise<void> {
+  await axiosInstance.delete(`/job-posts/${id}`);
 }

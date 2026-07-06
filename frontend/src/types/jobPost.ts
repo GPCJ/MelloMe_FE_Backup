@@ -62,6 +62,10 @@ export interface JobPostDetail extends JobPostSummary {
   salaryText?: string | null;
   sourceUrl: string; // AI 큐레이션 원문 URL. Phase 1의 "지원" = 이 링크로 아웃링크.
   authorNickname?: string | null;
+  // 권한 플래그(Phase 2) — BE가 상세 응답에 내려주는 "이 사용자가 수정/삭제할 수 있나".
+  // FE는 롤을 직접 판정하지 않고 이 값으로 수정·삭제 버튼 노출을 분기. BE 미배포 구간엔
+  // 응답에 없을 수 있어 optional — 없으면 버튼 미노출(JobPostActions가 falsy 처리).
+  canEdit?: boolean;
 }
 
 export interface CursorPagedJobPosts {
@@ -97,3 +101,8 @@ export interface JobPostCreatePayload {
   qualification?: string;
   preferred?: string;
 }
+
+// 수정(Update) 요청 바디 — staging 실측상 UpdateJobPostRequest는 CreateJobPostRequest와 동일 필드.
+// 별도 인터페이스로 두면 계약이 갈라질 때 create만 바꿔도 update가 따라오지 않아 drift 위험 →
+// 의도적으로 alias. 계약이 실제로 갈라지면 그때 독립 인터페이스로 분리.
+export type JobPostUpdatePayload = JobPostCreatePayload;

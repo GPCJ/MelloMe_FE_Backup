@@ -4,6 +4,7 @@ import { ExternalLink } from 'lucide-react';
 import NarrowPage from '../../components/common/NarrowPage';
 import PageHeader from '../../components/common/PageHeader';
 import JobStatusBadge from '../../components/jobpost/JobStatusBadge';
+import JobPostActions from '../../components/jobpost/JobPostActions';
 import { ddayLabel, deadlineText, isAlwaysOpen, isClosed, isHttpUrl } from '../../utils/jobPost';
 import { fetchJobPostDetail } from '../../api/jobPosts';
 
@@ -76,6 +77,9 @@ export default function JobPostDetailPage() {
               <ExternalLink size={16} />
             </a>
           )}
+
+          {/* 수정/삭제 액션 — 권한(canEdit) 있을 때만 렌더(컴포넌트 내부에서 게이트). */}
+          <JobPostActions job={job} />
         </div>
       )}
     </NarrowPage>

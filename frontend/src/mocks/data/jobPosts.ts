@@ -233,4 +233,6 @@ export const mockJobPosts: JobPostDetail[] = seeds.map((s) => ({
   preferred: s.preferred ?? null,
   salaryText: s.salaryText ?? null,
   authorNickname: 'Mellti AI',
+  // 목에선 항상 수정/삭제 가능하게 노출(dev에서 액션바 검증용). 실제 BE가 권한 판정해 내려줌.
+  canEdit: true,
 }));
