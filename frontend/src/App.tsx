@@ -15,6 +15,7 @@ import PostDetailPage from './pages/post/PostDetailPage';
 import PostCreatePage from './pages/post/PostCreatePage';
 import JobPostDetailPage from './pages/jobpost/JobPostDetailPage';
 import JobPostCreatePage from './pages/jobpost/JobPostCreatePage';
+import JobPostEditPage from './pages/jobpost/JobPostEditPage';
 import PostEditPage from './pages/post/PostEditPage';
 import CommentWritePage from './pages/post/CommentWritePage';
 import CommentDetailPage from './pages/post/CommentDetailPage';
@@ -102,6 +103,7 @@ function App() {
             <Route path="/posts/new" element={<PostCreatePage />} />
             <Route path="/job-posts/new" element={<JobPostCreatePage />} />
             <Route path="/job-posts/:jobPostId" element={<JobPostDetailPage />} />
+            <Route path="/job-posts/:jobPostId/edit" element={<JobPostEditPage />} />
             <Route path="/posts/:postId/edit" element={<PostEditPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/notifications" element={<NotificationPage />} />

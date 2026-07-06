@@ -1,4 +1,11 @@
-import type { JobPostStatus, JobPostSummary } from '../types/jobPost';
+import type {
+  EmploymentType,
+  JobPostDetail,
+  JobPostStatus,
+  JobPostSummary,
+  JobRegion,
+} from '../types/jobPost';
+import type { TherapyArea } from '../types/post';
 import { ALWAYS_OPEN_DEADLINE } from '../constants/jobPost';
 
 // 상시모집 판별 — BE alwaysOpen 우선, 미배포 구간엔 sentinel 날짜/ null dday로 방어적 폴백.
@@ -53,4 +60,41 @@ export function isHttpUrl(value: string): boolean {
   } catch {
     return false;
   }
+}
+
+// 작성/수정 공용 폼(JobPostForm)의 원시 필드 상태 shape.
+// payload와 다른 점: therapyArea/employmentType은 미선택(null)·region은 미선택('')을 표현하고,
+// alwaysRecruiting은 체크박스라 deadlineDate와 별도로 들고 감(제출 시 payload로 정규화).
+export interface JobPostFormValues {
+  organizationName: string;
+  therapyArea: TherapyArea | null;
+  region: JobRegion | '';
+  employmentType: EmploymentType | null;
+  alwaysRecruiting: boolean;
+  deadlineDate: string;
+  content: string;
+  qualification: string;
+  preferred: string;
+  salaryText: string;
+  sourceUrl: string;
+}
+
+// 수정 화면 prefill용 — 상세 응답을 폼 값으로 변환.
+// 상시모집이면 alwaysRecruiting=true로 켜고 deadlineDate는 비움(체크박스가 sentinel을 담당,
+// 실제 저장된 sentinel '9999-12-31'을 date input에 넣지 않으려는 것).
+export function jobPostToFormValues(job: JobPostDetail): JobPostFormValues {
+  const always = isAlwaysOpen(job);
+  return {
+    organizationName: job.organizationName,
+    therapyArea: job.therapyArea,
+    region: job.region,
+    employmentType: job.employmentType,
+    alwaysRecruiting: always,
+    deadlineDate: always ? '' : job.deadlineDate,
+    content: job.content,
+    qualification: job.qualification ?? '',
+    preferred: job.preferred ?? '',
+    salaryText: job.salaryText ?? '',
+    sourceUrl: job.sourceUrl,
+  };
 }

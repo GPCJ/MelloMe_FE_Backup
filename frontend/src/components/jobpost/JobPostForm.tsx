@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
-import type { EmploymentType, JobRegion } from '../../types/jobPost';
+import type {
+  EmploymentType,
+  JobRegion,
+  JobPostCreatePayload,
+} from '../../types/jobPost';
 import type { TherapyArea } from '../../types/post';
 import {
   EMPLOYMENT_TYPE_LABELS,
@@ -8,31 +12,55 @@ import {
   ALWAYS_OPEN_DEADLINE,
 } from '../../constants/jobPost';
 import { THERAPY_CHIPS } from '../../constants/post';
-import { createJobPost } from '../../api/jobPosts';
-import { isHttpUrl } from '../../utils/jobPost';
+import { isHttpUrl, type JobPostFormValues } from '../../utils/jobPost';
 
 const NAME_MAX = 100;
 const CONTENT_MAX = 2000;
 
+const EMPTY_VALUES: JobPostFormValues = {
+  organizationName: '',
+  therapyArea: null,
+  region: '',
+  employmentType: null,
+  alwaysRecruiting: false,
+  deadlineDate: '',
+  content: '',
+  qualification: '',
+  preferred: '',
+  salaryText: '',
+  sourceUrl: '',
+};
+
 interface JobPostFormProps {
-  // 작성 성공 후 호출 — 컨테이너(JobPostCreatePage)가 캐시 무효화 + 상세로 navigate.
-  onSuccess: (id: number) => void;
+  // 미지정=작성(빈 폼), 지정=수정(prefill).
+  initialValues?: JobPostFormValues;
+  submitLabel?: string;
+  // 검증 통과 후 정규화된 payload로 호출 — 컨테이너가 생성/수정 mutation + navigate 담당.
+  // 실패 시 throw하면 폼이 잡아 에러 문구를 노출(제출 상태 해제).
+  onSubmit: (payload: JobPostCreatePayload) => Promise<void>;
 }
 
-// Phase 2 구인공고 작성 폼. ConcernForm의 plain-useState 패턴을 따름(폼 라이브러리 미사용).
-// 페이지 chrome(헤더/래퍼)은 상위 JobPostCreatePage가 소유, 이 컴포넌트는 필드 + 제출만 담당.
-export default function JobPostForm({ onSuccess }: JobPostFormProps) {
-  const [organizationName, setOrganizationName] = useState('');
-  const [therapyArea, setTherapyArea] = useState<TherapyArea | null>(null);
-  const [region, setRegion] = useState<JobRegion | ''>('');
-  const [employmentType, setEmploymentType] = useState<EmploymentType | null>(null);
-  const [alwaysRecruiting, setAlwaysRecruiting] = useState(false);
-  const [deadlineDate, setDeadlineDate] = useState('');
-  const [content, setContent] = useState('');
-  const [qualification, setQualification] = useState('');
-  const [preferred, setPreferred] = useState('');
-  const [salaryText, setSalaryText] = useState('');
-  const [sourceUrl, setSourceUrl] = useState('');
+// Phase 2 구인공고 작성/수정 공용 폼. ConcernForm의 plain-useState 패턴(폼 라이브러리 미사용).
+// 페이지 chrome(헤더/래퍼)은 상위 페이지가 소유, 이 컴포넌트는 필드 + 검증 + 제출 위임만 담당.
+export default function JobPostForm({
+  initialValues,
+  submitLabel = '공고 등록',
+  onSubmit,
+}: JobPostFormProps) {
+  const init = initialValues ?? EMPTY_VALUES;
+  const [organizationName, setOrganizationName] = useState(init.organizationName);
+  const [therapyArea, setTherapyArea] = useState<TherapyArea | null>(init.therapyArea);
+  const [region, setRegion] = useState<JobRegion | ''>(init.region);
+  const [employmentType, setEmploymentType] = useState<EmploymentType | null>(
+    init.employmentType,
+  );
+  const [alwaysRecruiting, setAlwaysRecruiting] = useState(init.alwaysRecruiting);
+  const [deadlineDate, setDeadlineDate] = useState(init.deadlineDate);
+  const [content, setContent] = useState(init.content);
+  const [qualification, setQualification] = useState(init.qualification);
+  const [preferred, setPreferred] = useState(init.preferred);
+  const [salaryText, setSalaryText] = useState(init.salaryText);
+  const [sourceUrl, setSourceUrl] = useState(init.sourceUrl);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,7 +100,7 @@ export default function JobPostForm({ onSuccess }: JobPostFormProps) {
     setSubmitting(true);
     setError(null);
     try {
-      const created = await createJobPost({
+      await onSubmit({
         organizationName: organizationName.trim(),
         content: content.trim(),
         therapyArea,
@@ -86,10 +114,10 @@ export default function JobPostForm({ onSuccess }: JobPostFormProps) {
         qualification: qualification.trim() || undefined,
         preferred: preferred.trim() || undefined,
       });
-      onSuccess(created.id);
+      // 성공 후 네비게이션/캐시 무효화는 컨테이너(onSubmit) 책임 — 폼은 여기서 끝.
     } catch (err) {
-      console.error('[jobpost] createJobPost 실패(JobPostForm)', err);
-      setError('구인공고 작성에 실패했습니다. 다시 시도해주세요.');
+      console.error('[jobpost] 공고 저장 실패(JobPostForm)', err);
+      setError('저장에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setSubmitting(false);
     }
@@ -255,7 +283,7 @@ export default function JobPostForm({ onSuccess }: JobPostFormProps) {
         aria-disabled={!canSubmit}
         className="mt-2 w-full rounded-lg bg-gray-900 py-3 text-sm font-semibold text-white transition-colors hover:bg-black aria-disabled:bg-gray-200 aria-disabled:text-gray-400 aria-disabled:hover:bg-gray-200 aria-disabled:cursor-not-allowed"
       >
-        {submitting ? '등록 중…' : '공고 등록'}
+        {submitting ? '저장 중…' : submitLabel}
       </button>
     </div>
   );

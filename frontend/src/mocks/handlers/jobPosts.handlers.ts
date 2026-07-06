@@ -150,9 +150,74 @@ export const jobPostsHandlers = [
       salaryText: body.salaryText?.trim() || null,
       sourceUrl: body.sourceUrl.trim(),
       authorNickname: '나',
+      canEdit: true,
     };
 
     mockJobPosts.unshift(created);
     return HttpResponse.json({ success: true, data: created }, { status: 201 });
+  }),
+
+  // 수정(Update) — Phase 2. PATCH /job-posts/:id. 파생 필드(title/label/dday) 재계산 후 교체.
+  http.patch(`${API}/job-posts/:id`, async ({ params, request }) => {
+    const idx = mockJobPosts.findIndex((j) => j.id === Number(params.id));
+    if (idx === -1) {
+      return HttpResponse.json({ success: false, code: 'NOT_FOUND' }, { status: 404 });
+    }
+    const body = (await request.json()) as JobPostCreatePayload;
+
+    const required =
+      body?.organizationName?.trim() &&
+      body?.therapyArea &&
+      body?.region &&
+      body?.employmentType &&
+      body?.content?.trim() &&
+      body?.sourceUrl?.trim() &&
+      body?.deadlineDate;
+    if (!required) {
+      return HttpResponse.json(
+        { success: false, code: 'INVALID_INPUT', message: '필수 항목 누락' },
+        { status: 400 },
+      );
+    }
+
+    const deadlineDate = body.alwaysRecruiting ? ALWAYS_OPEN_DEADLINE : body.deadlineDate;
+    const alwaysOpen = body.alwaysRecruiting === true;
+    const therapyAreaLabel = THERAPY_AREA_LABELS[body.therapyArea] ?? body.therapyArea;
+    const employmentTypeLabel = EMPLOYMENT_TYPE_LABELS[body.employmentType];
+    const title = `${body.organizationName.trim()} ${therapyAreaLabel} ${employmentTypeLabel} 모집`;
+
+    // 기존 항목 기반으로 편집 필드만 덮어씀(id/status/authorNickname/canEdit 등은 유지).
+    const updated: JobPostDetail = {
+      ...mockJobPosts[idx],
+      title,
+      organizationName: body.organizationName.trim(),
+      therapyArea: body.therapyArea,
+      therapyAreaLabel,
+      region: body.region,
+      regionLabel: REGION_LABELS[body.region],
+      employmentType: body.employmentType,
+      employmentTypeLabel,
+      dday: computeDday(deadlineDate),
+      deadlineDate,
+      alwaysOpen,
+      content: body.content.trim(),
+      qualification: body.qualification?.trim() || null,
+      preferred: body.preferred?.trim() || null,
+      salaryText: body.salaryText?.trim() || null,
+      sourceUrl: body.sourceUrl.trim(),
+    };
+
+    mockJobPosts[idx] = updated;
+    return HttpResponse.json({ success: true, data: updated });
+  }),
+
+  // 삭제(Delete) — Phase 2. DELETE /job-posts/:id. 스토어에서 제거, 바디 없이 204.
+  http.delete(`${API}/job-posts/:id`, ({ params }) => {
+    const idx = mockJobPosts.findIndex((j) => j.id === Number(params.id));
+    if (idx === -1) {
+      return HttpResponse.json({ success: false, code: 'NOT_FOUND' }, { status: 404 });
+    }
+    mockJobPosts.splice(idx, 1);
+    return new HttpResponse(null, { status: 204 });
   }),
 ];
