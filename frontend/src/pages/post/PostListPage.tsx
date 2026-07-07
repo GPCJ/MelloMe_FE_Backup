@@ -19,6 +19,7 @@ import { useFeedScrollStore } from '@/stores/feedScrollStore';
 import { usePostWriteModalStore } from '@/stores/postWriteModalStore';
 import { useScreenExit } from '@/hooks/useScreenExit';
 import { useWelcomeModal } from '@/hooks/useWelcomeModal';
+import { trackEvent } from '../../lib/analytics';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 
 type FeedTab = 'all' | 'jobs';
@@ -191,6 +192,8 @@ export default function PostListPage() {
   }
 
   function handleTabChange(tab: FeedTab) {
+    // 구인 탭 클릭 추적(GA4). 일반 게시글엔 별도 이벤트가 없어 자연히 분리됨.
+    if (tab === 'jobs') trackEvent('job_tab_viewed');
     const next = new URLSearchParams(searchParams);
     if (tab === 'jobs') next.set('tab', 'jobs');
     else next.delete('tab');

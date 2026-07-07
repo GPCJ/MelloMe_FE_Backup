@@ -7,6 +7,7 @@ import JobStatusBadge from '../../components/jobpost/JobStatusBadge';
 import JobPostActions from '../../components/jobpost/JobPostActions';
 import { ddayLabel, deadlineText, isAlwaysOpen, isClosed, isHttpUrl } from '../../utils/jobPost';
 import { fetchJobPostDetail } from '../../api/jobPosts';
+import { trackEvent } from '../../lib/analytics';
 
 export default function JobPostDetailPage() {
   const { jobPostId } = useParams();
@@ -71,6 +72,8 @@ export default function JobPostDetailPage() {
               href={job.sourceUrl}
               target="_blank"
               rel="noopener noreferrer"
+              // '원문에서 지원하기' 아웃링크 클릭 추적(GA4).
+              onClick={() => trackEvent('job_apply_clicked', { jobPostId: job.id })}
               className="mt-6 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gray-900 py-3 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
             >
               원문에서 지원하기

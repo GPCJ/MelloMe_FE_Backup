@@ -3,6 +3,7 @@ import { Building2 } from 'lucide-react';
 import type { JobPostSummary } from '../../types/jobPost';
 import JobStatusBadge from './JobStatusBadge';
 import { ddayLabel, isAlwaysOpen, isClosed } from '../../utils/jobPost';
+import { trackEvent } from '../../lib/analytics';
 
 interface JobPostCardProps {
   job: JobPostSummary;
@@ -18,6 +19,8 @@ export default function JobPostCard({ job, backTo }: JobPostCardProps) {
       to={`/job-posts/${job.id}`}
       state={backTo ? { from: backTo } : undefined}
       className="block"
+      // 구인 게시글 클릭 추적(GA4). 일반 게시글 클릭과 다른 이벤트명이라 리포트에서 분리됨.
+      onClick={() => trackEvent('job_post_clicked', { jobPostId: job.id })}
     >
       <div className="px-6 py-5 border-b border-gray-200 hover:bg-gray-50 transition-colors">
         {/* 1행: 상태 배지 + D-day */}
