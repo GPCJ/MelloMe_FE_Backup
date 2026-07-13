@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Upload, PencilLine, LockOpen, MessageCircle, Heart } from 'lucide-react';
+import { ArrowLeft, Upload, PencilLine, LockOpen, Building2 } from 'lucide-react';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
 import { useScrollDepth } from '../../hooks/useScrollDepth';
@@ -91,6 +91,12 @@ export default function LandingPage() {
                 <br />
                 <span className="font-extrabold">모든 임상고민</span>이 여기에
               </h1>
+              <p
+                data-animate
+                className="mb-4 inline-block rounded-full bg-emerald-500 px-4 py-1.5 text-[0.9rem] font-bold text-white shadow-[0_2px_10px_rgba(16,185,129,0.3)]"
+              >
+                이제 대학병원·상급병원 공고도 한눈에!
+              </p>
               <p data-animate className="mb-7 text-[1.15rem] text-neutral-500">
                 치료사들의 성장 바다, <strong className="font-bold text-neutral-900">Mellti</strong>
               </p>
@@ -127,141 +133,234 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* 우측: 폰 목업 (실제 피드 화면 흉내, 정적) */}
-            <div data-animate className="relative flex justify-center">
-              <div className="w-[300px] rounded-[28px] border border-neutral-200 bg-white p-2.5 shadow-[0_16px_48px_rgba(0,0,0,0.12)] max-[900px]:w-[260px]">
-                <div className="mx-auto mb-2.5 mt-1 h-[5px] w-20 rounded-[10px] bg-neutral-200" />
-                <div className="min-h-[460px] overflow-hidden rounded-[20px] border border-[#eeeeee] bg-white p-3.5">
-                  <div className="pb-3 text-center text-[1.15rem] font-extrabold text-neutral-900">
-                    Mellti
-                  </div>
-                  {/* 탭 */}
-                  <div className="mb-3 flex border-b border-neutral-200">
-                    <span className="flex-1 border-b-2 border-neutral-900 py-2 text-center text-[0.75rem] font-medium text-neutral-900">
-                      전체 피드
-                    </span>
-                    <span className="flex-1 border-b-2 border-transparent py-2 text-center text-[0.75rem] font-medium text-neutral-400">
-                      팔로우
-                    </span>
-                  </div>
-                  {/* 필터 칩 */}
-                  <div className="mb-2.5 flex gap-[5px] overflow-hidden border-b border-neutral-200 pb-2.5">
-                    <span className="whitespace-nowrap rounded-full border border-neutral-900 bg-neutral-900 px-2.5 py-1 text-[0.6rem] font-medium text-white">
-                      전체
-                    </span>
-                    {['감각통합', '언어치료', '작업치료'].map((c) => (
-                      <span
-                        key={c}
-                        className="whitespace-nowrap rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-[0.6rem] font-medium text-neutral-950"
-                      >
-                        {c}
+            {/* 우측: 듀얼 폰 (좌=전체 피드 탭, 우=구인 탭). 900px↓ 세로 스택. */}
+            <div
+              data-animate
+              className="flex justify-center gap-5 max-[900px]:flex-col max-[900px]:items-center"
+            >
+              {/* 폰 A — 전체 피드 탭 (기존 목업 유지, 탭 라벨만 구인으로 수정) */}
+              <div className="flex flex-col items-center">
+                <div className="w-[260px] rounded-[28px] border border-neutral-200 bg-white p-2.5 shadow-[0_16px_48px_rgba(0,0,0,0.12)]">
+                  <div className="mx-auto mb-2.5 mt-1 h-[5px] w-20 rounded-[10px] bg-neutral-200" />
+                  <div className="min-h-[420px] overflow-hidden rounded-[20px] border border-[#eeeeee] bg-white p-3.5">
+                    <div className="pb-3 text-center text-[1.15rem] font-extrabold text-neutral-900">Mellti</div>
+                    <div className="mb-3 flex border-b border-neutral-200">
+                      <span className="flex-1 border-b-2 border-neutral-900 py-2 text-center text-[0.75rem] font-medium text-neutral-900">
+                        전체 피드
                       </span>
-                    ))}
-                  </div>
-                  {/* 정렬 */}
-                  <div className="mb-3 flex gap-2.5 border-b border-neutral-200 pb-2.5 text-[0.62rem] text-neutral-400">
-                    <span className="rounded-full border border-neutral-900 bg-neutral-900 px-2 py-[3px] font-medium text-white">
-                      최신순
-                    </span>
-                    <span className="rounded-full border border-neutral-300 px-2 py-[3px] text-neutral-500">
-                      인기순
-                    </span>
-                  </div>
-                  {/* 고민카드 글 */}
-                  <div className="border-b border-[#eeeeee] py-3">
-                    <div className="mb-2 flex items-center gap-2 text-[0.72rem]">
-                      <div className="h-7 w-7 rounded-full bg-neutral-300" />
-                      <span className="font-semibold text-neutral-900">숨이는 귀엽다</span>
-                      <span className="text-[0.6rem] text-neutral-400">1분 전</span>
-                      <svg
-                        className="ml-auto h-3.5 w-3.5 text-neutral-300"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden
-                      >
-                        <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
-                      </svg>
+                      <span className="flex-1 border-b-2 border-transparent py-2 text-center text-[0.75rem] font-medium text-neutral-400">
+                        구인
+                      </span>
                     </div>
-                    <div className="mb-2 overflow-hidden rounded-xl border border-neutral-200">
-                      {/* 헤더바 — 실제 ConcernCard와 동일(회색 바 + 원형 ? 뱃지) */}
-                      <div className="flex items-center gap-1.5 border-b border-neutral-100 bg-neutral-50 px-3 py-2">
-                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-neutral-800 text-[0.5rem] text-white">
-                          ?
-                        </span>
-                        <span className="text-[0.72rem] font-bold text-neutral-700">고민카드</span>
+                    {/* 고민카드 글 */}
+                    <div className="border-b border-[#eeeeee] py-3">
+                      <div className="mb-2 flex items-center gap-2 text-[0.72rem]">
+                        <div className="h-7 w-7 rounded-full bg-neutral-300" />
+                        <span className="font-semibold text-neutral-900">숨이는 귀엽다</span>
+                        <span className="text-[0.6rem] text-neutral-400">1분 전</span>
                       </div>
-                      <div className="px-3 py-2.5">
-                        <div className="mb-2.5">
-                          {[
-                            ['연령대', '유아기'],
-                            ['치료영역', '감각통합'],
-                          ].map(([label, value]) => (
-                            <div key={label} className="flex gap-2.5 py-[3px] text-[0.62rem]">
-                              <span className="min-w-[46px] font-semibold text-neutral-500">{label}</span>
-                              <span className="text-neutral-700">{value}</span>
-                            </div>
-                          ))}
-                          {/* 진단명 — 실제처럼 칩(pill)로 */}
-                          <div className="flex gap-2.5 py-[3px] text-[0.62rem]">
-                            <span className="min-w-[46px] font-semibold text-neutral-500">진단명</span>
-                            <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-neutral-700">
-                              자폐스펙트럼장애
-                            </span>
-                          </div>
+                      <div className="overflow-hidden rounded-xl border border-neutral-200">
+                        <div className="flex items-center gap-1.5 border-b border-neutral-100 bg-neutral-50 px-3 py-2">
+                          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-neutral-800 text-[0.5rem] text-white">
+                            ?
+                          </span>
+                          <span className="text-[0.72rem] font-bold text-neutral-700">고민카드</span>
                         </div>
-                        <div className="border-t border-neutral-100 pt-2 text-[0.65rem] leading-relaxed text-neutral-600">
+                        <div className="px-3 py-2.5 text-[0.65rem] leading-relaxed text-neutral-600">
                           <div className="mb-1 font-bold text-neutral-700">고민지점</div>
                           만 3세 asd 아동 조절 잡기 어려워서 글 씁니다
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 text-[0.65rem] text-neutral-400">
-                      <span className="flex items-center gap-1 font-medium text-neutral-500">
-                        <MessageCircle size={12} />0
-                      </span>
-                      <Heart size={13} />
-                    </div>
-                  </div>
-                  {/* 일반 글 */}
-                  <div className="py-3">
-                    <div className="mb-2 flex items-center gap-2 text-[0.72rem]">
-                      <div className="h-7 w-7 rounded-full bg-neutral-400" />
-                      <span className="font-semibold text-neutral-900">햄스터#2727</span>
-                      <span className="text-[0.6rem] text-neutral-400">8시간 전</span>
-                      <svg
-                        className="ml-auto h-3.5 w-3.5 text-neutral-300"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden
-                      >
-                        <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
-                      </svg>
-                    </div>
-                    <p className="mb-2 text-[0.7rem] leading-relaxed text-neutral-600">
-                      🚩 각 사이트별 최신 채용 공고 모음입니다!
-                    </p>
-                    <div className="flex items-center gap-3 text-[0.65rem] text-neutral-400">
-                      <span className="flex items-center gap-1 font-medium text-neutral-500">
-                        <MessageCircle size={12} />0
-                      </span>
-                      <Heart size={13} />
+                    {/* 일반 글 */}
+                    <div className="py-3">
+                      <div className="mb-2 flex items-center gap-2 text-[0.72rem]">
+                        <div className="h-7 w-7 rounded-full bg-neutral-400" />
+                        <span className="font-semibold text-neutral-900">햄스터#2727</span>
+                        <span className="text-[0.6rem] text-neutral-400">8시간 전</span>
+                      </div>
+                      <p className="text-[0.7rem] leading-relaxed text-neutral-600">📚 보수교육 일정 공유합니다</p>
                     </div>
                   </div>
                 </div>
+                <span className="mt-2.5 text-[0.8rem] font-semibold text-neutral-500">커뮤니티</span>
+              </div>
+
+              {/* 폰 B — 구인 탭 */}
+              <div className="flex flex-col items-center max-[900px]:mt-2">
+                <div className="w-[260px] rounded-[28px] border border-neutral-200 bg-white p-2.5 shadow-[0_16px_48px_rgba(0,0,0,0.12)]">
+                  <div className="mx-auto mb-2.5 mt-1 h-[5px] w-20 rounded-[10px] bg-neutral-200" />
+                  <div className="min-h-[420px] overflow-hidden rounded-[20px] border border-[#eeeeee] bg-white p-3.5">
+                    <div className="pb-3 text-center text-[1.15rem] font-extrabold text-neutral-900">Mellti</div>
+                    <div className="mb-3 flex border-b border-neutral-200">
+                      <span className="flex-1 border-b-2 border-transparent py-2 text-center text-[0.75rem] font-medium text-neutral-400">
+                        전체 피드
+                      </span>
+                      <span className="flex-1 border-b-2 border-neutral-900 py-2 text-center text-[0.75rem] font-medium text-neutral-900">
+                        구인
+                      </span>
+                    </div>
+                    {[
+                      { badge: 'D-12', title: '언어재활사 채용', org: '서울대학교병원', tags: ['언어치료', '서울', '정규직'] },
+                      { badge: 'D-5', title: '작업치료사 모집', org: '세브란스병원', tags: ['작업치료', '서울', '계약직'] },
+                    ].map((j, i) => (
+                      <div key={j.title} className={`py-3 ${i === 0 ? 'border-b border-[#eeeeee]' : ''}`}>
+                        <div className="mb-1.5 flex items-center justify-between">
+                          <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[0.6rem] font-medium text-emerald-600">
+                            모집중
+                          </span>
+                          <span className="text-[0.6rem] font-semibold text-emerald-600">{j.badge}</span>
+                        </div>
+                        <div className="mb-1 text-[0.78rem] font-bold text-neutral-950">{j.title}</div>
+                        <div className="mb-2 flex items-center gap-1 text-[0.65rem] text-neutral-500">
+                          <Building2 size={11} className="shrink-0" />
+                          <span>{j.org}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {j.tags.map((t) => (
+                            <span key={t} className="rounded-full bg-neutral-100 px-2 py-0.5 text-[0.55rem] text-neutral-600">
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <span className="mt-2.5 text-[0.8rem] font-semibold text-emerald-600">구인공고</span>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Feature ① 안전한 공간 / 인증 — 좌: 인증 화면 목업, 우: 텍스트. 900px↓ 1열(텍스트 먼저). */}
+        {/* Feature ① 구인공고 (신규·최상단) — 좌: 구인 탭 폰 목업, 우: 텍스트+CTA. 900px↓ 1열(텍스트 먼저). */}
+        <section
+          id="feature-jobs"
+          className="relative bg-neutral-50 px-6 py-[120px] max-[480px]:px-5 max-[480px]:py-20"
+        >
+          <div className="mx-auto grid max-w-[1100px] grid-cols-2 items-center gap-20 max-[900px]:grid-cols-1 max-[900px]:gap-12">
+            {/* 좌: 구인 탭 화면 축소 재현 (실제 JobPostFeed/JobPostCard 반영) */}
+            <div data-animate className="max-[900px]:order-2 max-[900px]:flex max-[900px]:justify-center">
+              <div className="w-[300px] rounded-[28px] border border-neutral-200 bg-white p-2.5 shadow-[0_16px_48px_rgba(0,0,0,0.12)] max-[900px]:w-[260px]">
+                <div className="mx-auto mb-2.5 mt-1 h-[5px] w-20 rounded-[10px] bg-neutral-200" />
+                <div className="min-h-[460px] overflow-hidden rounded-[20px] border border-[#eeeeee] bg-white p-3.5">
+                  <div className="pb-2 text-center text-[1.15rem] font-extrabold text-neutral-900">Mellti</div>
+                  {/* 탭 — 구인 활성 */}
+                  <div className="mb-2.5 flex border-b border-neutral-200">
+                    <span className="flex-1 border-b-2 border-transparent py-2 text-center text-[0.75rem] font-medium text-neutral-400">
+                      전체 피드
+                    </span>
+                    <span className="flex-1 border-b-2 border-neutral-900 py-2 text-center text-[0.75rem] font-medium text-neutral-900">
+                      구인
+                    </span>
+                  </div>
+                  {/* 필터 — 치료영역 칩 + 지역/고용형태 드롭다운 + 모집중만 토글 */}
+                  <div className="mb-2.5 border-b border-neutral-200 pb-2.5">
+                    <div className="mb-1.5 flex gap-[5px] overflow-hidden">
+                      <span className="whitespace-nowrap rounded-full border border-neutral-900 bg-neutral-900 px-2.5 py-1 text-[0.55rem] font-medium text-white">
+                        전체
+                      </span>
+                      {['감각통합', '언어치료', '작업치료'].map((c) => (
+                        <span
+                          key={c}
+                          className="whitespace-nowrap rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-[0.55rem] font-medium text-neutral-950"
+                        >
+                          {c}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="flex flex-1 items-center justify-between rounded-md border border-neutral-200 px-1.5 py-1 text-[0.5rem] text-neutral-500">
+                        지역 전체 <span aria-hidden>▾</span>
+                      </span>
+                      <span className="flex flex-1 items-center justify-between rounded-md border border-neutral-200 px-1.5 py-1 text-[0.5rem] text-neutral-500">
+                        고용형태 전체 <span aria-hidden>▾</span>
+                      </span>
+                      <span className="shrink-0 rounded-full border border-neutral-900 bg-neutral-900 px-2 py-1 text-[0.5rem] font-medium text-white">
+                        모집중만
+                      </span>
+                    </div>
+                  </div>
+                  {/* 구인 카드 2장 — 실제 JobPostCard 재현 */}
+                  {[
+                    { badge: 'D-12', title: '언어재활사 채용', org: '서울대학교병원', tags: ['언어치료', '서울', '정규직'] },
+                    { badge: 'D-3', title: '감각통합 치료사', org: '서울아산병원', tags: ['감각통합', '서울', '정규직'] },
+                  ].map((j, i) => (
+                    <div
+                      key={j.title}
+                      className={`px-1 py-2.5 ${i === 0 ? 'border-b border-[#eeeeee]' : ''}`}
+                    >
+                      <div className="mb-1.5 flex items-center justify-between">
+                        <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[0.55rem] font-medium text-emerald-600">
+                          모집중
+                        </span>
+                        <span className="text-[0.55rem] font-semibold text-emerald-600">{j.badge}</span>
+                      </div>
+                      <div className="mb-1 text-[0.72rem] font-bold text-neutral-950">{j.title}</div>
+                      <div className="mb-2 flex items-center gap-1 text-[0.6rem] text-neutral-500">
+                        <Building2 size={10} className="shrink-0" />
+                        <span>{j.org}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {j.tags.map((t) => (
+                          <span key={t} className="rounded-full bg-neutral-100 px-2 py-0.5 text-[0.5rem] text-neutral-600">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 우: 텍스트 + CTA */}
+            <div data-animate className="max-[900px]:order-1">
+              <span className="mb-4 inline-block rounded-full border border-neutral-200 bg-neutral-100 px-3.5 py-[5px] text-[0.8rem] font-semibold text-neutral-500">
+                구인공고
+              </span>
+              <h2 className="mb-4 text-[clamp(1.6rem,3vw,2.3rem)] font-extrabold leading-[1.35] tracking-[-0.5px] text-neutral-900">
+                대학병원 공고,
+                <br />
+                <span className="font-extrabold">놓치지 마세요</span>
+              </h2>
+              <p className="mb-8 text-base leading-[1.8] text-neutral-500">
+                놓치기 쉬운 대학병원·상급병원 공고, 매일 확인하기 번거로우셨죠? 멜티에서 필터 하나로 가장
+                빠르게 확인하세요.
+              </p>
+              <ul className="mb-9 flex flex-col gap-5">
+                {[
+                  ['🏢', '흩어진 공고 한곳에', '여러 채용 사이트를 돌 필요 없이 멜티에서 모아보기'],
+                  ['🔎', '치료영역·지역 필터', '내 조건에 맞는 공고만 빠르게 추려서'],
+                  ['⏰', 'D-day 마감 표시', '지원 마감일을 놓치지 않도록 한눈에'],
+                ].map(([icon, title, desc]) => (
+                  <li key={title} className="flex items-start gap-3.5">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-neutral-200 bg-neutral-50 text-[1.2rem]">
+                      {icon}
+                    </span>
+                    <div>
+                      <strong className="mb-0.5 block text-[0.95rem] font-semibold">{title}</strong>
+                      <p className="text-[0.85rem] leading-[1.5] text-neutral-500">{desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              {/* CTA — 로그인 유저는 구인 탭으로, 비로그인은 로그인으로 */}
+              <Link
+                to={user ? '/posts?tab=jobs' : '/login'}
+                onClick={() => trackLandingClick('jobs_section_cta', { loggedIn: !!user })}
+                className="inline-flex items-center gap-2 rounded-full bg-neutral-900 px-8 py-[13px] text-[0.95rem] font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-neutral-800"
+              >
+                구인공고 보러가기
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                  <path d="M4 10h12m0 0l-4-4m4 4l-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Feature ② 안전한 공간 / 인증 — 좌: 인증 화면 목업, 우: 텍스트. 900px↓ 1열(텍스트 먼저). */}
         <section
           id="feature-safe"
           className="relative bg-white px-6 py-[120px] max-[480px]:px-5 max-[480px]:py-20"
@@ -384,7 +483,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Feature ② 고민카드 — 좌: 텍스트, 우: 실제 고민카드 작성 폼. bg-secondary. 900px↓ 1열(텍스트 먼저). */}
+        {/* Feature ③ 고민카드 — 좌: 텍스트, 우: 실제 고민카드 작성 폼. bg-secondary. 900px↓ 1열(텍스트 먼저). */}
         <section
           id="feature-worry"
           className="relative bg-neutral-50 px-6 py-[120px] max-[480px]:px-5 max-[480px]:py-20"
@@ -524,7 +623,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Feature ③ 커뮤니티 기능 — 좌: 카드 4개 스택, 우: 텍스트. 900px↓ 1열(텍스트 먼저). */}
+        {/* Feature ④ 커뮤니티 기능 — 좌: 카드 4개 스택, 우: 텍스트. 900px↓ 1열(텍스트 먼저). */}
         <section
           id="feature-community"
           className="relative bg-white px-6 py-[120px] max-[480px]:px-5 max-[480px]:py-20"

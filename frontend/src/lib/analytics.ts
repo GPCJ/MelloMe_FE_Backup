@@ -104,7 +104,8 @@ export type LandingClickType =
   | 'last_cta'
   | 'footer_terms'
   | 'footer_privacy'
-  | 'footer_instagram';
+  | 'footer_instagram'
+  | 'jobs_section_cta';
 
 /**
  * `landing_clicked` 단일 이벤트 헬퍼.
